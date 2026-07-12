@@ -1,0 +1,9 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "emitDeclarationOnly": false,
+    "composite": true
+  },
+  "include": ["./", "../types/"],
+  "references": [{ "path": "../client" }, { "path": "../server" }]
+}
