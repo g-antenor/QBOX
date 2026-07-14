@@ -1,0 +1,9 @@
+- [x] Create configuration structure `config.lua` in `nv_props`
+- [x] Create server script `server/main.lua` with JSON database storage and drop exports
+- [x] Create client script `client/main.lua` with local ghost raycasting placement mode and target registration options
+- [x] Create manifest file `fxmanifest.lua` specifying scopes and dependencies
+- [x] Load `@ox_lib/init.lua` in `fxmanifest.lua` to fix the global `lib` nil value error
+- [x] Declare `lua54 'yes'` in `fxmanifest.lua` to enable Lua 5.4 support for `ox_lib`
+- [x] Integrate direct `dropItem` hook and `swapItems` hook registration back in `nv_props` and `ox_inventory`
+- [x] Verify client placement rotation, surface alignments, and persistent reload sync
+- [x] Verify layout fitting transitions, rotation metadata updates, and silent rollback drops

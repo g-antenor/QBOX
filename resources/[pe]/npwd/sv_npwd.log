@@ -171,3 +171,6 @@
 {"level":"silly","message":{"data":{"bio":"","createdAt":"2026-07-12T07:09:42.000Z","id":1,"identifier":"1","image":"https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg","job":"","lastActive":1783840182,"lastActiveFormatted":"Sun, 12 Jul 2026 07:09:42 GMT","location":"","name":"Joe Mustang","tagList":[],"tags":"","updatedAt":"2026-07-12T07:09:42.000Z","viewed":false,"voiceMessage":null},"status":"ok"},"module":"events","timestamp":"2026-07-14T04:51:35.486Z"}
 {"level":"silly","message":"Response Promise Event npwd:fetchMessageGroups:6c3d383a-d646-45c5-b917-374657b3344c (8.4917ms), Data >>","module":"events","timestamp":"2026-07-14T04:51:35.487Z"}
 {"level":"silly","message":{"data":[],"status":"ok"},"module":"events","timestamp":"2026-07-14T04:51:35.487Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 58.314ms'","module":"DBInterface","timestamp":"2026-07-14T06:52:49.254Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 9.7946ms'","module":"DBInterface","timestamp":"2026-07-14T06:52:49.267Z"}
+{"level":"info","message":"Unloaded NPWD Player, source: (1)","module":"player","timestamp":"2026-07-14T06:52:49.269Z"}

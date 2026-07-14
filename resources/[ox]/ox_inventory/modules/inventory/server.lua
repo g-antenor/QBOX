@@ -1823,15 +1823,24 @@ local function dropItem(source, playerInventory, fromData, data)
 		playerInventory.weapon = nil
 	end
 
-	local inventory = Inventory.Create(dropId, ('Drop %s'):format(dropId:gsub('%D', '')), 'drop', shared.dropslots, toData.weight, shared.dropweight, false, {[data.toSlot] = toData})
+	local spawnedViaProps = false
+	local ped = GetPlayerPed(source)
+	local rotation = DoesEntityExist(ped) and GetEntityRotation(ped) or vec3(0.0, 0.0, 0.0)
+	
+	local success, err = pcall(function()
+		exports.nv_props:SpawnDrop(toData.name, toData.count, data.coords, rotation, toData.metadata, false)
+		spawnedViaProps = true
+	end)
 
-	if not inventory then hooks.success = false return end
+	if not spawnedViaProps then
+		local inventory = Inventory.Create(dropId, ('Drop %s'):format(dropId:gsub('%D', '')), 'drop', shared.dropslots, toData.weight, shared.dropweight, false, {[data.toSlot] = toData})
+		if not inventory then hooks.success = false return end
+		inventory.coords = data.coords
+		Inventory.Drops[dropId] = {coords = inventory.coords, instance = data.instance}
+		TriggerClientEvent('ox_inventory:createDrop', -1, dropId, Inventory.Drops[dropId], playerInventory.open and source, slot)
+	end
 
-	inventory.coords = data.coords
-	Inventory.Drops[dropId] = {coords = inventory.coords, instance = data.instance}
 	playerInventory.changed = true
-
-	TriggerClientEvent('ox_inventory:createDrop', -1, dropId, Inventory.Drops[dropId], playerInventory.open and source, slot)
 
 	if server.loglevel > 0 then
 		lib.logger(playerInventory.owner, 'swapSlots', ('%sx %s transferred from "%s" to "%s"'):format(data.count, toData.name, playerInventory.label, dropId))
@@ -1843,7 +1852,7 @@ local function dropItem(source, playerInventory, fromData, data)
 		weight = playerInventory.weight,
 		items = {
 			{
-				item = fromData or { slot = data.fromSlot },
+				item = fromData or { slot = slot },
 				inventory = playerInventory.id
 			}
 		}
