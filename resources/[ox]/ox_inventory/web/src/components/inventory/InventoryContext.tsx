@@ -7,8 +7,9 @@ import { Locale } from '../../store/locale';
 import { isSlotWithItem } from '../../helpers';
 import { setClipboard } from '../../utils/setClipboard';
 import { useAppSelector } from '../../store';
-import React from 'react';
+import React, { useState } from 'react';
 import { Menu, MenuItem } from '../utils/menu/Menu';
+import { FloatingPortal } from '@floating-ui/react';
 
 interface DataProps {
   action: string;
@@ -39,6 +40,9 @@ const InventoryContext: React.FC = () => {
   const contextMenu = useAppSelector((state) => state.contextMenu);
   const item = contextMenu.item;
 
+  const [showSplitModal, setShowSplitModal] = useState(false);
+  const [splitCount, setSplitCount] = useState(1);
+
   const handleClick = (data: DataProps) => {
     if (!item) return;
 
@@ -51,6 +55,13 @@ const InventoryContext: React.FC = () => {
         break;
       case 'drop':
         isSlotWithItem(item) && onDrop({ item: item, inventory: 'player' });
+        break;
+      case 'hold':
+        fetchNui('holdItem', { slot: item.slot });
+        break;
+      case 'split':
+        setSplitCount(1);
+        setShowSplitModal(true);
         break;
       case 'remove':
         fetchNui('removeComponent', { component: data?.component, slot: data?.slot });
@@ -92,9 +103,10 @@ const InventoryContext: React.FC = () => {
   return (
     <>
       <Menu>
-        <MenuItem onClick={() => handleClick({ action: 'use' })} label={Locale.ui_use || 'Use'} />
-        <MenuItem onClick={() => handleClick({ action: 'give' })} label={Locale.ui_give || 'Give'} />
-        <MenuItem onClick={() => handleClick({ action: 'drop' })} label={Locale.ui_drop || 'Drop'} />
+        <MenuItem onClick={() => handleClick({ action: 'hold' })} label="segurar" />
+        <MenuItem onClick={() => handleClick({ action: 'use' })} label="Usar" />
+        <MenuItem onClick={() => handleClick({ action: 'give' })} label="entregar" />
+        <MenuItem onClick={() => handleClick({ action: 'split' })} label="Separar" />
         {item && item.metadata?.ammo > 0 && (
           <MenuItem onClick={() => handleClick({ action: 'removeAmmo' })} label={Locale.ui_remove_ammo} />
         )}
@@ -146,6 +158,62 @@ const InventoryContext: React.FC = () => {
           </>
         )}
       </Menu>
+
+      {showSplitModal && item && (
+        <FloatingPortal>
+          <div className="split-modal-backdrop">
+            <div className="useful-controls-dialog split-modal-content">
+              <div className="useful-controls-dialog-title split-modal-header">
+                <p>Separar Item</p>
+                <p className="split-modal-item-label">{Items[item.name]?.label || item.name}</p>
+              </div>
+              <div className="split-modal-body">
+                <div className="split-slider-container">
+                  <input
+                    type="range"
+                    min="1"
+                    max={item.count}
+                    value={splitCount}
+                    onChange={(e) => setSplitCount(Number(e.target.value))}
+                    className="split-slider"
+                  />
+                  <div className="split-value-display">
+                    <input
+                      type="number"
+                      min="1"
+                      max={item.count}
+                      value={splitCount}
+                      onChange={(e) => {
+                        const val = Math.max(1, Math.min(item.count, Number(e.target.value) || 1));
+                        setSplitCount(val);
+                      }}
+                      className="split-number-input"
+                    />
+                    <span>/ {item.count}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="split-modal-footer">
+                <button
+                  className="split-btn split-btn-confirm"
+                  onClick={() => {
+                    fetchNui('splitItem', { slot: item.slot, count: splitCount });
+                    setShowSplitModal(false);
+                  }}
+                >
+                  Confirmar
+                </button>
+                <button
+                  className="split-btn split-btn-cancel"
+                  onClick={() => setShowSplitModal(false)}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </FloatingPortal>
+      )}
     </>
   );
 };

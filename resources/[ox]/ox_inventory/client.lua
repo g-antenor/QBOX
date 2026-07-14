@@ -1932,3 +1932,301 @@ lib.callback.register('ox_inventory:getVehicleData', function(netid)
 		return GetEntityModel(entity), GetVehicleClass(entity)
 	end
 end)
+
+-----------------------------------------------------------------------------------------------
+-- System for Holding and Splitting items (Custom Right Click Menu Options)
+-----------------------------------------------------------------------------------------------
+
+local holdingItem = nil
+
+local function getPropModel(itemName)
+    local itemData = Items[itemName]
+    if not itemData then return nil end
+    local prop = itemData.client and itemData.client.prop
+    if not prop then
+        -- Guess based on keywords
+        local lowerName = string.lower(itemName)
+        if string.find(lowerName, "burger") or string.find(lowerName, "food") or string.find(lowerName, "sandwich") or string.find(lowerName, "bread") then
+            return `prop_sandwich_01`
+        elseif string.find(lowerName, "water") or string.find(lowerName, "beer") or string.find(lowerName, "drink") or string.find(lowerName, "soda") or string.find(lowerName, "cola") then
+            return `prop_ld_can_01`
+        else
+            return `prop_paper_bag_01`
+        end
+    end
+    if type(prop) == 'table' then
+        return type(prop.model) == 'string' and GetHashKey(prop.model) or prop.model
+    elseif type(prop) == 'string' then
+        return GetHashKey(prop)
+    elseif type(prop) == 'number' then
+        return prop
+    end
+    return nil
+end
+
+local function createHoldingProp(itemName)
+    local model = getPropModel(itemName)
+    if not model then return nil end
+    
+    lib.requestModel(model)
+    local ped = cache.ped
+    local coords = GetEntityCoords(ped)
+    local propObj = CreateObject(model, coords.x, coords.y, coords.z, true, true, true)
+    SetModelAsNoLongerNeeded(model)
+    
+    local boneIndex = GetPedBoneIndex(ped, 57005) -- Right Hand bone
+    AttachEntityToEntity(propObj, ped, boneIndex, 0.12, 0.028, 0.001, 10.0, 175.0, 0.0, true, true, false, true, 1, true)
+    
+    return propObj
+end
+
+local function startHoldingAnim()
+    local dict = "amb@world_human_drinking@beer@male@idle_a"
+    lib.requestAnimDict(dict)
+    TaskPlayAnim(cache.ped, dict, "idle_a", 8.0, -8.0, -1, 49, 0, false, false, false)
+end
+
+local function stopHolding(putAway)
+    if not holdingItem then return end
+    
+    if holdingItem.propObj then
+        Utils.DeleteEntity(holdingItem.propObj)
+        holdingItem.propObj = nil
+    end
+    
+    if holdingItem.isWeapon then
+        if putAway and currentWeapon then
+            currentWeapon = Weapon.Disarm(currentWeapon)
+        end
+    else
+        ClearPedTasks(cache.ped)
+    end
+    
+    holdingItem = nil
+end
+
+local function playHandsUp()
+    local dict = "random@mugging3"
+    lib.requestAnimDict(dict)
+    TaskPlayAnim(cache.ped, dict, "handsup_standing_base", 8.0, -8.0, -1, 49, 0, false, false, false)
+    
+    -- Keep hands up for 5 seconds or until movement
+    CreateThread(function()
+        local timer = 5000
+        while timer > 0 and not holdingItem do
+            Wait(100)
+            timer = timer - 100
+            if IsControlPressed(0, 32) or IsControlPressed(0, 33) or IsControlPressed(0, 34) or IsControlPressed(0, 35) then
+                break
+            end
+        end
+        if not holdingItem then
+            ClearPedTasks(cache.ped)
+        end
+    end)
+end
+
+local function dropHoldingItem()
+    if not holdingItem then return end
+    local slot = holdingItem.slot
+    local item = PlayerData.inventory[slot]
+    if not item then return stopHolding(false) end
+    
+    local count = item.count
+    local coords = GetEntityCoords(cache.ped)
+    
+    stopHolding(false)
+    
+    lib.callback.await('ox_inventory:swapItems', false, {
+        fromType = 'player',
+        fromSlot = slot,
+        toType = 'newdrop',
+        toSlot = 1,
+        count = count,
+        coords = coords
+    })
+    
+    playHandsUp()
+end
+
+RegisterNUICallback('holdItem', function(data, cb)
+    cb(1)
+    if usingItem then return end
+    
+    local slot = data.slot
+    local item = PlayerData.inventory[slot]
+    if not item then return end
+    
+    client.closeInventory()
+    
+    if holdingItem then
+        stopHolding(false)
+    end
+    
+    local isWeapon = Items[item.name].weapon ~= nil
+    
+    if isWeapon then
+        holdingItem = {
+            slot = slot,
+            name = item.name,
+            isWeapon = true
+        }
+        useSlot(slot)
+    else
+        local propObj = createHoldingProp(item.name)
+        holdingItem = {
+            slot = slot,
+            name = item.name,
+            isWeapon = false,
+            propObj = propObj
+        }
+        startHoldingAnim()
+    end
+    
+    CreateThread(function()
+        local self = holdingItem
+        while holdingItem == self do
+            local ped = cache.ped
+            
+            -- Validate that item still exists in the slot
+            local currentItem = PlayerData.inventory[self.slot]
+            if not currentItem or currentItem.name ~= self.name then
+                stopHolding(false)
+                break
+            end
+            
+            if self.isWeapon then
+                -- Z key (Multiplayer Info, Control 20) or (Control 48)
+                if IsControlJustReleased(0, 20) or IsControlJustReleased(0, 48) then
+                    stopHolding(true)
+                    break
+                end
+                
+                -- X key (INPUT_VEH_DUCK, Control 73)
+                if IsControlJustReleased(0, 73) then
+                    dropHoldingItem()
+                    break
+                end
+                
+                Wait(0)
+            else
+                -- Disable actions for consumable prop hold
+                DisableControlAction(0, 24, true) -- Attack
+                DisableControlAction(0, 25, true) -- Aim
+                DisableControlAction(0, 140, true)
+                DisableControlAction(0, 141, true)
+                DisableControlAction(0, 142, true)
+                
+                -- LMB (Attack) to use consumable
+                if IsDisabledControlJustReleased(0, 24) then
+                    local slot = self.slot
+                    local name = self.name
+                    
+                    if self.propObj then
+                        Utils.DeleteEntity(self.propObj)
+                        self.propObj = nil
+                    end
+                    ClearPedTasks(ped)
+                    
+                    useSlot(slot)
+                    
+                    Wait(1000)
+                    local checkItem = PlayerData.inventory[slot]
+                    if checkItem and checkItem.name == name and checkItem.count > 0 then
+                        self.propObj = createHoldingProp(name)
+                        startHoldingAnim()
+                    else
+                        holdingItem = nil
+                        break
+                    end
+                end
+                
+                -- RMB (Aim) to remove/stop holding
+                if IsDisabledControlJustReleased(0, 25) then
+                    stopHolding(false)
+                    break
+                end
+                
+                -- Z key to holster/put away
+                if IsControlJustReleased(0, 20) or IsControlJustReleased(0, 48) then
+                    stopHolding(false)
+                    break
+                end
+                
+                -- X key to drop and hands up
+                if IsControlJustReleased(0, 73) then
+                    dropHoldingItem()
+                    break
+                end
+                
+                Wait(0)
+            end
+        end
+    end)
+end)
+
+local function splitItemToClosestSlot(fromSlot, count)
+    local emptySlots = {}
+    for i = 1, shared.playerslots do
+        if not PlayerData.inventory[i] then
+            emptySlots[#emptySlots + 1] = {
+                slot = i,
+                distance = math.abs(i - fromSlot)
+            }
+        end
+    end
+    
+    table.sort(emptySlots, function(a, b)
+        return a.distance < b.distance
+    end)
+    
+    local success = false
+    for _, slotData in ipairs(emptySlots) do
+        local targetSlot = slotData.slot
+        success = lib.callback.await('ox_inventory:swapItems', false, {
+            fromType = 'player',
+            fromSlot = fromSlot,
+            toType = 'player',
+            toSlot = targetSlot,
+            count = count
+        })
+        if success then
+            break
+        end
+    end
+    
+    if not success then
+        local coords = GetEntityCoords(cache.ped)
+        lib.callback.await('ox_inventory:swapItems', false, {
+            fromType = 'player',
+            fromSlot = fromSlot,
+            toType = 'newdrop',
+            toSlot = 1,
+            count = count,
+            coords = coords
+        })
+    end
+end
+
+RegisterNUICallback('splitItem', function(data, cb)
+    cb(1)
+    if usingItem then return end
+    
+    local fromSlot = data.slot
+    local count = data.count
+    if not fromSlot or not count or count <= 0 then return end
+    
+    local item = PlayerData.inventory[fromSlot]
+    if not item or item.count < count then return end
+    
+    client.closeInventory()
+    splitItemToClosestSlot(fromSlot, count)
+end)
+
+AddEventHandler('onResourceStop', function(resourceName)
+    if GetCurrentResourceName() ~= resourceName then return end
+    if holdingItem and holdingItem.propObj then
+        Utils.DeleteEntity(holdingItem.propObj)
+    end
+end)
+
