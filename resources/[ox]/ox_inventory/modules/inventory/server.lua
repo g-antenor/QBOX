@@ -5,6 +5,128 @@ local Inventory = {}
 ---@type table<any, OxInventory>
 local Inventories = {}
 
+local Items = require 'modules.items.server'
+
+local GRID_WIDTH = 5
+
+---Retorna a lista de índices de slot que o item cobre, dado um slot "âncora" (top-left)
+---@param slot number
+---@param size { width: number, height: number } | number[]
+---@param totalSlots number
+---@return number[]? footprint  -- nil se não couber sem sair da grade/estourar limites
+local function GetItemFootprint(slot, size, totalSlots)
+	local width, height = 1, 1
+	if type(size) == 'table' then
+		width = size.width or size[1] or 1
+		height = size.height or size[2] or 1
+	end
+	if width == 1 and height == 1 then return { slot } end
+
+	local col = (slot - 1) % GRID_WIDTH
+	-- não pode "quebrar" para a linha de baixo no meio da largura
+	if col + width > GRID_WIDTH then return nil end
+
+	local footprint, n = {}, 0
+	for row = 0, height - 1 do
+		for c = 0, width - 1 do
+			local index = slot + (row * GRID_WIDTH) + c
+			if index > totalSlots then return nil end
+			n = n + 1
+			footprint[n] = index
+		end
+	end
+
+	return footprint
+end
+
+---Verifica se todos os slots do footprint estão livres (nenhum item E nenhuma reserva)
+local function FootprintIsFree(inv, footprint)
+	for i = 1, #footprint do
+		local s = footprint[i]
+		if inv.items[s] then return false end
+		if inv.reserved and inv.reserved[s] then return false end
+	end
+	return true
+end
+
+function Inventory.CanPlaceItem(inv, name, targetSlot, ignoreSlots)
+	local itemData = Items(name)
+	local size = itemData and itemData.size
+	local footprint = GetItemFootprint(targetSlot, size or {1, 1}, inv.slots)
+	if not footprint then return false end
+
+	for i = 1, #footprint do
+		local s = footprint[i]
+		local isIgnored = false
+		if ignoreSlots then
+			for j = 1, #ignoreSlots do
+				if s == ignoreSlots[j] then
+					isIgnored = true
+					break
+				end
+			end
+		end
+
+		if not isIgnored then
+			local existingItem = inv.items[s]
+			if existingItem then return false end
+			local resAnchor = inv.reserved and inv.reserved[s]
+			if resAnchor then
+				local resIgnored = false
+				if ignoreSlots then
+					for j = 1, #ignoreSlots do
+						if resAnchor == ignoreSlots[j] then
+							resIgnored = true
+							break
+						end
+					end
+				end
+				if not resIgnored then
+					return false
+				end
+			end
+		end
+	end
+	return true
+end
+
+---Marca/desmarca as células extras (todas exceto a âncora) como reservadas
+local function SetFootprintReserved(inv, anchorSlot, footprint, owner)
+	inv.reserved = inv.reserved or {}
+	for i = 1, #footprint do
+		local s = footprint[i]
+		if s ~= anchorSlot then
+			inv.reserved[s] = owner and anchorSlot or nil
+		end
+	end
+end
+
+function Inventory.UpdateReservations(inv)
+	inv = Inventory(inv)
+	if not inv or not inv.slots then return end
+
+	inv.reserved = {}
+	local items = inv.items
+	for i = 1, inv.slots do
+		local item = items[i]
+		if item then
+			local itemData = Items(item.name)
+			local size = itemData and itemData.size
+			if size then
+				local footprint = GetItemFootprint(i, size, inv.slots)
+				if footprint then
+					for j = 1, #footprint do
+						local s = footprint[j]
+						if s ~= i then
+							inv.reserved[s] = i
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
 ---@class OxInventory
 local OxInventory = {}
 OxInventory.__index = OxInventory
@@ -376,8 +498,6 @@ local function minimal(inv)
 	return inventory
 end
 
-local Items = require 'modules.items.server'
-
 ---@param inv inventory
 ---@param item table | string
 ---@param count number
@@ -418,6 +538,8 @@ function Inventory.SetSlot(inv, item, count, metadata, slot)
 	inv.weight = newWeight
 	inv.items[slot] = currentSlot
 	inv.changed = true
+
+	Inventory.UpdateReservations(inv)
 
 	return true, currentSlot
 end
@@ -628,6 +750,7 @@ function Inventory.Create(id, label, invType, slots, weight, maxWeight, owner, i
 	end
 
 	Inventories[self.id] = setmetatable(self, OxInventory)
+	Inventory.UpdateReservations(Inventories[self.id])
 	return Inventories[self.id]
 end
 
@@ -919,11 +1042,29 @@ function Inventory.SwapSlots(fromInventory, toInventory, slot1, slot2)
 	local fromSlot = fromInventory.items[slot1] and table.clone(fromInventory.items[slot1]) or nil
 	local toSlot = toInventory.items[slot2] and table.clone(toInventory.items[slot2]) or nil
 
-	if fromSlot then fromSlot.slot = slot2 end
-	if toSlot then toSlot.slot = slot1 end
+	local sameInventory = fromInventory.id == toInventory.id
+	if fromSlot then
+		local ignoreTo = sameInventory and { slot2, slot1 } or { slot2 }
+		if not Inventory.CanPlaceItem(toInventory, fromSlot.name, slot2, ignoreTo) then
+			return nil, nil
+		end
+		fromSlot.slot = slot2
+	end
+	if toSlot then
+		local ignoreFrom = sameInventory and { slot1, slot2 } or { slot1 }
+		if not Inventory.CanPlaceItem(fromInventory, toSlot.name, slot1, ignoreFrom) then
+			return nil, nil
+		end
+		toSlot.slot = slot1
+	end
 
 	fromInventory.items[slot1], toInventory.items[slot2] = toSlot, fromSlot
 	fromInventory.changed, toInventory.changed = true, true
+
+	Inventory.UpdateReservations(fromInventory)
+	if fromInventory ~= toInventory then
+		Inventory.UpdateReservations(toInventory)
+	end
 
 	return fromSlot, toSlot
 end
@@ -1146,7 +1287,13 @@ function Inventory.AddItem(inv, item, count, metadata, slot, cb)
 		local slotData = inv.items[slot]
 		slotMetadata, slotCount = Items.Metadata(inv.id, item, metadata and table.clone(metadata) or {}, count)
 
-		if not slotData or (item.stack and slotData.name == item.name and table.matches(slotData.metadata, slotMetadata)) then
+		if not slotData then
+			Inventory.UpdateReservations(inv)
+			local footprint = GetItemFootprint(slot, item.size, inv.slots)
+			if footprint and FootprintIsFree(inv, footprint) then
+				toSlot = slot
+			end
+		elseif item.stack and slotData.name == item.name and table.matches(slotData.metadata, slotMetadata) then
 			toSlot = slot
 		end
 	end
@@ -1154,6 +1301,7 @@ function Inventory.AddItem(inv, item, count, metadata, slot, cb)
 	if not toSlot then
 		local items = inv.items
 		slotMetadata, slotCount = Items.Metadata(inv.id, item, metadata and table.clone(metadata) or {}, count)
+		Inventory.UpdateReservations(inv)
 
 		for i = 1, inv.slots do
 			local slotData = items[i]
@@ -1161,19 +1309,27 @@ function Inventory.AddItem(inv, item, count, metadata, slot, cb)
 			if item.stack and slotData ~= nil and slotData.name == item.name and table.matches(slotData.metadata, slotMetadata) then
 				toSlot = i
 				break
-			elseif not item.stack and not slotData then
-				if not toSlot then toSlot = {} end
+			elseif not item.stack and not slotData and not (inv.reserved and inv.reserved[i]) then
+				local footprint = GetItemFootprint(i, item.size, inv.slots)
+				if footprint and FootprintIsFree(inv, footprint) then
+					if not toSlot then toSlot = {} end
 
-				toSlot[#toSlot + 1] = { slot = i, count = slotCount, metadata = slotMetadata }
+					toSlot[#toSlot + 1] = { slot = i, count = slotCount, metadata = slotMetadata }
 
-				if count == slotCount then
-					break
+					SetFootprintReserved(inv, i, footprint, true)
+
+					if count == slotCount then
+						break
+					end
+
+					count -= 1
+					slotMetadata, slotCount = Items.Metadata(inv.id, item, metadata and table.clone(metadata) or {}, count)
 				end
-
-				count -= 1
-				slotMetadata, slotCount = Items.Metadata(inv.id, item, metadata and table.clone(metadata) or {}, count)
-			elseif not toSlot and not slotData then
-				toSlot = i
+			elseif not toSlot and not slotData and not (inv.reserved and inv.reserved[i]) then
+				local footprint = GetItemFootprint(i, item.size, inv.slots)
+				if footprint and FootprintIsFree(inv, footprint) then
+					toSlot = i
+				end
 			end
 		end
 	end
@@ -1303,22 +1459,30 @@ function Inventory.GetItemSlots(inv, item, metadata, strict)
 	inv = Inventory(inv) --[[@as OxInventory]]
 	if not inv?.slots then return end
 
-	local totalCount, slots, emptySlots = 0, {}, inv.slots
+	local totalCount, slots = 0, {}
 
 	if strict == nil then strict = true end
 	local tablematch = strict and table.matches or table.contains
 
+	Inventory.UpdateReservations(inv)
+
 	for k, v in pairs(inv.items) do
-		emptySlots -= 1
 		if v.name == item.name then
 			if metadata and v.metadata == nil then
 				v.metadata = {}
-			end
+				end
 			if not metadata or tablematch(v.metadata, metadata) then
 				totalCount = totalCount + v.count
 				slots[k] = v.count
-			end
+				end
 		end
+	end
+
+	local emptySlots = 0
+	for i = 1, inv.slots do
+		if not inv.items[i] and not (inv.reserved and inv.reserved[i]) then
+			emptySlots = emptySlots + 1
+			end
 	end
 
 	return slots, totalCount, emptySlots
@@ -1418,6 +1582,8 @@ function Inventory.RemoveItem(inv, item, count, metadata, slot, ignoreTotal, str
 
 	if removed > 0 then
 		inv.changed = true
+
+		Inventory.UpdateReservations(inv)
 
 		if inv.player and server.syncInventory then
 			server.syncInventory(inv)
@@ -1651,6 +1817,8 @@ local function dropItem(source, playerInventory, fromData, data)
 	playerInventory.weight -= toData.weight
 	playerInventory.items[slot] = fromData
 
+	Inventory.UpdateReservations(playerInventory)
+
 	if slot == playerInventory.weapon then
 		playerInventory.weapon = nil
 	end
@@ -1793,6 +1961,12 @@ lib.callback.register('ox_inventory:swapItems', function(source, data)
 
 			if toData and ((toData.name ~= fromData.name) or not toData.stack or (not table.matches(toData.metadata, fromData.metadata))) then
 				-- Swap items
+				local ignoreTo = sameInventory and { data.toSlot, data.fromSlot } or { data.toSlot }
+				local ignoreFrom = sameInventory and { data.fromSlot, data.toSlot } or { data.fromSlot }
+				if not Inventory.CanPlaceItem(toInventory, fromData.name, data.toSlot, ignoreTo) or not Inventory.CanPlaceItem(fromInventory, toData.name, data.fromSlot, ignoreFrom) then
+					return false, 'cannot_swap_footprint'
+				end
+
 				local toWeight = not sameInventory and (toInventory.weight - toData.weight + fromData.weight) or 0
 				local fromWeight = not sameInventory and (fromInventory.weight + toData.weight - fromData.weight) or 0
 				hookPayload.action = 'swap'
@@ -1891,6 +2065,11 @@ lib.callback.register('ox_inventory:swapItems', function(source, data)
 				end
 			elseif data.count <= fromData.count then
 				-- Move item to an empty slot
+				local ignoreFrom = sameInventory and { data.fromSlot } or nil
+				if not Inventory.CanPlaceItem(toInventory, fromData.name, data.toSlot, ignoreFrom) then
+					return false, 'cannot_move_footprint'
+				end
+
 				toData = table.clone(fromData)
 				toData.count = data.count
 				toData.slot = data.toSlot
@@ -1971,6 +2150,11 @@ lib.callback.register('ox_inventory:swapItems', function(source, data)
 
 			fromInventory.items[data.fromSlot] = fromData
 			toInventory.items[data.toSlot] = toData
+
+			Inventory.UpdateReservations(fromInventory)
+			if fromInventory ~= toInventory then
+				Inventory.UpdateReservations(toInventory)
+			end
 
 			if fromInventory.changed ~= nil then fromInventory.changed = true end
 			if toInventory.changed ~= nil then toInventory.changed = true end
@@ -2157,6 +2341,8 @@ function Inventory.Clear(inv, keep)
 	inv.weight = newWeight
 	inv.changed = true
 
+	Inventory.UpdateReservations(inv)
+
 	inv:syncSlotsWithClients(updateSlots, true)
 
 	if not inv.player then
@@ -2188,9 +2374,10 @@ function Inventory.GetEmptySlot(inv)
 	if not inventory then return end
 
 	local items = inventory.items
+	Inventory.UpdateReservations(inventory)
 
 	for i = 1, inventory.slots do
-		if not items[i] then
+		if not items[i] and not (inventory.reserved and inventory.reserved[i]) then
 			return i
 		end
 	end
@@ -2211,17 +2398,20 @@ function Inventory.GetSlotForItem(inv, itemName, metadata)
 	local items = inventory.items
 	local emptySlot
 
+	Inventory.UpdateReservations(inventory)
+
 	for i = 1, inventory.slots do
 		local slotData = items[i]
 
-		if not slotData and not emptySlot then
-			emptySlot = i
-		end
-
-		if item.stack and slotData and slotData.name == item.name and table.matches(slotData.metadata, metadata) then
+		if not slotData and not emptySlot and not (inventory.reserved and inventory.reserved[i]) then
+			local footprint = GetItemFootprint(i, item.size, inventory.slots)
+			if footprint and FootprintIsFree(inventory, footprint) then
+				emptySlot = i
+			end
+		elseif item.stack and slotData and slotData.name == item.name and table.matches(slotData.metadata, metadata) then
 			return i
+			end
 		end
-	end
 
 	return emptySlot
 end
