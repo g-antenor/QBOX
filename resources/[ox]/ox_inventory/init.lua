@@ -15,7 +15,7 @@ end
 shared = {
     resource = GetCurrentResourceName(),
     framework = GetConvar('inventory:framework', 'esx'),
-    playerslots = GetConvarInt('inventory:slots', 25),
+    playerslots = GetConvarInt('inventory:slots', 50),
     playerweight = GetConvarInt('inventory:weight', 30000),
     target = GetConvarBool('inventory:target', false),
     police = json.decode(GetConvar('inventory:police', '["police", "sheriff"]')),

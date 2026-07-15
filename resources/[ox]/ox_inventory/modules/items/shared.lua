@@ -13,23 +13,9 @@ local function setImagePath(path)
     end
 end
 
-local function normalizeSize(size)
-    if type(size) == 'number' then
-        return { width = math.max(1, math.floor(size)), height = 1 }
-    elseif type(size) == 'table' then
-        return {
-            width = math.max(1, math.floor(tonumber(size.width or size[1] or 1) or 1)),
-            height = math.max(1, math.floor(tonumber(size.height or size[2] or 1) or 1))
-        }
-    end
-
-    return { width = 1, height = 1 }
-end
-
 ---@param data OxItem
 local function newItem(data)
 	data.weight = data.weight or 0
-	data.size = normalizeSize(data.size)
 
 	if data.close == nil then
 		data.close = true
@@ -92,7 +78,6 @@ for type, data in pairs(lib.load('data.weapons') or {}) do
 		v.name = k
 		v.close = type == 'Ammo' and true or false
         v.weight = v.weight or 0
-        v.size = normalizeSize(v.size)
 
 		if type == 'Weapons' then
 			---@cast v OxWeapon

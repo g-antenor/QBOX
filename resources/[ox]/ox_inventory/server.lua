@@ -51,7 +51,7 @@ function server.setPlayerInventory(player, data)
 
                     inventory[v.slot] = { name = item.name, label = item.label, weight = weight, slot = v.slot, count = v
                     .count, description = item.description, metadata = v.metadata, stack = item.stack, close = item
-                    .close, size = item.size }
+                    .close }
                 end
             end
         end
@@ -63,13 +63,14 @@ function server.setPlayerInventory(player, data)
 
     if inv then
         inv.player = server.setPlayerData(player)
-        inv.player.ped = GetPlayerPed(player.source)
+
+        repeat
+            inv.player.ped = GetPlayerPed(player.source)
+        until inv.player.ped ~= 0
 
         if server.syncInventory then server.syncInventory(inv) end
         TriggerClientEvent('ox_inventory:setPlayerInventory', player.source, Inventory.Drops, inventory, totalWeight,
             inv.player)
-        
-        Inventory.LoadPlayerHeldItem(player.source, player.identifier)
     end
 end
 

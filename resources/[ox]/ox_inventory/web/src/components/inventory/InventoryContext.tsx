@@ -56,9 +56,6 @@ const InventoryContext: React.FC = () => {
       case 'drop':
         isSlotWithItem(item) && onDrop({ item: item, inventory: 'player' });
         break;
-      case 'hold':
-        fetchNui('holdItem', { slot: item.slot });
-        break;
       case 'split':
         setSplitCount(1);
         setShowSplitModal(true);
@@ -103,7 +100,6 @@ const InventoryContext: React.FC = () => {
   return (
     <>
       <Menu>
-        <MenuItem onClick={() => handleClick({ action: 'hold' })} label="segurar" />
         <MenuItem onClick={() => handleClick({ action: 'use' })} label="Usar" />
         <MenuItem onClick={() => handleClick({ action: 'give' })} label="entregar" />
         <MenuItem onClick={() => handleClick({ action: 'split' })} label="Separar" />

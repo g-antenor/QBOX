@@ -38,7 +38,6 @@ return {
 		['WEAPON_ASSAULTRIFLE'] = {
 			label = 'Assault Rifle',
 			weight = 4500,
-			size = { width = 3, height = 1 },
 			durability = 0.03,
 			ammoname = 'ammo-rifle2',
 		},
@@ -480,7 +479,6 @@ return {
 		['WEAPON_PISTOL'] = {
 			label = 'Pistol',
 			weight = 1130,
-			size = { width = 2, height = 1 },
 			durability = 0.1,
 			ammoname = 'ammo-9',
 		},
@@ -609,7 +607,6 @@ return {
 		['WEAPON_SNIPERRIFLE'] = {
 			label = 'Sniper Rifle',
 			weight = 5000,
-			size = { width = 2, height = 2 },
 			durability = 0.5,
 			ammoname = 'ammo-sniper'
 		},

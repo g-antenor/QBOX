@@ -126,12 +126,7 @@ CreateThread(function()
                     disable = { move = true, car = true, combat = true }
                 }) then
                     local itemName = lib.callback.await('nv_props:pickupItem', false, netId)
-                    if itemName then
-                        if not exports.ox_inventory:IsHoldingItem() then
-                            Wait(250) -- Wait for slots to sync on client
-                            exports.ox_inventory:HoldItem(itemName)
-                        end
-                    else
+                    if not itemName then
                         ClearPedTasks(cache.ped)
                     end
                 else
@@ -157,3 +152,35 @@ RegisterCommand('placeitem', function(source, args)
         lib.notify({ type = 'error', description = 'Você não possui este item!' })
     end
 end, false)
+
+-- Thread to ensure spawned drop entities have gravity, dynamics and physics active so they fall to the ground
+CreateThread(function()
+    local initializedDrops = {}
+    while true do
+        Wait(1000)
+        -- Cleanup initializedDrops for drops that no longer exist
+        for dropId in pairs(initializedDrops) do
+            if not activeDrops[dropId] then
+                initializedDrops[dropId] = nil
+            end
+        end
+
+        for dropId, drop in pairs(activeDrops) do
+            if not initializedDrops[dropId] then
+                if NetworkDoesNetworkIdExist(drop.netId) then
+                    local entity = NetworkGetEntityFromNetworkId(drop.netId)
+                    if DoesEntityExist(entity) then
+                        if not drop.frozen then
+                            SetEntityDynamic(entity, true)
+                            SetEntityHasGravity(entity, true)
+                            ActivatePhysics(entity)
+                            -- Apply a tiny downward force to kickstart physics
+                            ApplyForceToEntity(entity, 1, 0.0, 0.0, -0.1, 0.0, 0.0, 0.0, 0, true, true, true, true, true)
+                        end
+                        initializedDrops[dropId] = true
+                    end
+                end
+            end
+        end
+    end
+end)

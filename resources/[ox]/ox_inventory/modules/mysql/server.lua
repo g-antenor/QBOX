@@ -9,11 +9,9 @@ local Query = {
     SELECT_GLOVEBOX = 'SELECT plate, glovebox FROM `{vehicle_table}` WHERE `{vehicle_column}` = ?',
     SELECT_TRUNK = 'SELECT plate, trunk FROM `{vehicle_table}` WHERE `{vehicle_column}` = ?',
     SELECT_PLAYER = 'SELECT inventory FROM `{user_table}` WHERE `{user_column}` = ?',
-    SELECT_PLAYER_HELD = 'SELECT held_item FROM `{user_table}` WHERE `{user_column}` = ?',
     UPDATE_TRUNK = 'UPDATE `{vehicle_table}` SET trunk = ? WHERE `{vehicle_column}` = ?',
     UPDATE_GLOVEBOX = 'UPDATE `{vehicle_table}` SET glovebox = ? WHERE `{vehicle_column}` = ?',
     UPDATE_PLAYER = 'UPDATE `{user_table}` SET inventory = ? WHERE `{user_column}` = ?',
-    UPDATE_PLAYER_HELD = 'UPDATE `{user_table}` SET held_item = ? WHERE `{user_column}` = ?',
 }
 
 Citizen.CreateThreadNow(function()
@@ -115,12 +113,6 @@ Citizen.CreateThreadNow(function()
         MySQL.query(('ALTER TABLE `%s` ADD COLUMN `inventory` LONGTEXT NULL'):format(playerTable))
     end
 
-    success, result = pcall(MySQL.scalar.await, ('SELECT held_item FROM `%s`'):format(playerTable))
-
-    if not success then
-        MySQL.query(('ALTER TABLE `%s` ADD COLUMN `held_item` LONGTEXT NULL'):format(playerTable))
-    end
-
     local clearStashes = GetConvar('inventory:clearstashes', '6 MONTH')
 
     if clearStashes ~= '' then
@@ -136,20 +128,11 @@ function db.loadPlayer(identifier)
 end
 
 function db.savePlayer(owner, inventory)
-    return MySQL.prepare(Query.UPDATE_PLAYER, { inventory, owner })
-end
-
-function db.loadPlayerHeld(identifier)
-    local held = MySQL.prepare.await(Query.SELECT_PLAYER_HELD, { identifier }) --[[@as string?]]
-    return held and json.decode(held)
-end
-
-function db.savePlayerHeld(owner, held)
-    return MySQL.prepare(Query.UPDATE_PLAYER_HELD, { held and json.encode(held) or nil, owner })
+    return MySQL.prepare.await(Query.UPDATE_PLAYER, { inventory, owner })
 end
 
 function db.saveStash(owner, dbId, inventory)
-    return MySQL.prepare(Query.UPSERT_STASH, { inventory, owner and tostring(owner) or '', dbId })
+    return MySQL.prepare.await(Query.UPSERT_STASH, { inventory, owner and tostring(owner) or '', dbId })
 end
 
 function db.loadStash(owner, name)
@@ -157,7 +140,7 @@ function db.loadStash(owner, name)
 end
 
 function db.saveGlovebox(id, inventory)
-    return MySQL.prepare(Query.UPDATE_GLOVEBOX, { inventory, id })
+    return MySQL.prepare.await(Query.UPDATE_GLOVEBOX, { inventory, id })
 end
 
 function db.loadGlovebox(id)
@@ -165,7 +148,7 @@ function db.loadGlovebox(id)
 end
 
 function db.saveTrunk(id, inventory)
-    return MySQL.prepare(Query.UPDATE_TRUNK, { inventory, id })
+    return MySQL.prepare.await(Query.UPDATE_TRUNK, { inventory, id })
 end
 
 function db.loadTrunk(id)

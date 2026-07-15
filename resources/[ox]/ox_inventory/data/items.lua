@@ -222,4 +222,19 @@ return {
 		label = 'Scrap Metal',
 		weight = 80,
 	},
+
+	['delivery_letter'] = {
+		label = 'Caixa Pequena',
+		weight = 100,
+	},
+
+	['delivery_small_box'] = {
+		label = 'Caixa Média',
+		weight = 5000,
+	},
+
+	['delivery_large_package'] = {
+		label = 'Caixa Grande',
+		weight = 15000,
+	},
 }

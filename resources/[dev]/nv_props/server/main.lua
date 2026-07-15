@@ -2,17 +2,11 @@ local activeDrops = {}
 print("^2[nv_props] Server script loaded successfully!^7")
 
 local function LoadDrops()
-    local data = LoadResourceFile(GetCurrentResourceName(), 'drops.json')
-    if data then
-        local loaded = json.decode(data)
-        if loaded then
-            activeDrops = loaded
-        end
-    end
+    -- No persistence
 end
 
 local function SaveDrops()
-    SaveResourceFile(GetCurrentResourceName(), 'drops.json', json.encode(activeDrops), -1)
+    -- No persistence
 end
 
 local function GetDropByNetId(netId)
@@ -25,7 +19,8 @@ local function GetDropByNetId(netId)
 end
 
 local function SpawnDrop(itemName, count, coords, rotation, metadata, frozen)
-    local model = Config.Items[itemName] or Config.DefaultModel
+    local model = Config.Items[itemName]
+    if not model then return nil end
     local modelHash = model
     
     local entity = CreateObjectNoOffset(modelHash, coords.x, coords.y, coords.z, true, true, true)
@@ -73,62 +68,46 @@ AddEventHandler('onResourceStart', function(resourceName)
         Wait(1000) -- Wait for ox_inventory to initialize exports
         exports.ox_inventory:registerHook('swapItems', function(payload)
             if payload.action == 'drop' or payload.toInventory == 'newdrop' then
-                local source = tonumber(payload.fromInventory)
-                if not source then return end
+                local itemName = payload.fromSlot.name
                 
-                local ped = GetPlayerPed(source)
-                if not DoesEntityExist(ped) then return end
-                
-                local coords = GetEntityCoords(ped)
-                local forward = GetEntityForwardVector(ped)
-                local spawnCoords = coords + (forward * 0.8)
-                
-                -- Spawn dynamic prop drop with physics
-                local rotation = GetEntityRotation(ped)
-                local dropId = SpawnDrop(payload.fromSlot.name, payload.count, spawnCoords, rotation, payload.fromSlot.metadata, false)
-                
-                if dropId then
-                    -- Remove the item from player inventory slot
-                    exports.ox_inventory:RemoveItem(source, payload.fromSlot.name, payload.count, nil, payload.fromSlot.slot)
+                -- Only spawn custom prop if the item has a model mapped
+                if Config.Items[itemName] then
+                    local source = tonumber(payload.fromInventory)
+                    if not source then return end
                     
-                    -- Return false to abort ox_inventory's default drop container creation
-                    return false
+                    local ped = GetPlayerPed(source)
+                    if not DoesEntityExist(ped) then return end
+                    
+                    local coords = GetEntityCoords(ped)
+                    local heading = GetEntityHeading(ped)
+                    local rad = math.rad(heading)
+                    local forward = vec3(-math.sin(rad), math.cos(rad), 0.0)
+                    local spawnCoords = vec3(coords.x + (forward.x * 0.8), coords.y + (forward.y * 0.8), coords.z - 0.9)
+                    
+                    -- Spawn dynamic prop drop with physics
+                    local rotation = GetEntityRotation(ped)
+                    local dropId = SpawnDrop(itemName, payload.count, spawnCoords, rotation, payload.fromSlot.metadata, false)
+                    
+                    if dropId then
+                        -- Remove the item from player inventory slot
+                        exports.ox_inventory:RemoveItem(source, itemName, payload.count, nil, payload.fromSlot.slot)
+                        
+                        -- Return false to abort ox_inventory's default drop container creation
+                        return false
+                    end
+                else
+                    -- Fallback to default ox_inventory floor stash
+                    return true
                 end
             end
         end)
     end
 end)
 
--- Spawn persistently saved drops on startup
+-- Spawn persistently saved drops on startup (No persistence, so we do nothing here)
 AddEventHandler('onResourceStart', function(resourceName)
     if resourceName == GetCurrentResourceName() then
-        LoadDrops()
-        CreateThread(function()
-            local reloaded = {}
-            for dropId, drop in pairs(activeDrops) do
-                local modelHash = drop.model
-                local entity = CreateObjectNoOffset(modelHash, drop.coords.x, drop.coords.y, drop.coords.z, true, true, true)
-                
-                local timeout = 0
-                while not DoesEntityExist(entity) and timeout < 100 do
-                    Wait(10)
-                    timeout = timeout + 1
-                end
-                
-                if DoesEntityExist(entity) then
-                    if drop.frozen then
-                        FreezeEntityPosition(entity, true)
-                    end
-                    SetEntityRotation(entity, drop.rotation.x, drop.rotation.y, drop.rotation.z, 2, true)
-                    
-                    local netId = NetworkGetNetworkIdFromEntity(entity)
-                    drop.netId = netId
-                    reloaded[dropId] = drop
-                end
-            end
-            activeDrops = reloaded
-            SaveDrops()
-        end)
+        -- No persistence, so we do not load/recreate drops
     end
 end)
 

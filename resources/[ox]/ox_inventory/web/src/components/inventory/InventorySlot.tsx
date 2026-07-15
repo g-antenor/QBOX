@@ -51,7 +51,7 @@ const getBestFootprint = (
       width: 1,
       height: 1,
       slots: [hoveredSlot],
-      isBlocked: !!isOccupied,
+      isBlocked: false, // Always allow swap / stack
       freeCount: isOccupied ? 0 : 1,
     };
   }
