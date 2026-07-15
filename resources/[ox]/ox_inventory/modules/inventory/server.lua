@@ -1957,7 +1957,7 @@ lib.callback.register('ox_inventory:returnHeldConsumable', function(source)
 	return true
 end)
 
-lib.callback.register('ox_inventory:dropHeldConsumable', function(source, coords)
+lib.callback.register('ox_inventory:dropHeldConsumable', function(source, coords, rotation)
 	local held = PlayerHeldItem[source]
 	if not held then return false end
 
@@ -1968,7 +1968,7 @@ lib.callback.register('ox_inventory:dropHeldConsumable', function(source, coords
 	PlayerHeldItem[source] = nil
 
 	local ped = GetPlayerPed(source)
-	local rotation = DoesEntityExist(ped) and GetEntityRotation(ped) or vec3(0.0, 0.0, 0.0)
+	rotation = rotation or (DoesEntityExist(ped) and GetEntityRotation(ped) or vec3(0.0, 0.0, 0.0))
 	coords = coords or (DoesEntityExist(ped) and GetEntityCoords(ped) or vec3(0.0, 0.0, 0.0))
 
 	spawnDropProp(held.name, 1, coords, rotation, held.metadata)

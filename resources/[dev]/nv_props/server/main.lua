@@ -162,8 +162,8 @@ RegisterNetEvent('nv_props:placeItem', function(itemName, coords, rotation)
     if item and item.count > 0 then
         -- Remove 1 quantity of the item
         if exports.ox_inventory:RemoveItem(source, itemName, 1, nil, item.slot) then
-            -- Spawn frozen prop drop
-            SpawnDrop(itemName, 1, coords, rotation, item.metadata, true)
+            -- Spawn dynamic prop drop
+            SpawnDrop(itemName, 1, coords, rotation, item.metadata, false)
         end
     end
 end)
@@ -193,7 +193,7 @@ lib.callback.register('nv_props:pickupItem', function(source, netId)
     SaveDrops()
     TriggerClientEvent('nv_props:syncDrops', -1, activeDrops)
     
-    return true
+    return drop.itemName
 end)
 
 -- Command to spawn items manually for admins

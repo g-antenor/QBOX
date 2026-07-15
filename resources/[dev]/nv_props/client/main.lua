@@ -125,8 +125,13 @@ CreateThread(function()
                     useLib = true,
                     disable = { move = true, car = true, combat = true }
                 }) then
-                    local success = lib.callback.await('nv_props:pickupItem', false, netId)
-                    if not success then
+                    local itemName = lib.callback.await('nv_props:pickupItem', false, netId)
+                    if itemName then
+                        if not exports.ox_inventory:IsHoldingItem() then
+                            Wait(250) -- Wait for slots to sync on client
+                            exports.ox_inventory:HoldItem(itemName)
+                        end
+                    else
                         ClearPedTasks(cache.ped)
                     end
                 else

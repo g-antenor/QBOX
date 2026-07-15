@@ -2026,7 +2026,7 @@ local function playHandsUp()
     end)
 end
 
-local function dropHoldingItem()
+local function dropHoldingItem(playHands)
     if not holdingItem then return end
     local slot = holdingItem.slot
     local item = PlayerData.inventory[slot]
@@ -2039,7 +2039,9 @@ local function dropHoldingItem()
     
     lib.callback.await('ox_inventory:dropHeldItem', false, slot, count, coords)
     
-    playHandsUp()
+    if playHands then
+        playHandsUp()
+    end
 end
 
 local function triggerDeathDrop()
@@ -2059,6 +2061,132 @@ local function triggerDeathDrop()
     else
         stopHolding(false)
         lib.callback.await('ox_inventory:dropHeldConsumable', false, coords)
+    end
+end
+
+local function RotationToDirection(rotation)
+    local adjustedRotation = vec3(
+        (math.pi / 180.0) * rotation.x,
+        (math.pi / 180.0) * rotation.y,
+        (math.pi / 180.0) * rotation.z
+    )
+    local direction = vec3(
+        -math.sin(adjustedRotation.z) * math.abs(math.cos(adjustedRotation.x)),
+        math.cos(adjustedRotation.z) * math.abs(math.cos(adjustedRotation.x)),
+        math.sin(adjustedRotation.x)
+    )
+    return direction
+end
+
+local function GetRaycastResult()
+    local camCoords = GetGameplayCamCoords()
+    local camRot = GetGameplayCamRot(2)
+    local forwardVec = RotationToDirection(camRot)
+    local drawCoords = camCoords + (forwardVec * 30.0) -- maximum placement range 30m
+
+    local handle = StartExpensiveSynchronousShapeTestLosProbe(
+        camCoords.x, camCoords.y, camCoords.z,
+        drawCoords.x, drawCoords.y, drawCoords.z,
+        511, cache.ped, 0
+    )
+    local _, hit, endCoords, _, entityHit = GetShapeTestResult(handle)
+    return hit, endCoords, entityHit
+end
+
+local function startConsumablePlacement(self)
+    local itemName = self.name
+    local model = getPropModel(itemName)
+    if not model then return false end
+    
+    -- Temporarily delete the holding prop while placing
+    if self.propObj then
+        Utils.DeleteEntity(self.propObj)
+        self.propObj = nil
+    end
+    
+    lib.requestModel(model)
+    local min, max = GetModelDimensions(model)
+    local zOffset = math.abs(min.z)
+    
+    local ped = cache.ped
+    local playerCoords = GetEntityCoords(ped)
+    local ghostEntity = CreateObject(model, playerCoords.x, playerCoords.y, playerCoords.z, false, true, false)
+    SetEntityAlpha(ghostEntity, 150, false)
+    SetEntityCollision(ghostEntity, false, true)
+    
+    local rotation = vec3(0.0, 0.0, GetEntityHeading(ped))
+    lib.showTextUI('[Scroll] Rotacionar  \n[LMB] Confirmar  \n[RMB] Cancelar')
+    
+    local confirmed = false
+    
+    -- Wait until RMB is fully released before starting the placement check loop
+    while IsDisabledControlPressed(0, 25) or IsControlPressed(0, 25) do
+        Wait(0)
+    end
+    
+    -- We enter a placement loop
+    while true do
+        Wait(0)
+        
+        -- Position the ghost entity using raycast
+        local hit, endCoords, _ = GetRaycastResult()
+        if hit and hit ~= 0 and hit ~= false then
+            SetEntityCoords(ghostEntity, endCoords.x, endCoords.y, endCoords.z + zOffset, false, false, false, false)
+            SetEntityRotation(ghostEntity, rotation.x, rotation.y, rotation.z, 2, true)
+        else
+            -- Fallback to slightly in front of the player on the ground
+            local forward = GetEntityForwardVector(ped)
+            local fallbackCoords = GetEntityCoords(ped) + (forward * 1.5)
+            local success, groundZ = GetGroundZFor_3dCoord(fallbackCoords.x, fallbackCoords.y, fallbackCoords.z, false)
+            local z = success and groundZ or (fallbackCoords.z - 1.0)
+            SetEntityCoords(ghostEntity, fallbackCoords.x, fallbackCoords.y, z + zOffset, false, false, false, false)
+            SetEntityRotation(ghostEntity, rotation.x, rotation.y, rotation.z, 2, true)
+        end
+        
+        -- Block actions
+        DisableControlAction(0, 24, true) -- Attack (LMB)
+        DisableControlAction(0, 25, true) -- Aim (RMB)
+        DisableControlAction(0, 14, true) -- Scroll Up
+        DisableControlAction(0, 15, true) -- Scroll Down
+        
+        -- Scroll to rotate
+        if IsDisabledControlJustPressed(0, 14) then -- Scroll Up
+            rotation = rotation + vec3(0.0, 0.0, 5.0)
+        elseif IsDisabledControlJustPressed(0, 15) then -- Scroll Down
+            rotation = rotation - vec3(0.0, 0.0, 5.0)
+        end
+        
+        -- LMB to Confirm
+        if IsDisabledControlJustPressed(0, 24) then
+            confirmed = true
+            break
+        end
+        
+        -- RMB to Cancel
+        if IsDisabledControlJustPressed(0, 25) then
+            confirmed = false
+            break
+        end
+    end
+    
+    lib.hideTextUI()
+    local finalCoords = GetEntityCoords(ghostEntity)
+    local finalRotation = GetEntityRotation(ghostEntity, 2)
+    
+    if DoesEntityExist(ghostEntity) then
+        DeleteEntity(ghostEntity)
+    end
+    
+    if confirmed then
+        -- Drop the item at the finalCoords with finalRotation
+        lib.callback.await('ox_inventory:dropHeldConsumable', false, finalCoords, finalRotation)
+        stopHolding(false)
+        return true -- Exited and dropped
+    else
+        -- Re-create the holding prop
+        self.propObj = createHoldingProp(itemName)
+        startHoldingAnim()
+        return false -- Still holding
     end
 end
 
@@ -2083,7 +2211,7 @@ local function startHeldConsumableLoop(self)
                    or IsEntityPlayingAnim(ped, 'mp_arresting', 'idle', 3)
                    or IsPedCuffed(ped) then
                     if self.isWeapon then
-                        dropHoldingItem()
+                        dropHoldingItem(true)
                     else
                         local coords = GetEntityCoords(ped)
                         lib.callback.await('ox_inventory:dropHeldConsumable', false, coords)
@@ -2102,7 +2230,7 @@ local function startHeldConsumableLoop(self)
                     
                     -- X key (INPUT_VEH_DUCK, Control 73)
                     if IsControlJustReleased(0, 73) then
-                        dropHoldingItem()
+                        dropHoldingItem(false)
                         break
                     end
                     
@@ -2170,11 +2298,12 @@ local function startHeldConsumableLoop(self)
                         end
                     end
                     
-                    -- RMB (Aim) to remove/stop holding
-                    if IsDisabledControlJustReleased(0, 25) then
-                        lib.callback.await('ox_inventory:returnHeldConsumable', false)
-                        stopHolding(false)
-                        break
+                    -- RMB (Aim) to preview/place item
+                    if IsDisabledControlJustPressed(0, 25) then
+                        local placed = startConsumablePlacement(self)
+                        if placed then
+                            break
+                        end
                     end
                     
                     -- Z key to holster/put away
@@ -2184,12 +2313,11 @@ local function startHeldConsumableLoop(self)
                         break
                     end
                     
-                    -- X key to drop and hands up
+                    -- X key to drop
                     if IsControlJustReleased(0, 73) then
                         local coords = GetEntityCoords(ped)
                         lib.callback.await('ox_inventory:dropHeldConsumable', false, coords)
                         stopHolding(false)
-                        playHandsUp()
                         break
                     end
                     
@@ -2233,7 +2361,12 @@ RegisterNUICallback('holdItem', function(data, cb)
     client.closeInventory()
     
     if holdingItem then
-        stopHolding(false)
+        if not holdingItem.isWeapon then
+            lib.callback.await('ox_inventory:returnHeldConsumable', false)
+            stopHolding(false)
+        else
+            stopHolding(true)
+        end
     end
     
     local isWeapon = Items[item.name].weapon ~= nil
@@ -2327,5 +2460,52 @@ AddEventHandler('onResourceStop', function(resourceName)
     if holdingItem and holdingItem.propObj then
         Utils.DeleteEntity(holdingItem.propObj)
     end
+end)
+
+exports('IsHoldingItem', function()
+    return holdingItem ~= nil
+end)
+
+exports('HoldItem', function(itemName)
+    if holdingItem then return false end
+    
+    local slot = nil
+    for i = 1, shared.playerslots do
+        local slotData = PlayerData.inventory[i]
+        if slotData and slotData.name == itemName and slotData.count > 0 then
+            slot = slotData.slot
+            break
+        end
+    end
+    
+    if not slot then return false end
+    
+    local isWeapon = Items[itemName].weapon ~= nil
+    
+    if isWeapon then
+        holdingItem = {
+            slot = slot,
+            name = itemName,
+            isWeapon = true
+        }
+        useSlot(slot)
+    else
+        local res = lib.callback.await('ox_inventory:startHoldingConsumable', false, slot)
+        if res and res.success then
+            local propObj = createHoldingProp(res.name)
+            holdingItem = {
+                slot = slot,
+                name = res.name,
+                metadata = res.metadata,
+                isWeapon = false,
+                propObj = propObj
+            }
+            startHoldingAnim()
+            startHeldConsumableLoop(holdingItem)
+        else
+            return false
+        end
+    end
+    return true
 end)
 
