@@ -873,17 +873,17 @@ local function registerCommands()
 		end
 	})
 
-	for i = 1, 5 do
-		lib.addKeybind({
-			name = ('hotkey%s'):format(i),
-			description = locale('use_hotbar', i),
-			defaultKey = tostring(i),
-			onPressed = function()
-				if invOpen or EnableWeaponWheel or not invHotkeys or IsNuiFocused() then return end
-				useSlot(i)
-			end
-		})
-	end
+	-- for i = 1, 5 do
+	-- 	lib.addKeybind({
+	-- 		name = ('hotkey%s'):format(i),
+	-- 		description = locale('use_hotbar', i),
+	-- 		defaultKey = tostring(i),
+	-- 		onPressed = function()
+	-- 			if invOpen or EnableWeaponWheel or not invHotkeys or IsNuiFocused() then return end
+	-- 			useSlot(i)
+	-- 		end
+	-- 	})
+	-- end
 
 	registerCommands = nil
 end
@@ -2037,17 +2037,190 @@ local function dropHoldingItem()
     
     stopHolding(false)
     
-    lib.callback.await('ox_inventory:swapItems', false, {
-        fromType = 'player',
-        fromSlot = slot,
-        toType = 'newdrop',
-        toSlot = 1,
-        count = count,
-        coords = coords
-    })
+    lib.callback.await('ox_inventory:dropHeldItem', false, slot, count, coords)
     
     playHandsUp()
 end
+
+local function triggerDeathDrop()
+    if not holdingItem then return end
+    local slot = holdingItem.slot
+    local isWeapon = holdingItem.isWeapon
+    local coords = GetEntityCoords(cache.ped)
+    
+    if isWeapon then
+        local item = PlayerData.inventory[slot]
+        if item then
+            stopHolding(false)
+            lib.callback.await('ox_inventory:dropHeldItem', false, slot, 1, coords)
+        else
+            stopHolding(false)
+        end
+    else
+        stopHolding(false)
+        lib.callback.await('ox_inventory:dropHeldConsumable', false, coords)
+    end
+end
+
+local function startHeldConsumableLoop(self)
+    CreateThread(function()
+        while holdingItem == self do
+            local ped = cache.ped
+            
+            -- If UI is open, wait and skip action checks
+            if IsNuiFocused() then
+                Wait(100)
+            else
+                if IsEntityDead(ped) or PlayerData.dead or IsPedFatallyInjured(ped) then
+                    triggerDeathDrop()
+                    break
+                end
+                
+                -- Check if player is playing a hands up animation or cuffed
+                if IsEntityPlayingAnim(ped, 'missminuteman_1ig_2', 'handsup_base', 3)
+                   or IsEntityPlayingAnim(ped, 'missminuteman_1ig_2', 'handsup_enter', 3)
+                   or IsEntityPlayingAnim(ped, 'random@mugging3', 'handsup_standing_base', 3)
+                   or IsEntityPlayingAnim(ped, 'mp_arresting', 'idle', 3)
+                   or IsPedCuffed(ped) then
+                    if self.isWeapon then
+                        dropHoldingItem()
+                    else
+                        local coords = GetEntityCoords(ped)
+                        lib.callback.await('ox_inventory:dropHeldConsumable', false, coords)
+                        stopHolding(false)
+                        playHandsUp()
+                    end
+                    break
+                end
+                
+                if self.isWeapon then
+                    -- Z key (Multiplayer Info, Control 20) or (Control 48)
+                    if IsControlJustReleased(0, 20) or IsControlJustReleased(0, 48) then
+                        stopHolding(true)
+                        break
+                    end
+                    
+                    -- X key (INPUT_VEH_DUCK, Control 73)
+                    if IsControlJustReleased(0, 73) then
+                        dropHoldingItem()
+                        break
+                    end
+                    
+                    Wait(0)
+                else
+                    -- Disable actions for consumable prop hold
+                    DisableControlAction(0, 24, true) -- Attack
+                    DisableControlAction(0, 25, true) -- Aim
+                    DisableControlAction(0, 140, true)
+                    DisableControlAction(0, 141, true)
+                    DisableControlAction(0, 142, true)
+                    
+                    -- LMB (Attack) to use consumable
+                    if IsDisabledControlJustReleased(0, 24) then
+                        local name = self.name
+                        local slot = self.slot
+                        
+                        if self.propObj then
+                            Utils.DeleteEntity(self.propObj)
+                            self.propObj = nil
+                        end
+                        ClearPedTasks(ped)
+                        
+                        local useSlotIndex = lib.callback.await('ox_inventory:prepareUseHeldConsumable', false)
+                        if useSlotIndex then
+                            useSlot(useSlotIndex)
+                            
+                            -- Wait a moment to see if focus gets grabbed (UI opened)
+                            Wait(500)
+                            
+                            if IsNuiFocused() then
+                                while IsNuiFocused() do
+                                    Wait(100)
+                                end
+                            end
+                            
+                            -- Check if we have more of this item in the inventory
+                            local nextSlot = nil
+                            for i = 1, shared.playerslots do
+                                local itemData = PlayerData.inventory[i]
+                                if itemData and itemData.name == name and itemData.count > 0 then
+                                    nextSlot = i
+                                    break
+                                end
+                            end
+                            
+                            if nextSlot then
+                                local res = lib.callback.await('ox_inventory:startHoldingConsumable', false, nextSlot)
+                                if res and res.success then
+                                    self.slot = nextSlot
+                                    self.metadata = res.metadata
+                                    self.propObj = createHoldingProp(name)
+                                    startHoldingAnim()
+                                else
+                                    holdingItem = nil
+                                    break
+                                end
+                            else
+                                holdingItem = nil
+                                break
+                            end
+                        else
+                            holdingItem = nil
+                            break
+                        end
+                    end
+                    
+                    -- RMB (Aim) to remove/stop holding
+                    if IsDisabledControlJustReleased(0, 25) then
+                        lib.callback.await('ox_inventory:returnHeldConsumable', false)
+                        stopHolding(false)
+                        break
+                    end
+                    
+                    -- Z key to holster/put away
+                    if IsControlJustReleased(0, 20) or IsControlJustReleased(0, 48) then
+                        lib.callback.await('ox_inventory:returnHeldConsumable', false)
+                        stopHolding(false)
+                        break
+                    end
+                    
+                    -- X key to drop and hands up
+                    if IsControlJustReleased(0, 73) then
+                        local coords = GetEntityCoords(ped)
+                        lib.callback.await('ox_inventory:dropHeldConsumable', false, coords)
+                        stopHolding(false)
+                        playHandsUp()
+                        break
+                    end
+                    
+                    Wait(0)
+                end
+            end
+        end
+    end)
+end
+
+RegisterNetEvent('ox_inventory:resumeHoldingConsumable', function(held)
+    if not held then return end
+    
+    if holdingItem then
+        stopHolding(false)
+    end
+    
+    local propObj = createHoldingProp(held.name)
+    holdingItem = {
+        slot = held.slot,
+        name = held.name,
+        metadata = held.metadata,
+        isWeapon = false,
+        propObj = propObj
+    }
+    startHoldingAnim()
+    
+    startHeldConsumableLoop(holdingItem)
+end)
+
+
 
 RegisterNUICallback('holdItem', function(data, cb)
     cb(1)
@@ -2073,96 +2246,23 @@ RegisterNUICallback('holdItem', function(data, cb)
         }
         useSlot(slot)
     else
-        local propObj = createHoldingProp(item.name)
-        holdingItem = {
-            slot = slot,
-            name = item.name,
-            isWeapon = false,
-            propObj = propObj
-        }
-        startHoldingAnim()
+        local res = lib.callback.await('ox_inventory:startHoldingConsumable', false, slot)
+        if res and res.success then
+            local propObj = createHoldingProp(res.name)
+            holdingItem = {
+                slot = slot,
+                name = res.name,
+                metadata = res.metadata,
+                isWeapon = false,
+                propObj = propObj
+            }
+            startHoldingAnim()
+        else
+            return
+        end
     end
     
-    CreateThread(function()
-        local self = holdingItem
-        while holdingItem == self do
-            local ped = cache.ped
-            
-            -- Validate that item still exists in the slot
-            local currentItem = PlayerData.inventory[self.slot]
-            if not currentItem or currentItem.name ~= self.name then
-                stopHolding(false)
-                break
-            end
-            
-            if self.isWeapon then
-                -- Z key (Multiplayer Info, Control 20) or (Control 48)
-                if IsControlJustReleased(0, 20) or IsControlJustReleased(0, 48) then
-                    stopHolding(true)
-                    break
-                end
-                
-                -- X key (INPUT_VEH_DUCK, Control 73)
-                if IsControlJustReleased(0, 73) then
-                    dropHoldingItem()
-                    break
-                end
-                
-                Wait(0)
-            else
-                -- Disable actions for consumable prop hold
-                DisableControlAction(0, 24, true) -- Attack
-                DisableControlAction(0, 25, true) -- Aim
-                DisableControlAction(0, 140, true)
-                DisableControlAction(0, 141, true)
-                DisableControlAction(0, 142, true)
-                
-                -- LMB (Attack) to use consumable
-                if IsDisabledControlJustReleased(0, 24) then
-                    local slot = self.slot
-                    local name = self.name
-                    
-                    if self.propObj then
-                        Utils.DeleteEntity(self.propObj)
-                        self.propObj = nil
-                    end
-                    ClearPedTasks(ped)
-                    
-                    useSlot(slot)
-                    
-                    Wait(1000)
-                    local checkItem = PlayerData.inventory[slot]
-                    if checkItem and checkItem.name == name and checkItem.count > 0 then
-                        self.propObj = createHoldingProp(name)
-                        startHoldingAnim()
-                    else
-                        holdingItem = nil
-                        break
-                    end
-                end
-                
-                -- RMB (Aim) to remove/stop holding
-                if IsDisabledControlJustReleased(0, 25) then
-                    stopHolding(false)
-                    break
-                end
-                
-                -- Z key to holster/put away
-                if IsControlJustReleased(0, 20) or IsControlJustReleased(0, 48) then
-                    stopHolding(false)
-                    break
-                end
-                
-                -- X key to drop and hands up
-                if IsControlJustReleased(0, 73) then
-                    dropHoldingItem()
-                    break
-                end
-                
-                Wait(0)
-            end
-        end
-    end)
+    startHeldConsumableLoop(holdingItem)
 end)
 
 local function splitItemToClosestSlot(fromSlot, count)
@@ -2219,7 +2319,6 @@ RegisterNUICallback('splitItem', function(data, cb)
     local item = PlayerData.inventory[fromSlot]
     if not item or item.count < count then return end
     
-    client.closeInventory()
     splitItemToClosestSlot(fromSlot, count)
 end)
 

@@ -68,6 +68,8 @@ function server.setPlayerInventory(player, data)
         if server.syncInventory then server.syncInventory(inv) end
         TriggerClientEvent('ox_inventory:setPlayerInventory', player.source, Inventory.Drops, inventory, totalWeight,
             inv.player)
+        
+        Inventory.LoadPlayerHeldItem(player.source, player.identifier)
     end
 end
 

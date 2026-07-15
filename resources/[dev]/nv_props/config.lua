@@ -8,7 +8,7 @@ Config.Items = {
     ['water'] = `prop_ld_flow_bottle`,
     ['cola'] = `prop_ecola_can`,
     ['burger'] = `prop_cs_burger_01`,
-    ['phone'] = `prop_npc_phone`,
+    ['phone'] = `prop_npc_phone_02`,
     ['bandage'] = `prop_paper_bag_01`,
     
     -- Weapons

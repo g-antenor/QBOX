@@ -527,7 +527,7 @@ function Inventory.SetSlot(inv, item, count, metadata, slot)
 		TriggerClientEvent('ox_inventory:itemNotify', inv.id, { currentSlot, 'ui_removed', currentSlot.count })
 		currentSlot = nil
 	else
-		currentSlot = {name = item.name, label = item.label, weight = item.weight, slot = slot, count = newCount, description = item.description, metadata = metadata, stack = item.stack, close = item.close}
+		currentSlot = {name = item.name, label = item.label, weight = item.weight, slot = slot, count = newCount, description = item.description, metadata = metadata, stack = item.stack, close = item.close, size = item.size}
 		local slotWeight = Inventory.SlotWeight(item, currentSlot)
 		currentSlot.weight = slotWeight
 		newWeight += slotWeight
@@ -938,7 +938,7 @@ local function generateItems(inv, invType, items)
 			local metadata, count = Items.Metadata(inv, item, v[3] or {}, v[2])
 			local weight = Inventory.SlotWeight(item, {count=count, metadata=metadata})
 			totalWeight = totalWeight + weight
-			returnData[i] = {name = item.name, label = item.label, weight = weight, slot = i, count = count, description = item.description, metadata = metadata, stack = item.stack, close = item.close}
+			returnData[i] = {name = item.name, label = item.label, weight = weight, slot = i, count = count, description = item.description, metadata = metadata, stack = item.stack, close = item.close, size = item.size}
 		end
 	end
 
@@ -986,7 +986,7 @@ function Inventory.Load(id, invType, owner)
 				v.metadata = Items.CheckMetadata(v.metadata or {}, item, v.name, ostime)
 				local slotWeight = Inventory.SlotWeight(item, v)
 				weight += slotWeight
-				returnData[v.slot] = {name = item.name, label = item.label, weight = slotWeight, slot = v.slot, count = v.count, description = item.description, metadata = v.metadata, stack = item.stack, close = item.close}
+				returnData[v.slot] = {name = item.name, label = item.label, weight = slotWeight, slot = v.slot, count = v.count, description = item.description, metadata = v.metadata, stack = item.stack, close = item.close, size = item.size}
 			end
 		end
 	end
@@ -1828,9 +1828,15 @@ local function dropItem(source, playerInventory, fromData, data)
 	local rotation = DoesEntityExist(ped) and GetEntityRotation(ped) or vec3(0.0, 0.0, 0.0)
 	
 	local success, err = pcall(function()
-		exports.nv_props:SpawnDrop(toData.name, toData.count, data.coords, rotation, toData.metadata, false)
-		spawnedViaProps = true
+		local dropIdVal = exports.nv_props:SpawnDrop(toData.name, toData.count, data.coords, rotation, toData.metadata, false)
+		if dropIdVal then
+			spawnedViaProps = true
+		end
 	end)
+
+	if not success then
+		print(("^1[ox_inventory] Error spawning drop prop via nv_props in dropItem: %s^7"):format(tostring(err)))
+	end
 
 	if not spawnedViaProps then
 		local inventory = Inventory.Create(dropId, ('Drop %s'):format(dropId:gsub('%D', '')), 'drop', shared.dropslots, toData.weight, shared.dropweight, false, {[data.toSlot] = toData})
@@ -1860,6 +1866,164 @@ local function dropItem(source, playerInventory, fromData, data)
 end
 
 local GetLocks = require 'modules.locks'
+
+local PlayerHeldItem = {}
+
+local function spawnDropProp(name, count, coords, rotation, metadata)
+	local spawnedViaProps = false
+	local success, err = pcall(function()
+		local dropId = exports.nv_props:SpawnDrop(name, count, coords, rotation, metadata, false)
+		if dropId then
+			spawnedViaProps = true
+		end
+	end)
+
+	if not success then
+		print(("^1[ox_inventory] Error spawning drop prop via nv_props: %s^7"):format(tostring(err)))
+	end
+
+	if not spawnedViaProps then
+		local dropId = generateInvId('drop')
+		local inventory = Inventory.Create(dropId, ('Drop %s'):format(dropId:gsub('%D', '')), 'drop', shared.dropslots, 0, shared.dropweight, false, {})
+		if inventory then
+			inventory.items, inventory.weight = generateItems(inventory, 'drop', {{name, count, metadata}})
+			inventory.coords = coords
+			Inventory.Drops[dropId] = {coords = inventory.coords}
+			TriggerClientEvent('ox_inventory:createDrop', -1, dropId, Inventory.Drops[dropId])
+		end
+	end
+end
+
+AddEventHandler('playerDropped', function()
+	local source = source
+	PlayerHeldItem[source] = nil
+end)
+
+function Inventory.LoadPlayerHeldItem(source, identifier)
+	local held = db.loadPlayerHeld(identifier)
+	if held then
+		PlayerHeldItem[source] = held
+		TriggerClientEvent('ox_inventory:resumeHoldingConsumable', source, held)
+	end
+end
+
+lib.callback.register('ox_inventory:startHoldingConsumable', function(source, slot)
+	local playerInventory = Inventory(source)
+	if not playerInventory then return false end
+
+	local item = playerInventory.items[slot]
+	if not item or item.count < 1 then return false end
+
+	local metadata = table.clone(item.metadata)
+	local name = item.name
+
+	Inventory.RemoveItem(playerInventory.id, name, 1, nil, slot)
+
+	local held = {
+		name = name,
+		metadata = metadata,
+		slot = slot
+	}
+	PlayerHeldItem[source] = held
+	
+	db.savePlayerHeld(playerInventory.owner, held)
+
+	return { name = name, metadata = metadata, success = true }
+end)
+
+lib.callback.register('ox_inventory:returnHeldConsumable', function(source)
+	local held = PlayerHeldItem[source]
+	if not held then return false end
+
+	local playerInventory = Inventory(source)
+	if not playerInventory then return false end
+
+	db.savePlayerHeld(playerInventory.owner, nil)
+	PlayerHeldItem[source] = nil
+
+	local targetSlot = held.slot
+	if playerInventory.items[targetSlot] then
+		targetSlot = Inventory.GetEmptySlot(playerInventory)
+	end
+
+	if targetSlot then
+		Inventory.AddItem(playerInventory.id, held.name, 1, held.metadata, targetSlot)
+	else
+		local ped = GetPlayerPed(source)
+		local coords = DoesEntityExist(ped) and GetEntityCoords(ped) or vec3(0.0, 0.0, 0.0)
+		spawnDropProp(held.name, 1, coords, vec3(0,0,0), held.metadata)
+	end
+
+	return true
+end)
+
+lib.callback.register('ox_inventory:dropHeldConsumable', function(source, coords)
+	local held = PlayerHeldItem[source]
+	if not held then return false end
+
+	local playerInventory = Inventory(source)
+	if playerInventory then
+		db.savePlayerHeld(playerInventory.owner, nil)
+	end
+	PlayerHeldItem[source] = nil
+
+	local ped = GetPlayerPed(source)
+	local rotation = DoesEntityExist(ped) and GetEntityRotation(ped) or vec3(0.0, 0.0, 0.0)
+	coords = coords or (DoesEntityExist(ped) and GetEntityCoords(ped) or vec3(0.0, 0.0, 0.0))
+
+	spawnDropProp(held.name, 1, coords, rotation, held.metadata)
+	return true
+end)
+
+lib.callback.register('ox_inventory:prepareUseHeldConsumable', function(source)
+	local held = PlayerHeldItem[source]
+	if not held then return false end
+
+	local playerInventory = Inventory(source)
+	if not playerInventory then return false end
+
+	db.savePlayerHeld(playerInventory.owner, nil)
+	PlayerHeldItem[source] = nil
+
+	local targetSlot = held.slot
+	if playerInventory.items[targetSlot] then
+		targetSlot = Inventory.GetEmptySlot(playerInventory)
+	end
+
+	if not targetSlot then return false end
+
+	Inventory.AddItem(playerInventory.id, held.name, 1, held.metadata, targetSlot)
+
+	return targetSlot
+end)
+
+lib.callback.register('ox_inventory:dropHeldItem', function(source, slot, count, coords)
+	local playerInventory = Inventory(source)
+	if not playerInventory then return false end
+
+	local fromData = playerInventory.items[slot]
+	if not fromData or fromData.count < count then return false end
+
+	local ped = GetPlayerPed(source)
+	local rotation = DoesEntityExist(ped) and GetEntityRotation(ped) or vec3(0.0, 0.0, 0.0)
+	coords = coords or (DoesEntityExist(ped) and GetEntityCoords(ped) or vec3(0.0, 0.0, 0.0))
+
+	local success, response = dropItem(source, playerInventory, fromData, {
+		fromSlot = slot,
+		toSlot = 1,
+		fromType = 'player',
+		toType = 'newdrop',
+		count = count,
+		coords = coords
+	})
+
+	if success and response then
+		TriggerClientEvent('ox_inventory:updateSlots', source, response.items, response.weight)
+		return true
+	end
+
+	return false
+end)
 
 ---@param source number
 ---@param data SwapSlotData

@@ -1,4 +1,5 @@
 local activeDrops = {}
+print("^2[nv_props] Server script loaded successfully!^7")
 
 local function LoadDrops()
     local data = LoadResourceFile(GetCurrentResourceName(), 'drops.json')
@@ -28,7 +29,10 @@ local function SpawnDrop(itemName, count, coords, rotation, metadata, frozen)
     local modelHash = model
     
     local entity = CreateObjectNoOffset(modelHash, coords.x, coords.y, coords.z, true, true, true)
-    while not DoesEntityExist(entity) do Wait(0) end
+    if not entity or entity == 0 then
+        print(("^1[nv_props] Error: CreateObjectNoOffset returned 0 for model %s (item: %s). Check if Onesync is enabled and model exists.^7"):format(modelHash, itemName))
+        return nil
+    end
     
     if frozen then
         FreezeEntityPosition(entity, true)
@@ -38,6 +42,11 @@ local function SpawnDrop(itemName, count, coords, rotation, metadata, frozen)
     
     local dropId = 'prop_' .. tostring(math.random(100000, 999999))
     local netId = NetworkGetNetworkIdFromEntity(entity)
+    if not netId or netId == 0 then
+        print("^1[nv_props] Error: Failed to get network ID for entity!^7")
+        DeleteEntity(entity)
+        return nil
+    end
     
     activeDrops[dropId] = {
         id = dropId,
@@ -76,13 +85,15 @@ AddEventHandler('onResourceStart', function(resourceName)
                 
                 -- Spawn dynamic prop drop with physics
                 local rotation = GetEntityRotation(ped)
-                SpawnDrop(payload.fromSlot.name, payload.count, spawnCoords, rotation, payload.fromSlot.metadata, false)
+                local dropId = SpawnDrop(payload.fromSlot.name, payload.count, spawnCoords, rotation, payload.fromSlot.metadata, false)
                 
-                -- Remove the item from player inventory slot
-                exports.ox_inventory:RemoveItem(source, payload.fromSlot.name, payload.count, nil, payload.fromSlot.slot)
-                
-                -- Return false to abort ox_inventory's default drop container creation
-                return false
+                if dropId then
+                    -- Remove the item from player inventory slot
+                    exports.ox_inventory:RemoveItem(source, payload.fromSlot.name, payload.count, nil, payload.fromSlot.slot)
+                    
+                    -- Return false to abort ox_inventory's default drop container creation
+                    return false
+                end
             end
         end)
     end
@@ -92,30 +103,32 @@ end)
 AddEventHandler('onResourceStart', function(resourceName)
     if resourceName == GetCurrentResourceName() then
         LoadDrops()
-        local reloaded = {}
-        for dropId, drop in pairs(activeDrops) do
-            local modelHash = drop.model
-            local entity = CreateObjectNoOffset(modelHash, drop.coords.x, drop.coords.y, drop.coords.z, true, true, true)
-            
-            local timeout = 0
-            while not DoesEntityExist(entity) and timeout < 100 do
-                Wait(10)
-                timeout = timeout + 1
-            end
-            
-            if DoesEntityExist(entity) then
-                if drop.frozen then
-                    FreezeEntityPosition(entity, true)
-                end
-                SetEntityRotation(entity, drop.rotation.x, drop.rotation.y, drop.rotation.z, 2, true)
+        CreateThread(function()
+            local reloaded = {}
+            for dropId, drop in pairs(activeDrops) do
+                local modelHash = drop.model
+                local entity = CreateObjectNoOffset(modelHash, drop.coords.x, drop.coords.y, drop.coords.z, true, true, true)
                 
-                local netId = NetworkGetNetworkIdFromEntity(entity)
-                drop.netId = netId
-                reloaded[dropId] = drop
+                local timeout = 0
+                while not DoesEntityExist(entity) and timeout < 100 do
+                    Wait(10)
+                    timeout = timeout + 1
+                end
+                
+                if DoesEntityExist(entity) then
+                    if drop.frozen then
+                        FreezeEntityPosition(entity, true)
+                    end
+                    SetEntityRotation(entity, drop.rotation.x, drop.rotation.y, drop.rotation.z, 2, true)
+                    
+                    local netId = NetworkGetNetworkIdFromEntity(entity)
+                    drop.netId = netId
+                    reloaded[dropId] = drop
+                end
             end
-        end
-        activeDrops = reloaded
-        SaveDrops()
+            activeDrops = reloaded
+            SaveDrops()
+        end)
     end
 end)
 

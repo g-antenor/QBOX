@@ -9,9 +9,11 @@ local Query = {
     SELECT_GLOVEBOX = 'SELECT plate, glovebox FROM `{vehicle_table}` WHERE `{vehicle_column}` = ?',
     SELECT_TRUNK = 'SELECT plate, trunk FROM `{vehicle_table}` WHERE `{vehicle_column}` = ?',
     SELECT_PLAYER = 'SELECT inventory FROM `{user_table}` WHERE `{user_column}` = ?',
+    SELECT_PLAYER_HELD = 'SELECT held_item FROM `{user_table}` WHERE `{user_column}` = ?',
     UPDATE_TRUNK = 'UPDATE `{vehicle_table}` SET trunk = ? WHERE `{vehicle_column}` = ?',
     UPDATE_GLOVEBOX = 'UPDATE `{vehicle_table}` SET glovebox = ? WHERE `{vehicle_column}` = ?',
     UPDATE_PLAYER = 'UPDATE `{user_table}` SET inventory = ? WHERE `{user_column}` = ?',
+    UPDATE_PLAYER_HELD = 'UPDATE `{user_table}` SET held_item = ? WHERE `{user_column}` = ?',
 }
 
 Citizen.CreateThreadNow(function()
@@ -113,6 +115,12 @@ Citizen.CreateThreadNow(function()
         MySQL.query(('ALTER TABLE `%s` ADD COLUMN `inventory` LONGTEXT NULL'):format(playerTable))
     end
 
+    success, result = pcall(MySQL.scalar.await, ('SELECT held_item FROM `%s`'):format(playerTable))
+
+    if not success then
+        MySQL.query(('ALTER TABLE `%s` ADD COLUMN `held_item` LONGTEXT NULL'):format(playerTable))
+    end
+
     local clearStashes = GetConvar('inventory:clearstashes', '6 MONTH')
 
     if clearStashes ~= '' then
@@ -129,6 +137,15 @@ end
 
 function db.savePlayer(owner, inventory)
     return MySQL.prepare(Query.UPDATE_PLAYER, { inventory, owner })
+end
+
+function db.loadPlayerHeld(identifier)
+    local held = MySQL.prepare.await(Query.SELECT_PLAYER_HELD, { identifier }) --[[@as string?]]
+    return held and json.decode(held)
+end
+
+function db.savePlayerHeld(owner, held)
+    return MySQL.prepare(Query.UPDATE_PLAYER_HELD, { held and json.encode(held) or nil, owner })
 end
 
 function db.saveStash(owner, dbId, inventory)
