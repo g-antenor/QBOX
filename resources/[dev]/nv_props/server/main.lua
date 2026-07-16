@@ -21,6 +21,12 @@ end
 local function SpawnDrop(itemName, count, coords, rotation, metadata, frozen)
     local model = Config.Items[itemName]
     if not model then return nil end
+    
+    if itemName == 'trash_bag_black' or itemName == 'trash_bag_white' then
+        if not metadata or not metadata.isFull then
+            model = Config.DefaultModel
+        end
+    end
     local modelHash = model
     
     local entity = CreateObjectNoOffset(modelHash, coords.x, coords.y, coords.z, true, true, true)
@@ -70,8 +76,15 @@ AddEventHandler('onResourceStart', function(resourceName)
             if payload.action == 'drop' or payload.toInventory == 'newdrop' then
                 local itemName = payload.fromSlot.name
                 
-                -- Only spawn custom prop if the item has a model mapped
-                if Config.Items[itemName] then
+                local isTrashBag = (itemName == 'trash_bag_black' or itemName == 'trash_bag_white')
+                local isFullTrashBag = isTrashBag and payload.fromSlot.metadata and payload.fromSlot.metadata.isFull
+                
+                local hasMappedModel = Config.Items[itemName]
+                if isTrashBag and not isFullTrashBag then
+                    hasMappedModel = false
+                end
+                
+                if hasMappedModel then
                     local source = tonumber(payload.fromInventory)
                     if not source then return end
                     

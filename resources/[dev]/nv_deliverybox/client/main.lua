@@ -146,7 +146,7 @@ local function createDeliveryTargetZone(coords)
     
     currentTargetZone = exports.ox_target:addSphereZone({
         coords = coords,
-        radius = 1.5,
+        radius = 1.0,
         debug = false,
         options = {
             {
@@ -216,6 +216,7 @@ CreateThread(function()
             name = 'nv_deliverybox:start',
             label = 'Solicitar Entrega',
             icon = 'fa-solid fa-truck-ramp-box',
+            distance = 1.0,
             canInteract = function()
                 return not activeJob
             end,
@@ -355,6 +356,7 @@ CreateThread(function()
             name = 'nv_deliverybox:pickup_pkg',
             label = 'Pegar Encomenda',
             icon = 'fa-solid fa-box',
+            distance = 1.0,
             canInteract = function(entity, distance, coords, name, bone)
                 return isPackageFromPallet(entity)
             end,
@@ -466,6 +468,7 @@ CreateThread(function()
                             name = 'nv_deliverybox:deliver_pkg',
                             label = 'Entregar Encomenda',
                             icon = 'fa-solid fa-hands-holding',
+                            distance = 1.0,
                             canInteract = function()
                                 local hasItem = false
                                 local deliveryItems = {'delivery_letter', 'delivery_small_box', 'delivery_large_package'}
@@ -625,6 +628,7 @@ end)
 
 local carryingProp = nil
 local carryingItemName = nil
+local activeCarryAnim = { dict = "anim@heists@box_carry@", name = "idle" }
 
 local function stopCarrying()
     if carryingProp and DoesEntityExist(carryingProp) then
@@ -646,14 +650,41 @@ local function startCarrying(itemName)
     local coords = GetEntityCoords(ped)
     carryingProp = CreateObject(model, coords.x, coords.y, coords.z, true, true, false)
     
-    -- Attach to player hands (bone 60309 / Left Hand)
-    AttachEntityToEntity(carryingProp, ped, GetPedBoneIndex(ped, 60309), 0.025, 0.08, 0.255, -145.0, 290.0, 0.0, true, true, false, true, 1, true)
+    -- Default carrying values
+    local animDict = "anim@heists@box_carry@"
+    local animName = "idle"
+    local boneId = 60309
+    local ox, oy, oz = 0.025, 0.08, 0.255
+    local rx, ry, rz = -145.0, 290.0, 0.0
+
+    -- Query nv_syncitens database export using pcall to avoid script crashing if not running
+    local hasSync, data = pcall(function()
+        return exports.nv_syncitens:getAttachment(model)
+    end)
+
+    if hasSync and data then
+        animDict = data.animDict or animDict
+        animName = data.animName or animName
+        boneId = data.boneId or boneId
+        if data.offset then
+            ox, oy, oz = data.offset.x or ox, data.offset.y or oy, data.offset.z or oz
+        end
+        if data.rotation then
+            rx, ry, rz = data.rotation.x or rx, data.rotation.y or ry, data.rotation.z or rz
+        end
+    end
+
+    activeCarryAnim.dict = animDict
+    activeCarryAnim.name = animName
+
+    -- Attach using custom database values
+    AttachEntityToEntity(carryingProp, ped, GetPedBoneIndex(ped, boneId), ox, oy, oz, rx, ry, rz, true, true, false, true, 1, true)
     
     carryingItemName = itemName
 
-    -- Play carry anim
-    requestAnimDict("anim@heists@box_carry@")
-    TaskPlayAnim(ped, "anim@heists@box_carry@", "idle", 8.0, -8.0, -1, 49, 0, false, false, false)
+    -- Play carrying animation
+    requestAnimDict(animDict)
+    TaskPlayAnim(ped, animDict, animName, 8.0, -8.0, -1, 49, 0, false, false, false)
 end
 
 CreateThread(function()
@@ -678,9 +709,9 @@ CreateThread(function()
             end
 
             -- Ensure animation is playing
-            if not IsEntityPlayingAnim(ped, "anim@heists@box_carry@", "idle", 3) then
-                requestAnimDict("anim@heists@box_carry@")
-                TaskPlayAnim(ped, "anim@heists@box_carry@", "idle", 8.0, -8.0, -1, 49, 0, false, false, false)
+            if not IsEntityPlayingAnim(ped, activeCarryAnim.dict, activeCarryAnim.name, 3) then
+                requestAnimDict(activeCarryAnim.dict)
+                TaskPlayAnim(ped, activeCarryAnim.dict, activeCarryAnim.name, 8.0, -8.0, -1, 49, 0, false, false, false)
             end
 
             -- Disable running, jumping, and entering vehicles

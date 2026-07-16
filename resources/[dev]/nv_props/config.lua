@@ -27,4 +27,13 @@ Config.Items = {
     ['weapon_heavyshotgun'] = `w_sg_heavyshotgun`,
     ['weapon_marksmanrifle'] = `w_sr_marksmanrifle`,
     ['weapon_sniperrifle'] = `w_sr_sniperrifle`,
+    
+    -- Delivery Boxes
+    ['delivery_letter'] = `prop_cs_box_clothes`,
+    ['delivery_small_box'] = `prop_cardbordbox_02a`,
+    ['delivery_large_package'] = `prop_cs_box_step`,
+    
+    -- Trash Bags
+    ['trash_bag_black'] = `prop_rub_binbag_01`,
+    ['trash_bag_white'] = `prop_rub_binbag_03`,
 }

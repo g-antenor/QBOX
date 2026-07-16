@@ -105,7 +105,7 @@ CreateThread(function()
             name = 'pickup_prop_drop',
             icon = 'fa-solid fa-hand',
             label = 'Pegar Item',
-            distance = 2.5,
+            distance = 1.0,
             canInteract = function(entity, distance, coords, name, bone)
                 if not DoesEntityExist(entity) then return false end
                 local netId = NetworkGetNetworkIdFromEntity(entity)

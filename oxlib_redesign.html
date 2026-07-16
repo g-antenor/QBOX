@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ox_lib — UI Kit (Redesign)</title>
+<style>
+  :root{
+    --bg: #0c0c0e;
+    --panel: #17161a;
+    --edge: #232025;
+    --text: #e6e4e3;
+    --text-dim: #86828a;
+    --text-faint: #4c4850;
+    --red: #ff2438;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    overflow:hidden;
+    user-select:none;
+  }
+
+  .app{ display:flex; height:100%; }
+
+  /* ---------- sidebar ---------- */
+  .sidebar{
+    width:236px; flex:none;
+    background: var(--panel);
+    border-right:1px solid var(--edge);
+    overflow-y:auto;
+  }
+  .sidebar-title{ padding:16px 14px 3px; font-size:12px; font-weight:700; letter-spacing:.03em; color:var(--text); }
+  .sidebar-sub{ padding:0 14px 12px; font-size:10.5px; color:var(--text-faint); line-height:1.4; }
+  .section-label{ padding:13px 14px 6px; font-size:9px; letter-spacing:.09em; text-transform:uppercase; color:var(--text-faint); }
+  .side-item{
+    padding:9px 14px;
+    font-size:12px;
+    color: var(--text-dim);
+    border-left:2px solid transparent;
+    border-bottom:1px solid var(--edge);
+    cursor:pointer;
+    transition: color .1s ease, border-color .1s ease, background .1s ease;
+  }
+  .side-item:hover, .side-item:focus-visible{
+    color: var(--text);
+    border-left-color: var(--red);
+    background: rgba(255,36,56,.05);
+    outline:none;
+  }
+
+  /* ---------- stage ---------- */
+  .stage{ flex:1; position:relative; background: linear-gradient(180deg,#0e0d10,#0a090b); overflow:hidden; }
+  .stage-hint{ position:absolute; top:20px; left:50%; transform:translateX(-50%); font-size:11px; color:var(--text-faint); }
+
+  @keyframes fade{ from{ opacity:0; } to{ opacity:1; } }
+
+  /* ---------- context menu / menu ---------- */
+  .panel-menu{
+    position:fixed; top:50%; right:26px; transform:translateY(-50%);
+    width:236px;
+    background: var(--panel);
+    border:1px solid var(--edge);
+    border-radius:4px;
+    overflow:hidden;
+    z-index:50;
+    opacity:0;
+    animation: fade .12s ease forwards;
+  }
+  .panel-menu-header{ display:flex; align-items:center; gap:8px; padding:10px 12px; border-bottom:1px solid var(--edge); }
+  .panel-menu-header .back, .panel-menu-header .close{ cursor:pointer; color:var(--text-faint); font-size:13px; line-height:1; }
+  .panel-menu-header .back:hover, .panel-menu-header .close:hover{ color:var(--red); }
+  .panel-menu-header .title{ flex:1; font-size:12px; font-weight:700; letter-spacing:.02em; color:var(--text); }
+
+  .pm-item{ padding:9px 12px; border-bottom:1px solid var(--edge); cursor:pointer; display:flex; align-items:center; gap:9px; }
+  .pm-item:last-child{ border-bottom:none; }
+  .pm-item:hover, .pm-item:focus-visible{ background: rgba(255,36,56,.05); outline:none; }
+  .pm-item.static{ cursor:default; }
+  .pm-item.static:hover{ background:none; }
+  .pm-main{ flex:1; min-width:0; }
+  .pm-label{ font-size:12px; color:var(--text); }
+  .pm-desc{ font-size:10px; color:var(--text-faint); margin-top:2px; }
+  .pm-arrow{ font-size:12px; color:var(--text-faint); flex:none; }
+  .pm-check{ width:13px; height:13px; border:1px solid var(--text-faint); border-radius:2px; flex:none; }
+  .pm-check.on{ border-color:var(--red); background:var(--red); }
+  .pm-slider-row .pm-label{ margin-bottom:7px; }
+  .pm-slider{ width:100%; -webkit-appearance:none; appearance:none; height:2px; background:var(--edge); outline:none; }
+  .pm-slider::-webkit-slider-thumb{ -webkit-appearance:none; width:11px; height:11px; border-radius:50%; background:var(--red); cursor:pointer; }
+  .pm-slider::-moz-range-thumb{ width:11px; height:11px; border-radius:50%; background:var(--red); border:none; cursor:pointer; }
+
+  /* ---------- modal (input / alert) ---------- */
+  .modal-overlay{
+    position:fixed; inset:0; z-index:60;
+    background: rgba(6,5,7,.6);
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; animation: fade .12s ease forwards;
+  }
+  .modal{ width:280px; background: var(--panel); border:1px solid var(--edge); border-radius:4px; }
+  .modal-header{ padding:11px 14px; border-bottom:1px solid var(--edge); font-size:12px; font-weight:700; letter-spacing:.02em; color:var(--text); }
+  .modal-body{ padding:14px; }
+  .modal-body p{ margin:0; font-size:12px; color:var(--text-dim); line-height:1.5; }
+  .field-row{ margin-bottom:12px; }
+  .field-row:last-child{ margin-bottom:0; }
+  .field-label{ font-size:10px; letter-spacing:.03em; text-transform:uppercase; color:var(--text-faint); margin-bottom:5px; display:block; }
+  .field-input, .field-select{
+    width:100%; background:#0f0e10; border:1px solid var(--edge); color:var(--text);
+    font-size:12px; padding:7px 8px; border-radius:3px; font-family:inherit;
+  }
+  .field-input:focus, .field-select:focus{ outline:none; border-color: var(--red); }
+  .field-check-row{ display:flex; align-items:center; gap:8px; cursor:pointer; }
+  .field-check-row .field-label{ margin:0; text-transform:none; font-size:12px; color:var(--text); letter-spacing:0; }
+  .field-slider-row{ display:flex; align-items:center; gap:10px; }
+  .field-slider-row input[type=range]{ flex:1; -webkit-appearance:none; appearance:none; height:2px; background:var(--edge); outline:none; }
+  .field-slider-row input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:12px; height:12px; border-radius:50%; background:var(--red); cursor:pointer; }
+  .field-slider-row .val{ width:28px; text-align:right; font-size:11px; font-family: ui-monospace, Consolas, monospace; color:var(--text-dim); }
+
+  .modal-actions{ display:flex; gap:8px; padding:12px 14px; border-top:1px solid var(--edge); }
+  .btn{
+    flex:1; padding:8px 0; font-size:11px; font-weight:600; letter-spacing:.03em; text-transform:uppercase;
+    border-radius:3px; border:1px solid var(--edge); background:transparent; color:var(--text-dim);
+    cursor:pointer; transition: border-color .1s ease, color .1s ease, background .1s ease;
+  }
+  .btn:hover{ color:var(--text); border-color: var(--text-faint); }
+  .btn.primary{ background: var(--red); border-color: var(--red); color:#fff; }
+  .btn.primary:hover{ background:#e01d30; }
+
+  /* ---------- progress bar ---------- */
+  .progress-wrap{ position:absolute; bottom:70px; left:50%; transform:translateX(-50%); width:260px; text-align:center; z-index:30; }
+  .progress-label{ font-size:10.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--text-dim); margin-bottom:6px; }
+  .progress-track{ height:4px; background:var(--edge); border-radius:2px; overflow:hidden; cursor:pointer; }
+  .progress-fill{ height:100%; width:0%; background:var(--red); }
+  .progress-cancel-hint{ margin-top:6px; font-size:9px; color:var(--text-faint); }
+
+  /* ---------- progress circle ---------- */
+  .circle-wrap{ position:absolute; bottom:70px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:6px; z-index:30; }
+  .circle-ring{ --pct:0; width:46px; height:46px; border-radius:50%; background:conic-gradient(var(--red) calc(var(--pct)*1%), var(--edge) 0); display:flex; align-items:center; justify-content:center; position:relative; }
+  .circle-ring::before{ content:""; position:absolute; inset:3px; border-radius:50%; background:var(--panel); }
+  .circle-ring span{ position:relative; z-index:1; font-size:15px; }
+  .circle-label{ font-size:10px; letter-spacing:.03em; color:var(--text-faint); text-transform:uppercase; }
+
+  /* ---------- text ui ---------- */
+  .textui{
+    position:absolute; bottom:24px; left:50%; transform:translateX(-50%);
+    display:flex; align-items:center; gap:7px;
+    background: var(--panel); border:1px solid var(--edge);
+    padding:6px 12px; border-radius:3px;
+    font-size:11px; color:var(--text-dim); z-index:20;
+  }
+  .keycap{
+    display:inline-flex; align-items:center; justify-content:center;
+    min-width:16px; height:16px; padding:0 4px;
+    border:1px solid var(--text-faint); border-radius:3px;
+    font-size:9px; font-family: ui-monospace, Consolas, monospace; color:var(--text-dim);
+  }
+
+  /* ---------- notify ---------- */
+  .notify-stack{ position:absolute; top:20px; right:20px; display:flex; flex-direction:column; gap:8px; z-index:80; width:230px; }
+  .notify{
+    background: var(--panel); border:1px solid var(--edge); border-left:2px solid var(--text-faint);
+    border-radius:3px; padding:9px 11px;
+    opacity:0; transform:translateX(8px);
+    transition: opacity .15s ease, transform .15s ease;
+    cursor:pointer;
+  }
+  .notify.show{ opacity:1; transform:translateX(0); }
+  .notify.leaving{ opacity:0; transform:translateX(8px); }
+  .notify-title{ font-size:11.5px; font-weight:700; color:var(--text); margin-bottom:2px; }
+  .notify-desc{ font-size:10.5px; color:var(--text-dim); line-height:1.4; }
+  .notify.success{ border-left-color:#3ddc84; }
+  .notify.error{ border-left-color:var(--red); }
+  .notify.warning{ border-left-color:#e0a83d; }
+  .notify.info{ border-left-color:#4a90d9; }
+</style>
+</head>
+<body>
+
+  <div class="app">
+    <div class="sidebar">
+      <div class="sidebar-title">ox_lib — UI Kit</div>
+      <div class="sidebar-sub">Clique num item para testar o componente na área ao lado.</div>
+
+      <div class="section-label">Menus</div>
+      <div class="side-item" id="btnContext" tabindex="0">Context Menu</div>
+      <div class="side-item" id="btnMenu" tabindex="0">Menu simples</div>
+
+      <div class="section-label">Diálogos</div>
+      <div class="side-item" id="btnInput" tabindex="0">Input Dialog</div>
+      <div class="side-item" id="btnAlert" tabindex="0">Alert Dialog</div>
+
+      <div class="section-label">Progresso</div>
+      <div class="side-item" id="btnProgressBar" tabindex="0">Progress Bar</div>
+      <div class="side-item" id="btnProgressCircle" tabindex="0">Progress Circle</div>
+
+      <div class="section-label">Feedback</div>
+      <div class="side-item" id="btnTextUI" tabindex="0">Mostrar Text UI</div>
+      <div class="side-item" id="btnNotifySuccess" tabindex="0">Notificação: Sucesso</div>
+      <div class="side-item" id="btnNotifyError" tabindex="0">Notificação: Erro</div>
+      <div class="side-item" id="btnNotifyWarning" tabindex="0">Notificação: Aviso</div>
+      <div class="side-item" id="btnNotifyInfo" tabindex="0">Notificação: Info</div>
+    </div>
+
+    <div class="stage">
+      <div class="stage-hint">Área de teste — Esc fecha menus e diálogos</div>
+    </div>
+  </div>
+
+  <script>
+    const stage = document.querySelector('.stage');
+
+    /* ---------------- notify ---------------- */
+    function notify(type, title, desc){
+      let stack = document.getElementById('notifyStack');
+      if(!stack){
+        stack = document.createElement('div');
+        stack.className = 'notify-stack';
+        stack.id = 'notifyStack';
+        stage.appendChild(stack);
+      }
+      const el = document.createElement('div');
+      el.className = `notify ${type}`;
+      el.innerHTML = `<div class="notify-title">${title}</div><div class="notify-desc">${desc}</div>`;
+      el.addEventListener('click', () => removeNotify(el));
+      stack.appendChild(el);
+      requestAnimationFrame(() => el.classList.add('show'));
+      setTimeout(() => removeNotify(el), 3500);
+    }
+    function removeNotify(el){
+      if(!el.parentNode) return;
+      el.classList.add('leaving');
+      el.classList.remove('show');
+      setTimeout(() => el.remove(), 200);
+    }
+
+    /* ---------------- context menu ---------------- */
+    const CTX_PAGES = {
+      main: {
+        title: 'Veículo',
+        items: [
+          { type:'item', label:'Abrir porta-malas', desc:'Requer estar perto do veículo' },
+          { type:'submenu', label:'Armas', desc:'3 itens disponíveis', target:'weapons' },
+          { type:'toggle', label:'Bloqueio central', key:'lock' },
+          { type:'slider', label:'Volume do rádio', key:'volume', min:0, max:100 },
+        ]
+      },
+      weapons: {
+        title:'Armas', back:'main',
+        items:[
+          { type:'item', label:'Pistola' },
+          { type:'item', label:'Faca' },
+          { type:'item', label:'Bastão' },
+        ]
+      }
+    };
+    let ctxState = { lock:false, volume:40 };
+
+    function renderContextPage(pageId){
+      const page = CTX_PAGES[pageId];
+      let panel = document.getElementById('panelMenu');
+      if(!panel){
+        panel = document.createElement('div');
+        panel.className = 'panel-menu';
+        panel.id = 'panelMenu';
+        document.body.appendChild(panel);
+        document.addEventListener('mousedown', outsidePanelClick);
+      }
+      panel.innerHTML = '';
+
+      const header = document.createElement('div');
+      header.className = 'panel-menu-header';
+      header.innerHTML = `
+        ${page.back ? '<span class="back" title="Voltar">‹</span>' : ''}
+        <span class="title">${page.title}</span>
+        <span class="close" title="Fechar">×</span>
+      `;
+      if(page.back) header.querySelector('.back').addEventListener('click', () => renderContextPage(page.back));
+      header.querySelector('.close').addEventListener('click', closePanelMenu);
+      panel.appendChild(header);
+
+      page.items.forEach(it => {
+        const row = document.createElement('div');
+        row.className = 'pm-item';
+        row.tabIndex = 0;
+
+        if(it.type === 'toggle'){
+          row.innerHTML = `<div class="pm-check ${ctxState[it.key] ? 'on' : ''}"></div><div class="pm-main"><div class="pm-label">${it.label}</div></div>`;
+          row.addEventListener('click', () => { ctxState[it.key] = !ctxState[it.key]; renderContextPage(pageId); });
+        } else if(it.type === 'slider'){
+          row.className = 'pm-item static pm-slider-row';
+          row.innerHTML = `
+            <div class="pm-main">
+              <div class="pm-label">${it.label}</div>
+              <input type="range" class="pm-slider" min="${it.min}" max="${it.max}" value="${ctxState[it.key]}">
+            </div>
+          `;
+          row.querySelector('.pm-slider').addEventListener('input', e => { ctxState[it.key] = e.target.value; });
+        } else if(it.type === 'submenu'){
+          row.innerHTML = `<div class="pm-main"><div class="pm-label">${it.label}</div>${it.desc ? `<div class="pm-desc">${it.desc}</div>` : ''}</div><div class="pm-arrow">›</div>`;
+          row.addEventListener('click', () => renderContextPage(it.target));
+        } else {
+          row.innerHTML = `<div class="pm-main"><div class="pm-label">${it.label}</div>${it.desc ? `<div class="pm-desc">${it.desc}</div>` : ''}</div>`;
+          row.addEventListener('click', () => { closePanelMenu(); notify('info', 'Ação executada', it.label); });
+        }
+
+        panel.appendChild(row);
+      });
+    }
+
+    function openContextMenu(){ closeModal(); renderContextPage('main'); }
+
+    function closePanelMenu(){
+      const panel = document.getElementById('panelMenu');
+      if(panel){ panel.remove(); document.removeEventListener('mousedown', outsidePanelClick); }
+    }
+    function outsidePanelClick(e){
+      const panel = document.getElementById('panelMenu');
+      if(panel && !panel.contains(e.target)) closePanelMenu();
+    }
+
+    /* ---------------- simple menu ---------------- */
+    function openSimpleMenu(){
+      closeModal();
+      closePanelMenu();
+      const panel = document.createElement('div');
+      panel.className = 'panel-menu';
+      panel.id = 'panelMenu';
+      panel.innerHTML = `<div class="panel-menu-header"><span class="title">Selecionar jogador</span><span class="close" title="Fechar">×</span></div>`;
+      ['John Doe', 'Maria Silva', 'Carlos Souza', 'Beatriz Lima'].forEach(name => {
+        const row = document.createElement('div');
+        row.className = 'pm-item';
+        row.tabIndex = 0;
+        row.innerHTML = `<div class="pm-main"><div class="pm-label">${name}</div></div>`;
+        row.addEventListener('click', () => { closePanelMenu(); notify('info', 'Jogador selecionado', name); });
+        panel.appendChild(row);
+      });
+      panel.querySelector('.close').addEventListener('click', closePanelMenu);
+      document.body.appendChild(panel);
+      document.addEventListener('mousedown', outsidePanelClick);
+    }
+
+    /* ---------------- input dialog ---------------- */
+    function openInputDialog(){
+      closePanelMenu();
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      overlay.id = 'modalOverlay';
+      overlay.innerHTML = `
+        <div class="modal">
+          <div class="modal-header">Configurar veículo</div>
+          <div class="modal-body">
+            <div class="field-row">
+              <label class="field-label">Nome</label>
+              <input type="text" class="field-input" id="fName" value="Meu carro">
+            </div>
+            <div class="field-row">
+              <label class="field-label">Quantidade de chaves</label>
+              <input type="number" class="field-input" id="fQty" value="2" min="0">
+            </div>
+            <div class="field-row">
+              <label class="field-check-row"><input type="checkbox" id="fLocked" checked><span class="field-label">Trancado</span></label>
+            </div>
+            <div class="field-row">
+              <label class="field-label">Cor</label>
+              <select class="field-select" id="fColor">
+                <option>Vermelho</option><option>Azul</option><option>Preto</option><option>Branco</option>
+              </select>
+            </div>
+            <div class="field-row">
+              <label class="field-label">Volume do som</label>
+              <div class="field-slider-row">
+                <input type="range" id="fVolume" min="0" max="100" value="60">
+                <span class="val" id="fVolumeVal">60</span>
+              </div>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn" id="fCancel">Cancelar</button>
+            <button class="btn primary" id="fConfirm">Confirmar</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      const volumeInput = overlay.querySelector('#fVolume');
+      const volumeVal = overlay.querySelector('#fVolumeVal');
+      volumeInput.addEventListener('input', () => volumeVal.textContent = volumeInput.value);
+
+      overlay.querySelector('#fCancel').addEventListener('click', closeModal);
+      overlay.querySelector('#fConfirm').addEventListener('click', () => {
+        const name = overlay.querySelector('#fName').value || 'Sem nome';
+        closeModal();
+        notify('success', 'Formulário confirmado', `Veículo "${name}" atualizado`);
+      });
+      overlay.addEventListener('mousedown', e => { if(e.target === overlay) closeModal(); });
+    }
+
+    /* ---------------- alert dialog ---------------- */
+    function openAlertDialog(){
+      closePanelMenu();
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      overlay.id = 'modalOverlay';
+      overlay.innerHTML = `
+        <div class="modal">
+          <div class="modal-header">Remover item?</div>
+          <div class="modal-body">
+            <p>Essa ação não pode ser desfeita. O item será removido permanentemente do inventário.</p>
+          </div>
+          <div class="modal-actions">
+            <button class="btn" id="aCancel">Cancelar</button>
+            <button class="btn primary" id="aConfirm">Remover</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      overlay.querySelector('#aCancel').addEventListener('click', closeModal);
+      overlay.querySelector('#aConfirm').addEventListener('click', () => {
+        closeModal();
+        notify('error', 'Item removido', 'A ação foi confirmada');
+      });
+      overlay.addEventListener('mousedown', e => { if(e.target === overlay) closeModal(); });
+    }
+
+    function closeModal(){
+      const overlay = document.getElementById('modalOverlay');
+      if(overlay) overlay.remove();
+    }
+
+    document.addEventListener('keydown', e => {
+      if(e.key !== 'Escape') return;
+      if(document.getElementById('modalOverlay')) closeModal();
+      else if(document.getElementById('panelMenu')) closePanelMenu();
+    });
+
+    /* ---------------- progress bar ---------------- */
+    function runProgressBar(){
+      if(document.getElementById('progressWrap')) return;
+      const wrap = document.createElement('div');
+      wrap.className = 'progress-wrap';
+      wrap.id = 'progressWrap';
+      wrap.innerHTML = `
+        <div class="progress-label">Hotwiring...</div>
+        <div class="progress-track" id="progressTrack"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-cancel-hint">Clique na barra para cancelar</div>
+      `;
+      stage.appendChild(wrap);
+      const fill = wrap.querySelector('#progressFill');
+      const duration = 3000;
+      const start = performance.now();
+      let raf = null;
+
+      function tick(now){
+        const pct = Math.min(100, (now - start) / duration * 100);
+        fill.style.width = pct + '%';
+        if(pct < 100 && document.getElementById('progressWrap')){
+          raf = requestAnimationFrame(tick);
+        } else if(pct >= 100){
+          wrap.remove();
+          notify('success', 'Concluído', 'Ação finalizada com sucesso');
+        }
+      }
+      raf = requestAnimationFrame(tick);
+
+      wrap.querySelector('#progressTrack').addEventListener('click', () => {
+        cancelAnimationFrame(raf);
+        wrap.remove();
+        notify('warning', 'Cancelado', 'A ação foi interrompida');
+      });
+    }
+
+    /* ---------------- progress circle ---------------- */
+    function runProgressCircle(){
+      if(document.getElementById('circleWrap')) return;
+      const wrap = document.createElement('div');
+      wrap.className = 'circle-wrap';
+      wrap.id = 'circleWrap';
+      wrap.innerHTML = `<div class="circle-ring" id="circleRing"><span>🔧</span></div><div class="circle-label">Reparando</div>`;
+      stage.appendChild(wrap);
+      const ring = wrap.querySelector('#circleRing');
+      const duration = 3000;
+      const start = performance.now();
+
+      function tick(now){
+        const pct = Math.min(100, (now - start) / duration * 100);
+        ring.style.setProperty('--pct', pct);
+        if(pct < 100 && document.getElementById('circleWrap')){
+          requestAnimationFrame(tick);
+        } else if(pct >= 100){
+          wrap.remove();
+          notify('success', 'Concluído', 'Reparo finalizado');
+        }
+      }
+      requestAnimationFrame(tick);
+    }
+
+    /* ---------------- text ui ---------------- */
+    function toggleTextUI(btn){
+      const existing = document.getElementById('textui');
+      if(existing){ existing.remove(); btn.textContent = 'Mostrar Text UI'; return; }
+      const el = document.createElement('div');
+      el.className = 'textui';
+      el.id = 'textui';
+      el.innerHTML = `<span class="keycap">E</span> Abrir porta-malas`;
+      stage.appendChild(el);
+      btn.textContent = 'Ocultar Text UI';
+    }
+
+    /* ---------------- wire up sidebar ---------------- */
+    document.getElementById('btnContext').addEventListener('click', openContextMenu);
+    document.getElementById('btnMenu').addEventListener('click', openSimpleMenu);
+    document.getElementById('btnInput').addEventListener('click', openInputDialog);
+    document.getElementById('btnAlert').addEventListener('click', openAlertDialog);
+    document.getElementById('btnProgressBar').addEventListener('click', runProgressBar);
+    document.getElementById('btnProgressCircle').addEventListener('click', runProgressCircle);
+    document.getElementById('btnTextUI').addEventListener('click', e => toggleTextUI(e.currentTarget));
+    document.getElementById('btnNotifySuccess').addEventListener('click', () => notify('success', 'Sucesso', 'Ação concluída com êxito'));
+    document.getElementById('btnNotifyError').addEventListener('click', () => notify('error', 'Erro', 'Algo deu errado'));
+    document.getElementById('btnNotifyWarning').addEventListener('click', () => notify('warning', 'Atenção', 'Verifique os dados informados'));
+    document.getElementById('btnNotifyInfo').addEventListener('click', () => notify('info', 'Informação', 'Isto é uma notificação informativa'));
+  </script>
+</body>
+</html>

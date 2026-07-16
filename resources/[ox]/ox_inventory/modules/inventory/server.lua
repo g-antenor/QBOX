@@ -934,6 +934,20 @@ function Inventory.ContainerWeight(container, metaWeight, playerInventory)
 	container.weight = Items(container.name).weight
 	container.weight += metaWeight
 	container.metadata.weight = metaWeight
+	
+	if container.name == 'trash_bag_black' or container.name == 'trash_bag_white' then
+		if metaWeight > 0 then
+			container.metadata.isFull = true
+			container.metadata.label = container.name == 'trash_bag_black' and 'Saco Cheio Preto' or 'Saco Cheio Branco'
+			container.metadata.image = container.name == 'trash_bag_black' and 'trash_bag_black_full.png' or 'trash_bag_white_full.png'
+		else
+			container.metadata.isFull = false
+			container.metadata.label = nil
+			container.metadata.image = nil
+		end
+		playerInventory.changed = true
+	end
+	
 	playerInventory.weight += container.weight
 end
 

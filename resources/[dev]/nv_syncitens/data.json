@@ -1,0 +1,56 @@
+{
+    "prop_cs_box_clothes": {
+        "idle": {
+            "name": "Carregar caixa pequena",
+            "boneId": 60309,
+            "rotation": {
+                "x": -45.0,
+                "y": -69.0,
+                "z": 0.0
+            },
+            "offset": {
+                "x": 0.12,
+                "y": -0.025,
+                "z": 0.217
+            },
+            "animName": "idle",
+            "animDict": "anim@heists@box_carry@"
+        }
+    },
+    "prop_cardbordbox_02a": {
+        "idle": {
+            "name": "Carregar caixa média",
+            "boneId": 60309,
+            "rotation": {
+                "x": 46.0,
+                "y": -72.0,
+                "z": -3.0
+            },
+            "offset": {
+                "x": 0.025,
+                "y": 0.28,
+                "z": 0.28
+            },
+            "animName": "idle",
+            "animDict": "anim@heists@box_carry@"
+        }
+    },
+    "prop_cs_box_step": {
+        "idle": {
+            "name": "Carregar caixa grande",
+            "boneId": 60309,
+            "rotation": {
+                "x": 132.0,
+                "y": 95.0,
+                "z": -11.0
+            },
+            "offset": {
+                "x": -0.095,
+                "y": 0.165,
+                "z": 0.51
+            },
+            "animName": "idle",
+            "animDict": "anim@heists@box_carry@"
+        }
+    }
+}

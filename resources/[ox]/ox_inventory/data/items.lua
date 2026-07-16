@@ -237,4 +237,78 @@ return {
 		label = 'Caixa Grande',
 		weight = 15000,
 	},
+
+	['glass'] = {
+		label = 'Vidro',
+		weight = 10,
+	},
+
+	['plastic_bottle'] = {
+		label = 'Garrafa Plástica Vazia',
+		weight = 5,
+	},
+
+	['empty_can'] = {
+		label = 'Latinha Vazia',
+		weight = 5,
+	},
+
+	['chips_bag'] = {
+		label = 'Saco de Salgadinho Vazio',
+		weight = 2,
+	},
+
+	['coffee_cup'] = {
+		label = 'Copo de Café Vazio',
+		weight = 2,
+	},
+
+	['beer_bottle_empty'] = {
+		label = 'Garrafa de Cerveja Vazia',
+		weight = 15,
+	},
+
+	['wine_bottle_empty'] = {
+		label = 'Garrafa de Vinho Vazia',
+		weight = 20,
+	},
+
+	['whiskey_bottle_empty'] = {
+		label = 'Garrafa de Uísque Vazia',
+		weight = 25,
+	},
+
+	['wire_cable'] = {
+		label = 'Cabo de Fio',
+		weight = 30,
+	},
+
+	['broken_phone'] = {
+		label = 'Celular Quebrado',
+		weight = 50,
+	},
+
+	['trash_bag_black'] = {
+		label = 'Saco de Lixo Preto',
+		weight = 100,
+		client = {
+			image = 'trash_bag_black.png'
+		}
+	},
+
+	['trash_bag_white'] = {
+		label = 'Saco de Lixo Branco',
+		weight = 100,
+		client = {
+			image = 'trash_bag_white.png'
+		}
+	},
+
+	['recycled_material'] = {
+		label = 'Material reciclável',
+		weight = 50,
+		client = {
+			image = 'recycled_material.png'
+		}
+	},
 }

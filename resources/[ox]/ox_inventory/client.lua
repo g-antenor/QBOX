@@ -327,6 +327,9 @@ end
 
 RegisterNetEvent('ox_inventory:openInventory', client.openInventory)
 exports('openInventory', client.openInventory)
+exports('GetCurrentInventory', function()
+	return invOpen and currentInventory or nil
+end)
 
 RegisterNetEvent('ox_inventory:forceOpenInventory', function(left, right)
 	if source == '' then return end
