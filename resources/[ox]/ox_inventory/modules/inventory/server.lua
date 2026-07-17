@@ -946,6 +946,12 @@ function Inventory.ContainerWeight(container, metaWeight, playerInventory)
 			container.metadata.image = nil
 		end
 		playerInventory.changed = true
+		
+		-- Force synchronize this slot with the client immediately so NUI and client scripts see the updated isFull and icon!
+		local slots = {
+			{ item = container, inventory = playerInventory.id }
+		}
+		playerInventory:syncSlotsWithClients(slots, true)
 	end
 	
 	playerInventory.weight += container.weight
@@ -1674,7 +1680,8 @@ local function dropItem(source, playerInventory, fromData, data)
 	if not inventory then hooks.success = false return end
 
 	inventory.coords = data.coords
-	Inventory.Drops[dropId] = {coords = inventory.coords, instance = data.instance}
+	local itemModel = Items(toData.name).model or Items(toData.name).client?.model or Items(toData.name).client?.prop?.model
+	Inventory.Drops[dropId] = {coords = inventory.coords, instance = data.instance, model = itemModel}
 	playerInventory.changed = true
 
 	TriggerClientEvent('ox_inventory:createDrop', -1, dropId, Inventory.Drops[dropId], playerInventory.open and source, slot)

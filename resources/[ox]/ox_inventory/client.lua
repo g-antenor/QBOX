@@ -331,6 +331,10 @@ exports('GetCurrentInventory', function()
 	return invOpen and currentInventory or nil
 end)
 
+exports('GetDrops', function()
+	return client.drops or {}
+end)
+
 RegisterNetEvent('ox_inventory:forceOpenInventory', function(left, right)
 	if source == '' then return end
 
@@ -1056,7 +1060,11 @@ local function onEnterDrop(point)
 		SetModelAsNoLongerNeeded(model)
 		PlaceObjectOnGroundProperly(entity)
 		FreezeEntityPosition(entity, true)
-		SetEntityCollision(entity, false, true)
+		local hasCollision = false
+		if model == `prop_rub_binbag_01` or model == `prop_rub_binbag_03` or model == -375613925 or model == -1859343714 then
+			hasCollision = true
+		end
+		SetEntityCollision(entity, hasCollision, true)
 
 		point.entity = entity
 	end

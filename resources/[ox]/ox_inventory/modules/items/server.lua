@@ -197,6 +197,13 @@ function Items.Metadata(inv, item, metadata, count)
 			count = 1
 			metadata.container = metadata.container or GenerateText(3)..os.time()
 			metadata.size = container.size
+			if item.name == 'trash_bag_black' or item.name == 'trash_bag_white' then
+				if metadata.isFull == nil then
+					metadata.isFull = true
+					metadata.label = item.name == 'trash_bag_black' and 'Saco Cheio Preto' or 'Saco Cheio Branco'
+					metadata.image = item.name == 'trash_bag_black' and 'trash_bag_black_full.png' or 'trash_bag_white_full.png'
+				end
+			end
 		elseif not next(metadata) then
 			if item.name == 'identification' then
 				count = 1

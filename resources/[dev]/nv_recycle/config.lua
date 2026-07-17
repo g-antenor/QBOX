@@ -56,6 +56,7 @@ Config.SearchAnim = {
     flag = 49 -- Upper body only, allows cancel
 }
 
+
 -- Speed multiplier progression config for Skill Checks
 -- Round size is 3 mini-games. The speed gets faster.
 Config.RoundsDifficulty = {

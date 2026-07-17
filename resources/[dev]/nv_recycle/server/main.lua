@@ -79,122 +79,209 @@ RegisterNetEvent("nv_recycle:server:rewardItem", function(round, isFinalRound)
     end
 end)
 
-local recyclingTrunks = {}
-
--- Hook into openInventory to block access while recycling
+-- Hook into openInventory to block access to garbage truck trunks
 AddEventHandler('onResourceStart', function(resourceName)
     if resourceName == 'ox_inventory' or resourceName == GetCurrentResourceName() then
         exports.ox_inventory:registerHook('openInventory', function(payload)
-            if recyclingTrunks[payload.inventoryId] then
-                TriggerClientEvent('ox_lib:notify', payload.source, {
-                    type = 'error',
-                    title = 'Caminhão Bloqueado',
-                    description = 'Este caminhão está ocupado processando reciclagem!'
-                })
-                return false
+            if payload.inventoryType == 'trunk' and payload.netId then
+                local vehicle = NetworkGetEntityFromNetworkId(payload.netId)
+                if DoesEntityExist(vehicle) then
+                    local model = GetEntityModel(vehicle)
+                    if model == `trash` or model == `trash2` then
+                        TriggerClientEvent('ox_lib:notify', payload.source, {
+                            type = 'error',
+                            title = 'Porta-malas Trancado',
+                            description = 'Este caminhão de lixo não permite acesso manual ao porta-malas!'
+                        })
+                        return false
+                    end
+                end
             end
         end)
     end
 end)
 
--- Callback to check if trunk contains full bags
-lib.callback.register('nv_recycle:server:checkTrunkForBags', function(source, trunkId)
-    local inventory = exports.ox_inventory:GetInventory(trunkId)
-    if not inventory or not inventory.items then return false end
+-- Callback to throw a full bag into the garbage truck
+lib.callback.register('nv_recycle:server:throwBag', function(source, vehicleNetId, itemName, slot)
+    local src = source
+    local vehicle = NetworkGetEntityFromNetworkId(vehicleNetId)
+    if not DoesEntityExist(vehicle) then return false end
     
-    for _, item in pairs(inventory.items) do
-        if (item.name == 'trash_bag_black' or item.name == 'trash_bag_white') and item.metadata and item.metadata.isFull then
-            return true
+    -- Check player inventory item
+    local item = exports.ox_inventory:GetSlot(src, slot)
+    if not item or item.name ~= itemName or not item.metadata or not item.metadata.isFull then
+        return false
+    end
+    
+    -- Check truck state
+    local state = Entity(vehicle).state.recycleState or { bagsCount = 0, totalItemsCount = 0, status = 'idle' }
+    if state.status ~= 'idle' or state.bagsCount >= 3 then
+        TriggerClientEvent('ox_lib:notify', src, {
+            type = 'error',
+            title = 'Caminhão Cheio',
+            description = 'O caminhão já possui o limite de 3 sacos de lixo!'
+        })
+        return false
+    end
+    
+    -- Count items in container bag
+    local containerId = item.metadata.container
+    local itemsCount = 0
+    if containerId then
+        local containerInv = exports.ox_inventory:GetInventory(containerId)
+        if containerInv and containerInv.items then
+            for _, innerItem in pairs(containerInv.items) do
+                itemsCount = itemsCount + innerItem.count
+                -- Remove from container
+                exports.ox_inventory:RemoveItem(containerId, innerItem.name, innerItem.count, nil, innerItem.slot)
+            end
         end
     end
-    return false
+    
+    -- Remove the bag item from the player
+    exports.ox_inventory:RemoveItem(src, itemName, 1, nil, slot)
+    
+    -- Update vehicle state bag
+    local newState = {
+        bagsCount = state.bagsCount + 1,
+        totalItemsCount = state.totalItemsCount + itemsCount,
+        status = 'idle'
+    }
+    Entity(vehicle).state:set('recycleState', newState, true)
+    
+    -- Visually open trunk door for everyone
+    TriggerClientEvent('nv_recycle:client:setTrunkDoor', -1, vehicleNetId, true)
+    
+    TriggerClientEvent('ox_lib:notify', src, {
+        type = 'success',
+        title = 'Lixo Jogado',
+        description = string.format('Saco de lixo jogado na traseira. (%d/3)', newState.bagsCount)
+    })
+    
+    return true
 end)
 
--- Event to process recycling (locks inventory, waits 1 minute, rewards recycled materials)
-RegisterNetEvent('nv_recycle:server:recycleTrunk', function(trunkId, vehicleNetId)
+-- Callback to start compacting the garbage truck
+lib.callback.register('nv_recycle:server:compactTrunk', function(source, vehicleNetId)
     local src = source
-    if recyclingTrunks[trunkId] then return end
+    local vehicle = NetworkGetEntityFromNetworkId(vehicleNetId)
+    if not DoesEntityExist(vehicle) then return false end
     
-    local inventory = exports.ox_inventory:GetInventory(trunkId)
-    if not inventory or not inventory.items then return end
-    
-    -- Check if there are any full bags inside
-    local hasFullBags = false
-    for _, item in pairs(inventory.items) do
-        if (item.name == 'trash_bag_black' or item.name == 'trash_bag_white') and item.metadata and item.metadata.isFull then
-            hasFullBags = true
-            break
-        end
+    local state = Entity(vehicle).state.recycleState or { bagsCount = 0, totalItemsCount = 0, status = 'idle' }
+    if state.status ~= 'idle' or state.bagsCount < 1 then
+        return false
     end
     
-    if not hasFullBags then return end
+    -- Set status to compacting
+    local newState = {
+        bagsCount = state.bagsCount,
+        totalItemsCount = state.totalItemsCount,
+        status = 'compacting'
+    }
+    Entity(vehicle).state:set('recycleState', newState, true)
     
-    -- Lock trunk inventory globally
-    recyclingTrunks[trunkId] = true
+    -- Visually close trunk door for everyone
+    TriggerClientEvent('nv_recycle:client:setTrunkDoor', -1, vehicleNetId, false)
     
-    -- Force close the inventory for any player currently viewing it
-    if inventory.openedBy then
-        for playerId, _ in pairs(inventory.openedBy) do
-            local playerInv = exports.ox_inventory:GetInventory(playerId)
-            if playerInv then
-                playerInv:closeInventory()
-                TriggerClientEvent('ox_lib:notify', playerId, {
-                    type = 'info',
-                    title = 'Processo de Reciclagem',
-                    description = 'Caminhão de lixo começou a reciclar. Inventário bloqueado por 1 minuto.'
-                })
-            end
-        end
-    end
+    TriggerClientEvent('ox_lib:notify', src, {
+        type = 'info',
+        title = 'Compactação Iniciada',
+        description = 'Compactando o lixo. Aguarde 1 minuto.'
+    })
     
-    -- 1 minute recycling processing timer (60 seconds)
+    -- 1 minute compacting timer
     SetTimeout(60000, function()
-        -- Fetch refreshed inventory
-        local freshInv = exports.ox_inventory:GetInventory(trunkId)
-        if not freshInv or not freshInv.items then
-            recyclingTrunks[trunkId] = nil
-            return
-        end
-        
-        local totalItemsCount = 0
-        local bagsRemoved = {}
-        
-        -- Process bags and count internal items
-        for _, item in pairs(freshInv.items) do
-            if (item.name == 'trash_bag_black' or item.name == 'trash_bag_white') and item.metadata and item.metadata.isFull then
-                local containerId = item.metadata.container
-                if containerId then
-                    local containerInv = exports.ox_inventory:GetInventory(containerId)
-                    if containerInv and containerInv.items then
-                        for _, innerItem in pairs(containerInv.items) do
-                            totalItemsCount = totalItemsCount + innerItem.count
-                            -- Remove items from container stash slot-by-slot
-                            exports.ox_inventory:RemoveItem(containerId, innerItem.name, innerItem.count, nil, innerItem.slot)
-                        end
-                    end
-                end
-                table.insert(bagsRemoved, { name = item.name, count = item.count, slot = item.slot })
+        if DoesEntityExist(vehicle) then
+            local currState = Entity(vehicle).state.recycleState
+            if currState and currState.status == 'compacting' then
+                local finalState = {
+                    bagsCount = currState.bagsCount,
+                    totalItemsCount = currState.totalItemsCount,
+                    status = 'ready_to_collect'
+                }
+                Entity(vehicle).state:set('recycleState', finalState, true)
+                
+                -- Visually open trunk door
+                TriggerClientEvent('nv_recycle:client:setTrunkDoor', -1, vehicleNetId, true)
             end
         end
-        
-        -- Remove the full trash bag containers from the trunk
-        for _, bag in ipairs(bagsRemoved) do
-            exports.ox_inventory:RemoveItem(trunkId, bag.name, bag.count, nil, bag.slot)
-        end
-        
-        -- Reward the "Material reciclável" items inside the trunk inventory
-        if totalItemsCount > 0 then
-            exports.ox_inventory:AddItem(trunkId, 'recycled_material', totalItemsCount)
-        end
-        
-        -- Unlock trunk inventory
-        recyclingTrunks[trunkId] = nil
-        
-        -- Notify the player who initiated it
-        TriggerClientEvent('ox_lib:notify', src, {
-            type = 'success',
-            title = 'Reciclagem Concluída',
-            description = string.format("Reciclagem finalizada! Gerado %dx Material reciclável no caminhão.", totalItemsCount)
-        })
     end)
+    
+    return true
+end)
+
+-- Callback to collect recycled materials from the truck
+lib.callback.register('nv_recycle:server:collectRecycle', function(source, vehicleNetId)
+    local src = source
+    local vehicle = NetworkGetEntityFromNetworkId(vehicleNetId)
+    if not DoesEntityExist(vehicle) then return false end
+    
+    local state = Entity(vehicle).state.recycleState
+    if not state or state.status ~= 'ready_to_collect' then
+        return false
+    end
+    
+    local totalItems = state.totalItemsCount or 0
+    if totalItems > 0 then
+        local success = exports.ox_inventory:AddItem(src, 'recycled_material', totalItems)
+        if not success then
+            TriggerClientEvent('ox_lib:notify', src, {
+                type = 'error',
+                title = 'Inventário Cheio',
+                description = 'Você não tem espaço suficiente para carregar os materiais reciclados!'
+            })
+            return false
+        end
+    end
+    
+    -- Reset state to idle
+    local resetState = {
+        bagsCount = 0,
+        totalItemsCount = 0,
+        status = 'idle'
+    }
+    Entity(vehicle).state:set('recycleState', resetState, true)
+    
+    -- Visually close trunk door
+    TriggerClientEvent('nv_recycle:client:setTrunkDoor', -1, vehicleNetId, false)
+    
+    TriggerClientEvent('ox_lib:notify', src, {
+        type = 'success',
+        title = 'Materiais Coletados',
+        description = string.format('Coletado %dx Material reciclável do caminhão!', totalItems)
+    })
+    
+    return true
+end)
+
+-- Callback to directly pick up a dropped trash bag
+lib.callback.register('nv_recycle:server:pickupBagDrop', function(source, dropId)
+    local src = source
+    local dropInv = exports.ox_inventory:GetInventory(dropId)
+    if not dropInv or dropInv.type ~= 'drop' then return false end
+    
+    -- Ensure player is close to the drop coordinates
+    local playerPed = GetPlayerPed(src)
+    local playerCoords = GetEntityCoords(playerPed)
+    if #(playerCoords - dropInv.coords) > 5.0 then return false end
+    
+    -- Check items in the drop inventory and add them to the player
+    local items = dropInv.items
+    if items then
+        for _, item in pairs(items) do
+            local success = exports.ox_inventory:AddItem(src, item.name, item.count, item.metadata)
+            if not success then
+                TriggerClientEvent('ox_lib:notify', src, {
+                    type = 'error',
+                    title = 'Sem Espaço',
+                    description = 'Seu inventário está muito pesado para pegar o item!'
+                })
+                return false
+            end
+        end
+    end
+    
+    -- Remove the drop inventory (deletes the physical prop and drop stash)
+    exports.ox_inventory:RemoveInventory(dropId)
+    return true
 end)

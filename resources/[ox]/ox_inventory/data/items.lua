@@ -293,7 +293,8 @@ return {
 		weight = 100,
 		client = {
 			image = 'trash_bag_black.png'
-		}
+		},
+		model = `prop_rub_binbag_01`
 	},
 
 	['trash_bag_white'] = {
@@ -301,7 +302,8 @@ return {
 		weight = 100,
 		client = {
 			image = 'trash_bag_white.png'
-		}
+		},
+		model = `prop_rub_binbag_03`
 	},
 
 	['recycled_material'] = {

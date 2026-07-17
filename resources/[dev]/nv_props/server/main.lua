@@ -77,10 +77,8 @@ AddEventHandler('onResourceStart', function(resourceName)
                 local itemName = payload.fromSlot.name
                 
                 local isTrashBag = (itemName == 'trash_bag_black' or itemName == 'trash_bag_white')
-                local isFullTrashBag = isTrashBag and payload.fromSlot.metadata and payload.fromSlot.metadata.isFull
-                
                 local hasMappedModel = Config.Items[itemName]
-                if isTrashBag and not isFullTrashBag then
+                if isTrashBag then
                     hasMappedModel = false
                 end
                 

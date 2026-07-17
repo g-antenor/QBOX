@@ -1,56 +1,74 @@
 {
-    "prop_cs_box_clothes": {
-        "idle": {
-            "name": "Carregar caixa pequena",
-            "boneId": 60309,
-            "rotation": {
-                "x": -45.0,
-                "y": -69.0,
-                "z": 0.0
-            },
-            "offset": {
-                "x": 0.12,
-                "y": -0.025,
-                "z": 0.217
-            },
-            "animName": "idle",
-            "animDict": "anim@heists@box_carry@"
-        }
-    },
     "prop_cardbordbox_02a": {
         "idle": {
+            "animName": "idle",
             "name": "Carregar caixa média",
-            "boneId": 60309,
-            "rotation": {
-                "x": 46.0,
-                "y": -72.0,
-                "z": -3.0
-            },
+            "animDict": "anim@heists@box_carry@",
             "offset": {
                 "x": 0.025,
                 "y": 0.28,
                 "z": 0.28
             },
-            "animName": "idle",
-            "animDict": "anim@heists@box_carry@"
+            "boneId": 60309,
+            "rotation": {
+                "x": 46.0,
+                "y": -72.0,
+                "z": -3.0
+            }
+        }
+    },
+    "prop_rub_binbag_01": {
+        "Carregar reciclavel": {
+            "animName": "_idle_garbage_man",
+            "name": "Carregar reciclavel",
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "offset": {
+                "x": 0.03,
+                "y": -0.085,
+                "z": -0.08
+            },
+            "animDict": "missfbi4prepp1",
+            "boneId": 28422
         }
     },
     "prop_cs_box_step": {
         "idle": {
+            "animName": "idle",
             "name": "Carregar caixa grande",
-            "boneId": 60309,
-            "rotation": {
-                "x": 132.0,
-                "y": 95.0,
-                "z": -11.0
-            },
+            "animDict": "anim@heists@box_carry@",
             "offset": {
                 "x": -0.095,
                 "y": 0.165,
                 "z": 0.51
             },
+            "boneId": 60309,
+            "rotation": {
+                "x": 132.0,
+                "y": 95.0,
+                "z": -11.0
+            }
+        }
+    },
+    "prop_cs_box_clothes": {
+        "idle": {
             "animName": "idle",
-            "animDict": "anim@heists@box_carry@"
+            "name": "Carregar caixa pequena",
+            "animDict": "anim@heists@box_carry@",
+            "offset": {
+                "x": 0.12,
+                "y": -0.025,
+                "z": 0.217
+            },
+            "boneId": 60309,
+            "rotation": {
+                "x": -45.0,
+                "y": -69.0,
+                "z": 0.0
+            }
         }
     }
 }

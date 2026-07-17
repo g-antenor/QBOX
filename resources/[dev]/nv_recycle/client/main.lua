@@ -152,12 +152,62 @@ end
 
 -- Initialize ox_target model options on start
 CreateThread(function()
+    local function getNearbyDropId(entity)
+        local drops = nil
+        pcall(function()
+            drops = exports.ox_inventory:GetDrops()
+        end)
+        
+        if drops then
+            -- 1. Try matching by exact entity handle
+            for dropId, point in pairs(drops) do
+                if point.entity == entity then
+                    return dropId
+                end
+            end
+            -- 2. Fallback to matching by coordinate distance
+            local entityCoords = GetEntityCoords(entity)
+            for dropId, point in pairs(drops) do
+                local pCoords = point.coords
+                if pCoords then
+                    if type(pCoords) == 'table' then
+                        pCoords = vec3(pCoords.x or pCoords[1] or 0, pCoords.y or pCoords[2] or 0, pCoords.z or pCoords[3] or 0)
+                    end
+                    if type(pCoords) == 'vector3' then
+                        local dist = #(pCoords - entityCoords)
+                        if dist < 3.0 then
+                            return dropId
+                        end
+                    end
+                end
+            end
+        end
+        return nil
+    end
+
+    local function isTrashBagModel(model)
+        return model == `prop_rub_binbag_01` or model == `prop_rub_binbag_03` 
+            or model == GetHashKey('prop_rub_binbag_01') or model == GetHashKey('prop_rub_binbag_03')
+            or model == -375613925 or model == -1859343714
+    end
+
     local options = {
         {
             name = 'nv_recycle:scavenge',
             icon = 'fa-solid fa-dumpster',
             label = 'Vasculhar Lixeira',
             distance = 1.0,
+            canInteract = function(entity, distance, coords, name)
+                local model = GetEntityModel(entity)
+                local isBag = isTrashBagModel(model)
+                print("Scavenge canInteract | Model:", model, "IsBag:", isBag)
+                if isBag then
+                    local dropId = getNearbyDropId(entity)
+                    print("Scavenge canInteract | DropID:", dropId)
+                    return dropId == nil
+                end
+                return true
+            end,
             onSelect = function(data)
                 if data.entity then
                     startScavenging(data.entity)
@@ -167,6 +217,54 @@ CreateThread(function()
     }
     
     exports.ox_target:addModel(Config.TrashModels, options)
+    
+    -- Register target option to pick up dropped trash bags
+    local pickupOptions = {
+        {
+            name = 'nv_recycle:pickup_bag',
+            icon = 'fa-solid fa-hand-holding',
+            label = 'Pegar Saco de Lixo',
+            distance = 1.5,
+            canInteract = function(entity, distance, coords, name)
+                local model = GetEntityModel(entity)
+                local isBag = isTrashBagModel(model)
+                print("Pickup canInteract | Model:", model, "IsBag:", isBag)
+                if isBag then
+                    local dropId = getNearbyDropId(entity)
+                    print("Pickup canInteract | DropID:", dropId)
+                    return dropId ~= nil
+                end
+                return false
+            end,
+            onSelect = function(data)
+                local dropId = getNearbyDropId(data.entity)
+                if dropId then
+                    lib.callback('nv_recycle:server:pickupBagDrop', false, function(success)
+                        if success then
+                            isRecycling = true
+                            lib.progressBar({
+                                duration = 1200,
+                                label = 'Pegando saco de lixo...',
+                                useLibClip = {
+                                    animDict = 'pickup_object',
+                                    animName = 'putdown_low',
+                                    flag = 48
+                                },
+                                disable = {
+                                    move = true,
+                                    combat = true
+                                }
+                            })
+                            isRecycling = false
+                        end
+                    end, dropId)
+                else
+                    exports.ox_inventory:openInventory()
+                end
+            end
+        }
+    }
+    exports.ox_target:addModel({ 'prop_rub_binbag_01', 'prop_rub_binbag_03' }, pickupOptions)
 end)
 
 local carriedProp = nil
@@ -186,7 +284,7 @@ local function removeCarriedProp()
     end
 end
 
-local function applyCarriedProp(modelHash)
+local function applyCarriedProp(modelName, modelHash)
     removeCarriedProp()
     
     local ped = cache.ped
@@ -195,11 +293,32 @@ local function applyCarriedProp(modelHash)
     local coords = GetEntityCoords(ped)
     carriedProp = CreateObject(modelHash, coords.x, coords.y, coords.z, true, true, false)
     
-    -- Attach to Left Hand (Bone 57005)
-    AttachEntityToEntity(carriedProp, ped, GetPedBoneIndex(ped, 57005), 0.15, -0.05, -0.05, -90.0, 0.0, 0.0, true, true, false, true, 1, true)
+    local animData = nil
+    if GetResourceState("nv_syncitens") == "started" then
+        pcall(function()
+            animData = exports.nv_syncitens:getAttachment(modelName, "Carregar reciclavel")
+            if not animData then
+                animData = exports.nv_syncitens:getAttachment("prop_rub_binbag_01", "Carregar reciclavel")
+            end
+        end)
+    end
     
-    activeCarryDict = "missfbi4prept1"
-    activeCarryAnim = "_bag_walk_garbage"
+    if animData then
+        local bone = animData.boneId or 57005
+        local offset = animData.offset or { x = 0.15, y = -0.05, z = -0.05 }
+        local rot = animData.rotation or { x = -90.0, y = 0.0, z = 0.0 }
+        
+        activeCarryDict = animData.animDict or Config.CarryAnim.dict
+        activeCarryAnim = animData.animName or Config.CarryAnim.name
+        
+        AttachEntityToEntity(carriedProp, ped, GetPedBoneIndex(ped, bone), offset.x, offset.y, offset.z, rot.x, rot.y, rot.z, true, true, false, true, 1, true)
+    else
+        -- Fallback to default
+        AttachEntityToEntity(carriedProp, ped, GetPedBoneIndex(ped, 57005), 0.15, -0.05, -0.05, -90.0, 0.0, 0.0, true, true, false, true, 1, true)
+        activeCarryDict = Config.CarryAnim.dict
+        activeCarryAnim = Config.CarryAnim.name
+    end
+    
     lib.requestAnimDict(activeCarryDict)
     TaskPlayAnim(ped, activeCarryDict, activeCarryAnim, 8.0, -8.0, -1, 49, 0, false, false, false)
 end
@@ -219,7 +338,7 @@ CreateThread(function()
             local foundFullBag = nil
             
             if items then
-                for _, item in ipairs(items) do
+                for _, item in pairs(items) do
                     if (item.name == 'trash_bag_black' or item.name == 'trash_bag_white') and item.metadata and item.metadata.isFull then
                         foundFullBag = item
                         break
@@ -228,9 +347,10 @@ CreateThread(function()
             end
             
             if foundFullBag then
-                local model = foundFullBag.name == 'trash_bag_black' and `prop_rub_binbag_01` or `prop_rub_binbag_03`
-                if not carriedProp or GetEntityModel(carriedProp) ~= model then
-                    applyCarriedProp(model)
+                local modelName = foundFullBag.name == 'trash_bag_black' and 'prop_rub_binbag_01' or 'prop_rub_binbag_03'
+                local modelHash = GetHashKey(modelName)
+                if not carriedProp or GetEntityModel(carriedProp) ~= modelHash then
+                    applyCarriedProp(modelName, modelHash)
                 else
                     if not IsEntityPlayingAnim(ped, activeCarryDict, activeCarryAnim, 3) then
                         TaskPlayAnim(ped, activeCarryDict, activeCarryAnim, 8.0, -8.0, -1, 49, 0, false, false, false)
@@ -245,47 +365,215 @@ CreateThread(function()
     end
 end)
 
--- Thread checking if player has open trunk inventory of a garbage truck and showing recycle prompt
+-- Helper functions to check for full bags in inventory
+local function hasFullBagInInventory()
+    local items = exports.ox_inventory:GetPlayerItems()
+    if items then
+        for _, item in pairs(items) do
+            if (item.name == 'trash_bag_black' or item.name == 'trash_bag_white') and item.metadata and item.metadata.isFull then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+local function getFirstFullBagInInventory()
+    local items = exports.ox_inventory:GetPlayerItems()
+    if items then
+        for _, item in pairs(items) do
+            if (item.name == 'trash_bag_black' or item.name == 'trash_bag_white') and item.metadata and item.metadata.isFull then
+                return item
+            end
+        end
+    end
+    return nil
+end
+
 local isRecycling = false
+
+-- Register target options for garbage trucks (trash & trash2) on the boot/trunk bone
 CreateThread(function()
-    while true do
-        Wait(1000)
-        
-        local currentInv = exports.ox_inventory:GetCurrentInventory()
-        if currentInv and currentInv.type == 'trunk' and not isRecycling then
-            local entity = currentInv.entity
-            if DoesEntityExist(entity) then
+    local vehicleOptions = {
+        {
+            name = 'nv_recycle:throw_bag',
+            icon = 'fa-solid fa-trash',
+            label = 'Jogar Saco de Lixo',
+            bones = { 'boot', 'trunk' },
+            distance = 2.0,
+            canInteract = function(entity, distance, coords, name)
                 local model = GetEntityModel(entity)
-                if model == `trash` or model == `trash2` then
-                    -- Query server to check if there are full bags inside
-                    local hasFullBags = lib.callback.await('nv_recycle:server:checkTrunkForBags', false, currentInv.id)
-                    
-                    if hasFullBags then
-                        lib.showTextUI('[E] Reciclar Lixo')
-                        
-                        -- Keep checking while the same trunk is open
-                        while exports.ox_inventory:GetCurrentInventory() == currentInv and not isRecycling do
-                            if IsControlJustPressed(0, 38) then -- E key
-                                lib.hideTextUI()
+                if (model == `trash` or model == `trash2`) and not isRecycling then
+                    local state = Entity(entity).state.recycleState or { bagsCount = 0, status = 'idle' }
+                    return state.status == 'idle' and state.bagsCount < 3 and hasFullBagInInventory()
+                end
+                return false
+            end,
+            onSelect = function(data)
+                local entity = data.entity
+                if DoesEntityExist(entity) then
+                    local bag = getFirstFullBagInInventory()
+                    if bag then
+                        local vehicleNetId = NetworkGetNetworkIdFromEntity(entity)
+                        lib.callback('nv_recycle:server:throwBag', false, function(success)
+                            if success then
                                 isRecycling = true
-                                TriggerServerEvent('nv_recycle:server:recycleTrunk', currentInv.id, NetworkGetNetworkIdFromEntity(entity))
-                                
-                                -- Run 1 minute compacting progress bar
                                 lib.progressBar({
-                                    duration = 60000,
-                                    label = 'Processando Reciclagem...',
-                                    canCancel = false,
-                                    disable = {}
+                                    duration = 3000,
+                                    label = 'Jogando saco de lixo...',
+                                    useLibClip = {
+                                        animDict = 'mp_safehousevagos@',
+                                        animName = 'package_dropoff',
+                                        flag = 49
+                                    },
+                                    disable = {
+                                        move = true,
+                                        combat = true
+                                    }
                                 })
                                 isRecycling = false
-                                break
                             end
-                            Wait(0)
-                        end
-                        lib.hideTextUI()
+                        end, vehicleNetId, bag.name, bag.slot)
                     end
                 end
+            end
+        },
+        {
+            name = 'nv_recycle:compact_trunk',
+            icon = 'fa-solid fa-compress',
+            label = 'Compactar Lixo',
+            bones = { 'boot', 'trunk' },
+            distance = 2.0,
+            canInteract = function(entity, distance, coords, name)
+                local model = GetEntityModel(entity)
+                if (model == `trash` or model == `trash2`) and not isRecycling then
+                    local state = Entity(entity).state.recycleState or { bagsCount = 0, status = 'idle' }
+                    return state.status == 'idle' and state.bagsCount >= 1
+                end
+                return false
+            end,
+            onSelect = function(data)
+                local entity = data.entity
+                if DoesEntityExist(entity) then
+                    local vehicleNetId = NetworkGetNetworkIdFromEntity(entity)
+                    lib.callback('nv_recycle:server:compactTrunk', false, function(success)
+                        -- State changes are managed by the server and sync visually via state bags / events
+                    end, vehicleNetId)
+                end
+            end
+        },
+        {
+            name = 'nv_recycle:collect_recycle',
+            icon = 'fa-solid fa-hands-holding',
+            label = 'Coletar Materiais Reciclados',
+            bones = { 'boot', 'trunk' },
+            distance = 2.0,
+            canInteract = function(entity, distance, coords, name)
+                local model = GetEntityModel(entity)
+                if (model == `trash` or model == `trash2`) and not isRecycling then
+                    local state = Entity(entity).state.recycleState or { bagsCount = 0, status = 'idle' }
+                    return state.status == 'ready_to_collect'
+                end
+                return false
+            end,
+            onSelect = function(data)
+                local entity = data.entity
+                if DoesEntityExist(entity) then
+                    local vehicleNetId = NetworkGetNetworkIdFromEntity(entity)
+                    lib.callback('nv_recycle:server:collectRecycle', false, function(success)
+                        if success then
+                            isRecycling = true
+                            lib.progressBar({
+                                duration = 3000,
+                                label = 'Coletando materiais reciclados...',
+                                useLibClip = {
+                                    animDict = 'anim@gangops@facility@servers@bodysearch@',
+                                    animName = 'player_search',
+                                    flag = 49
+                                },
+                                disable = {
+                                    move = true,
+                                    combat = true
+                                }
+                            })
+                            isRecycling = false
+                        end
+                    end, vehicleNetId)
+                end
+            end
+        }
+    }
+    exports.ox_target:addGlobalVehicle(vehicleOptions)
+end)
+
+-- Visual Trunk Door Control Sync
+RegisterNetEvent('nv_recycle:client:setTrunkDoor', function(vehicleNetId, open)
+    if NetworkDoesNetworkIdExist(vehicleNetId) then
+        local vehicle = NetToVeh(vehicleNetId)
+        if DoesEntityExist(vehicle) then
+            if open then
+                SetVehicleDoorOpen(vehicle, 5, false, false)
+            else
+                SetVehicleDoorShut(vehicle, 5, false)
             end
         end
     end
 end)
+
+-- Command to reload/unbug the screen/UI
+RegisterCommand('reloadscreen', function()
+    -- 1. Force release NUI focus
+    SetNuiFocus(false, false)
+    
+    -- 2. Force close inventory
+    pcall(function()
+        exports.ox_inventory:closeInventory()
+    end)
+    
+    -- 3. Cancel active progress bars
+    pcall(function()
+        exports.ox_lib:cancelProgressBar()
+    end)
+
+    -- 4. Hide Text UIs and menus
+    pcall(function()
+        exports.ox_lib:hideTextUI()
+    end)
+    pcall(function()
+        exports.ox_lib:hideRadial()
+    end)
+    
+    -- 5. Force disable inputs and cursor
+    SetNuiFocusKeepInput(false)
+    
+    -- 6. Inform user
+    TriggerEvent('chat:addMessage', {
+        color = { 255, 0, 0 },
+        multiline = true,
+        args = { "Suporte", "Sua tela foi reiniciada e as interfaces foram fechadas!" }
+    })
+end, false)
+
+RegisterCommand('debugdrops', function()
+    local drops = nil
+    pcall(function()
+        drops = exports.ox_inventory:GetDrops()
+    end)
+    
+    print("Drops count: " .. tostring(drops and table.type and table.type(drops) or (drops and "table" or "nil")))
+    if drops then
+        for dropId, point in pairs(drops) do
+            print(string.format("Drop ID: %s | Coords: %s | Entity: %s | Model: %s", 
+                tostring(dropId), 
+                tostring(point.coords), 
+                tostring(point.entity), 
+                tostring(point.model)
+            ))
+        end
+    else
+        print("No drops returned from export!")
+    end
+    
+    local pedCoords = GetEntityCoords(cache.ped)
+    print("Player coords: " .. tostring(pedCoords))
+end, false)
