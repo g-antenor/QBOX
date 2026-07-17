@@ -92,6 +92,12 @@ function fuel.pickupHose(pumpCoords, pumpEntity)
 	state.nozleEntity = nozle
 
 	-- Replicate state to all players via State Bags
+	local timeout = 0
+	while not NetworkGetEntityIsNetworked(nozle) and timeout < 100 do
+		Wait(0)
+		timeout = timeout + 1
+	end
+
 	local pumpNetId = NetworkGetEntityIsNetworked(pumpEntity) and NetworkGetNetworkIdFromEntity(pumpEntity) or nil
 	local nozzleNetId = ObjToNet(nozle)
 	SetNetworkIdCanMigrate(nozzleNetId, false)
@@ -109,10 +115,13 @@ function fuel.pickupHose(pumpCoords, pumpEntity)
 	while not RopeAreTexturesLoaded() do
 		Wait(0)
 	end
-	local rope = AddRope(pumpCoords.x, pumpCoords.y, pumpCoords.z + 1.5, 0.0, 0.0, 0.0, 10.0, 4, 3.0, 0.5, 1.0, false, false, false, 1.0, false)
+	local rope = AddRope(pumpCoords.x, pumpCoords.y, pumpCoords.z + 1.5, 0.0, 0.0, 0.0, 10.0, 4, 3.0, 0.5, 1.0, false, false, false, 1.0, true)
 	
+	local nozzlePos = GetOffsetFromEntityInWorldCoords(nozle, 0.0, -0.033, -0.195)
+	local pumpPos = pumpCoords + vec3(0.0, 0.0, 1.2)
+
 	if pumpEntity and DoesEntityExist(pumpEntity) then
-		AttachEntitiesToRope(rope, nozle, pumpEntity, 0.0, 0.0, 0.0, 0.0, 0.0, 1.2, 3.0, false, false, 0, 0)
+		AttachEntitiesToRope(rope, pumpEntity, nozle, pumpPos.x, pumpPos.y, pumpPos.z, nozzlePos.x, nozzlePos.y, nozzlePos.z, 0.0, false, false, nil, nil)
 	else
 		AttachRopeToEntity(rope, nozle, 0.0, 0.0, 0.0, false)
 	end
@@ -124,12 +133,10 @@ function fuel.pickupHose(pumpCoords, pumpEntity)
 
 	lib.notify({ type = 'success', description = "Você pegou a mangueira da bomba!" })
 
-	-- Hose stretch checks (Silent countdown, leaks gas in last 3 seconds)
+	-- Hose distance check: if player moves more than 5.0m from the pump, explode the vehicle and player!
 	CreateThread(function()
-		local countdown = 10
-		local leaking = false
 		while state.holdingHose do
-			Wait(1000)
+			Wait(500)
 			if not state.holdingHose then break end
 
 			if not state.isFueling then
@@ -137,46 +144,16 @@ function fuel.pickupHose(pumpCoords, pumpEntity)
 				local dist = #(pedCoords - state.pumpCoords)
 
 				if dist > 5.0 then
-					countdown = countdown - 1
-
-					-- Start leaking gas in the last 3 seconds
-					if countdown <= 3 then
-						if not leaking then
-							leaking = true
-							local vehicle = getClosestVehicle(pedCoords) or state.lastVehicle
-							if vehicle and DoesEntityExist(vehicle) then
-								SetVehicleCanLeakPetrol(vehicle, true)
-								SetVehiclePetrolTankHealth(vehicle, 500.0)
-								state.leakingVehicle = vehicle
-							end
-						end
+					local vehicle = getClosestVehicle(pedCoords) or state.lastVehicle
+					if vehicle and DoesEntityExist(vehicle) then
+						local vehCoords = GetEntityCoords(vehicle)
+						AddExplosion(vehCoords.x, vehCoords.y, vehCoords.z, 2, 5.0, true, false, 1.0)
 					end
+					AddExplosion(pedCoords.x, pedCoords.y, pedCoords.z, 2, 5.0, true, false, 1.0)
 
-					if countdown <= 0 then
-						-- Trigger explosion at fuel leaking vehicle and player
-						local vehicle = state.leakingVehicle or getClosestVehicle(pedCoords) or state.lastVehicle
-						if vehicle and DoesEntityExist(vehicle) then
-							local vehCoords = GetEntityCoords(vehicle)
-							AddExplosion(vehCoords.x, vehCoords.y, vehCoords.z, 2, 5.0, true, false, 1.0)
-						end
-						AddExplosion(pedCoords.x, pedCoords.y, pedCoords.z, 2, 5.0, true, false, 1.0)
-
-						fuel.dropHose()
-						break
-					end
-				else
-					if countdown < 10 then
-						countdown = 10
-						if leaking then
-							leaking = false
-							local vehicle = state.leakingVehicle or getClosestVehicle(pedCoords) or state.lastVehicle
-							if vehicle and DoesEntityExist(vehicle) then
-								SetVehicleCanLeakPetrol(vehicle, false)
-								SetVehiclePetrolTankHealth(vehicle, 1000.0)
-							end
-							state.leakingVehicle = nil
-						end
-					end
+					lib.notify({ type = 'error', description = "A mangueira esticou demais e causou uma explosão!" })
+					fuel.dropHose()
+					break
 				end
 			end
 		end
@@ -449,6 +426,19 @@ AddStateBagChangeHandler('fuelHose', nil, function(bagName, key, value, reserved
 				pumpEntity = NetToObj(value.pumpNetId)
 			end
 
+			-- Resolve static pump object handle locally if not networked
+			if not pumpEntity or pumpEntity == 0 or not DoesEntityExist(pumpEntity) then
+				local pumpCoords = value.pumpCoords
+				for i = 1, #config.pumpModels do
+					local model = config.pumpModels[i]
+					local obj = GetClosestObjectOfType(pumpCoords.x, pumpCoords.y, pumpCoords.z, 2.0, model, false, false, false)
+					if obj and obj ~= 0 and DoesEntityExist(obj) then
+						pumpEntity = obj
+						break
+					end
+				end
+			end
+
 			-- Load rope textures
 			RopeLoadTextures()
 			while not RopeAreTexturesLoaded() do
@@ -456,10 +446,13 @@ AddStateBagChangeHandler('fuelHose', nil, function(bagName, key, value, reserved
 			end
 
 			-- Spawn local rope connecting them on our screen
-			local rope = AddRope(value.pumpCoords.x, value.pumpCoords.y, value.pumpCoords.z + 1.5, 0.0, 0.0, 0.0, 10.0, 4, 3.0, 0.5, 1.0, false, false, false, 1.0, false)
+			local rope = AddRope(value.pumpCoords.x, value.pumpCoords.y, value.pumpCoords.z + 1.5, 0.0, 0.0, 0.0, 10.0, 4, 3.0, 0.5, 1.0, false, false, false, 1.0, true)
 			
+			local nozzlePos = GetOffsetFromEntityInWorldCoords(nozle, 0.0, -0.033, -0.195)
+			local pumpPos = value.pumpCoords + vec3(0.0, 0.0, 1.2)
+
 			if pumpEntity and pumpEntity ~= 0 and DoesEntityExist(pumpEntity) then
-				AttachEntitiesToRope(rope, nozle, pumpEntity, 0.0, 0.0, 0.0, 0.0, 0.0, 1.2, 3.0, false, false, 0, 0)
+				AttachEntitiesToRope(rope, pumpEntity, nozle, pumpPos.x, pumpPos.y, pumpPos.z, nozzlePos.x, nozzlePos.y, nozzlePos.z, 0.0, false, false, nil, nil)
 			else
 				AttachRopeToEntity(rope, nozle, 0.0, 0.0, 0.0, false)
 			end
