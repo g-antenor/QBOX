@@ -305,9 +305,9 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
 
   const handleContext = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
-    if (inventoryType !== 'player' || !isSlotWithItem(item)) return;
+    if (inventoryType === 'shop' || inventoryType === 'crafting' || !isSlotWithItem(item)) return;
 
-    dispatch(openContextMenu({ item, coords: { x: event.clientX, y: event.clientY } }));
+    dispatch(openContextMenu({ item, coords: { x: event.clientX, y: event.clientY }, inventoryType }));
   };
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {

@@ -51,8 +51,8 @@ Config.CooldownTime = 300
 
 -- Search animation details (Washing hands style)
 Config.SearchAnim = {
-    dict = "anim@gangops@facility@servers@bodysearch@",
-    name = "player_search",
+    dict = "amb@prop_human_bum_bin@idle_a",
+    name = "idle_a",
     flag = 49 -- Upper body only, allows cancel
 }
 
@@ -97,4 +97,17 @@ Config.Loot = {
 Config.FinalBonusLoot = {
     chance = 40, -- 40% chance of an extra rare item when completing all rounds
     items = { "wire_cable", "broken_phone", "money" }
+}
+
+-- Sellable items config (prices generated randomly on restart)
+Config.SellableItems = {
+    { item = "material_reciclavel", label = "Material Reciclável" },
+    { item = "glass", label = "Vidro" },
+    { item = "plastic_bottle", label = "Garrafa Plástica Vazia" },
+    { item = "empty_can", label = "Latinha Vazia" },
+    { item = "chips_bag", label = "Saco de Salgadinho Vazio" },
+    { item = "coffee_cup", label = "Copo de Café Vazio" },
+    { item = "beer_bottle_empty", label = "Garrafa de Cerveja Vazia" },
+    { item = "wine_bottle_empty", label = "Garrafa de Vinho Vazia" },
+    { item = "whiskey_bottle_empty", label = "Garrafa de Whisky Vazia" }
 }

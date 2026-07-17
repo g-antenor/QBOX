@@ -37,8 +37,7 @@ interface ButtonWithIndex extends Button {
 interface GroupedButtons extends Array<Group> {}
 
 const InventoryContext: React.FC = () => {
-  const contextMenu = useAppSelector((state) => state.contextMenu);
-  const item = contextMenu.item;
+  const { item, inventoryType } = useAppSelector((state) => state.contextMenu);
 
   const [showSplitModal, setShowSplitModal] = useState(false);
   const [splitCount, setSplitCount] = useState(1);
@@ -100,57 +99,65 @@ const InventoryContext: React.FC = () => {
   return (
     <>
       <Menu>
-        <MenuItem onClick={() => handleClick({ action: 'use' })} label="Usar" />
-        <MenuItem onClick={() => handleClick({ action: 'give' })} label="entregar" />
-        <MenuItem onClick={() => handleClick({ action: 'split' })} label="Separar" />
-        {item && item.metadata?.ammo > 0 && (
-          <MenuItem onClick={() => handleClick({ action: 'removeAmmo' })} label={Locale.ui_remove_ammo} />
-        )}
-        {item && item.metadata?.serial && (
-          <MenuItem
-            onClick={() => handleClick({ action: 'copy', serial: item.metadata?.serial })}
-            label={Locale.ui_copy}
-          />
-        )}
-        {item && item.metadata?.components && item.metadata?.components.length > 0 && (
-          <Menu label={Locale.ui_removeattachments}>
-            {item &&
-              item.metadata?.components.map((component: string, index: number) => (
-                <MenuItem
-                  key={index}
-                  onClick={() => handleClick({ action: 'remove', component, slot: item.slot })}
-                  label={Items[component]?.label || ''}
-                />
-              ))}
-          </Menu>
-        )}
-        {((item && item.name && Items[item.name]?.buttons?.length) || 0) > 0 && (
+        {inventoryType === 'player' && (
           <>
-            {item &&
-              item.name &&
-              groupButtons(Items[item.name]?.buttons).map((group: Group, index: number) => (
-                <React.Fragment key={index}>
-                  {group.groupName ? (
-                    <Menu label={group.groupName}>
-                      {group.buttons.map((button: Button) => (
-                        <MenuItem
-                          key={button.index}
-                          onClick={() => handleClick({ action: 'custom', id: button.index })}
-                          label={button.label}
-                        />
-                      ))}
-                    </Menu>
-                  ) : (
-                    group.buttons.map((button: Button) => (
-                      <MenuItem
-                        key={button.index}
-                        onClick={() => handleClick({ action: 'custom', id: button.index })}
-                        label={button.label}
-                      />
-                    ))
-                  )}
-                </React.Fragment>
-              ))}
+            <MenuItem onClick={() => handleClick({ action: 'use' })} label="Usar" />
+            <MenuItem onClick={() => handleClick({ action: 'give' })} label="entregar" />
+          </>
+        )}
+        <MenuItem onClick={() => handleClick({ action: 'split' })} label="Separar" />
+        {inventoryType === 'player' && (
+          <>
+            {item && item.metadata?.ammo > 0 && (
+              <MenuItem onClick={() => handleClick({ action: 'removeAmmo' })} label={Locale.ui_remove_ammo} />
+            )}
+            {item && item.metadata?.serial && (
+              <MenuItem
+                onClick={() => handleClick({ action: 'copy', serial: item.metadata?.serial })}
+                label={Locale.ui_copy}
+              />
+            )}
+            {item && item.metadata?.components && item.metadata?.components.length > 0 && (
+              <Menu label={Locale.ui_removeattachments}>
+                {item &&
+                  item.metadata?.components.map((component: string, index: number) => (
+                    <MenuItem
+                      key={index}
+                      onClick={() => handleClick({ action: 'remove', component, slot: item.slot })}
+                      label={Items[component]?.label || ''}
+                    />
+                  ))}
+              </Menu>
+            )}
+            {((item && item.name && Items[item.name]?.buttons?.length) || 0) > 0 && (
+              <>
+                {item &&
+                  item.name &&
+                  groupButtons(Items[item.name]?.buttons).map((group: Group, index: number) => (
+                    <React.Fragment key={index}>
+                      {group.groupName ? (
+                        <Menu label={group.groupName}>
+                          {group.buttons.map((button: Button) => (
+                            <MenuItem
+                              key={button.index}
+                              onClick={() => handleClick({ action: 'custom', id: button.index })}
+                              label={button.label}
+                            />
+                          ))}
+                        </Menu>
+                      ) : (
+                        group.buttons.map((button: Button) => (
+                          <MenuItem
+                            key={button.index}
+                            onClick={() => handleClick({ action: 'custom', id: button.index })}
+                            label={button.label}
+                          />
+                        ))
+                      )}
+                    </React.Fragment>
+                  ))}
+              </>
+            )}
           </>
         )}
       </Menu>
@@ -193,7 +200,7 @@ const InventoryContext: React.FC = () => {
                 <button
                   className="split-btn split-btn-confirm"
                   onClick={() => {
-                    fetchNui('splitItem', { slot: item.slot, count: splitCount });
+                    fetchNui('splitItem', { slot: item.slot, count: splitCount, to: inventoryType === 'player' ? 'player' : 'secondary' });
                     setShowSplitModal(false);
                   }}
                 >

@@ -32,7 +32,7 @@ local function defaultPaymentMethod(playerId, price)
 
 	TriggerClientEvent('ox_lib:notify', playerId, {
 		type = 'error',
-		description = locale('not_enough_money', price - money)
+		description = 'Você não tem dinheiro suficiente em mãos!'
 	})
 end
 

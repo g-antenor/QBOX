@@ -98,25 +98,7 @@ local defaultInventory = {
 local currentInventory = defaultInventory
 
 local function closeTrunk()
-	if currentInventory.type == 'trunk' then
-		local coords = GetEntityCoords(playerPed, true)
-		---@todo animation for vans?
-		Utils.PlayAnimAdvanced(0, 'anim@heists@fleeca_bank@scope_out@return_case', 'trevor_action', coords.x, coords.y, coords.z, 0.0, 0.0, GetEntityHeading(playerPed), 2.0, 2.0, 1000, 49, 0.25)
-
-		CreateThread(function()
-			local entity = currentInventory.entity
-			local door = currentInventory.door
-			Wait(900)
-
-			if type(door) == 'table' then
-				for i = 1, #door do
-					SetVehicleDoorShut(entity, door[i], false)
-				end
-			else
-				SetVehicleDoorShut(entity, door, false)
-			end
-		end)
-	end
+	ClearPedTasks(playerPed)
 end
 
 local CraftingBenches = require 'modules.crafting.client'
@@ -1874,6 +1856,39 @@ RegisterNUICallback('swapItems', function(data, cb)
 		if response then
 			updateInventory(response.items, response.weight)
 		end
+
+        -- Play animation when taking item from trunk to player inventory
+        if data.fromType == 'trunk' and data.toType == 'player' then
+            CreateThread(function()
+                lib.requestAnimDict('anim@heists@ornate_bank@grab_cash')
+                TaskPlayAnim(playerPed, 'anim@heists@ornate_bank@grab_cash', 'grab', 8.0, 8.0, 1000, 48, 0.0, false, false, false)
+                Wait(1000)
+                if invOpen and currentInventory.type == 'trunk' then
+                    Utils.PlayAnim(0, 'anim@heists@prison_heiststation@cop_reactions', 'cop_b_idle', 3.0, 3.0, -1, 49, 0.0, 0, 0, 0)
+                end
+            end)
+        elseif data.fromType == 'player' and data.toType == 'trunk' then
+            local isTrashTruck = false
+            if currentInventory.type == 'trunk' then
+                local vehicle = currentInventory.entity
+                if vehicle and DoesEntityExist(vehicle) then
+                    local model = GetEntityModel(vehicle)
+                    if model == `trash` or model == `trash2` then
+                        isTrashTruck = true
+                    end
+                end
+            end
+            if not isTrashTruck then
+                CreateThread(function()
+                    lib.requestAnimDict('anim@heists@ornate_bank@grab_cash')
+                    TaskPlayAnim(playerPed, 'anim@heists@ornate_bank@grab_cash', 'grab', 8.0, 8.0, 1000, 48, 0.0, false, false, false)
+                    Wait(1000)
+                    if invOpen and currentInventory.type == 'trunk' then
+                        Utils.PlayAnim(0, 'anim@heists@prison_heiststation@cop_reactions', 'cop_b_idle', 3.0, 3.0, -1, 49, 0.0, 0, 0, 0)
+                    end
+                end)
+            end
+        end
 	elseif response then
 		if type(response) == 'table' then
 			SendNUIMessage({ action = 'refreshSlots', data = { items = response } })

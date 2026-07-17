@@ -2062,7 +2062,7 @@ lib.callback.register('ox_inventory:swapItems', function(source, data)
 	end
 end)
 
-lib.callback.register('ox_inventory:splitItem', function(source, fromSlot, count)
+lib.callback.register('ox_inventory:splitItem', function(source, fromSlot, count, toInventoryType)
 	fromSlot = tonumber(fromSlot)
 	count = tonumber(count)
 	if not fromSlot or not count or count <= 0 then return false end
@@ -2070,15 +2070,21 @@ lib.callback.register('ox_inventory:splitItem', function(source, fromSlot, count
 	local playerInventory = Inventory(source)
 	if not playerInventory or not playerInventory.open then return false end
 
-	local fromData = playerInventory.items[fromSlot]
+	local targetInventory = playerInventory
+	if toInventoryType == 'secondary' then
+		targetInventory = Inventory(playerInventory.open)
+	end
+	if not targetInventory then return false end
+
+	local fromData = targetInventory.items[fromSlot]
 	if not fromData or fromData.count < count then return false end
 
-	-- Find the closest empty slot in playerInventory
+	-- Find the closest empty slot in targetInventory
 	local targetSlot = nil
 	local minDistance = 9999
 
-	for i = 1, playerInventory.slots do
-		if not playerInventory.items[i] then
+	for i = 1, targetInventory.slots do
+		if not targetInventory.items[i] then
 			-- Calculate 2D grid distance (5 columns layout)
 			local row1 = math.floor((fromSlot - 1) / 5)
 			local col1 = (fromSlot - 1) % 5
@@ -2111,23 +2117,23 @@ lib.callback.register('ox_inventory:splitItem', function(source, fromSlot, count
 		fromData = nil
 	end
 
-	playerInventory.items[fromSlot] = fromData
-	playerInventory.items[targetSlot] = toData
-	playerInventory.changed = true
+	targetInventory.items[fromSlot] = fromData
+	targetInventory.items[targetSlot] = toData
+	targetInventory.changed = true
 
-	playerInventory:syncSlotsWithClients({
+	targetInventory:syncSlotsWithClients({
 		{
-			item = playerInventory.items[fromSlot] or { slot = fromSlot },
-			inventory = playerInventory.id
+			item = targetInventory.items[fromSlot] or { slot = fromSlot },
+			inventory = targetInventory.id
 		},
 		{
-			item = playerInventory.items[targetSlot] or { slot = targetSlot },
-			inventory = playerInventory.id
+			item = targetInventory.items[targetSlot] or { slot = targetSlot },
+			inventory = targetInventory.id
 		}
 	}, true)
 
 	if server.syncInventory then
-		server.syncInventory(playerInventory)
+		server.syncInventory(targetInventory)
 	end
 
 	return true

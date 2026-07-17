@@ -51,7 +51,7 @@ local Utils = require 'modules.utils.client'
 local Vehicles = lib.load('data.vehicles')
 local backDoorIds = { 2, 3 }
 
-function Inventory.CanAccessTrunk(entity)
+function Inventory.CanVehicleHaveTrunk(entity)
     if cache.vehicle or not NetworkGetEntityIsNetworked(entity) then return end
 
     if IsEntityDead(entity) then return end
@@ -80,6 +80,34 @@ function Inventory.CanAccessTrunk(entity)
     offset = GetOffsetFromEntityInWorldCoords(entity, offset.x, offset.y, offset.z)
 
     if #(GetEntityCoords(cache.ped) - offset) < 1.5 then
+        return doorId
+    end
+end
+
+function Inventory.CanAccessTrunk(entity)
+    local doorId = Inventory.CanVehicleHaveTrunk(entity)
+    if not doorId then return end
+
+    local vehicleHash = GetEntityModel(entity)
+    if vehicleHash == `trash` or vehicleHash == `trash2` then
+        local state = Entity(entity).state.recycleState
+        if state and state.status == 'compacting' then return end
+    end
+
+    -- Check if trunk door is physically open
+    local isTrunkOpen = false
+    if type(doorId) == 'table' then
+        for i = 1, #doorId do
+            if GetVehicleDoorAngleRatio(entity, doorId[i]) >= 0.1 then
+                isTrunkOpen = true
+                break
+            end
+        end
+    else
+        isTrunkOpen = GetVehicleDoorAngleRatio(entity, doorId) >= 0.1
+    end
+
+    if isTrunkOpen then
         return doorId
     end
 end
@@ -120,6 +148,89 @@ if shared.target then
         canInteract = Inventory.CanAccessTrunk,
         onSelect = function(data)
             return Inventory.OpenTrunk(data.entity)
+        end
+    })
+
+    local function isTrunkOpen(entity, doorId)
+        if type(doorId) == 'table' then
+            for i = 1, #doorId do
+                if GetVehicleDoorAngleRatio(entity, doorId[i]) >= 0.1 then
+                    return true
+                end
+            end
+            return false
+        else
+            return GetVehicleDoorAngleRatio(entity, doorId) >= 0.1
+        end
+    end
+
+    exports.ox_target:addGlobalVehicle({
+        icon = 'fas fa-door-open',
+        label = 'Abrir Porta-malas',
+        distance = 1.5,
+        canInteract = function(entity, distance, coords, name)
+            local doorId = Inventory.CanVehicleHaveTrunk(entity)
+            if not doorId then return false end
+
+            local vehicleHash = GetEntityModel(entity)
+            if vehicleHash == `trash` or vehicleHash == `trash2` then
+                local state = Entity(entity).state.recycleState
+                if state and state.status == 'compacting' then return false end
+            end
+
+            return not isTrunkOpen(entity, doorId)
+        end,
+        onSelect = function(data)
+            local doorId = Inventory.CanVehicleHaveTrunk(data.entity)
+            if not doorId then return end
+
+            lib.requestAnimDict('anim@heists@fleeca_bank@scope_out@return_case')
+            TaskPlayAnim(cache.ped, 'anim@heists@fleeca_bank@scope_out@return_case', 'trevor_action', 2.0, 2.0, 1000, 49, 0.25, false, false, false)
+            Wait(900)
+            ClearPedTasks(cache.ped)
+
+            if type(doorId) == 'table' then
+                for i = 1, #doorId do
+                    SetVehicleDoorOpen(data.entity, doorId[i], false, false)
+                end
+            else
+                SetVehicleDoorOpen(data.entity, doorId, false, false)
+            end
+        end
+    })
+
+    exports.ox_target:addGlobalVehicle({
+        icon = 'fas fa-door-closed',
+        label = 'Fechar Porta-malas',
+        distance = 1.5,
+        canInteract = function(entity, distance, coords, name)
+            local doorId = Inventory.CanVehicleHaveTrunk(entity)
+            if not doorId then return false end
+
+            local vehicleHash = GetEntityModel(entity)
+            if vehicleHash == `trash` or vehicleHash == `trash2` then
+                local state = Entity(entity).state.recycleState
+                if state and state.status == 'compacting' then return false end
+            end
+
+            return isTrunkOpen(entity, doorId)
+        end,
+        onSelect = function(data)
+            local doorId = Inventory.CanVehicleHaveTrunk(data.entity)
+            if not doorId then return end
+
+            lib.requestAnimDict('anim@heists@fleeca_bank@scope_out@return_case')
+            TaskPlayAnim(cache.ped, 'anim@heists@fleeca_bank@scope_out@return_case', 'trevor_action', 2.0, 2.0, 1000, 49, 0.25, false, false, false)
+            Wait(900)
+            ClearPedTasks(cache.ped)
+
+            if type(doorId) == 'table' then
+                for i = 1, #doorId do
+                    SetVehicleDoorShut(data.entity, doorId[i], false)
+                end
+            else
+                SetVehicleDoorShut(data.entity, doorId, false)
+            end
         end
     })
 end

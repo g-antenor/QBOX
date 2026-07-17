@@ -122,8 +122,8 @@ local function startScavenging(entity)
             duration = 1000,
             label = 'Pegando algo...',
             anim = {
-                dict = 'pickup_object',
-                clip = 'pickup_low',
+                dict = 'anim@heists@ornate_bank@grab_cash',
+                clip = 'grab',
                 flag = 48
             },
             disable = {
@@ -267,6 +267,122 @@ CreateThread(function()
     exports.ox_target:addModel({ 'prop_rub_binbag_01', 'prop_rub_binbag_03' }, pickupOptions)
 end)
 
+-- ==========================================================================
+-- RECYCLING SELL MENU & INTERACTIONS
+-- ==========================================================================
+local function openSellMenu()
+    lib.callback('nv_recycle:server:getSellPrices', false, function(prices)
+        if not prices then return end
+        
+        local options = {}
+        local totalEstimate = 0
+        local hasAny = false
+        
+        for _, cfg in ipairs(Config.SellableItems or {}) do
+            local count = exports.ox_inventory:Search('count', cfg.item) or 0
+            local price = prices[cfg.item] or 1
+            local itemTotal = count * price
+            
+            if count > 0 then
+                hasAny = true
+                totalEstimate = totalEstimate + itemTotal
+                
+                table.insert(options, {
+                    title = cfg.label,
+                    description = string.format("Quantidade: %d  \nPreço Unitário: $%d | Total: $%d", count, price, itemTotal),
+                    icon = 'fa-solid fa-recycle',
+                    onSelect = function()
+                        local duration = count >= 500 and 20000 or 5000
+                        local success = lib.progressBar({
+                            duration = duration,
+                            label = 'Entregando materiais...',
+                            anim = {
+                                dict = 'mp_safehouselost@',
+                                clip = 'package_dropoff',
+                                flag = 48
+                            },
+                            disable = {
+                                move = true,
+                                car = true,
+                                combat = true
+                            }
+                        })
+                        
+                        if success then
+                            TriggerServerEvent('nv_recycle:server:sellItem', cfg.item)
+                            Wait(500)
+                            openSellMenu()
+                        else
+                            lib.notify({ type = 'info', description = 'Venda cancelada.' })
+                            openSellMenu()
+                        end
+                    end
+                })
+            end
+        end
+        
+        table.insert(options, 1, {
+            title = 'Vender Todos os Recicláveis',
+            description = string.format("Valor total estimado: $%d", totalEstimate),
+            disabled = not hasAny,
+            icon = 'fa-solid fa-dollar-sign',
+            onSelect = function()
+                local totalCount = 0
+                for _, subCfg in ipairs(Config.SellableItems or {}) do
+                    totalCount = totalCount + (exports.ox_inventory:Search('count', subCfg.item) or 0)
+                end
+                
+                local duration = totalCount >= 500 and 20000 or 5000
+                local success = lib.progressBar({
+                    duration = duration,
+                    label = 'Entregando todos os materiais...',
+                    anim = {
+                        dict = 'mp_safehouselost@',
+                        clip = 'package_dropoff',
+                        flag = 48
+                    },
+                    disable = {
+                        move = true,
+                        car = true,
+                        combat = true
+                    }
+                })
+                
+                if success then
+                    TriggerServerEvent('nv_recycle:server:sellAll')
+                    Wait(500)
+                    openSellMenu()
+                else
+                    lib.notify({ type = 'info', description = 'Venda cancelada.' })
+                    openSellMenu()
+                end
+            end
+        })
+        
+        lib.registerContext({
+            id = 'nv_recycle_sell_menu',
+            title = 'Comércio de Recicláveis',
+            options = options
+        })
+        lib.showContext('nv_recycle_sell_menu')
+    end)
+end
+
+CreateThread(function()
+    local sellOptions = {
+        {
+            name = 'nv_recycle:sell_materials',
+            icon = 'fa-solid fa-dollar-sign',
+            label = 'Vender Recicláveis',
+            distance = 2.0,
+            onSelect = function()
+                openSellMenu()
+            end
+        }
+    }
+    exports.ox_target:addModel({ -14708062, 4280259234, 811169045 }, sellOptions)
+end)
+
 local carriedProp = nil
 local activeCarryDict = nil
 local activeCarryAnim = nil
@@ -339,7 +455,7 @@ CreateThread(function()
             
             if items then
                 for _, item in pairs(items) do
-                    if (item.name == 'trash_bag_black' or item.name == 'trash_bag_white') and item.metadata and item.metadata.isFull then
+                    if (item.name == 'trash_bag_black' or item.name == 'trash_bag_white') and item.metadata and item.metadata.weight and item.metadata.weight > 0 then
                         foundFullBag = item
                         break
                     end
@@ -370,7 +486,7 @@ local function hasFullBagInInventory()
     local items = exports.ox_inventory:GetPlayerItems()
     if items then
         for _, item in pairs(items) do
-            if (item.name == 'trash_bag_black' or item.name == 'trash_bag_white') and item.metadata and item.metadata.isFull then
+            if (item.name == 'trash_bag_black' or item.name == 'trash_bag_white') and item.metadata and item.metadata.weight and item.metadata.weight > 0 then
                 return true
             end
         end
@@ -382,7 +498,7 @@ local function getFirstFullBagInInventory()
     local items = exports.ox_inventory:GetPlayerItems()
     if items then
         for _, item in pairs(items) do
-            if (item.name == 'trash_bag_black' or item.name == 'trash_bag_white') and item.metadata and item.metadata.isFull then
+            if (item.name == 'trash_bag_black' or item.name == 'trash_bag_white') and item.metadata and item.metadata.weight and item.metadata.weight > 0 then
                 return item
             end
         end
@@ -390,121 +506,6 @@ local function getFirstFullBagInInventory()
     return nil
 end
 
-local isRecycling = false
-
--- Register target options for garbage trucks (trash & trash2) on the boot/trunk bone
-CreateThread(function()
-    local vehicleOptions = {
-        {
-            name = 'nv_recycle:throw_bag',
-            icon = 'fa-solid fa-trash',
-            label = 'Jogar Saco de Lixo',
-            bones = { 'boot', 'trunk' },
-            distance = 2.0,
-            canInteract = function(entity, distance, coords, name)
-                local model = GetEntityModel(entity)
-                if (model == `trash` or model == `trash2`) and not isRecycling then
-                    local state = Entity(entity).state.recycleState or { bagsCount = 0, status = 'idle' }
-                    return state.status == 'idle' and state.bagsCount < 3 and hasFullBagInInventory()
-                end
-                return false
-            end,
-            onSelect = function(data)
-                local entity = data.entity
-                if DoesEntityExist(entity) then
-                    local bag = getFirstFullBagInInventory()
-                    if bag then
-                        local vehicleNetId = NetworkGetNetworkIdFromEntity(entity)
-                        lib.callback('nv_recycle:server:throwBag', false, function(success)
-                            if success then
-                                isRecycling = true
-                                lib.progressBar({
-                                    duration = 3000,
-                                    label = 'Jogando saco de lixo...',
-                                    useLibClip = {
-                                        animDict = 'mp_safehousevagos@',
-                                        animName = 'package_dropoff',
-                                        flag = 49
-                                    },
-                                    disable = {
-                                        move = true,
-                                        combat = true
-                                    }
-                                })
-                                isRecycling = false
-                            end
-                        end, vehicleNetId, bag.name, bag.slot)
-                    end
-                end
-            end
-        },
-        {
-            name = 'nv_recycle:compact_trunk',
-            icon = 'fa-solid fa-compress',
-            label = 'Compactar Lixo',
-            bones = { 'boot', 'trunk' },
-            distance = 2.0,
-            canInteract = function(entity, distance, coords, name)
-                local model = GetEntityModel(entity)
-                if (model == `trash` or model == `trash2`) and not isRecycling then
-                    local state = Entity(entity).state.recycleState or { bagsCount = 0, status = 'idle' }
-                    return state.status == 'idle' and state.bagsCount >= 1
-                end
-                return false
-            end,
-            onSelect = function(data)
-                local entity = data.entity
-                if DoesEntityExist(entity) then
-                    local vehicleNetId = NetworkGetNetworkIdFromEntity(entity)
-                    lib.callback('nv_recycle:server:compactTrunk', false, function(success)
-                        -- State changes are managed by the server and sync visually via state bags / events
-                    end, vehicleNetId)
-                end
-            end
-        },
-        {
-            name = 'nv_recycle:collect_recycle',
-            icon = 'fa-solid fa-hands-holding',
-            label = 'Coletar Materiais Reciclados',
-            bones = { 'boot', 'trunk' },
-            distance = 2.0,
-            canInteract = function(entity, distance, coords, name)
-                local model = GetEntityModel(entity)
-                if (model == `trash` or model == `trash2`) and not isRecycling then
-                    local state = Entity(entity).state.recycleState or { bagsCount = 0, status = 'idle' }
-                    return state.status == 'ready_to_collect'
-                end
-                return false
-            end,
-            onSelect = function(data)
-                local entity = data.entity
-                if DoesEntityExist(entity) then
-                    local vehicleNetId = NetworkGetNetworkIdFromEntity(entity)
-                    lib.callback('nv_recycle:server:collectRecycle', false, function(success)
-                        if success then
-                            isRecycling = true
-                            lib.progressBar({
-                                duration = 3000,
-                                label = 'Coletando materiais reciclados...',
-                                useLibClip = {
-                                    animDict = 'anim@gangops@facility@servers@bodysearch@',
-                                    animName = 'player_search',
-                                    flag = 49
-                                },
-                                disable = {
-                                    move = true,
-                                    combat = true
-                                }
-                            })
-                            isRecycling = false
-                        end
-                    end, vehicleNetId)
-                end
-            end
-        }
-    }
-    exports.ox_target:addGlobalVehicle(vehicleOptions)
-end)
 
 -- Visual Trunk Door Control Sync
 RegisterNetEvent('nv_recycle:client:setTrunkDoor', function(vehicleNetId, open)
@@ -575,5 +576,15 @@ RegisterCommand('debugdrops', function()
     end
     
     local pedCoords = GetEntityCoords(cache.ped)
-    print("Player coords: " .. tostring(pedCoords))
 end, false)
+
+RegisterNetEvent('nv_recycle:client:playThrowAnim', function()
+    local ped = cache.ped
+    lib.requestAnimDict('anim@heists@narcotics@trash')
+    TaskPlayAnim(ped, 'anim@heists@narcotics@trash', 'throw_b', 8.0, -8.0, 1000, 48, 0.0, false, false, false)
+    Wait(500)
+    if carriedProp and DoesEntityExist(carriedProp) then
+        DeleteEntity(carriedProp)
+        carriedProp = nil
+    end
+end)
