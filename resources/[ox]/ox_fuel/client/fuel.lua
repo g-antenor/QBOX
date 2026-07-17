@@ -380,7 +380,7 @@ end
 -- ==========================================================================
 
 AddStateBagChangeHandler('fuelHose', nil, function(bagName, key, value, reserved, replicated)
-	local serverId = tonumber(bagName:gsub('player:', ''))
+	local serverId = tonumber((bagName:gsub('player:', '')))
 	if not serverId then return end
 
 	-- Skip local player since we handle our own rope immediately
