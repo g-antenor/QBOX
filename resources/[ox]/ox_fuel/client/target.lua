@@ -31,23 +31,72 @@ local pumpOptions = {
 	}
 }
 
+-- Helper functions to check petrol can status in inventory
+local function hasEmptyPetrolCan()
+	local items = exports.ox_inventory:Search('slots', 'WEAPON_PETROLCAN')
+	if not items then return false end
+	for _, item in pairs(items) do
+		local ammo = item.metadata and item.metadata.ammo or 0
+		if ammo < 100 then
+			return true
+		end
+	end
+	return false
+end
+
+local function hasFullPetrolCanOrNone()
+	local items = exports.ox_inventory:Search('slots', 'WEAPON_PETROLCAN')
+	if not items or #items == 0 then return true end
+	for _, item in pairs(items) do
+		local ammo = item.metadata and item.metadata.ammo or 0
+		if ammo >= 100 then
+			return true
+		end
+	end
+	return false
+end
+
 -- If petrol can is enabled, add buy/refill options
 if config.petrolCan.enabled then
 	table.insert(pumpOptions, {
-		name = 'ox_fuel:petrolcan_pump',
+		name = 'ox_fuel:petrolcan_pump_refill',
 		distance = 2.0,
 		onSelect = function(data)
-			local petrolCan = config.petrolCan.enabled and GetSelectedPedWeapon(cache.ped) == `WEAPON_PETROLCAN`
-			local moneyAmount = utils.getMoney()
-
-			if moneyAmount < config.petrolCan.price then
-				return lib.notify({ type = 'error', description = "Você não tem dinheiro em mãos!" })
+			local equipped = GetSelectedPedWeapon(cache.ped) == `WEAPON_PETROLCAN`
+			if not equipped then
+				return lib.notify({ type = 'error', description = "Você precisa equipar o galão de combustível vazio para reabastecê-lo!" })
 			end
 
-			return fuel.getPetrolCan(data.coords, petrolCan)
+			local moneyAmount = utils.getMoney()
+			if moneyAmount < config.petrolCan.refillPrice then
+				return lib.notify({ type = 'error', description = "Você não tem dinheiro suficiente em mãos para reabastecer!" })
+			end
+
+			return fuel.getPetrolCan(data.coords, true)
 		end,
-		icon = "fas fa-faucet",
-		label = "Comprar / Abastecer Galão de Combustível",
+		icon = "fas fa-gas-pump",
+		label = "Abastecer Galão de Combustível",
+		canInteract = function(entity)
+			return hasEmptyPetrolCan()
+		end
+	})
+
+	table.insert(pumpOptions, {
+		name = 'ox_fuel:petrolcan_pump_buy',
+		distance = 2.0,
+		onSelect = function(data)
+			local moneyAmount = utils.getMoney()
+			if moneyAmount < config.petrolCan.price then
+				return lib.notify({ type = 'error', description = "Você não tem dinheiro suficiente em mãos para comprar!" })
+			end
+
+			return fuel.getPetrolCan(data.coords, false)
+		end,
+		icon = "fas fa-shopping-basket",
+		label = "Comprar Galão de Combustível",
+		canInteract = function(entity)
+			return hasFullPetrolCanOrNone()
+		end
 	})
 end
 
