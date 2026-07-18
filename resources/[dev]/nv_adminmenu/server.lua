@@ -167,6 +167,39 @@ RegisterNetEvent('nv_adminmenu:server:givePedMenu', function(targetId)
     TriggerClientEvent('ox_lib:notify', src, { type = 'success', description = 'Pedmenu enviado para o jogador!' })
 end)
 
+-- ==========================================================================
+-- SERVER EVENTS (Eventos menu)
+-- ==========================================================================
+
+-- Trigger the gas station replenishment event via nv_delivery
+RegisterNetEvent('nv_adminmenu:server:startGasEvent', function()
+    local src = source
+    if not isAdmin(src) then return end
+
+    if GetResourceState('nv_delivery') ~= 'started' then
+        return TriggerClientEvent('ox_lib:notify', src, {
+            type = 'error',
+            description = 'O recurso nv_delivery não está ativo.'
+        })
+    end
+
+    local ok, success, affected = pcall(function()
+        return exports.nv_delivery:startGasEvent()
+    end)
+
+    if ok and success then
+        TriggerClientEvent('ox_lib:notify', src, {
+            type = 'success',
+            description = ('Evento de postos iniciado! %d posto(s) em nível crítico.'):format(affected or 0)
+        })
+    else
+        TriggerClientEvent('ox_lib:notify', src, {
+            type = 'error',
+            description = 'Falha ao iniciar o evento de postos de gasolina.'
+        })
+    end
+end)
+
 -- Register command to open admin menu
 lib.addCommand('adminmenu', {
     help = 'Abrir Menu Administrativo',

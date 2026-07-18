@@ -614,6 +614,45 @@ local function openCoordsMenu()
     lib.showContext('nv_adminmenu_coords')
 end
 
+-- List of server events an admin can trigger from the Eventos menu.
+-- Add new entries here to expose more events in-game.
+local serverEvents = {
+    {
+        title = 'Evento: Postos de Gasolina',
+        description = 'Coloca os postos em nível crítico e avisa os jogadores para iniciar as entregas de combustível',
+        icon = 'fa-solid fa-gas-pump',
+        event = 'nv_adminmenu:server:startGasEvent'
+    }
+}
+
+local function openEventsMenu()
+    local options = {}
+    for _, ev in ipairs(serverEvents) do
+        table.insert(options, {
+            title = ev.title,
+            description = ev.description,
+            icon = ev.icon,
+            arrow = true,
+            onSelect = function()
+                TriggerServerEvent(ev.event)
+            end
+        })
+    end
+    if #options == 0 then
+        table.insert(options, {
+            title = 'Nenhum evento disponível',
+            disabled = true
+        })
+    end
+    lib.registerContext({
+        id = 'nv_adminmenu_events',
+        title = 'Eventos',
+        menu = 'nv_adminmenu_main',
+        options = options
+    })
+    lib.showContext('nv_adminmenu_events')
+end
+
 local function openPlayerActionMenu(targetPlayer)
     lib.registerContext({
         id = 'nv_adminmenu_player_actions',
@@ -737,6 +776,14 @@ local function openAdminMenu()
                 icon = 'fa-solid fa-users',
                 onSelect = function()
                     openPlayersMenu()
+                end
+            },
+            {
+                title = 'Eventos',
+                description = 'Aciona eventos do servidor (postos de gasolina, etc.)',
+                icon = 'fa-solid fa-bolt',
+                onSelect = function()
+                    openEventsMenu()
                 end
             }
         }

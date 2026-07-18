@@ -5,11 +5,6 @@ if not config then return end
 SetFuelConsumptionState(true)
 SetFuelConsumptionRateMultiplier(config.globalFuelConsumptionRate)
 
-AddTextEntry('fuelHelpText', locale('fuel_help'))
-AddTextEntry('petrolcanHelpText', locale('petrolcan_help'))
-AddTextEntry('fuelLeaveVehicleText', locale('leave_vehicle'))
-AddTextEntry('ox_fuel_station', locale('fuel_station_blip'))
-
 local utils = require 'client.utils'
 local state = require 'client.state'
 local fuel  = require 'client.fuel'

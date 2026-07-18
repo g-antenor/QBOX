@@ -3,6 +3,43 @@ local state  = require 'client.state'
 local utils  = require 'client.utils'
 local fuel   = require 'client.fuel'
 
+-- Coordinate-to-ID mapping logic for gas stations
+local sortedStations = {}
+local function initStations()
+	local stations = lib.load 'data.stations'
+	for coords in pairs(stations) do
+		table.insert(sortedStations, coords)
+	end
+	table.sort(sortedStations, function(a, b)
+		if a.x ~= b.x then return a.x < b.x end
+		if a.y ~= b.y then return a.y < b.y end
+		return a.z < b.z
+	end)
+end
+initStations()
+
+local function GetStationIdFromCoords(coords)
+	local closestId = nil
+	local minDist = 99999.0
+	for id, sCoords in ipairs(sortedStations) do
+		local dist = #(coords - sCoords)
+		if dist < minDist then
+			minDist = dist
+			closestId = id
+		end
+	end
+	return closestId
+end
+
+-- Station fuel check: hide pump targets when the station is dry
+local function pumpHasFuel(entity)
+	local stationId = GetStationIdFromCoords(GetEntityCoords(entity))
+	if stationId and GlobalState.gasStations and GlobalState.gasStations[stationId] then
+		return GlobalState.gasStations[stationId].fuel > 0
+	end
+	return true
+end
+
 -- Pump Target Options
 local pumpOptions = {
 	{
@@ -14,7 +51,7 @@ local pumpOptions = {
 		icon = "fas fa-hand-holding",
 		label = "Pegar Mangueira",
 		canInteract = function(entity)
-			return not state.holdingHose and not state.isFueling and not cache.vehicle
+			return pumpHasFuel(entity) and not state.holdingHose and not state.isFueling and not cache.vehicle
 		end
 	},
 	{
@@ -72,11 +109,19 @@ if config.petrolCan.enabled then
 				return lib.notify({ type = 'error', description = "Você não tem dinheiro suficiente em mãos para reabastecer!" })
 			end
 
-			return fuel.getPetrolCan(data.coords, true)
+			local stationId = GetStationIdFromCoords(data.coords)
+			return fuel.getPetrolCan(data.coords, true, stationId)
 		end,
 		icon = "fas fa-gas-pump",
 		label = "Abastecer Galão de Combustível",
 		canInteract = function(entity)
+			local coords = GetEntityCoords(entity)
+			local stationId = GetStationIdFromCoords(coords)
+			if stationId and GlobalState.gasStations and GlobalState.gasStations[stationId] then
+				if GlobalState.gasStations[stationId].fuel <= 0 then
+					return false
+				end
+			end
 			return hasEmptyPetrolCan()
 		end
 	})
@@ -90,11 +135,20 @@ if config.petrolCan.enabled then
 				return lib.notify({ type = 'error', description = "Você não tem dinheiro suficiente em mãos para comprar!" })
 			end
 
-			return fuel.getPetrolCan(data.coords, false)
+			local stationId = GetStationIdFromCoords(data.coords)
+			return fuel.getPetrolCan(data.coords, false, stationId)
 		end,
 		icon = "fas fa-shopping-basket",
 		label = "Comprar Galão de Combustível",
 		canInteract = function(entity)
+			if not pumpHasFuel(entity) then return false end
+			local coords = GetEntityCoords(entity)
+			local stationId = GetStationIdFromCoords(coords)
+			if stationId and GlobalState.gasStations and GlobalState.gasStations[stationId] then
+				if GlobalState.gasStations[stationId].jerry_cans <= 0 then
+					return false
+				end
+			end
 			return hasFullPetrolCanOrNone()
 		end
 	})
@@ -150,3 +204,25 @@ if config.petrolCan.enabled then
 end
 
 exports.ox_target:addGlobalVehicle(vehicleOptions)
+
+-- Draw "sem combustível" over a station that is empty; removed once fuel > 0
+CreateThread(function()
+	while true do
+		local sleep = 1000
+		local pedCoords = GetEntityCoords(cache.ped)
+		local id = GetStationIdFromCoords(pedCoords)
+
+		if id then
+			local sCoords = sortedStations[id]
+			if sCoords and #(pedCoords - sCoords) < 25.0 then
+				local sd = GlobalState.gasStations and GlobalState.gasStations[id]
+				if sd and sd.fuel <= 0 then
+					sleep = 0
+					utils.draw3DText(sCoords + vec3(0.0, 0.0, 1.0), "POSTO SEM COMBUSTIVEL")
+				end
+			end
+		end
+
+		Wait(sleep)
+	end
+end)

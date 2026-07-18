@@ -6,6 +6,34 @@ local fuel = {}
 -- Active ropes rendered for other players nearby
 local activeRopes = {}
 
+-- Coordinate-to-ID mapping logic for gas stations
+local sortedStations = {}
+local function initStations()
+	local stations = lib.load 'data.stations'
+	for coords in pairs(stations) do
+		table.insert(sortedStations, coords)
+	end
+	table.sort(sortedStations, function(a, b)
+		if a.x ~= b.x then return a.x < b.x end
+		if a.y ~= b.y then return a.y < b.y end
+		return a.z < b.z
+	end)
+end
+initStations()
+
+local function GetStationIdFromCoords(coords)
+	local closestId = nil
+	local minDist = 99999.0
+	for id, sCoords in ipairs(sortedStations) do
+		local dist = #(coords - sCoords)
+		if dist < minDist then
+			minDist = dist
+			closestId = id
+		end
+	end
+	return closestId
+end
+
 -- ==========================================================================
 -- VEHICLE HELPERS
 -- ==========================================================================
@@ -79,6 +107,13 @@ end
 
 function fuel.pickupHose(pumpCoords, pumpEntity)
 	if state.holdingHose then return end
+
+	local stationId = GetStationIdFromCoords(pumpCoords)
+	if stationId and GlobalState.gasStations and GlobalState.gasStations[stationId] then
+		if GlobalState.gasStations[stationId].fuel <= 0 then
+			return lib.notify({ type = 'error', description = "Esta bomba está sem combustível!" })
+		end
+	end
 	state.holdingHose = true
 	state.pumpCoords = pumpCoords
 	state.pumpEntity = pumpEntity
@@ -133,25 +168,53 @@ function fuel.pickupHose(pumpCoords, pumpEntity)
 
 	lib.notify({ type = 'success', description = "Você pegou a mangueira da bomba!" })
 
-	-- Hose distance check: if player moves more than 5.0m from the pump, explode the vehicle and player!
+	-- Hazards while holding the hose
 	CreateThread(function()
 		while state.holdingHose do
 			Wait(500)
 			if not state.holdingHose then break end
 
-			if not state.isFueling then
+			if cache.vehicle then
+				-- Entered a vehicle with the hose: once the car pulls more than 8m from
+				-- the pump, the hose/nozzle break off, the engine catches fire after 3s,
+				-- and the vehicle explodes 30s after that.
+				local veh = cache.vehicle
+				if #(GetEntityCoords(veh) - state.pumpCoords) > 8.0 then
+					lib.notify({ type = 'error', description = "Você saiu com o veículo segurando a mangueira!" })
+					fuel.dropHose()
+
+					CreateThread(function()
+						Wait(3000) -- 3s depois o motor pega fogo
+						if not DoesEntityExist(veh) then return end
+						SetVehicleEngineHealth(veh, -4000.0)
+						lib.notify({ type = 'error', description = "O motor do veículo pegou fogo!" })
+
+						local start = GetGameTimer()
+						while DoesEntityExist(veh) and GetGameTimer() - start < 30000 do
+							-- keep the engine burning but delay the tank explosion until the timer
+							if GetVehicleEngineHealth(veh) > -3999.0 then SetVehicleEngineHealth(veh, -4000.0) end
+							SetVehiclePetrolTankHealth(veh, 1000.0)
+							Wait(1000)
+						end
+						if DoesEntityExist(veh) then
+							local c = GetEntityCoords(veh)
+							AddExplosion(c.x, c.y, c.z, 7, 10.0, true, false, 1.0)
+						end
+					end)
+					break
+				end
+
+			elseif not state.isFueling then
 				local pedCoords = GetEntityCoords(cache.ped)
 				local dist = #(pedCoords - state.pumpCoords)
 
 				if dist > 5.0 then
-					local vehicle = getClosestVehicle(pedCoords) or state.lastVehicle
-					if vehicle and DoesEntityExist(vehicle) then
-						local vehCoords = GetEntityCoords(vehicle)
-						AddExplosion(vehCoords.x, vehCoords.y, vehCoords.z, 2, 5.0, true, false, 1.0)
-					end
-					AddExplosion(pedCoords.x, pedCoords.y, pedCoords.z, 2, 5.0, true, false, 1.0)
+					-- Walked too far on foot -> the pump explodes and the player is fined $500 (bank)
+					local boom = (state.pumpEntity and DoesEntityExist(state.pumpEntity)) and GetEntityCoords(state.pumpEntity) or state.pumpCoords
+					AddExplosion(boom.x, boom.y, boom.z, 2, 5.0, true, false, 1.0)
+					TriggerServerEvent('ox_fuel:hosePenalty')
 
-					lib.notify({ type = 'error', description = "A mangueira esticou demais e causou uma explosão!" })
+					lib.notify({ type = 'error', description = "Você se afastou demais! A bomba explodiu e você foi multado em $500." })
 					fuel.dropHose()
 					break
 				end
@@ -195,9 +258,15 @@ end
 function fuel.startFuelingVehicle(vehicle)
 	local vehState = Entity(vehicle).state
 	local fuelAmount = vehState.fuel or GetVehicleFuelLevel(vehicle)
+	local initialFuel = fuelAmount
 	local maxFuelLiters = 65.0
 	local currentLiters = (fuelAmount / 100.0) * maxFuelLiters
 	local moneyAmount = utils.getMoney()
+
+	local stationId = nil
+	if state.pumpEntity and DoesEntityExist(state.pumpEntity) then
+		stationId = GetStationIdFromCoords(GetEntityCoords(state.pumpEntity))
+	end
 
 	if fuelAmount >= 99.9 then
 		return lib.notify({ type = 'error', description = "O veículo já está completamente cheio!" })
@@ -221,6 +290,24 @@ function fuel.startFuelingVehicle(vehicle)
 
 	state.isFueling = true
 	local price = 0
+
+	-- Refueling with the engine running -> after a 2s delay the fueling-side wheel
+	-- (left rear) catches fire, and the vehicle explodes after 1 minute.
+	if GetIsVehicleEngineRunning(vehicle) then
+		CreateThread(function()
+			Wait(2000) -- 2s de delay antes de pegar fogo
+			if not DoesEntityExist(vehicle) then return end
+
+			local wheelPos = GetOffsetFromEntityInWorldCoords(vehicle, -0.9, -1.3, -0.3)
+			StartScriptFire(wheelPos.x, wheelPos.y, wheelPos.z, 25, false)
+
+			Wait(60000)
+			if DoesEntityExist(vehicle) then
+				local c = GetEntityCoords(vehicle)
+				AddExplosion(c.x, c.y, c.z, 7, 10.0, true, false, 1.0)
+			end
+		end)
+	end
 
 	-- Play Refueling Animation Loop
 	lib.requestAnimDict('timetable@gardener@filling_can')
@@ -261,6 +348,15 @@ function fuel.startFuelingVehicle(vehicle)
 			Wait(config.refillTick)
 			if not state.isFueling then break end
 
+			-- Check if station ran out of fuel
+			if stationId and GlobalState.gasStations and GlobalState.gasStations[stationId] then
+				if GlobalState.gasStations[stationId].fuel <= 0 then
+					lib.notify({ type = 'error', description = "A bomba ficou sem combustível!" })
+					state.isFueling = false
+					break
+				end
+			end
+
 			moneyAmount = utils.getMoney()
 			if moneyAmount < config.priceTick then
 				lib.notify({ type = 'error', description = "Você não tem dinheiro em mãos!" })
@@ -294,7 +390,9 @@ function fuel.startFuelingVehicle(vehicle)
 		state.isFueling = false
 
 		if price > 0 then
-			TriggerServerEvent('ox_fuel:pay', price, fuelAmount, NetworkGetNetworkIdFromEntity(vehicle))
+			local litersFilled = ((fuelAmount - initialFuel) / 100.0) * maxFuelLiters
+			if litersFilled < 0 then litersFilled = 0 end
+			TriggerServerEvent('ox_fuel:pay', price, fuelAmount, NetworkGetNetworkIdFromEntity(vehicle), stationId, litersFilled)
 		end
 	end)
 end
