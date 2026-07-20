@@ -838,17 +838,33 @@ local function registerCommands()
 		onPressed = function(self)
 			if not currentWeapon or EnableWeaponWheel or not canUseItem(true) then return end
 
-			if currentWeapon.ammo then
-				if currentWeapon.metadata.durability > 0 then
-					local slotId = Inventory.GetSlotIdWithItem(currentWeapon.ammo, { type = currentWeapon.metadata.specialAmmo }, false)
+			-- Arma sem munição (corpo a corpo, taser, etc.): R não faz nada.
+			if not currentWeapon.ammo then return end
 
-					if slotId then
-						useSlot(slotId)
-					end
-				else
-					lib.notify({ id = 'no_durability', type = 'error', description = locale('no_durability', currentWeapon.label) })
-				end
+			if currentWeapon.metadata.durability <= 0 then
+				return lib.notify({
+					id = 'no_durability',
+					type = 'error',
+					description = locale('no_durability', currentWeapon.label)
+				})
 			end
+
+			-- Só recarrega com a munição correta da arma equipada; specialAmmo
+			-- faz o filtro entre variantes (incendiária, perfurante, etc.).
+			local slotId = Inventory.GetSlotIdWithItem(currentWeapon.ammo, { type = currentWeapon.metadata.specialAmmo }, false)
+
+			if not slotId then
+				-- Antes isso falhava em silêncio: o jogador apertava R e nada acontecia.
+				local ammoItem = Items(currentWeapon.ammo)
+
+				return lib.notify({
+					id = 'no_ammo',
+					type = 'error',
+					description = locale('no_ammo', ammoItem and ammoItem.label or currentWeapon.ammo)
+				})
+			end
+
+			useSlot(slotId)
 		end
 	})
 
@@ -862,7 +878,7 @@ local function registerCommands()
 		end
 	})
 
-	for i = 1, 5 do
+	for i = 1, 6 do
 		lib.addKeybind({
 			name = ('hotkey%s'):format(i),
 			description = locale('use_hotbar', i),

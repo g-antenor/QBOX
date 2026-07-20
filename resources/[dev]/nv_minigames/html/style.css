@@ -1,0 +1,407 @@
+/* nv_minigames — tema Crimson Edge, exibicao centralizada no bottom. */
+
+:root {
+  --bg: #17161a;
+  --field: #1f1e23;
+  --edge: #2a282e;
+  --text: #e6e4e3;
+  --dim: #a5a2a8;
+  --faint: #6e6b73;
+  --red: #ff2438;
+  --red-hover: #e01e30;
+  --red-soft: rgba(255, 36, 56, 0.12);
+  --ok: #3ddc84;
+
+  /* Mesmo eixo vertical da progressbar do ox_lib (patch-bottom-ui.js). */
+  --stage-bottom: 10vh;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  color: var(--text);
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  user-select: none;
+}
+
+/* ---------- palco: sempre centralizado no bottom ---------- */
+
+.stage {
+  position: fixed;
+  left: 50%;
+  bottom: var(--stage-bottom);
+  transform: translateX(-50%);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+
+  pointer-events: none;
+}
+
+.stage:empty {
+  display: none;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  padding: 16px 18px;
+
+  border: 1px solid var(--edge);
+  border-radius: 6px;
+  background: var(--bg);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.55);
+
+  pointer-events: auto;
+  animation: rise 0.16s ease-out;
+}
+
+.panel.is-out {
+  animation: sink 0.14s ease-in forwards;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@keyframes sink {
+  to {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* ---------- cabecalho ---------- */
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.title::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 6px var(--red);
+}
+
+.pips {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.pip {
+  width: 16px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--edge);
+  transition: background 0.15s;
+}
+
+.pip.done {
+  background: var(--red);
+  box-shadow: 0 0 6px var(--red);
+}
+
+/* ---------- rodape / dica ---------- */
+
+/* ------------------------------------------------------------ tempo ----- */
+
+/* Trilho fino no rodape do painel. A barra esvazia da direita para a
+   esquerda, entao o que resta e o que sobra de tempo. */
+.timer {
+  height: 3px;
+  margin-top: 10px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+}
+
+.timer-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--red);
+  box-shadow: 0 0 6px var(--red);
+}
+
+/* Ultimos 25%: pulsa. Quem esta concentrado no jogo nao olha o rodape, e o
+   movimento chama a atencao sem ocupar espaco. */
+.timer-fill.low {
+  animation: timer-pulse 0.6s ease-in-out infinite;
+}
+
+@keyframes timer-pulse {
+  50% { opacity: 0.35; }
+}
+
+.hint {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+
+  border: 1px solid var(--edge);
+  border-bottom-width: 2px;
+  border-radius: 3px;
+  background: var(--field);
+
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--dim);
+}
+
+/* ---------- estados de resultado ---------- */
+
+.panel.win {
+  border-color: var(--ok);
+}
+.panel.lose {
+  border-color: var(--red);
+  animation: shake 0.22s ease-in-out;
+}
+
+@keyframes shake {
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+/* =========================================================
+   LOCKED — anel giratorio, travar no setor
+   ========================================================= */
+
+.locked-ring {
+  position: relative;
+  width: 172px;
+  height: 172px;
+}
+
+/* A rotacao e aplicada por elemento (atributo transform), nao no svg inteiro,
+   para que o angulo da agulha e o do setor usem o mesmo referencial (0 = topo). */
+.locked-ring svg {
+  width: 100%;
+  height: 100%;
+}
+
+.locked-ring .track {
+  fill: none;
+  stroke: var(--edge);
+  stroke-width: 9;
+}
+
+.locked-ring .zone {
+  fill: none;
+  stroke: var(--red);
+  stroke-width: 9;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 5px var(--red));
+}
+
+.locked-ring .needle {
+  stroke: var(--text);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.locked-ring .core {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.locked-ring .core b {
+  font-size: 21px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.locked-ring .core span {
+  font-size: 9px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* =========================================================
+   MINES — grade, evitar as minas
+   ========================================================= */
+
+.mines-grid {
+  display: grid;
+  gap: 6px;
+}
+
+.tile {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  background: var(--field);
+
+  font-size: 16px;
+  color: var(--faint);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.tile:hover:not(.open) {
+  border-color: var(--red);
+  background: var(--red-soft);
+}
+
+.tile.open {
+  cursor: default;
+  border-color: var(--ok);
+  background: rgba(61, 220, 132, 0.14);
+  color: var(--ok);
+}
+
+.tile.boom {
+  cursor: default;
+  border-color: var(--red);
+  background: rgba(255, 36, 56, 0.22);
+  color: var(--red);
+}
+
+.tile.reveal {
+  border-color: rgba(255, 36, 56, 0.35);
+  color: rgba(255, 36, 56, 0.5);
+}
+
+/* =========================================================
+   SKILL BAR — cursor em vaivem, parar no setor
+   ========================================================= */
+
+.bar {
+  position: relative;
+  width: 320px;
+  height: 26px;
+
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  background: var(--field);
+  overflow: hidden;
+}
+
+.bar .zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--red-soft);
+  border-left: 1px solid var(--red);
+  border-right: 1px solid var(--red);
+}
+
+.bar .cursor {
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  width: 3px;
+  margin-left: -1.5px;
+  background: var(--text);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+}
+
+/* =========================================================
+   PROGRESS TIMING — barra enche uma vez, acertar a janela
+   ========================================================= */
+
+.timing {
+  position: relative;
+  width: 320px;
+  height: 26px;
+
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  background: var(--field);
+  overflow: hidden;
+}
+
+.timing .fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  background: linear-gradient(90deg, rgba(255, 36, 56, 0.25), rgba(255, 36, 56, 0.55));
+  border-right: 2px solid var(--text);
+}
+
+.timing .window {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--red-soft);
+  border-left: 1px solid var(--red);
+  border-right: 1px solid var(--red);
+}
+
+.timing .window.hit {
+  background: rgba(61, 220, 132, 0.22);
+  border-color: var(--ok);
+}

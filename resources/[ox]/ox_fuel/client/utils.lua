@@ -1,3 +1,5 @@
+local config = require 'config'
+
 local utils = {}
 
 ---@param coords vector3
@@ -57,19 +59,25 @@ end
 
 utils.getMoney = defaultMoneyCheck
 
-function utils.draw3DText(coords, text)
-	local onScreen, x, y = World3dToScreen2d(coords.x, coords.y, coords.z)
-	if onScreen then
-		SetTextScale(0.35, 0.35)
-		SetTextFont(4)
-		SetTextProportional(1)
-		SetTextColour(255, 255, 255, 215)
-		SetTextEntry("STRING")
-		SetTextCentre(1)
-		AddTextComponentString(text)
-		DrawText(x, y)
-		local factor = (string.len(text)) / 370
-		DrawRect(x, y + 0.0125, 0.015 + factor, 0.03, 20, 20, 20, 160)
+-- utils.draw3DText foi removido: todo texto de status do ox_fuel passou a usar
+-- o TextUI do ox_lib (client/fuel.lua e client/target.lua).
+
+---Dinheiro em maos suficiente para pelo menos um tick de abastecimento?
+---Memoizado por 500ms porque o canInteract do ox_target roda com frequencia
+---alta enquanto o jogador aponta para o veiculo.
+---@return boolean
+do
+	local checkedAt, cached = 0, false
+
+	function utils.hasFuelMoney()
+		local now = GetGameTimer()
+
+		if now - checkedAt > 500 then
+			checkedAt = now
+			cached = (utils.getMoney() or 0) >= (config.priceTick or 0)
+		end
+
+		return cached
 	end
 end
 

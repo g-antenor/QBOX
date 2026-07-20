@@ -105,7 +105,10 @@ CreateThread(function()
             name = 'pickup_prop_drop',
             icon = 'fa-solid fa-hand',
             label = 'Pegar Item',
-            distance = 1.2,
+            -- 1.5 e nao 1.2: props pequenos (nota fiscal, garrafa) tem o ponto
+            -- de mira quase no chao, e a distancia e medida ate ele -- de pe ao
+            -- lado do item o alcance de 1.2 nao fechava e a opcao piscava.
+            distance = 1.5,
             canInteract = function(entity, distance, coords, name, bone)
                 if not DoesEntityExist(entity) then return false end
                 local netId = NetworkGetNetworkIdFromEntity(entity)

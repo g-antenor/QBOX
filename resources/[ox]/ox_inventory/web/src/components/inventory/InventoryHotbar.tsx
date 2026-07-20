@@ -10,7 +10,7 @@ import SlideUp from '../utils/transitions/SlideUp';
 
 const InventoryHotbar: React.FC = () => {
   const [hotbarVisible, setHotbarVisible] = useState(false);
-  const items = useAppSelector(selectLeftInventory).items.slice(0, 5);
+  const items = useAppSelector(selectLeftInventory).items.slice(0, 6);
 
   //stupid fix for timeout
   const [handle, setHandle] = useState<ReturnType<typeof setTimeout>>();

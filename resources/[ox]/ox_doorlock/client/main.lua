@@ -284,6 +284,99 @@ local function useClosestDoor()
     end
 end
 
+-- ---------------------------------------------------------------------------
+-- Menu de interacao via ox_target (Config.UseTarget)
+--
+-- Cada porta ganha uma esfera de target no lugar do toggle direto no E, entao
+-- trancar/destrancar passa a usar o mesmo menu visual do resto do servidor.
+-- Um loop de reconciliacao mantem as zonas em sincronia com `doors`, cobrindo
+-- portas criadas, editadas (inclusive movidas) e removidas em runtime.
+-- ---------------------------------------------------------------------------
+if Config.UseTarget then
+    local doorZones = {}
+
+    local function useDoor(id)
+        local door = doors and doors[id]
+        if not door then return end
+
+        local gameTimer = GetGameTimer()
+
+        if gameTimer - lastTriggered > 500 then
+            lastTriggered = gameTimer
+            TriggerServerEvent('ox_doorlock:setState', id, door.state == 1 and 0 or 1)
+        end
+    end
+
+    local function removeDoorZone(id)
+        local entry = doorZones[id]
+        if not entry then return end
+
+        exports.ox_target:removeZone(entry.zone)
+        doorZones[id] = nil
+    end
+
+    local function addDoorZone(id, door)
+        removeDoorZone(id)
+
+        -- maxDistance e a distancia em que a porta ja reage; usar o mesmo raio
+        -- mantem o alcance do menu igual ao do resto do doorlock.
+        local radius = door.maxDistance or 2.0
+
+        doorZones[id] = {
+            coords = door.coords,
+            zone = exports.ox_target:addSphereZone({
+                coords = door.coords,
+                radius = radius,
+                options = {
+                    {
+                        name = ('ox_doorlock:%s:lock'):format(id),
+                        icon = 'fa-solid fa-lock',
+                        label = locale('lock_door'),
+                        distance = radius,
+                        canInteract = function()
+                            return doors and doors[id] and doors[id].state == 0
+                        end,
+                        onSelect = function() useDoor(id) end,
+                    },
+                    {
+                        name = ('ox_doorlock:%s:unlock'):format(id),
+                        icon = 'fa-solid fa-lock-open',
+                        label = locale('unlock_door'),
+                        distance = radius,
+                        canInteract = function()
+                            return doors and doors[id] and doors[id].state == 1
+                        end,
+                        onSelect = function() useDoor(id) end,
+                    },
+                },
+            }),
+        }
+    end
+
+    CreateThread(function()
+        while true do
+            Wait(2000)
+
+            if doors then
+                for id, door in pairs(doors) do
+                    local entry = doorZones[id]
+
+                    if not entry then
+                        addDoorZone(id, door)
+                    elseif #(entry.coords - door.coords) > 0.01 then
+                        -- Porta editada e movida: refaz a zona no lugar novo.
+                        addDoorZone(id, door)
+                    end
+                end
+
+                for id in pairs(doorZones) do
+                    if not doors[id] then removeDoorZone(id) end
+                end
+            end
+        end
+    end)
+end
+
 CreateThread(function()
     local lockDoor = locale('lock_door')
     local unlockDoor = locale('unlock_door')
@@ -342,7 +435,8 @@ CreateThread(function()
                 showUI = ClosestDoor.state
             end
 
-            if not PickingLock and IsDisabledControlJustReleased(0, 38) then
+            -- Com Config.UseTarget, quem tranca/destranca e o menu do ox_target.
+            if not Config.UseTarget and not PickingLock and IsDisabledControlJustReleased(0, 38) then
                 useClosestDoor()
             end
         elseif showUI then

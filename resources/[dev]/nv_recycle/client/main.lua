@@ -41,11 +41,23 @@ local function startScavenging(entity)
         return
     end
 
+    -- Abre a sessao no servidor ANTES de qualquer coisa. E o servidor que
+    -- decide quantas rodadas existem e que guarda o cooldown da lixeira; o
+    -- controle daqui e so conforto de UX.
+    local totalRounds = lib.callback.await('nv_recycle:server:startScavenge', false, coords)
+
+    if not totalRounds then
+        lib.notify({
+            type = 'error',
+            title = 'Lixeira Vazia',
+            description = 'Esta lixeira já foi revirada recentemente. Tente outra.'
+        })
+        return
+    end
+
     activeScavenging = true
     FreezeEntityPosition(ped, true)
 
-    -- Pick a random number of rounds between 3 and 5
-    local totalRounds = math.random(3, 5)
     local completedAll = true
     local totalHits = 0
 
@@ -94,17 +106,21 @@ local function startScavenging(entity)
             break
         end
 
-        -- Scale difficulty smoothly based on round (easier progression)
-        local speed = 0.6 + ((round - 1) * 0.15)
-        local area = math.max(10, 30 - ((round - 1) * 3.5))
+        -- Escalada de dificuldade por rodada: o setor encolhe e o cursor
+        -- acelera. Os valores sao overrides do preset 'reciclagem' do
+        -- nv_minigames — o preset define quantas rodadas e o piso; aqui so
+        -- muda o que depende da rodada atual.
+        --
+        -- `zone` e a largura do setor em % da barra, `speed` e a velocidade do
+        -- cursor em %/s (o preset 'medium' do skillbar usa 16 e 92).
+        local zone = math.max(9, 22 - ((round - 1) * 2.5))
+        local speed = 70 + ((round - 1) * 14)
 
-        -- 2. Trigger 3 consecutive skill checks at the same level
-        local keyOptions = {'w', 'a', 's', 'd'}
-        local success = lib.skillCheck({
-            { areaSize = area, speedMultiplier = speed },
-            { areaSize = area, speedMultiplier = speed },
-            { areaSize = area, speedMultiplier = speed }
-        }, keyOptions)
+        -- 2. Minigame de pericia (skillbar do nv_minigames)
+        local success = exports.nv_minigames:Start('reciclagem', {
+            zone = zone,
+            speed = speed
+        })
 
         if not success or not activeScavenging then
             lib.notify({

@@ -30,26 +30,36 @@ local function nearbyStation(point)
 		if pumpDistance <= 3 then
 			state.nearestPump = pump
 
+			local shownKey
+
+			local function showHelp(key, text, icon)
+				if shownKey ~= key then
+					shownKey = key
+					lib.showTextUI(text, { position = 'bottom-center', icon = icon })
+				end
+			end
+
+			local function clearHelp()
+				if shownKey then
+					shownKey = nil
+					lib.hideTextUI()
+				end
+			end
+
 			repeat
-				local playerCoords = GetEntityCoords(cache.ped)
 				pumpDistance = #(GetEntityCoords(cache.ped) - pump)
 
 				if cache.vehicle then
-					DisplayHelpTextThisFrame('fuelLeaveVehicleText', false)
-				elseif not state.isFueling then
-					local vehicleInRange = state.lastVehicle ~= 0 and
-						#(GetEntityCoords(state.lastVehicle) - playerCoords) <= 3
-
-					if vehicleInRange then
-						DisplayHelpTextThisFrame('fuelHelpText', false)
-					elseif config.petrolCan.enabled then
-						DisplayHelpTextThisFrame('petrolcanHelpText', false)
-					end
+					showHelp('leave', 'Saia do veículo para abastecer', 'person-walking')
+				else
+					-- Abastecer veiculo e galao ficam so no menu do ox_target.
+					clearHelp()
 				end
 
 				Wait(0)
 			until pumpDistance > 3
 
+			clearHelp()
 			state.nearestPump = nil
 
 			return

@@ -1,0 +1,111 @@
+/* ============================================================================
+   nv_chat - mesma paleta do nv_hud ("Crimson Edge")
+   O tema vive aqui, no proprio resource: sem webpack, sem build, sem copia
+   em dist/. Se a pagina carrega, o tema carrega.
+   ============================================================================ */
+:root{
+  --panel: #17161a;
+  --edge: #232025;
+  --text: #e6e4e3;
+  --text-dim: #86828a;
+  --text-faint: #4c4850;
+  --red: #ff2438;
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+
+html,body{
+  height:100%;
+  background:transparent;
+  overflow:hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  color:var(--text);
+  user-select:none;
+}
+
+/* Posicao classica do chat no FiveM: canto superior esquerdo, com as
+   mensagens crescendo para baixo e a caixa de texto embaixo delas. */
+.chat{
+  position:absolute; left:1%; top:1.5%;
+  width:38%; max-width:1000px;
+  display:flex; flex-direction:column; gap:0.6vh;
+  opacity:1; transition: opacity .45s ease;
+}
+
+/* Some 5s depois de fechar; volta ao abrir ou ao chegar mensagem. */
+.chat.faded{ opacity:0; }
+
+/* ---------------- mensagens ---------------- */
+.messages{
+  display:flex; flex-direction:column; justify-content:flex-start;
+  gap:0.35vh;
+  max-height:26vh; overflow:hidden;
+  padding:0.8vh 1vh;
+  background-color: rgba(15,14,16,.5);
+  border-radius:4px;
+}
+.messages:empty{ display:none; }
+
+.msg{
+  font-size:1.7vh; line-height:1.45;
+  padding-left:0.8vh;
+  border-left:2px solid var(--edge);
+  color:var(--text-dim);
+  word-wrap:break-word;
+  animation: msgIn .16s ease-out;
+}
+@keyframes msgIn{
+  from{ opacity:0; transform:translateX(-4px); }
+  to{ opacity:1; transform:none; }
+}
+
+.msg .tag{
+  font-size:1.25vh; font-weight:700; letter-spacing:.06em;
+  text-transform:uppercase; margin-right:0.6vh;
+}
+.msg .author{ color:var(--text); font-weight:600; }
+.msg .body{ color:var(--text-dim); }
+
+/* Alerta ocupa a linha inteira, com destaque. */
+.msg.alerta{
+  border-left-color:var(--red);
+  background:rgba(255,36,56,.07);
+  padding:0.5vh 0.8vh;
+  border-radius:0 3px 3px 0;
+}
+.msg.alerta .body{ color:var(--text); }
+
+.msg.adm{ border-left-color:#4a90d9; }
+.msg.dm{ border-left-color:#aa66cc; }
+.msg.local{ border-left-color:var(--edge); }
+.msg.sistema{ border-left-color:transparent; color:var(--text-faint); font-style:italic; }
+.msg.sistema .body{ color:var(--text-faint); }
+
+/* ---------------- entrada ---------------- */
+.input-row{
+  display:none; align-items:stretch;
+  background:var(--panel);
+  border:1px solid var(--edge);
+  border-radius:4px;
+  transition: border-color .12s ease;
+}
+.chat.open .input-row{ display:flex; }
+.chat.open .input-row:focus-within{ border-color:var(--red); }
+
+.prefix{
+  display:flex; align-items:center;
+  padding:0 0.9vh;
+  font-size:1.5vh; font-weight:700; letter-spacing:.05em;
+  text-transform:uppercase;
+  color:var(--red);
+}
+
+#input{
+  flex:1;
+  padding:1vh 1vh 1vh 0.2vh;
+  font-family:inherit; font-size:1.6vh; line-height:1.85vh;
+  color:var(--text);
+  background:transparent; border:none; outline:none;
+  user-select:text;
+}
+#input::placeholder{ color:var(--text-faint); }

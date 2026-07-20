@@ -1,0 +1,1 @@
+Pegar uma imagem do mapa em png ou web

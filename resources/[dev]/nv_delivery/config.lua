@@ -10,15 +10,16 @@ Config.RequiredShirt = {
 }
 
 Config.StartNPC = {
-    model = "a_m_m_business_01",
-    coords = vec4(73.4795, -1562.7347, 29.5978, 54.4151), -- GoPostal Legion Square
+    model = "s_m_m_ups_01",
+    coords = vec4(-422.32, 6136.32, 31.88, 218.00), -- GoPostal Legion Square
     anim = { dict = 'amb@world_human_cop_idles@male@idle_b', name = 'idle_e' }
 }
 
 Config.Pallets = {
-    { coords = vec4(70.3361, -1565.1537, 29.5978, 54.1980) },
-    { coords = vec4(67.5000, -1567.0000, 29.5978, 54.1980) },
-    { coords = vec4(64.7000, -1569.0000, 29.5978, 54.1980) }
+    { coords = vec4(-419.58, 6172.81, 31.48, 225.09) },
+    { coords = vec4(-424.77, 6167.74, 31.48, 138.46) },
+    { coords = vec4(-428.25, 6169.71, 31.48, 45.87) },
+    { coords = vec4(-446.21, 6142.23, 31.48, 142.87) }
 }
 
 Config.Models = {
@@ -99,7 +100,8 @@ Config.GasStations = {
 
     -- Sprites dos blips do mapa (ajuste conforme preferir)
     blips = {
-        event   = 436,  -- Ícone de fogo (evento ativo)
+        event       = 161, -- Evento ativo (blip único, sem círculo de raio)
+        eventColour = 17,  -- Laranja
         truck   = 477,  -- Ir até o caminhão
         trailer = 479,  -- Ir até o trailer
         station = 361,  -- Posto de entrega
@@ -122,12 +124,95 @@ Config.GasStations = {
 -- 24/7 CONVENIENCE STORES CONFIGURATION
 -- ============================================================================
 Config.Shops247 = {
-    npcModel = `s_m_m_dockwork_01`,
-    npcCoords = vec4(912.44, -1268.32, 25.56, 120.00), -- Logistic Port
-    truckModel = `mule`,
-    truckSpawn = vec4(923.65, -1257.44, 25.50, 210.00),
-    deliveryItem = 'delivery_crate', -- Item to be delivered
-    deliveryReward = 500,           -- Paid to player
+    -- ------------------------------------------------------- galpao ------
+    -- Gerente que entrega e paga o servico.
+    npcModel  = `s_m_m_dockwork_01`,
+    npcCoords = vec4(156.39, -3190.57, 7.03, 247.46),
+
+    -- Caminhao. Nasce longe da doca de proposito: quem traz ate a doca e o
+    -- motorista de NPC, e essa viagem e a abertura do servico.
+    truckModel = `benson`,
+    truckSpawn = vec4(209.20, -3328.68, 5.82, 87.40),
+    driverModel = `s_m_m_trucker_01`,
+
+    -- Vagas da doca, em ordem de preferencia. O NPC para na primeira LIVRE:
+    -- com o galpao cheio, insistir na primeira encostaria o caminhao em cima
+    -- de outro.
+    dockStops = {
+        vec4(161.90, -3196.49, 5.96, 89.9),
+        vec4(162.30, -3203.96, 5.95, 94.2)
+    },
+
+    -- Paletes de onde as caixas saem.
+    palletSpots = {
+        vec4(146.64, -3190.23, 5.86, 180.81),
+        vec4(140.47, -3190.16, 5.86, 187.11)
+    },
+
+    -- Onde o motorista vai a pe depois de estacionar, antes de sumir.
+    driverExit = vec4(117.08, -3208.36, 6.02, 177.80),
+
+    -- O estrado, e as caixas em cima dele.
+    palletModel = `prop_pallet_02a`,
+
+    -- O palete e montado com o MESMO prop da caixa carregada, empilhado. Assim
+    -- tirar uma caixa some com uma caixa da pilha: o que se ve e o que se tem.
+    boxModel = `prop_cardbordbox_03a`,
+
+    -- Oito caixas por palete: quatro sobre o estrado e quatro em cima delas.
+    --
+    -- As POSICOES nao ficam aqui de proposito. Elas sao calculadas em tempo de
+    -- execucao a partir do tamanho real dos dois modelos (`computeStackSlots`
+    -- no cliente), porque offsets escritos a mao afundam a caixa no estrado ou
+    -- a deixam flutuando -- e quebram de novo a cada troca de prop.
+    boxesPerPallet = 8,
+
+    -- Posicoes da caixa dentro da carroceria, relativas ao caminhao.
+    cargoSlots = {
+        vec3(-0.60, -1.40, 0.35), vec3(0.60, -1.40, 0.35),
+        vec3(-0.60, -2.10, 0.35), vec3(0.60, -2.10, 0.35),
+        vec3(-0.60, -2.80, 0.35), vec3(0.60, -2.80, 0.35),
+        vec3(-0.60, -1.40, 0.80), vec3(0.60, -1.40, 0.80)
+    },
+
+    -- Indice da porta traseira. Se o modelo nao tiver essa porta, a carroceria
+    -- e tratada como sempre aberta -- exigir uma porta inexistente deixava o
+    -- alvo invisivel para sempre.
+    cargoDoor = 5,
+
+    -- false ignora a porta de vez, em qualquer modelo.
+    requireDoor = true,
+
+    -- Caixa de colisao da carroceria, em coordenadas RELATIVAS ao caminhao.
+    -- E o que define "estar dentro do benson": a area anda com o veiculo, ao
+    -- contrario de uma zona fixa no mundo, que so funcionaria com o caminhao
+    -- parado no lugar exato onde ela foi criada.
+    cargoArea = {
+        minY = -3.80, maxY = -0.70,   -- do fundo ate logo atras da cabine
+        maxX = 1.30,                  -- meia largura
+        minZ = -0.20, maxZ = 1.80
+    },
+
+    -- Distancia maxima do caminhao ao ponto de descarga para a entrega valer.
+    truckDistance = 15.0,
+
+    -- ------------------------------------------------------- a carga ------
+    box = {
+        min   = 5,   -- caixas por corrida
+        max   = 8,
+        value = 10   -- pago por caixa entregue
+    },
+
+    -- ----------------------------------------------------- a entrega ------
+    -- Ponto de descarga na loja. O jogador empilha as caixas EM VOLTA dele.
+    dropPoint  = vec4(26.31, -1339.55, 29.50, 356.99),
+    dropRadius = 4.0,
+
+    -- Segundos que as caixas ficam no chao depois da ultima ser posta. E o
+    -- tempo de "a loja recolheu": some tudo de uma vez, nao uma a uma.
+    despawnDelay = 3,
+
+    deliveryReward = 500,           -- bonus fixo, alem do valor das caixas
     deliveryCost = 500,             -- Deducted from 24/7 register
     locations = {
         { coords = vector3(25.68, -1346.81, 29.50), label = "Loja 24/7 - Innocence Blvd" },

@@ -1,0 +1,378 @@
+/* nv_adminmenu — tablet de configuração de handling (tema Crimson Edge). */
+
+:root {
+  --bg: #17161a;
+  --field: #1f1e23;
+  --edge: #2a282e;
+  --text: #e6e4e3;
+  --dim: #a5a2a8;
+  --faint: #6e6b73;
+  --red: #ff2438;
+  --red-hover: #e01e30;
+  --red-soft: rgba(255, 36, 56, 0.12);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  color: var(--text);
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  user-select: none;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ------------------------------------------------------------- tablet ---- */
+
+/* Deliberadamente NÃO ocupa a tela toda: fica centralizado com folga. */
+.tablet {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: min(60vw, 900px);
+  height: min(66vh, 580px);
+
+  padding: 12px;
+
+  border-radius: 16px;
+  background: #0d0d0f;
+  border: 1px solid #000;
+  box-shadow: 0 26px 60px rgba(0, 0, 0, 0.7), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+
+  animation: rise 0.18s ease-out;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 12px));
+  }
+}
+
+/* "Tela" interna, dentro da moldura do tablet. */
+.screen {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  border-radius: 8px;
+  border: 1px solid var(--edge);
+  background: var(--bg);
+  overflow: hidden;
+}
+
+/* ----------------------------------------------------------- cabeçalho --- */
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--edge);
+  background: #131215;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.title .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 7px var(--red);
+  flex: none;
+}
+
+.title h1 {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.title p {
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--faint);
+}
+
+.icon-btn {
+  width: 26px;
+  height: 26px;
+  flex: none;
+
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  background: var(--field);
+  color: var(--dim);
+
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.icon-btn:hover {
+  color: #fff;
+  border-color: var(--red);
+  background: var(--red-soft);
+}
+
+/* ---------------------------------------------------------------- corpo -- */
+
+.body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+/* Abas de categoria */
+.tabs {
+  width: 190px;
+  flex: none;
+
+  padding: 10px;
+  border-right: 1px solid var(--edge);
+  background: #131215;
+
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+}
+
+.tab {
+  padding: 9px 10px;
+  border: 0;
+  border-left: 2px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--dim);
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.tab:hover {
+  color: var(--text);
+  background: var(--red-soft);
+}
+
+.tab.active {
+  color: #fff;
+  background: var(--red-soft);
+  border-left-color: var(--red);
+}
+
+.tab small {
+  display: block;
+  margin-top: 2px;
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--faint);
+}
+
+/* Lista de campos */
+.fields {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px;
+  overflow-y: auto;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 9px 0;
+  border-bottom: 1px solid var(--edge);
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.row .label {
+  flex: 1;
+  min-width: 0;
+}
+
+.row .label b {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.row .label code {
+  font-size: 9px;
+  color: var(--faint);
+  font-family: ui-monospace, Consolas, monospace;
+}
+
+.inputs {
+  display: flex;
+  gap: 5px;
+  flex: none;
+}
+
+.inputs .axis {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.inputs .axis span {
+  font-size: 8px;
+  color: var(--faint);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+input[type='number'] {
+  width: 86px;
+  padding: 6px 8px;
+
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  background: var(--field);
+  color: var(--text);
+
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 11px;
+  text-align: right;
+}
+
+input[type='number']:focus {
+  outline: none;
+  border-color: var(--red);
+  box-shadow: 0 0 0 2px var(--red-soft);
+}
+
+input.changed {
+  border-color: var(--red);
+}
+
+.help-btn {
+  width: 20px;
+  height: 20px;
+  flex: none;
+
+  border: 1px solid var(--edge);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--faint);
+
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.help-btn:hover,
+.help-btn.open {
+  color: #fff;
+  border-color: var(--red);
+  background: var(--red);
+}
+
+.help {
+  padding: 0 0 10px 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--dim);
+  border-bottom: 1px solid var(--edge);
+}
+
+/* --------------------------------------------------------------- rodapé -- */
+
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 10px 14px;
+  border-top: 1px solid var(--edge);
+  background: #131215;
+}
+
+.status {
+  font-size: 10px;
+  color: var(--faint);
+}
+
+.status.ok {
+  color: #3ddc84;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  height: 32px;
+  padding: 0 16px;
+
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  background: var(--field);
+  color: var(--dim);
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.btn:hover {
+  color: #fff;
+  border-color: var(--red);
+  background: var(--red-soft);
+}
+
+.btn.primary {
+  border-color: var(--red);
+  background: var(--red);
+  color: #fff;
+}
+
+.btn.primary:hover {
+  background: var(--red-hover);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--edge);
+  border-radius: 3px;
+}

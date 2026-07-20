@@ -30,6 +30,15 @@ local function SpawnDrop(itemName, count, coords, rotation, metadata, frozen)
     local modelHash = model
     
     local entity = CreateObjectNoOffset(modelHash, coords.x, coords.y, coords.z, true, true, true)
+
+    -- Rede de seguranca: se o modelo mapeado nao existir, cai no DefaultModel
+    -- em vez de o item simplesmente sumir sem prop.
+    if (not entity or entity == 0) and modelHash ~= Config.DefaultModel then
+        print(("^3[nv_props] Modelo %s (item: %s) falhou ao spawnar; usando DefaultModel.^7"):format(modelHash, itemName))
+        modelHash = Config.DefaultModel
+        entity = CreateObjectNoOffset(modelHash, coords.x, coords.y, coords.z, true, true, true)
+    end
+
     if not entity or entity == 0 then
         print(("^1[nv_props] Error: CreateObjectNoOffset returned 0 for model %s (item: %s). Check if Onesync is enabled and model exists.^7"):format(modelHash, itemName))
         return nil

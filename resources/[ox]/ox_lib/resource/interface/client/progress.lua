@@ -234,6 +234,17 @@ function lib.progressBar(data)
     end
 end
 
+--- ALTERADO NESTE SERVIDOR: o circulo foi aposentado.
+---
+--- A barra inline e a unica forma de progresso usada aqui, e ter duas
+--- aparencias para a mesma ideia so confundia -- o jogador nao consegue prever
+--- se a proxima acao vai desenhar um circulo no meio da tela ou uma barra
+--- embaixo. Em vez de remover o export (o que quebraria qualquer resource de
+--- terceiro que o chame), ele passa a desenhar a barra.
+---
+--- `position` e ignorado de proposito: a barra tem lugar fixo.
+---
+--- ATENCAO: esta e uma modificacao local. Ao atualizar o ox_lib, reaplique.
 ---@param data ProgressProps
 ---@return boolean?
 function lib.progressCircle(data)
@@ -241,11 +252,10 @@ function lib.progressCircle(data)
 
     if not interruptProgress(data) then
         return startProgress(data, {
-            action = 'circleProgress',
+            action = 'progress',
             data = {
-                duration = data.duration,
-                position = data.position,
-                label = data.label
+                label = data.label,
+                duration = data.duration
             }
         })
     end

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>nv_mdt</title>
+    <link rel="stylesheet" href="style.css?v=2" />
+  </head>
+  <body>
+    <div id="root" class="mdt-root hidden">
+      <!-- Abas de departamento. Só aparecem as que o jogador tem acesso. -->
+      <div class="dept-tabs">
+        <div id="deptTabs" class="dept-tabs-list"></div>
+        <button id="close" class="icon-btn" title="Fechar (ESC)">&#10005;</button>
+      </div>
+
+      <div class="dept-body">
+        <aside class="sidebar">
+          <div class="sidebar-title" id="sideTitle">MDT</div>
+          <div class="sidebar-sub" id="sideSub">&nbsp;</div>
+          <div class="section-label">Menu</div>
+          <div id="nav"></div>
+        </aside>
+
+        <main class="stage" id="stage"></main>
+      </div>
+    </div>
+
+    <script src="app.js?v=2"></script>
+  </body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>nv_adminmenu</title>
+    <link rel="stylesheet" href="style.css?v=2" />
+    <link rel="stylesheet" href="panel.css?v=1" />
+  </head>
+  <body>
+    <div id="tablet" class="tablet hidden">
+      <div class="screen">
+        <header class="head">
+          <div class="title">
+            <span class="dot"></span>
+            <div>
+              <h1>Configuração de Handling</h1>
+              <p id="vehicle">—</p>
+            </div>
+          </div>
+          <button id="close" class="icon-btn" title="Fechar (ESC)">✕</button>
+        </header>
+
+        <div class="body">
+          <nav id="tabs" class="tabs"></nav>
+          <section id="fields" class="fields"></section>
+        </div>
+
+        <footer class="foot">
+          <span id="status" class="status">Ajuste os valores e use Testar para dirigir.</span>
+          <div class="actions">
+            <button id="test" class="btn">Testar</button>
+            <button id="save" class="btn primary">Salvar</button>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- ==================================================== painel admin ==
+         Mesma moldura de tablet do handling: cabecalho, abas a esquerda,
+         conteudo a direita, rodape com estado. As secoes sao montadas em JS
+         para nao repetir markup quase identico dez vezes.
+         ================================================================ -->
+    <div id="admin" class="tablet tablet-wide hidden">
+      <div class="screen">
+        <header class="head">
+          <div class="title">
+            <span class="dot"></span>
+            <div>
+              <h1>Painel de Administração</h1>
+              <p id="adminSub">—</p>
+            </div>
+          </div>
+          <button id="adminClose" class="icon-btn" title="Fechar (ESC)">✕</button>
+        </header>
+
+        <div class="body">
+          <nav id="adminTabs" class="tabs"></nav>
+          <section id="adminContent" class="fields"></section>
+        </div>
+
+        <footer class="foot">
+          <span id="adminStatus" class="status">Selecione uma categoria.</span>
+          <div class="actions">
+            <button id="adminNoclip" class="btn">Noclip</button>
+            <button id="adminCloseBtn" class="btn primary">Fechar</button>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <script src="app.js?v=2"></script>
+    <script src="panel.js?v=1"></script>
+  </body>
+</html>

@@ -1,8 +1,21 @@
-@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap");
+/* ============================================================================
+   ox_target — "Crimson Edge" redesign
+   Options grouped as one bordered panel with dividers + red accent on hover,
+   matching the ox_lib UI kit model.
+     --bg #0c0c0e  --panel #17161a  --edge #232025
+     --text #e6e4e3  --text-dim #86828a  --text-faint #4c4850  --red #ff2438
+   ============================================================================ */
 
 :root {
-  --color-default: #cfd2da;
-  --color-hover: white;
+  --panel: #17161a;
+  --edge: #232025;
+  --text: #e6e4e3;
+  --text-dim: #86828a;
+  --text-faint: #4c4850;
+  --red: #ff2438;
+
+  --color-default: var(--text-dim);
+  --color-hover: var(--text);
 }
 
 body {
@@ -10,8 +23,8 @@ body {
   user-select: none;
   white-space: nowrap;
   margin: 0;
-  user-select: none;
   overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 p {
@@ -27,18 +40,52 @@ p {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 22pt;
-  fill: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.eye-hover {
-  fill: var(--color-default);
+/* Crosshair is a solid filled dot (light grey); it turns red while aiming
+   at an interactable. Uses !important to defeat any stale cached rules. */
+.crosshair-dot,
+#eyeSvg {
+  display: block !important;
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+  border: none !important;
+  background: #d4d2d6 !important;
+  fill: #d4d2d6 !important;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.75) !important;
+  transition: background 120ms ease, box-shadow 120ms ease, transform 120ms ease !important;
 }
 
+.crosshair-dot.eye-hover,
+#eyeSvg.eye-hover {
+  background: #ff2438 !important;
+  fill: #ff2438 !important;
+  box-shadow: 0 0 9px #ff2438, 0 0 3px #ff2438 !important;
+  transform: scale(1.25) !important;
+}
+
+/* The wrapper becomes the panel that holds every option row. */
 #options-wrapper {
   position: absolute;
-  top: calc(48.4%);
+  top: 48.4%;
   left: calc(50% + 18pt);
+  width: 210px;
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+
+/* Hide the panel chrome entirely when there are no options. */
+#options-wrapper:empty {
+  border: none;
+  background: none;
+  box-shadow: none;
 }
 
 .option-container {
@@ -47,45 +94,42 @@ p {
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
-  font-family: "Nunito";
-  background: linear-gradient(
-    90deg,
-    rgba(20, 20, 20, 0.7) 0%,
-    rgba(20, 20, 20, 0.6) 66%,
-    rgba(47, 48, 53, 0) 100%
-  );
-  font-size: 11pt;
-  line-height: 22pt;
-  vertical-align: middle;
-  margin: 2pt;
-  transition: 300ms;
-  transform-origin: left top;
-  scale: 1;
-  height: 22pt;
-  width: 150pt;
-  top: 0;
+  gap: 4px;
+  padding: 9px 12px;
+  border-left: 2px solid transparent;
+  border-bottom: 1px solid var(--edge);
+  font-size: 12px;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.option-container:last-child {
+  border-bottom: none;
 }
 
 .option-container:hover {
-  background: linear-gradient(
-    90deg,
-    rgba(30, 30, 30, 0.7) 0%,
-    rgba(30, 30, 30, 0.6) 66%,
-    rgba(57, 58, 63, 0) 100%
-  );
-  transform-origin: left top;
   color: var(--color-hover);
-  margin-left: 4pt;
+  background: rgba(255, 36, 56, 0.06);
+  border-left-color: var(--red);
 }
 
 .option-icon {
-  font-size: 12pt;
-  line-height: 22pt;
-  width: 14pt;
-  margin: 5pt;
-  color: var(--color-default);
+  font-size: 12px;
+  width: 18px;
+  text-align: center;
+  margin-right: 4px;
+  color: var(--text-faint);
+  transition: color 120ms ease;
+}
+
+.option-container:hover .option-icon {
+  color: var(--red);
 }
 
 .option-label {
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

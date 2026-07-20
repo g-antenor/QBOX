@@ -592,7 +592,7 @@ CreateThread(function()
                     0.0, 0.0, 0.0, -- direção
                     0.0, 0.0, 0.0, -- rotação
                     1.5, 1.5, 1.0, -- escala
-                    255, 204, 0, 100, -- Cor RGBA (Amarelo translúcido)
+                    255, 36, 56, 120, -- Cor RGBA (vermelho translúcido)
                     false, true, 2, false, nil, nil, false
                 )
             end

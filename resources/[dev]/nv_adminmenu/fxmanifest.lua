@@ -11,11 +11,25 @@ shared_scripts {
 }
 
 client_scripts {
-    'client.lua'
+    -- Ordem importa: client.lua publica o `AdminTools` que panel.lua usa.
+    'client.lua',
+    'handling.lua',
+    'client/panel.lua'
+}
+
+ui_page 'html/index.html'
+
+files {
+    'html/index.html',
+    'html/style.css',
+    'html/app.js',
+    'html/panel.css',
+    'html/panel.js'
 }
 
 server_scripts {
-    'server.lua'
+    'server.lua',
+    'server/panel.lua'
 }
 
 dependencies {

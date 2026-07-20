@@ -168,7 +168,9 @@ local vehicleOptions = {
 		icon = "fas fa-gas-pump",
 		label = "Abastecer Veículo (Mangueira)",
 		canInteract = function(entity)
-			return state.holdingHose and not state.isFueling and not cache.vehicle and DoesVehicleUseFuel(entity)
+			-- Sem dinheiro em maos a bomba nao libera: a opcao nem aparece.
+			return state.holdingHose and not state.isFueling and not cache.vehicle
+				and DoesVehicleUseFuel(entity) and utils.hasFuelMoney()
 		end
 	}
 }
@@ -205,24 +207,42 @@ end
 
 exports.ox_target:addGlobalVehicle(vehicleOptions)
 
--- Draw "sem combustível" over a station that is empty; removed once fuel > 0
+-- Avisa que o posto esta seco enquanto o jogador estiver por perto.
+-- Usa o TextUI do ox_lib (mesmo padrao visual do resto), nao texto 3D.
 CreateThread(function()
-	while true do
-		local sleep = 1000
-		local pedCoords = GetEntityCoords(cache.ped)
-		local id = GetStationIdFromCoords(pedCoords)
+	local shown = false
 
-		if id then
-			local sCoords = sortedStations[id]
-			if sCoords and #(pedCoords - sCoords) < 25.0 then
-				local sd = GlobalState.gasStations and GlobalState.gasStations[id]
-				if sd and sd.fuel <= 0 then
-					sleep = 0
-					utils.draw3DText(sCoords + vec3(0.0, 0.0, 1.0), "POSTO SEM COMBUSTIVEL")
+	local function hide()
+		if shown then
+			shown = false
+			lib.hideTextUI()
+		end
+	end
+
+	while true do
+		local dry = false
+
+		-- Enquanto abastece, o TextUI pertence ao progresso: nao disputar.
+		if not state.isFueling then
+			local pedCoords = GetEntityCoords(cache.ped)
+			local id = GetStationIdFromCoords(pedCoords)
+
+			if id then
+				local sCoords = sortedStations[id]
+				if sCoords and #(pedCoords - sCoords) < 25.0 then
+					local sd = GlobalState.gasStations and GlobalState.gasStations[id]
+					dry = sd ~= nil and sd.fuel <= 0
 				end
 			end
 		end
 
-		Wait(sleep)
+		if dry and not shown then
+			shown = true
+			lib.showTextUI('**Posto sem combustível**', { position = 'bottom-center', icon = 'gas-pump' })
+		elseif not dry then
+			hide()
+		end
+
+		Wait(1000)
 	end
 end)

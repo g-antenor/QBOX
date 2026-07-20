@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>nv_shops</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Icones: um <symbol> por icone, desenhado a mao. Sem emoji e sem fonte
+     externa -- a NUI do FiveM nao alcanca CDN, e emoji muda de desenho a cada
+     sistema. Para criar uma categoria nova, adicione o symbol aqui e aponte
+     `icon` no config. -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="ic-todos" viewBox="0 0 24 24">
+        <path d="M4 4h7v7H4V4Zm9 0h7v7h-7V4ZM4 13h7v7H4v-7Zm9 0h7v7h-7v-7Z"/>
+    </symbol>
+    <symbol id="ic-comida" viewBox="0 0 24 24">
+        <path d="M12 4c4.4 0 8 2.2 8 5H4c0-2.8 3.6-5 8-5Zm-8 7h16a2 2 0 0 1 0 4H4a2 2 0 0 1 0-4Zm1 6h14a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3Z"/>
+    </symbol>
+    <symbol id="ic-bebida" viewBox="0 0 24 24">
+        <path d="M6 3h12l-1.2 4H7.2L6 3Zm1.5 6h9l-1 11a1 1 0 0 1-1 .9h-5a1 1 0 0 1-1-.9l-1-11Zm2.2 2 .7 8h3.2l.7-8H9.7Z"/>
+    </symbol>
+    <symbol id="ic-material" viewBox="0 0 24 24">
+        <path d="m12 2 9 4.2v11.6L12 22l-9-4.2V6.2L12 2Zm0 2.2L5.6 7.2 12 10l6.4-2.8L12 4.2ZM5 9v7.5l6 2.8v-7.5L5 9Zm14 0-6 2.8v7.5l6-2.8V9Z"/>
+    </symbol>
+    <symbol id="ic-faca" viewBox="0 0 24 24">
+        <path d="M3 14 15 2l3 3-9.5 11.5L3 14Zm5.8 4.2 1.6-1.6 4 4a1.1 1.1 0 0 1-1.6 1.6l-4-4Z"/>
+    </symbol>
+    <symbol id="ic-pistola" viewBox="0 0 24 24">
+        <path d="M3 7h15a1 1 0 0 1 1 1v3h2v2h-3.4l-2 4.4a1 1 0 0 1-.9.6h-2.3a1 1 0 0 1-.9-1.4L13 13H9.5l-2 3.5a1 1 0 0 1-.9.5H4a1 1 0 0 1-1-1V7Zm2 2v5h1l2-3.5V9H5Z"/>
+    </symbol>
+    <symbol id="ic-municao" viewBox="0 0 24 24">
+        <path d="M5 10a3 3 0 0 1 6 0v10H5V10Zm3-8 2 5H6l2-5Zm6 8a3 3 0 0 1 6 0v10h-6V10Zm3-8 2 5h-4l2-5Z"/>
+    </symbol>
+    <symbol id="ic-caca" viewBox="0 0 24 24">
+        <path d="M12 2a1 1 0 0 1 1 1v2.1a7 7 0 0 1 5.9 5.9H21a1 1 0 0 1 0 2h-2.1a7 7 0 0 1-5.9 5.9V21a1 1 0 0 1-2 0v-2.1A7 7 0 0 1 5.1 13H3a1 1 0 0 1 0-2h2.1A7 7 0 0 1 11 5.1V3a1 1 0 0 1 1-1Zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z"/>
+    </symbol>
+    <symbol id="ic-utilidade" viewBox="0 0 24 24">
+        <path d="M17.7 2.3a6 6 0 0 0-7.5 7.4L2.6 17.3a2 2 0 0 0 0 2.8l1.3 1.3a2 2 0 0 0 2.8 0l7.6-7.6a6 6 0 0 0 7.4-7.5l-3.3 3.3-2.8-.7-.7-2.8 2.8-3.8Z"/>
+    </symbol>
+    <symbol id="ic-fechar" viewBox="0 0 24 24">
+        <path d="m6.4 5 5.6 5.6L17.6 5 19 6.4 13.4 12 19 17.6 17.6 19 12 13.4 6.4 19 5 17.6 10.6 12 5 6.4 6.4 5Z"/>
+    </symbol>
+    <symbol id="ic-carrinho" viewBox="0 0 24 24">
+        <path d="M3 3h2.4a1 1 0 0 1 1 .8L7 6h13a1 1 0 0 1 1 1.2l-1.4 6a2 2 0 0 1-2 1.6H9.1a2 2 0 0 1-2-1.6L5.2 5H3V3Zm6 15a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm8 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z"/>
+    </symbol>
+</svg>
+
+<div id="root" class="hidden">
+    <div class="app">
+
+        <!-- ------------------------------------------------ categorias --- -->
+        <aside class="categories">
+            <div class="sidebar-title" id="shopTitle">Loja</div>
+            <div class="sidebar-sub">Selecione uma categoria ou busque um produto.</div>
+            <div class="section-label">Categorias</div>
+            <div id="categoryList"></div>
+
+            <div class="section-label">No bolso</div>
+            <div class="wallet"><span>Dinheiro</span><span id="walletValue">$ 0</span></div>
+            <div class="wallet-note">Esta loja aceita somente dinheiro em espécie.</div>
+        </aside>
+
+        <!-- -------------------------------------------------- produtos --- -->
+        <section class="stage">
+            <header class="stage-header">
+                <div class="stage-title" id="stageTitle">Todos os produtos</div>
+                <input type="text" class="search-input" id="searchInput" placeholder="Buscar produto...">
+                <button type="button" class="close" id="btnClose" aria-label="Fechar">
+                    <svg><use href="#ic-fechar"/></svg>
+                </button>
+            </header>
+            <div class="product-grid" id="productGrid"></div>
+        </section>
+
+        <!-- ---------------------------------------------- nota fiscal --- -->
+        <aside class="receipt-panel">
+            <div class="receipt-paper">
+                <div class="receipt-store" id="receiptStore">LOJA</div>
+                <div class="receipt-meta" id="receiptDate"></div>
+                <div class="receipt-divider"></div>
+                <div class="receipt-items" id="receiptItems"></div>
+                <div class="receipt-divider"></div>
+                <div class="receipt-row"><span>Itens</span><span id="rCount">0</span></div>
+                <div class="receipt-row total"><span>TOTAL</span><span id="rTotal">$ 0</span></div>
+                <div class="receipt-barcode"></div>
+                <div class="receipt-barcode-num" id="receiptCode">0000 0000 0000</div>
+            </div>
+
+            <p class="pay-note">
+                <svg class="pay-icon"><use href="#ic-carrinho"/></svg>
+                Pagamento em dinheiro, no balcão.
+            </p>
+
+            <p class="error-msg hidden" id="errorMsg"></p>
+
+            <button class="btn primary" id="btnCheckout" disabled>Finalizar compra</button>
+        </aside>
+
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

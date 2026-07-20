@@ -7,9 +7,9 @@ $secondaryColorHighlight: #33343f;
 $secondaryColorLight: rgba(0, 0, 0, 0.5);
 $secondaryColorDark: rgba(12, 12, 12, 0.8);
 
-$gridCols: 5;
+$gridCols: 6;
 $gridRows: 5;
-$gridSize: 10.2vh;
+$gridSize: 8.8vh;
 $gridGap: 2px;
 $containerSize: calc(#{$gridRows} * #{$gridSize + 0.22vh} + #{$gridRows} * #{$gridGap});
 
@@ -636,6 +636,11 @@ body.inv-dragging {
   background: var(--header) !important;
   border-bottom: 1px solid var(--panel-edge) !important;
   padding: 10px 14px !important;
+  /* Altura fixa (10px + 46px do anel de peso + 10px). Sem isso, painéis sem
+     maxWeight — loja, baú — ficam com o cabeçalho mais baixo e o painel
+     inteiro desalinha em relação ao inventário do jogador. */
+  box-sizing: border-box !important;
+  min-height: 66px !important;
   margin: -12px -12px 10px -12px !important;
   border-top-left-radius: 5px !important;
   border-top-right-radius: 5px !important;

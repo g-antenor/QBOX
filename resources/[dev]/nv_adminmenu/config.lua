@@ -1,5 +1,33 @@
 Config = {}
 
+-- ============================================================================
+-- PAINEL DE ADMINISTRACAO
+-- ============================================================================
+
+-- Tecla que abre o painel. A MESMA tecla fecha.
+--
+-- F6 e uma escolha consciente: F1..F4 sao do jogo, F5 costuma ser inventario
+-- ou celular em servidores de RP, F7 ja e o "voltar ao editor" do handling e
+-- F8 e o console. Se colidir com algo no seu setup, troque aqui.
+Config.PanelKey = 'F6'
+
+-- ============================================================================
+-- VEICULOS  (opcao "Adicionar Veiculo no Nome")
+-- ============================================================================
+Config.Vehicles = {
+    -- O carro nasce na garagem mais proxima do JOGADOR que vai receber, e nao
+    -- sempre na mesma. Quem esta em Sandy nao precisa atravessar o mapa para
+    -- pegar um carro que acabaram de dar a ele.
+    --
+    -- false = usa sempre `garage` abaixo.
+    useNearest = true,
+
+    -- Garagem usada quando `useNearest` esta desligado, quando o jogador nao
+    -- tem posicao (personagem ainda carregando) ou quando o nv_garage nao esta
+    -- rodando. Precisa ser uma CHAVE de `Config.Garages` do nv_garage.
+    garage = 'legion'
+}
+
 -- Common prop models to resolve hashes to string names during selection
 Config.PropList = {
     -- Bins & Trash

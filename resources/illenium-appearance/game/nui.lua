@@ -27,6 +27,11 @@ RegisterNUICallback("appearance_turn_around", function(_, cb)
     client.pedTurn(cache.ped, 180.0)
 end)
 
+RegisterNUICallback("appearance_play_animation", function(name, cb)
+    cb(1)
+    client.playCustomizationAnimation(name)
+end)
+
 RegisterNUICallback("appearance_rotate_camera", function(direction, cb)
     cb(1)
     client.rotateCamera(direction)

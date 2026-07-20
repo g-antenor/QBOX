@@ -10,6 +10,7 @@ import { Items } from '../../store/items';
 import { Slot } from '../../typings';
 
 const PAGE_SIZE = 30;
+const COLUMNS = 6;
 
 const getReservedSlots = (items: Slot[]) => {
   const reserved = new Set<number>();
@@ -34,11 +35,11 @@ const getReservedSlots = (items: Slot[]) => {
           height = temp;
         }
         if (width > 1 || height > 1) {
-          const col = (item.slot - 1) % 5;
-          if (col + width <= 5) {
+          const col = (item.slot - 1) % COLUMNS;
+          if (col + width <= COLUMNS) {
             for (let r = 0; r < height; r++) {
               for (let c = 0; c < width; c++) {
-                const slotIdx = item.slot + (r * 5) + c;
+                const slotIdx = item.slot + (r * COLUMNS) + c;
                 if (slotIdx !== item.slot) {
                   reserved.add(slotIdx);
                 }

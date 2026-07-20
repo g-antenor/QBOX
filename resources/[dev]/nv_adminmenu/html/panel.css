@@ -1,0 +1,380 @@
+/* nv_adminmenu — painel de administração.
+
+   Herda as variáveis e a moldura de tablet do style.css (handling): mesma
+   casa, mesma cara. Aqui ficam só os componentes que o handling não tem. */
+
+/* O painel tem mais conteúdo por linha que o handling — lista de jogadores,
+   busca de itens — então ganha mais largura. A moldura continua sem ocupar a
+   tela toda. */
+.tablet-wide {
+  width: min(74vw, 1080px);
+  height: min(74vh, 660px);
+}
+
+/* ------------------------------------------------------------- seções ---- */
+
+.section-title {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin: 4px 0 10px;
+}
+
+.section-title:not(:first-child) {
+  margin-top: 20px;
+}
+
+/* Grade de ações rápidas. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  padding: 11px 12px;
+  border: 1px solid var(--edge);
+  border-left: 2px solid transparent;
+  border-radius: 5px;
+  background: var(--field);
+  color: var(--text);
+
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.card:hover {
+  border-color: var(--red);
+  border-left-color: var(--red);
+  background: var(--red-soft);
+}
+
+.card b {
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.card small {
+  font-size: 9.5px;
+  color: var(--faint);
+  line-height: 1.4;
+}
+
+/* Estado ligado/desligado (noclip, godmode): a cor carrega o estado, para não
+   depender de ler o rótulo. */
+.card.on {
+  border-color: var(--red);
+  border-left-color: var(--red);
+  background: var(--red-soft);
+}
+
+.card.on small {
+  color: var(--red);
+}
+
+/* --------------------------------------------------------------- busca -- */
+
+.search {
+  width: 100%;
+  padding: 9px 11px;
+  margin-bottom: 10px;
+
+  border: 1px solid var(--edge);
+  border-radius: 5px;
+  background: var(--field);
+  color: var(--text);
+
+  font-family: inherit;
+  font-size: 12px;
+}
+
+.search:focus {
+  outline: none;
+  border-color: var(--red);
+  box-shadow: 0 0 0 2px var(--red-soft);
+}
+
+.search::placeholder {
+  color: var(--faint);
+}
+
+/* Barra de filtros/ações que acompanha a busca. */
+.toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.toolbar .search {
+  margin-bottom: 0;
+}
+
+.qty {
+  width: 78px;
+  padding: 9px 10px;
+  flex: none;
+
+  border: 1px solid var(--edge);
+  border-radius: 5px;
+  background: var(--field);
+  color: var(--text);
+
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 12px;
+  text-align: center;
+}
+
+.qty:focus {
+  outline: none;
+  border-color: var(--red);
+}
+
+/* Some as setinhas do input number: elas não cabem num painel escuro e
+   compacto, e a digitação direta é mais rápida que clicar. */
+.qty::-webkit-outer-spin-button,
+.qty::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.select {
+  padding: 9px 10px;
+  flex: none;
+  max-width: 200px;
+
+  border: 1px solid var(--edge);
+  border-radius: 5px;
+  background: var(--field);
+  color: var(--text);
+
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--red);
+}
+
+/* ---------------------------------------------------------------- lista -- */
+
+/* Altura fixa com rolagem própria: sem isso uma lista de 400 itens empurraria
+   o rodapé do tablet para fora da tela. */
+.list {
+  max-height: 46vh;
+  overflow-y: auto;
+
+  border: 1px solid var(--edge);
+  border-radius: 5px;
+  background: #131215;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 9px 11px;
+  border-bottom: 1px solid var(--edge);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.item:last-child {
+  border-bottom: 0;
+}
+
+.item:hover {
+  background: var(--red-soft);
+}
+
+.item .info {
+  flex: 1;
+  min-width: 0;
+}
+
+.item .info b {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.item .info code {
+  font-size: 9px;
+  color: var(--faint);
+  font-family: ui-monospace, Consolas, monospace;
+}
+
+/* Etiqueta de arma/munição: dar uma arma sem querer, procurando outra coisa,
+   é um acidente caro. */
+.tag {
+  padding: 2px 7px;
+  flex: none;
+
+  border-radius: 3px;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.tag.weapon {
+  background: rgba(255, 36, 56, 0.16);
+  color: var(--red);
+}
+
+.tag.ammo {
+  background: rgba(245, 165, 36, 0.16);
+  color: #f5a524;
+}
+
+.tag.self {
+  background: rgba(61, 220, 132, 0.16);
+  color: #3ddc84;
+}
+
+.empty {
+  padding: 22px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--faint);
+}
+
+/* Ações inline de uma linha da lista (jogadores). */
+.row-actions {
+  display: flex;
+  gap: 5px;
+  flex: none;
+}
+
+.mini {
+  padding: 5px 9px;
+
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--dim);
+
+  font-family: inherit;
+  font-size: 9.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.mini:hover {
+  color: #fff;
+  border-color: var(--red);
+  background: var(--red);
+}
+
+.mini.danger:hover {
+  background: #a01020;
+  border-color: #a01020;
+}
+
+/* --------------------------------------------------------------- ajuda -- */
+
+.note {
+  padding: 10px 12px;
+  margin-bottom: 12px;
+
+  border: 1px solid var(--edge);
+  border-left: 2px solid var(--red);
+  border-radius: 4px;
+  background: #131215;
+
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--dim);
+}
+
+.note b {
+  color: var(--text);
+}
+
+/* Lista de comandos. */
+.cmd {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+
+  padding: 7px 0;
+  border-bottom: 1px solid var(--edge);
+}
+
+.cmd:last-child {
+  border-bottom: 0;
+}
+
+.cmd code {
+  flex: none;
+  min-width: 150px;
+
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 11px;
+  color: var(--red);
+}
+
+.cmd span {
+  font-size: 10.5px;
+  color: var(--dim);
+}
+
+/* ------------------------------------------------------------ formulário -- */
+
+/* Formulário do alinhador de props. Duas colunas: os quatro campos cabem em
+   duas linhas e o botão de iniciar fica visível sem rolagem — o gesto aqui é
+   "ajusto e começo", não "leio uma lista". */
+.form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.field span {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--dim);
+}
+
+.field input {
+  padding: 9px 10px;
+
+  border: 1px solid var(--edge);
+  border-radius: 5px;
+  background: var(--field);
+  color: var(--text);
+
+  font-family: inherit;
+  font-size: 12px;
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--red);
+}
+
+/* O botão de ação dentro do corpo (fora do rodapé) precisa da mesma altura
+   dos campos ao lado, senão fica flutuando no meio da linha. */
+.toolbar .btn {
+  padding: 9px 18px;
+  flex: none;
+}

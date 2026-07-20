@@ -207,3 +207,214 @@ lib.addCommand('adminmenu', {
 }, function(source, args, raw)
     TriggerClientEvent('nv_adminmenu:client:openMenu', source)
 end)
+
+-- ==========================================================================
+-- HANDLING
+-- Presets salvos pelo tablet, guardados em handling.json. Servem como
+-- registro do que foi afinado: o valor definitivo vai para o handling.meta
+-- do veiculo (o tablet copia o XML pronto ao salvar).
+-- ==========================================================================
+local handlingFile = 'handling.json'
+local savedHandling = {}
+
+do
+    local raw = LoadResourceFile(GetCurrentResourceName(), handlingFile)
+
+    if raw then
+        savedHandling = json.decode(raw) or {}
+    end
+end
+
+RegisterNetEvent('nv_adminmenu:server:saveHandling', function(model, values)
+    local src = source
+
+    if not isAdmin(src) then return end
+    if type(model) ~= 'string' or type(values) ~= 'table' then return end
+
+    savedHandling[model] = values
+
+    local ok, encoded = pcall(json.encode, savedHandling, { indent = true })
+
+    if ok then
+        SaveResourceFile(GetCurrentResourceName(), handlingFile, encoded, -1)
+        print(('^2[nv_adminmenu] Handling de %s salvo em %s^7'):format(model, handlingFile))
+    else
+        print('^1[nv_adminmenu] Erro ao codificar handling.json^7')
+    end
+end)
+
+lib.callback.register('nv_adminmenu:server:getHandling', function(source, model)
+    if not isAdmin(source) then return nil end
+
+    return model and savedHandling[model] or savedHandling
+end)
+
+-- ==========================================================================
+-- VEICULOS
+--
+-- Cria um veiculo no nome de um jogador, ja guardado na garagem configurada.
+-- Sem coordenadas o ox_core so grava a linha no banco e nao spawna nada, que
+-- e exatamente o que queremos: o dono retira pelo painel da garagem.
+-- ==========================================================================
+
+--- Catalogo do ox_core (`common/data/vehicles.json`), lido uma vez.
+---@type table<string, table>?
+local vehicleCatalog
+
+local function loadCatalog()
+    if vehicleCatalog then return vehicleCatalog end
+
+    local file = LoadResourceFile('ox_core', 'common/data/vehicles.json')
+    local ok, decoded = pcall(json.decode, file or '')
+
+    if not ok or type(decoded) ~= 'table' then
+        print('^1[nv_adminmenu] Nao foi possivel ler common/data/vehicles.json do ox_core.^7')
+        vehicleCatalog = {}
+    else
+        vehicleCatalog = decoded
+    end
+
+    return vehicleCatalog
+end
+
+--- Lista para o select pesquisavel. O nome do modelo entra no rotulo de
+--- proposito: e por ele que se procura quando se sabe o que quer.
+lib.callback.register('nv_adminmenu:server:getVehicleList', function(source)
+    if not isAdmin(source) then return {} end
+
+    local list = {}
+
+    for model, entry in pairs(loadCatalog()) do
+        local name = entry.name or model
+        local make = entry.make ~= '' and entry.make or nil
+
+        list[#list + 1] = {
+            value = model,
+            label = make and ('%s %s  (%s)'):format(make, name, model)
+                or ('%s  (%s)'):format(name, model)
+        }
+    end
+
+    table.sort(list, function(a, b) return a.label < b.label end)
+
+    return list
+end)
+
+RegisterNetEvent('nv_adminmenu:server:giveVehicle', function(targetId, model)
+    local src = source
+
+    if not isAdmin(src) then return end
+
+    targetId = tonumber(targetId)
+
+    if not targetId or type(model) ~= 'string' then return end
+
+    model = model:lower()
+
+    -- Modelo fora do catalogo faz o ox_core lancar erro: melhor recusar aqui,
+    -- com uma mensagem que diz o que houve.
+    if not loadCatalog()[model] then
+        return TriggerClientEvent('ox_lib:notify', src, {
+            type = 'error',
+            description = ('Modelo desconhecido: %s'):format(model)
+        })
+    end
+
+    local target = Ox.GetPlayer(targetId)
+
+    if not target or not target.charId then
+        return TriggerClientEvent('ox_lib:notify', src, {
+            type = 'error',
+            description = 'O jogador precisa estar com um personagem carregado.'
+        })
+    end
+
+    local settings = Config.Vehicles or {}
+    local garage = settings.garage or 'legion'
+
+    -- A garagem mais proxima de quem vai receber. O nv_garage e quem conhece
+    -- as garagens; pcall porque ele pode nao estar rodando.
+    if settings.useNearest ~= false and GetResourceState('nv_garage') == 'started' then
+        local ok, nearest = pcall(function()
+            return exports.nv_garage:NearestGarage(targetId)
+        end)
+
+        if ok and type(nearest) == 'string' then garage = nearest end
+    end
+
+    local ok, vehicle = pcall(Ox.CreateVehicle, {
+        model = model,
+        owner = target.charId,
+        stored = garage
+    })
+
+    if not ok or not vehicle then
+        print(('^1[nv_adminmenu] Falha ao criar %s para o charId %s: %s^7')
+            :format(model, target.charId, tostring(vehicle)))
+
+        return TriggerClientEvent('ox_lib:notify', src, {
+            type = 'error',
+            description = 'Nao foi possivel criar o veiculo. Veja o console do servidor.'
+        })
+    end
+
+    print(('[nv_adminmenu] %s (id %s) criou %s [%s] para %s (charId %s), guardado em "%s".')
+        :format(GetPlayerName(src) or '?', src, model, vehicle.plate or '?',
+            GetPlayerName(targetId) or '?', target.charId, garage))
+
+    TriggerClientEvent('ox_lib:notify', src, {
+        type = 'success',
+        description = ('%s entregue a %s. Placa %s, guardado na garagem "%s".')
+            :format(model:upper(), GetPlayerName(targetId) or targetId, vehicle.plate or '?', garage)
+    })
+
+    if targetId ~= src then
+        TriggerClientEvent('ox_lib:notify', targetId, {
+            type = 'success',
+            description = ('Um veiculo foi registrado no seu nome (placa %s). Retire na garagem mais proxima.')
+                :format(vehicle.plate or '?')
+        })
+    end
+end)
+
+-- Evento manual das lojas 24/7. Espelha o dos postos: esvazia as prateleiras
+-- (a condicao) e avisa os jogadores (o chamado).
+RegisterNetEvent('nv_adminmenu:server:startShop247Event', function()
+    local src = source
+    if not isAdmin(src) then return end
+
+    if GetResourceState('nv_delivery') ~= 'started' then
+        return TriggerClientEvent('ox_lib:notify', src, {
+            type = 'error',
+            description = 'O recurso nv_delivery não está ativo.'
+        })
+    end
+
+    local ok, success, affected, reason = pcall(function()
+        return exports.nv_delivery:startShop247Event()
+    end)
+
+    if ok and success then
+        print(('[nv_adminmenu] %s (id %s) iniciou o evento das lojas 24/7 (%d lojas).')
+            :format(GetPlayerName(src) or '?', src, affected or 0))
+
+        return TriggerClientEvent('ox_lib:notify', src, {
+            type = 'success',
+            description = ('Evento das lojas iniciado! %d loja(s) sem estoque.'):format(affected or 0)
+        })
+    end
+
+    -- `ok == false` significa que a chamada em si estourou (export inexistente,
+    -- resource caido). Distinguir isso de "rodou e recusou" e o que evita
+    -- procurar o problema no lugar errado.
+    local message = ok and (reason or 'O evento recusou.')
+        or ('Erro ao chamar o nv_delivery: %s'):format(tostring(affected))
+
+    print(('^1[nv_adminmenu] evento 24/7 falhou: %s^7'):format(message))
+
+    TriggerClientEvent('ox_lib:notify', src, {
+        type = 'error',
+        description = message,
+        duration = 7000
+    })
+end)

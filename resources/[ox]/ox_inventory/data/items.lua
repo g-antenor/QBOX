@@ -136,6 +136,80 @@ return {
 	['lockpick'] = {
 		label = 'Lockpick',
 		weight = 160,
+		-- consume = 0: quem decide o desgaste e o nv_garage. Sem isso o
+		-- ox_inventory comeria um lockpick a cada tentativa, inclusive nas
+		-- bem-sucedidas.
+		consume = 0,
+		-- durability: um lockpick novo nasce com 100. NAO use `degrade` junto:
+		-- com degrade o ox_inventory trata `metadata.durability` como um
+		-- timestamp de validade, e nao como porcentagem.
+		durability = true,
+		-- decay: some do inventario quando a durabilidade chega a zero.
+		decay = true,
+		client = {
+			export = 'nv_garage.useLockpick'
+		}
+	},
+
+	-- ------------------------------------------------------ nv_garage --
+
+	['vehiclekey'] = {
+		label = 'Chave de Veiculo',
+		weight = 25,
+		stack = false,
+		close = true,
+		description = 'A placa gravada na chave diz em qual carro ela funciona.',
+		-- Sem isto o ox_inventory procura por `vehiclekey.png`, que nao existe,
+		-- e o item fica com o icone quebrado.
+		client = {
+			image = 'carkey.png'
+		}
+	},
+
+	['alicate'] = {
+		label = 'Alicate de Corte',
+		weight = 800,
+		close = true,
+		consume = 0,
+		description = 'Corta e emenda fios. Usado no banco do motorista para ligacao direta.',
+		client = {
+			export = 'nv_garage.useCutters',
+			-- O pacote de imagens do ox_inventory nao tem alicate. A chave
+			-- inglesa e o que mais se aproxima de "ferramenta"; troque por um
+			-- `alicate.png` proprio em web/images quando tiver um.
+			image = 'WEAPON_WRENCH.png'
+		}
+	},
+
+	-- -------------------------------------------------------- nv_orgs --
+
+	['org_key'] = {
+		label = 'Chave',
+		weight = 20,
+		-- stack = false: cada chave carrega o set da organizacao no metadata, e
+		-- empilhar duas de organizacoes diferentes esconderia uma delas.
+		stack = false,
+		close = true,
+		consume = 0,
+		description = 'Uma chave. A gravacao diz de qual organizacao.',
+		client = {
+			export = 'nv_orgs.useKey',
+			image = 'carkey.png'
+		}
+	},
+
+	['org_contact'] = {
+		label = 'Pedaco de Papel',
+		weight = 1,
+		-- stack = false: cada papel carrega um numero diferente no metadata, e
+		-- empilhar dois esconderia um deles.
+		stack = false,
+		close = true,
+		consume = 0,
+		description = 'Um numero de telefone anotado a mao.',
+		client = {
+			image = 'card_id.png'
+		}
 	},
 
 	['phone'] = {
@@ -191,7 +265,11 @@ return {
 		label = 'Radio',
 		weight = 1000,
 		stack = false,
-		allowArmed = true
+		allowArmed = true,
+		consume = 0,
+		client = {
+			export = 'nv_radio.useRadio'
+		}
 	},
 
 	['armour'] = {
@@ -311,6 +389,89 @@ return {
 		weight = 50,
 		client = {
 			image = 'recycled_material.png'
+		}
+	},
+
+	-- ======================================================================
+	-- CAÇA (nv_hunting)
+	-- Sem imagem por enquanto: o ox_inventory cai no ícone padrão sozinho.
+	-- ======================================================================
+	['meat_boar']        = { label = 'Carne de Javali',        weight = 800 },
+	['hide_boar']        = { label = 'Couro de Javali',        weight = 600 },
+	['meat_deer']        = { label = 'Carne de Cervo',         weight = 900 },
+	['hide_deer']        = { label = 'Couro de Cervo',         weight = 700 },
+	['meat_coyote']      = { label = 'Carne de Coiote',        weight = 500 },
+	['hide_coyote']      = { label = 'Couro de Coiote',        weight = 400 },
+	['meat_mtlion']      = { label = 'Carne de Leão da Montanha', weight = 1000 },
+	['hide_mtlion']      = { label = 'Couro de Leão da Montanha', weight = 800 },
+	['meat_rabbit']      = { label = 'Carne de Coelho',        weight = 200 },
+	['hide_rabbit']      = { label = 'Couro de Coelho',        weight = 150 },
+	['meat_rat']         = { label = 'Carne de Rato',          weight = 100 },
+	['hide_rat']         = { label = 'Couro de Rato',          weight = 80 },
+	['meat_crow']        = { label = 'Carne de Corvo',         weight = 120 },
+	['meat_seagull']     = { label = 'Carne de Gaivota',       weight = 150 },
+	['meat_cormorant']   = { label = 'Carne de Cormorão',      weight = 180 },
+	['meat_chickenhawk'] = { label = 'Carne de Falcão',        weight = 160 },
+
+	-- ======================================================================
+	-- PESCA (nv_hunting)
+	-- ======================================================================
+	['fishingrod'] = {
+		label = 'Vara de Pesca',
+		weight = 1500,
+		stack = false,
+		consume = 0,
+		client = {
+			export = 'nv_hunting.useRod'
+		}
+	},
+	['fishbait']      = { label = 'Isca de Pesca',    weight = 10 },
+
+	-- Lixo
+	['fishingtin']    = { label = 'Lata Enferrujada', weight = 100 },
+	['fishingboot']   = { label = 'Bota Velha',       weight = 400 },
+
+	-- Peixes pequenos
+	['mackerel']      = { label = 'Cavala',           weight = 400 },
+	['flounder']      = { label = 'Linguado',         weight = 500 },
+
+	-- Peixes médios
+	['bass']          = { label = 'Robalo',           weight = 900 },
+	['codfish']       = { label = 'Bacalhau',         weight = 1100 },
+
+	-- Peixes grandes
+	['stingray']      = { label = 'Arraia',           weight = 2500 },
+
+	-- Raros de mar aberto
+	['sharkhammer']   = { label = 'Tubarão-martelo',  weight = 8000 },
+	['sharktiger']    = { label = 'Tubarão-tigre',    weight = 9000 },
+	['dolphin']       = { label = 'Golfinho',         weight = 7000 },
+	['killerwhale']   = { label = 'Orca',             weight = 12000 },
+
+	-- Baú de tesouro
+	['fishinglootbig'] = { label = 'Baú Submerso',    weight = 3000, stack = false },
+	-- Comprovante emitido pelas lojas (nv_shops). `stack = false` porque cada
+	-- nota tem metadata propria: empilhar juntaria compras diferentes na mesma
+	-- pilha e a descricao de uma sobreporia a da outra.
+	['nota_fiscal']   = { label = 'Nota Fiscal',      weight = 5, stack = false },
+
+	-- ------------------------------------------------------ nv_dispatch --
+
+	-- Corta o rastreio que gera os chamados de roubo. NAO e invisibilidade: o
+	-- servidor troca o chamado por um "perda de sinal" com a posicao borrada,
+	-- entao a policia continua sabendo que ha algo acontecendo na regiao.
+	--
+	-- `consume = 0` porque quem remove o item e o nv_dispatch, que precisa
+	-- descontar tambem quando o aparelho FALHA -- e o ox_inventory so cobraria
+	-- no caminho de sucesso.
+	['bloqueador_sinal'] = {
+		label = 'Bloqueador de Sinal',
+		weight = 340,
+		stack = false,
+		consume = 0,
+		description = 'Aparelho de interferencia. Nem sempre funciona.',
+		client = {
+			export = 'nv_dispatch.useJammer'
 		}
 	},
 }

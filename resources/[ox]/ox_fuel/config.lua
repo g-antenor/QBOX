@@ -42,13 +42,10 @@ return {
 	globalFuelConsumptionRate = 10.0,
 
 	-- Gas pump models
+	-- Somente as bombas que existem nos postos usados pelo servidor.
 	pumpModels = {
-		`prop_gas_pump_old2`,
-		`prop_gas_pump_1a`,
-		`prop_vintage_pump`,
-		`prop_gas_pump_old3`,
-		`prop_gas_pump_1c`,
-		`prop_gas_pump_1b`,
-		`prop_gas_pump_1d`,
+		`prop_gas_pump_old2`,  -- -469694731
+		`prop_gas_pump_1a`,    --  1339433404
+		`prop_vintage_pump`,   -- -462817101
 	}
 }

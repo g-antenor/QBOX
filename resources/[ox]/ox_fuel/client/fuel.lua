@@ -76,7 +76,7 @@ function fuel.getPetrolCan(coords, refuel)
 	TaskTurnPedToFaceCoord(cache.ped, coords.x, coords.y, coords.z, config.petrolCan.duration)
 	Wait(500)
 
-	if lib.progressCircle({
+	if lib.progressBar({
 			duration = config.petrolCan.duration,
 			useWhileDead = false,
 			canCancel = true,
@@ -273,7 +273,10 @@ function fuel.startFuelingVehicle(vehicle)
 	end
 
 	if moneyAmount < config.priceTick then
-		return lib.notify({ type = 'error', description = "Você não tem dinheiro em mãos!" })
+		return lib.notify({
+			type = 'error',
+			description = ("Você precisa de pelo menos $%d em dinheiro para abastecer."):format(config.priceTick)
+		})
 	end
 
 	-- Enforce single point: left rear side (between rear door and trunk)
@@ -313,25 +316,28 @@ function fuel.startFuelingVehicle(vehicle)
 	lib.requestAnimDict('timetable@gardener@filling_can')
 	TaskPlayAnim(cache.ped, 'timetable@gardener@filling_can', 'gar_ig_5_filling_can', 8.0, -8.0, -1, 49, 0.0, false, false, false)
 
-	-- 3D Text above gas pump thread & Key monitoring (No screen Text UI modal)
+	-- Progresso do abastecimento no TextUI do ox_lib.
+	-- Reenviar o showTextUI com outro texto atualiza o painel no lugar, entao
+	-- so mandamos quando o texto realmente muda (evita spam de NUI por frame).
 	CreateThread(function()
+		local shown = false
+		local lastText
+
 		while state.isFueling do
 			Wait(0)
 			if not state.isFueling then break end
 
-			if state.pumpEntity and DoesEntityExist(state.pumpEntity) then
-				local pumpCoords = GetEntityCoords(state.pumpEntity)
-				local text = string.format(
-					"~g~BOMBA DE COMBUSTÍVEL~w~\n" ..
-					"Abastecendo...\n" ..
-					"Litros: ~y~%.1f / %.1f L~w~\n" ..
-					"Total: ~g~$%d~w~\n" ..
-					"~r~Pressione [X] para parar",
-					(fuelAmount / 100.0) * maxFuelLiters,
-					maxFuelLiters,
-					price
-				)
-				utils.draw3DText(pumpCoords + vec3(0.0, 0.0, 1.2), text)
+			local text = string.format(
+				'**Abastecendo**  \n%.1f / %.1f L  ·  $%d  \n`X`  Parar de abastecer',
+				(fuelAmount / 100.0) * maxFuelLiters,
+				maxFuelLiters,
+				price
+			)
+
+			if text ~= lastText then
+				lastText = text
+				shown = true
+				lib.showTextUI(text, { position = 'bottom-center', icon = 'gas-pump' })
 			end
 
 			-- Cancel refuel strictly with the X key (control 73) checked every frame
@@ -340,6 +346,7 @@ function fuel.startFuelingVehicle(vehicle)
 				break
 			end
 		end
+		if shown then lib.hideTextUI() end
 	end)
 
 	-- Refill tick logic loop
@@ -426,7 +433,7 @@ function fuel.startFueling(vehicle)
 	Wait(500)
 
 	CreateThread(function()
-		lib.progressCircle({
+		lib.progressBar({
 			duration = duration,
 			useWhileDead = false,
 			canCancel = true,

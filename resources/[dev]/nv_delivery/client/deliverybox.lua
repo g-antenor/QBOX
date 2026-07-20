@@ -380,7 +380,7 @@ CreateThread(function()
                 
                 if not showingAddressUI then
                     showingAddressUI = true
-                    lib.showTextUI('[E] Pegar o endereço')
+                    lib.showTextUI('`E`  Pegar o endereço', { position = 'bottom-center', icon = 'location-dot' })
                 end
                 
                 if IsControlJustPressed(0, 38) then -- [E]

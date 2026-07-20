@@ -181,122 +181,65 @@ local function startAdjustment()
     end)
 end
 
-local function openPresetsMenu()
-    lib.registerContext({
-        id = 'nv_syncitens_presets',
-        title = 'Predefinições de Props',
-        menu = 'nv_syncitens_main',
-        options = {
-            {
-                title = 'Abastecendo (Bico de Gasolina)',
-                description = 'Prop: prop_cs_fuel_nozle | Anim: timetable@gardener@filling_can',
-                icon = 'fa-solid fa-gas-pump',
-                onSelect = function()
-                    propModel = 'prop_cs_fuel_nozle'
-                    animDict = 'timetable@gardener@filling_can'
-                    animName = 'gar_ig_5_filling_can'
-                    boneId = 57005
-                    lib.notify({ type = 'success', description = 'Preset de Abastecimento carregado!' })
-                    openPresetsMenu()
-                end
-            },
-            {
-                title = 'Abastecendo (Galão de Gasolina)',
-                description = 'Prop: w_am_jerrycan | Anim: weapon@w_sp_jerrycan',
-                icon = 'fa-solid fa-faucet',
-                onSelect = function()
-                    propModel = 'w_am_jerrycan'
-                    animDict = 'weapon@w_sp_jerrycan'
-                    animName = 'fire'
-                    boneId = 57005
-                    lib.notify({ type = 'success', description = 'Preset de Galão carregado!' })
-                    openPresetsMenu()
-                end
-            },
-            {
-                title = 'Parado Normal (Mãos nos Bolsos/Cintura)',
-                description = 'Prop: prop_cs_fuel_nozle | Anim: amb@world_human_cop_idles@male@idle_b',
-                icon = 'fa-solid fa-child',
-                onSelect = function()
-                    propModel = 'prop_cs_fuel_nozle'
-                    animDict = 'amb@world_human_cop_idles@male@idle_b'
-                    animName = 'idle_e'
-                    boneId = 57005
-                    lib.notify({ type = 'success', description = 'Preset de Parado Normal carregado!' })
-                    openPresetsMenu()
-                end
-            },
-            {
-                title = 'Parado Normal (Gesticulando)',
-                description = 'Prop: prop_cs_fuel_nozle | Anim: gestures@m@standing@casual',
-                icon = 'fa-solid fa-comments',
-                onSelect = function()
-                    propModel = 'prop_cs_fuel_nozle'
-                    animDict = 'gestures@m@standing@casual'
-                    animName = 'gesture_talk_heavy_a'
-                    boneId = 57005
-                    lib.notify({ type = 'success', description = 'Preset de Gesticulando carregado!' })
-                    openPresetsMenu()
-                end
-            }
-        }
-    })
-    lib.showContext('nv_syncitens_presets')
+-- Predefinicoes do alinhador. Viraram DADOS em vez de um menu do ox_lib: a
+-- mesma lista alimenta a aba "Props" do painel, e acrescentar um preset e
+-- acrescentar uma linha aqui -- nao um bloco de menu novo.
+local propPresets = {
+    {
+        label = 'Abastecendo (bico de gasolina)',
+        model = 'prop_cs_fuel_nozle',
+        dict  = 'timetable@gardener@filling_can',
+        anim  = 'gar_ig_5_filling_can',
+        bone  = 57005
+    },
+    {
+        label = 'Abastecendo (galão)',
+        model = 'w_am_jerrycan',
+        dict  = 'weapon@w_sp_jerrycan',
+        anim  = 'fire',
+        bone  = 57005
+    },
+    {
+        label = 'Parado (mãos na cintura)',
+        model = 'prop_cs_fuel_nozle',
+        dict  = 'amb@world_human_cop_idles@male@idle_b',
+        anim  = 'idle_e',
+        bone  = 57005
+    },
+    {
+        label = 'Parado (gesticulando)',
+        model = 'prop_cs_fuel_nozle',
+        dict  = 'gestures@m@standing@casual',
+        anim  = 'gesture_talk_heavy_a',
+        bone  = 57005
+    }
+}
+
+--- Estado atual do alinhador, para o painel desenhar os campos preenchidos.
+local function getPropConfig()
+    return {
+        model    = propModel,
+        dict     = animDict,
+        anim     = animName,
+        bone     = boneId,
+        presets  = propPresets
+    }
 end
 
-local function openConfigMenu()
-    lib.registerContext({
-        id = 'nv_syncitens_main',
-        title = 'Alinhador de Props',
-        options = {
-            {
-                title = 'Configurações de Ajuste',
-                description = string.format("Modelo: %s | Bone: %d", propModel, boneId),
-                icon = 'fa-solid fa-gear',
-                onSelect = function()
-                    local input = lib.inputDialog('Configurar Prop', {
-                        { type = 'input', label = 'Modelo do Prop', default = propModel, required = true },
-                        { type = 'input', label = 'Dicionário de Animação', default = animDict, required = true },
-                        { type = 'input', label = 'Nome da Animação', default = animName, required = true },
-                        { type = 'number', label = 'ID do Osso (Bone ID)', default = boneId, required = true }
-                    })
-                    if input then
-                        propModel = input[1]
-                        animDict = input[2]
-                        animName = input[3]
-                        boneId = tonumber(input[4]) or 28422
-                        lib.notify({ type = 'success', description = 'Configurações atualizadas!' })
-                    end
-                    openConfigMenu()
-                end
-            },
-            {
-                title = 'Carregar Predefinição (Presets)',
-                description = 'Abastecimento, parado, galões e gesticulações.',
-                icon = 'fa-solid fa-list',
-                onSelect = function()
-                    openPresetsMenu()
-                end
-            },
-            {
-                title = 'Iniciar Editor',
-                description = 'Inicia a pré-visualização e ajuste do prop.',
-                icon = 'fa-solid fa-play',
-                onSelect = function()
-                    startAdjustment()
-                end
-            }
-        }
-    })
-    lib.showContext('nv_syncitens_main')
-end
+--- Aplica o que o painel digitou. Campo vazio mantem o valor anterior: o
+--- formulario e parcial de proposito, e apagar tudo por engano nao deve
+--- zerar uma configuracao que ja estava certa.
+---@param data table
+local function setPropConfig(data)
+    if type(data) ~= 'table' then return end
 
-RegisterCommand('syncitens', function()
-    -- Check admin first
-    lib.callback('nv_adminmenu:server:isAdmin', false, function(allowed)
-        if allowed then openConfigMenu() end
-    end)
-end, false)
+    if type(data.model) == 'string' and data.model ~= '' then propModel = data.model end
+    if type(data.dict) == 'string' and data.dict ~= '' then animDict = data.dict end
+    if type(data.anim) == 'string' and data.anim ~= '' then animName = data.anim end
+
+    local bone = tonumber(data.bone)
+    if bone then boneId = math.floor(bone) end
+end
 
 -- Active prop handling commands
 local activeProps = {}
@@ -342,62 +285,26 @@ RegisterCommand('refreshskin', function()
     TriggerEvent('illenium-appearance:client:reloadSkin')
 end, false)
 
-RegisterCommand('savedprops', function()
-    local options = {}
+--- Lista achatada dos alinhamentos salvos, para a aba "Props" do painel.
+local function getSavedProps()
+    local list = {}
+
     for model, anims in pairs(savedAttachments) do
-        for animName, val in pairs(anims) do
-            table.insert(options, {
-                title = string.format("%s - %s", model, animName),
-                description = string.format("Rótulo: %s | Bone: %d", val.name or "N/A", val.boneId),
-                onSelect = function()
-                    ExecuteCommand(string.format("holditem %s %s", model, animName))
-                end
-            })
+        for anim, val in pairs(anims) do
+            list[#list + 1] = {
+                model = model,
+                anim  = anim,
+                dict  = val.animDict,
+                label = val.name or model,
+                bone  = val.boneId
+            }
         end
     end
-    lib.registerContext({
-        id = 'nv_syncitens_saved',
-        title = 'Props Salvos',
-        options = options
-    })
-    lib.showContext('nv_syncitens_saved')
-end, false)
 
--- Register radial menu keybind (Z Key)
-lib.addKeybind({
-    name = 'radial_props_menu',
-    description = 'Menu Radial de Props Alinhados',
-    defaultKey = 'Z',
-    onPressed = function()
-        lib.registerRadial({
-            id = 'radial_sync_props',
-            items = {
-                {
-                    label = 'Parar Animações',
-                    icon = 'ban',
-                    onSelect = function()
-                        ExecuteCommand('stopitem')
-                    end
-                },
-                {
-                    label = 'Recarregar Skin',
-                    icon = 'user-gear',
-                    onSelect = function()
-                        ExecuteCommand('refreshskin')
-                    end
-                },
-                {
-                    label = 'Props Salvos',
-                    icon = 'floppy-disk',
-                    onSelect = function()
-                        ExecuteCommand('savedprops')
-                    end
-                }
-            }
-        })
-        lib.showRadial('radial_sync_props')
-    end
-})
+    table.sort(list, function(a, b) return a.label < b.label end)
+
+    return list
+end
 
 -- ==========================================================================
 -- NOCLIP FEATURE
@@ -577,218 +484,148 @@ local function startPropSelection()
 end
 
 -- ==========================================================================
--- ADMIN MENU CORE UI
+-- COORDS OVERLAY (LEITURA AO VIVO)
 -- ==========================================================================
+--
+-- Substitui o menu de duas opcoes que existia aqui. O menu obrigava a fechar,
+-- andar ate o ponto, reabrir o menu e so entao copiar -- e nesse caminho voce
+-- nao via o numero mudando. O overlay fica na tela enquanto voce anda:
+--
+--   [ENTER]     copia vec4 (com heading) -- formato de spawn
+--   [TAB]       copia vec3
+--   [BACKSPACE] fecha
+--
+local coordsOverlay = false
 
-local function openCoordsMenu()
-    lib.registerContext({
-        id = 'nv_adminmenu_coords',
-        title = 'Copiar Coordenadas',
-        menu = 'nv_adminmenu_main',
-        options = {
-            {
-                title = 'Copiar Vector3',
-                description = 'Copia em formato vec3(x, y, z)',
-                icon = 'fa-solid fa-copy',
-                onSelect = function()
-                    local coords = GetEntityCoords(cache.ped)
-                    local str = string.format("vec3(%.2f, %.2f, %.2f)", coords.x, coords.y, coords.z)
-                    lib.setClipboard(str)
-                    lib.notify({ type = 'success', description = 'Vector3 copiado!' })
-                end
-            },
-            {
-                title = 'Copiar Vector4',
-                description = 'Copia em formato vec4(x, y, z, h)',
-                icon = 'fa-solid fa-copy',
-                onSelect = function()
-                    local coords = GetEntityCoords(cache.ped)
-                    local heading = GetEntityHeading(cache.ped)
-                    local str = string.format("vec4(%.2f, %.2f, %.2f, %.2f)", coords.x, coords.y, coords.z, heading)
-                    lib.setClipboard(str)
-                    lib.notify({ type = 'success', description = 'Vector4 copiado!' })
-                end
-            }
-        }
-    })
-    lib.showContext('nv_adminmenu_coords')
+--- Uma linha de texto do jogo, centralizada em `x`.
+---@param text string
+---@param x number
+---@param y number
+---@param scale number
+local function drawCentredText(text, x, y, scale)
+    SetTextFont(4)
+    SetTextScale(0.0, scale)
+    SetTextColour(255, 255, 255, 255)
+    SetTextCentre(true)
+    -- Contorno: o texto fica sobre o mundo, e sem ele some em cenario claro.
+    SetTextOutline()
+
+    BeginTextCommandDisplayText('STRING')
+    AddTextComponentSubstringPlayerName(text)
+    EndTextCommandDisplayText(x, y)
 end
 
--- List of server events an admin can trigger from the Eventos menu.
--- Add new entries here to expose more events in-game.
-local serverEvents = {
-    {
-        title = 'Evento: Postos de Gasolina',
-        description = 'Coloca os postos em nível crítico e avisa os jogadores para iniciar as entregas de combustível',
-        icon = 'fa-solid fa-gas-pump',
-        event = 'nv_adminmenu:server:startGasEvent'
-    }
-}
+--- Abre a leitura de coordenadas no topo da tela.
+---
+--- Exportado porque o nv_garage tambem precisa dele (/nvgaragecoords): duas
+--- copias desta thread em resources diferentes sairiam de sincronia na
+--- primeira mudanca de tecla.
+local function startCoordsOverlay()
+    if coordsOverlay then return end
+    coordsOverlay = true
 
-local function openEventsMenu()
-    local options = {}
-    for _, ev in ipairs(serverEvents) do
-        table.insert(options, {
-            title = ev.title,
-            description = ev.description,
-            icon = ev.icon,
-            arrow = true,
-            onSelect = function()
-                TriggerServerEvent(ev.event)
+    PlaySoundFrontend(-1, "SELECT", "HUD_FRONTEND_DEFAULT_SOUNDSET", true)
+
+    CreateThread(function()
+        while coordsOverlay do
+            Wait(0)
+
+            local coords = GetEntityCoords(cache.ped)
+            local heading = GetEntityHeading(cache.ped)
+
+            local vec3Text = ('vec3(%.2f, %.2f, %.2f)'):format(coords.x, coords.y, coords.z)
+            local vec4Text = ('vec4(%.2f, %.2f, %.2f, %.1f)'):format(coords.x, coords.y, coords.z, heading)
+
+            -- TAB abre a roda de armas: enquanto o overlay estiver aberto ela
+            -- nao pode responder, senao copiar o vec3 troca a arma junto.
+            DisableControlAction(0, 37, true)
+
+            -- Fundo escuro atras do bloco inteiro, para o texto sobreviver a
+            -- um ceu claro ou a uma parede branca. A altura cobre da linha do
+            -- titulo (0.038) ate a base da linha de teclas (~0.146), e a
+            -- largura acomoda um vec4 com coordenada negativa de 4 digitos,
+            -- que e a string mais larga que este bloco chega a desenhar.
+            DrawRect(0.5, 0.090, 0.38, 0.130, 0, 0, 0, 160)
+
+            drawCentredText('~y~COORDENADAS', 0.5, 0.038, 0.42)
+            drawCentredText(vec3Text, 0.5, 0.068, 0.45)
+            drawCentredText(vec4Text, 0.5, 0.096, 0.45)
+            drawCentredText('~g~[ENTER]~w~ vec4   ~g~[TAB]~w~ vec3   ~r~[BACKSPACE]~w~ fechar', 0.5, 0.126, 0.34)
+
+            -- ENTER (INPUT_FRONTEND_ACCEPT): vec4, o formato de vaga/spawn.
+            if IsControlJustPressed(0, 201) then
+                PlaySoundFrontend(-1, "SELECT", "HUD_FRONTEND_DEFAULT_SOUNDSET", true)
+                lib.setClipboard(vec4Text)
+                lib.notify({ type = 'success', description = ('Copiado: %s'):format(vec4Text) })
             end
-        })
-    end
-    if #options == 0 then
-        table.insert(options, {
-            title = 'Nenhum evento disponível',
-            disabled = true
-        })
-    end
-    lib.registerContext({
-        id = 'nv_adminmenu_events',
-        title = 'Eventos',
-        menu = 'nv_adminmenu_main',
-        options = options
-    })
-    lib.showContext('nv_adminmenu_events')
-end
 
-local function openPlayerActionMenu(targetPlayer)
-    lib.registerContext({
-        id = 'nv_adminmenu_player_actions',
-        title = targetPlayer.name,
-        menu = 'nv_adminmenu_players',
-        options = {
-            {
-                title = 'Tornar Administrador',
-                description = 'Concede privilégios de administrador',
-                icon = 'fa-solid fa-user-shield',
-                onSelect = function()
-                    TriggerServerEvent('nv_adminmenu:server:makeAdmin', targetPlayer.id)
-                end
-            },
-            {
-                title = 'Reviver',
-                description = 'Ressuscita e cura o jogador',
-                icon = 'fa-solid fa-heart-pulse',
-                onSelect = function()
-                    TriggerServerEvent('nv_adminmenu:server:revivePlayer', targetPlayer.id)
-                end
-            },
-            {
-                title = 'Puxar Jogador',
-                description = 'Teleporta o jogador até você',
-                icon = 'fa-solid fa-arrow-down-long',
-                onSelect = function()
-                    TriggerServerEvent('nv_adminmenu:server:pullPlayer', targetPlayer.id)
-                end
-            },
-            {
-                title = 'Dar Pedmenu',
-                description = 'Abre o criador de peds/roupas para o jogador',
-                icon = 'fa-solid fa-shirt',
-                onSelect = function()
-                    TriggerServerEvent('nv_adminmenu:server:givePedMenu', targetPlayer.id)
-                end
-            }
-        }
-    })
-    lib.showContext('nv_adminmenu_player_actions')
-end
+            -- TAB (INPUT_SELECT_WEAPON), desabilitado acima -- por isso a
+            -- leitura tem que ser a versao `Disabled`.
+            if IsDisabledControlJustPressed(0, 37) then
+                PlaySoundFrontend(-1, "SELECT", "HUD_FRONTEND_DEFAULT_SOUNDSET", true)
+                lib.setClipboard(vec3Text)
+                lib.notify({ type = 'success', description = ('Copiado: %s'):format(vec3Text) })
+            end
 
-local function openPlayersMenu()
-    lib.callback('nv_adminmenu:server:getOnlinePlayers', false, function(players)
-        local options = {}
-        for _, player in ipairs(players) do
-            table.insert(options, {
-                title = string.format("[%d] %s", player.id, player.name),
-                description = 'Clique para ações rápidas',
-                icon = 'fa-solid fa-user',
-                onSelect = function()
-                    openPlayerActionMenu(player)
-                end
-            })
+            -- BACKSPACE (INPUT_FRONTEND_CANCEL).
+            if IsControlJustPressed(0, 177) then
+                PlaySoundFrontend(-1, "QUIT", "HUD_FRONTEND_DEFAULT_SOUNDSET", true)
+                coordsOverlay = false
+            end
         end
-        if #options == 0 then
-            table.insert(options, {
-                title = 'Nenhum jogador encontrado',
-                disabled = true
-            })
-        end
-        lib.registerContext({
-            id = 'nv_adminmenu_players',
-            title = 'Jogadores Online',
-            menu = 'nv_adminmenu_main',
-            options = options
-        })
-        lib.showContext('nv_adminmenu_players')
     end)
 end
 
-local function openAdminMenu()
-    lib.registerContext({
-        id = 'nv_adminmenu_main',
-        title = 'Menu de Administrador',
-        options = {
-            {
-                title = 'Modo Noclip',
-                description = 'Voe pelo mapa (Ativar/Desativar)',
-                icon = 'fa-solid fa-plane-set',
-                onSelect = function()
-                    toggleNoclip()
-                end
-            },
-            {
-                title = 'Menu de Ped / Roupas',
-                description = 'Abre o editor de peds e roupas',
-                icon = 'fa-solid fa-shirt',
-                onSelect = function()
-                    TriggerEvent('illenium-appearance:client:openClothingShopMenu', true)
-                end
-            },
-            {
-                title = 'Selecionar Prop (Copiar Nome)',
-                description = 'Ativa a mira laser para selecionar e copiar props',
-                icon = 'fa-solid fa-crosshairs',
-                onSelect = function()
-                    startPropSelection()
-                end
-            },
-            {
-                title = 'Copiar Coordenadas',
-                description = 'Copia suas coordenadas em formato vector3/4',
-                icon = 'fa-solid fa-location-crosshairs',
-                onSelect = function()
-                    openCoordsMenu()
-                end
-            },
-            {
-                title = 'Alinhador de Props (SyncItens)',
-                description = 'Alinha objetos em ossos de animação',
-                icon = 'fa-solid fa-screwdriver-wrench',
-                onSelect = function()
-                    openConfigMenu()
-                end
-            },
-            {
-                title = 'Jogadores Online',
-                description = 'Reviver, Puxar, Tornar Admin ou dar Pedmenu',
-                icon = 'fa-solid fa-users',
-                onSelect = function()
-                    openPlayersMenu()
-                end
-            },
-            {
-                title = 'Eventos',
-                description = 'Aciona eventos do servidor (postos de gasolina, etc.)',
-                icon = 'fa-solid fa-bolt',
-                onSelect = function()
-                    openEventsMenu()
-                end
-            }
-        }
-    })
-    lib.showContext('nv_adminmenu_main')
+--- Nunca deixar o overlay preso na tela se o resource cair no meio.
+AddEventHandler('onResourceStop', function(resource)
+    if resource == GetCurrentResourceName() then
+        coordsOverlay = false
+    end
+end)
+
+exports('CoordsOverlay', startCoordsOverlay)
+
+-- ==========================================================================
+-- INTERFACE DO MENU
+-- ==========================================================================
+
+--[[ MENUS DO OX_LIB REMOVIDOS
+
+    O menu de contexto (`lib.registerContext`) era a interface deste resource:
+    principal, jogadores, acoes de jogador, eventos e o dialogo de veiculo.
+    Tudo isso agora vive no painel -- html/panel.js + client/panel.lua.
+
+    O motivo de nao manter as duas portas: elas divergem. Cada acao nova teria
+    que ser escrita duas vezes, e a copia esquecida vira o bug que so aparece
+    para quem usou o caminho antigo.
+
+    O que sobrou de ox_lib aqui sao NOTIFICACOES (`lib.notify`), o texto de
+    tela do editor de props (`lib.showTextUI`) e UM `lib.inputDialog` -- o que
+    pede o nome ao salvar um alinhamento, que acontece no meio da edicao em
+    mundo, com o painel fechado.
+]]
+
+--- Abre o painel de organizações (resource nv_orgs).
+---
+--- Chamado por export e não por evento: assim, se o nv_orgs estiver parado ou
+--- tiver falhado ao carregar, o administrador recebe uma mensagem em vez de um
+--- clique que não faz nada. Um evento seria engolido em silêncio.
+local function openOrgsPanel()
+    if GetResourceState('nv_orgs') ~= 'started' then
+        return lib.notify({
+            type = 'error',
+            description = 'O nv_orgs não está rodando.'
+        })
+    end
+
+    local ok = pcall(function() exports.nv_orgs:open() end)
+
+    if not ok then
+        lib.notify({
+            type = 'error',
+            description = 'O nv_orgs está rodando mas não respondeu. Veja o console (F8).'
+        })
+    end
 end
 
 -- NetEvents for target triggers
@@ -818,6 +655,39 @@ RegisterNetEvent('nv_adminmenu:client:openPedMenu', function()
     TriggerEvent('illenium-appearance:client:openClothingShopMenu', true)
 end)
 
+--- `/adminmenu` continua existindo -- so que agora abre o painel.
+---
+--- `AdminTools.openPanel` e preenchido pelo client/panel.lua, que carrega
+--- depois deste arquivo. Por isso a checagem: se o painel falhar ao carregar,
+--- o comando diz isso em vez de nao fazer nada.
 RegisterNetEvent('nv_adminmenu:client:openMenu', function()
-    openAdminMenu()
+    if AdminTools and AdminTools.openPanel then return AdminTools.openPanel() end
+
+    lib.notify({
+        type = 'error',
+        description = 'O painel não carregou. Veja o console (F8).'
+    })
 end)
+
+-- ==========================================================================
+-- PONTE PARA O PAINEL (client/panel.lua)
+--
+-- As funcoes acima sao locais deste arquivo, e o painel precisa das mesmas
+-- acoes. Em vez de duplicar o codigo -- o que garantiria que uma das copias
+-- ficaria para tras na proxima mudanca -- elas sao publicadas aqui.
+--
+-- `openPanel` vai no sentido contrario: e o panel.lua que preenche, para que
+-- o comando /adminmenu aqui em cima alcance a tela.
+-- ==========================================================================
+AdminTools = {
+    toggleNoclip       = toggleNoclip,
+    noclipActive       = function() return noclip end,
+    startPropSelection = startPropSelection,
+    startCoordsOverlay = startCoordsOverlay,
+    startPropAlign     = startAdjustment,
+    getPropConfig      = getPropConfig,
+    setPropConfig      = setPropConfig,
+    getSavedProps      = getSavedProps,
+    openOrgs           = openOrgsPanel,
+    openPanel          = nil
+}

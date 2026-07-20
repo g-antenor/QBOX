@@ -69,48 +69,28 @@ local function setRoute(coords, label, sprite, colour)
 end
 
 -- ============================================================================
--- EVENT WORLD BLIPS (fire icon + pulsing yellow circle)
+-- EVENT WORLD BLIP
+-- Um unico blip (sprite 161, laranja). O circulo de raio pulsante foi removido.
 -- ============================================================================
-local eventBlips = { fire = nil, radius = nil }
-local eventPulse = false
+local eventBlip = nil
 
 local function startEventBlips()
-    if eventBlips.fire then return end
+    if eventBlip then return end
     local c = GAS.npcCoords
 
-    local fire = AddBlipForCoord(c.x, c.y, c.z)
-    SetBlipSprite(fire, GAS.blips.event)
-    SetBlipColour(fire, 5)       -- amarelo
-    SetBlipScale(fire, 1.0)
-    SetBlipAsShortRange(fire, false)
+    eventBlip = AddBlipForCoord(c.x, c.y, c.z)
+    SetBlipSprite(eventBlip, GAS.blips.event)
+    SetBlipColour(eventBlip, GAS.blips.eventColour)
+    SetBlipScale(eventBlip, 1.0)
+    SetBlipAsShortRange(eventBlip, false)
     BeginTextCommandSetBlipName('STRING')
     AddTextComponentString('Evento: Postos de Gasolina')
-    EndTextCommandSetBlipName(fire)
-    eventBlips.fire = fire
-
-    local radius = AddBlipForRadius(c.x, c.y, c.z, 60.0)
-    SetBlipColour(radius, 5)     -- amarelo
-    SetBlipAlpha(radius, 128)
-    eventBlips.radius = radius
-
-    eventPulse = true
-    CreateThread(function()
-        local alpha, dir = 80, 1
-        while eventPulse and eventBlips.radius and DoesBlipExist(eventBlips.radius) do
-            alpha = alpha + dir * 6
-            if alpha >= 180 then alpha, dir = 180, -1
-            elseif alpha <= 60 then alpha, dir = 60, 1 end
-            SetBlipAlpha(eventBlips.radius, alpha)
-            Wait(50)
-        end
-    end)
+    EndTextCommandSetBlipName(eventBlip)
 end
 
 local function stopEventBlips()
-    eventPulse = false
-    if eventBlips.fire and DoesBlipExist(eventBlips.fire) then RemoveBlip(eventBlips.fire) end
-    if eventBlips.radius and DoesBlipExist(eventBlips.radius) then RemoveBlip(eventBlips.radius) end
-    eventBlips.fire, eventBlips.radius = nil, nil
+    if eventBlip and DoesBlipExist(eventBlip) then RemoveBlip(eventBlip) end
+    eventBlip = nil
 end
 
 AddStateBagChangeHandler('gasEventActive', 'global', function(_, _, value)
@@ -272,8 +252,10 @@ end
 local function startFuelPromptThread()
     if GAS.test and GAS.test.enabled then return end
     CreateThread(function()
+        local shown = false
         while heldHose do
             local sleep = 500
+            local prompt = false
             if not isFueling then
                 local pedCoords = GetEntityCoords(cache.ped)
                 local sc = stationCoords(heldHose.station)
@@ -281,17 +263,24 @@ local function startFuelPromptThread()
                     local pump = getClosestPump(pedCoords)
                     if pump and closestStationId(GetEntityCoords(pump)) == heldHose.station then
                         sleep = 0
-                        BeginTextCommandDisplayHelp('STRING')
-                        AddTextComponentSubstringPlayerName('Pressione ~INPUT_CONTEXT~ para abastecer o posto')
-                        EndTextCommandDisplayHelp(0, false, true, -1)
+                        prompt = true
+                        if not shown then
+                            shown = true
+                            lib.showTextUI('`E`  Abastecer o posto', { position = 'bottom-center', icon = 'gas-pump' })
+                        end
                         if IsControlJustPressed(0, 51) then -- E
                             dischargeAtPump(pump)
                         end
                     end
                 end
             end
+            if not prompt and shown then
+                shown = false
+                lib.hideTextUI()
+            end
             Wait(sleep)
         end
+        if shown then lib.hideTextUI() end
     end)
 end
 
@@ -413,7 +402,8 @@ CreateThread(function()
     while true do
         local show = (heldHose ~= nil and not tripDoneFor(heldHose.trailer)) or (job.active and job.stage == 'station')
         if show then
-            DrawMarker(1, p.x, p.y, p.z - 0.95, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 2.0, 1.0, 255, 200, 0, 120, false, true, 2, false, nil, nil, false)
+            -- Tipo 27 = anel plano no chao, vermelho.
+            DrawMarker(27, p.x, p.y, p.z - 0.95, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 2.0, 1.0, 255, 36, 56, 120, false, true, 2, false, nil, nil, false)
             Wait(0)
         else
             Wait(500)
@@ -467,24 +457,35 @@ end
 
 local function startReturnWatcher()
     CreateThread(function()
+        local shown = false
         while job.active and job.stage == 'return' do
             local sleep = 500
+            local prompt = false
             if job.truck ~= 0 and cache.vehicle == job.truck then
                 local dist = #(GetEntityCoords(cache.ped) - GAS.returnPoint)
                 if dist < 8.0 then
                     sleep = 0
-                    BeginTextCommandDisplayHelp('STRING')
-                    AddTextComponentSubstringPlayerName('Pressione ~INPUT_PICKUP~ para entregar o caminhão')
-                    EndTextCommandDisplayHelp(0, false, true, -1)
+                    prompt = true
+                    if not shown then
+                        shown = true
+                        lib.showTextUI('`E`  Entregar o caminhão', { position = 'bottom-center', icon = 'truck' })
+                    end
                     if IsControlJustPressed(0, 38) then -- E
                         job.stage = 'finishing'
+                        shown = false
+                        lib.hideTextUI()
                         finishReturn()
                         break
                     end
                 end
             end
+            if not prompt and shown then
+                shown = false
+                lib.hideTextUI()
+            end
             Wait(sleep)
         end
+        if shown then lib.hideTextUI() end
     end)
 end
 

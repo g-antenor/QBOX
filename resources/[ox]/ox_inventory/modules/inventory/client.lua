@@ -134,12 +134,10 @@ function Inventory.OpenTrunk(entity)
 end
 
 if shared.target then
-    exports.ox_target:addModel(Inventory.Dumpsters, {
-        icon = 'fas fa-dumpster',
-        label = locale('search_dumpster'),
-        onSelect = function(data) return Inventory.OpenDumpster(data.entity) end,
-        distance = 2
-    })
+    -- O alvo de vasculhar caçamba foi removido de proposito: quem cuida disso
+    -- e o nv_recycle ("Vasculhar Lixeira"), com loot e cooldown proprios. Ter
+    -- os dois deixava duas opcoes concorrentes no mesmo prop.
+    -- Inventory.OpenDumpster continua existindo para quem chamar direto.
 
     exports.ox_target:addGlobalVehicle({
         icon = 'fas fa-truck-ramp-box',

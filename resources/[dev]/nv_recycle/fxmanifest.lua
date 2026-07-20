@@ -8,7 +8,8 @@ version '1.0.0'
 dependencies {
     'ox_lib',
     'ox_target',
-    'ox_inventory'
+    'ox_inventory',
+    'nv_minigames'
 }
 
 shared_script '@ox_lib/init.lua'

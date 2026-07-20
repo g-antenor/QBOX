@@ -1,0 +1,299 @@
+/* ==========================================================================
+   nv_shops — NUI
+
+   Mesma paleta Crimson Edge do resto do servidor (nv_hud, nv_garage). O
+   desenho vem do redesign do minimarket: categorias a esquerda, vitrine no
+   meio, nota fiscal a direita.
+
+   A nota da direita nao e enfeite: ela e a MESMA leitura que o jogador leva
+   no bolso depois (o item nota_fiscal), entao o que ele confere antes de pagar
+   e o que fica registrado.
+   ========================================================================== */
+
+:root {
+    --bg:         #0c0c0e;
+    --panel:      #17161a;
+    --panel-2:    #1e1d22;
+    --edge:       #2a2930;
+    --text:       #f2f2f4;
+    --muted:      #8b8a94;
+    --faint:      #4c4850;
+    --red:        #ff2438;
+    --good:       #3ddc84;
+    --warn:       #f5a524;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: transparent;
+    font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+    color: var(--text);
+    user-select: none;
+}
+
+.hidden { display: none !important; }
+
+#root {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: rgba(0, 0, 0, .5);
+}
+
+.app {
+    display: flex;
+    width: min(1180px, 92vw);
+    height: min(700px, 86vh);
+    background: var(--bg);
+    border: 1px solid var(--edge);
+    border-radius: 14px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .6);
+    overflow: hidden;
+}
+
+/* ------------------------------------------------------------ categorias -- */
+
+.categories {
+    width: 210px;
+    flex: none;
+    background: var(--panel);
+    border-right: 1px solid var(--edge);
+    overflow-y: auto;
+}
+
+.sidebar-title { padding: 18px 16px 4px; font-size: 13px; font-weight: 700; }
+.sidebar-sub   { padding: 0 16px 14px; font-size: 10.5px; color: var(--faint); line-height: 1.45; }
+
+.section-label {
+    padding: 14px 16px 6px;
+    font-size: 9px;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--faint);
+}
+
+.side-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 16px;
+    font-size: 12px;
+    color: var(--muted);
+    border-left: 2px solid transparent;
+    border-bottom: 1px solid var(--edge);
+    cursor: pointer;
+    transition: color .12s, border-color .12s, background .12s;
+}
+
+.side-item svg { width: 15px; height: 15px; fill: currentColor; flex-shrink: 0; }
+.side-item:hover  { color: var(--text); background: rgba(255, 36, 56, .05); }
+.side-item.active { color: var(--text); border-left-color: var(--red); background: rgba(255, 36, 56, .08); }
+
+.wallet {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 16px 6px;
+    font-size: 12.5px;
+}
+
+.wallet span:last-child { font-weight: 700; color: var(--good); font-family: ui-monospace, Consolas, monospace; }
+.wallet-note { padding: 0 16px 16px; font-size: 10px; color: var(--faint); line-height: 1.45; }
+
+/* --------------------------------------------------------------- vitrine -- */
+
+.stage {
+    flex: 1;
+    background: linear-gradient(180deg, #0e0d10, #0a090b);
+    overflow-y: auto;
+    padding: 18px 20px;
+}
+
+.stage-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.stage-title { flex: 1; font-size: 13px; font-weight: 700; }
+
+.search-input {
+    width: 220px;
+    background: #0f0e10;
+    border: 1px solid var(--edge);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 12px;
+    padding: 8px 10px;
+}
+
+.search-input:focus       { outline: none; border-color: var(--red); }
+.search-input::placeholder { color: var(--faint); }
+
+.close {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--edge);
+    border-radius: 7px;
+    background: var(--panel);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.close svg { width: 12px; height: 12px; fill: var(--muted); }
+.close:hover { border-color: var(--red); }
+.close:hover svg { fill: var(--text); }
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+}
+
+.product-card {
+    background: var(--panel);
+    border: 1px solid var(--edge);
+    border-radius: 8px;
+    padding: 13px 11px;
+    cursor: pointer;
+    text-align: center;
+    transition: border-color .12s, transform .1s;
+}
+
+.product-card:hover { border-color: var(--red); transform: translateY(-1px); }
+
+/* Sem estoque nao e "escondido": some da vitrine seria pior, porque o jogador
+   procuraria o produto que sabe que existe. Ele fica visivel e apagado. */
+.product-card.out { opacity: .4; cursor: not-allowed; }
+.product-card.out:hover { border-color: var(--edge); transform: none; }
+
+.product-icon { display: grid; place-items: center; height: 30px; margin-bottom: 8px; }
+.product-icon svg { width: 24px; height: 24px; fill: var(--muted); }
+.product-card:hover:not(.out) .product-icon svg { fill: var(--red); }
+
+.product-name  { font-size: 11.5px; margin-bottom: 6px; line-height: 1.3; min-height: 30px; }
+.product-price { font-size: 12.5px; font-family: ui-monospace, Consolas, monospace; color: var(--red); font-weight: 700; }
+
+.product-stock { font-size: 9.5px; color: var(--faint); margin-top: 6px; text-transform: uppercase; letter-spacing: .04em; }
+.product-stock.low { color: var(--warn); }
+.product-stock.none { color: var(--red); }
+
+.empty-note { grid-column: 1 / -1; padding: 26px 0; text-align: center; font-size: 11.5px; color: var(--faint); }
+
+/* ----------------------------------------------------------- nota fiscal -- */
+
+.receipt-panel {
+    width: 320px;
+    flex: none;
+    background: var(--panel);
+    border-left: 1px solid var(--edge);
+    overflow-y: auto;
+    padding: 16px 14px 18px;
+    display: flex;
+    flex-direction: column;
+}
+
+.receipt-paper {
+    background: #121114;
+    border: 1px dashed var(--edge);
+    border-radius: 3px;
+    padding: 16px 14px;
+    font-family: ui-monospace, Consolas, monospace;
+}
+
+.receipt-store { font-size: 12.5px; font-weight: 700; letter-spacing: .04em; text-align: center; }
+.receipt-meta  { font-size: 9.5px; color: var(--faint); text-align: center; line-height: 1.5; margin-top: 4px; }
+.receipt-divider { border-top: 1px dashed var(--edge); margin: 10px 0; }
+
+.receipt-items { display: flex; flex-direction: column; gap: 9px; max-height: 34vh; overflow-y: auto; }
+.receipt-items::-webkit-scrollbar { width: 5px; }
+.receipt-items::-webkit-scrollbar-thumb { background: var(--edge); border-radius: 3px; }
+
+.receipt-empty { font-size: 10.5px; color: var(--faint); text-align: center; padding: 12px 0; }
+
+.receipt-item-name { display: flex; justify-content: space-between; gap: 6px; font-size: 11px; }
+.receipt-item-name .lt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.receipt-item-sub { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+.receipt-item-unit { font-size: 9.5px; color: var(--faint); }
+
+.qty-stepper { display: flex; align-items: center; gap: 6px; }
+
+.qty-btn {
+    display: grid;
+    place-items: center;
+    width: 17px;
+    height: 17px;
+    border: 1px solid var(--edge);
+    border-radius: 3px;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 11px;
+    line-height: 1;
+}
+
+.qty-btn:hover { border-color: var(--red); color: var(--text); }
+.qty-val { min-width: 15px; text-align: center; font-size: 10.5px; }
+.remove-btn { color: var(--faint); cursor: pointer; font-size: 12px; margin-left: 4px; }
+.remove-btn:hover { color: var(--red); }
+
+.receipt-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); padding: 3px 0; }
+.receipt-row.total { font-size: 14px; font-weight: 700; color: var(--text); margin-top: 4px; }
+.receipt-row.total span:last-child { color: var(--red); }
+
+.receipt-barcode {
+    height: 30px;
+    margin-top: 12px;
+    opacity: .5;
+    background: repeating-linear-gradient(90deg,
+        var(--faint) 0, var(--faint) 2px, transparent 2px, transparent 4px,
+        var(--faint) 4px, var(--faint) 5px, transparent 5px, transparent 9px);
+}
+
+.receipt-barcode-num { text-align: center; font-size: 9px; letter-spacing: .15em; color: var(--faint); margin-top: 5px; }
+
+.pay-note {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 14px;
+    font-size: 10.5px;
+    color: var(--muted);
+}
+
+.pay-icon { width: 13px; height: 13px; fill: var(--muted); flex-shrink: 0; }
+
+.error-msg {
+    margin-top: 10px;
+    padding: 9px 11px;
+    border: 1px solid rgba(255, 36, 56, .3);
+    border-radius: 8px;
+    background: rgba(255, 36, 56, .08);
+    color: var(--red);
+    font-size: 11px;
+}
+
+.btn {
+    margin-top: auto;
+    padding: 12px 0;
+    font-family: inherit;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    border: 0;
+    border-radius: 9px;
+    cursor: pointer;
+}
+
+.btn.primary { background: var(--red); color: #fff; width: 100%; }
+.btn.primary:hover:not(:disabled) { filter: brightness(1.12); }
+.btn.primary:disabled { opacity: .35; cursor: not-allowed; }

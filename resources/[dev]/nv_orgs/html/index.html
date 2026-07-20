@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>nv_orgs</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="tablet" class="tablet hidden">
+      <div class="screen">
+
+        <header class="head">
+          <div class="title">
+            <span class="dot"></span>
+            <div>
+              <h1>Organizacoes</h1>
+              <p id="subtitle">Policia, hospital, jobs e gangs</p>
+            </div>
+          </div>
+          <button id="close" class="icon-btn" title="Fechar (ESC)">&#10005;</button>
+        </header>
+
+        <div class="body">
+
+          <!-- ------------------------------------------------ lista ---- -->
+          <aside class="side">
+            <button id="new" class="btn primary block">+ Nova organizacao</button>
+            <div id="list" class="list"></div>
+            <p id="listEmpty" class="empty hidden">Nenhuma organizacao criada.</p>
+          </aside>
+
+          <!-- ---------------------------------------------- detalhe ---- -->
+          <section class="panel">
+
+            <p id="placeholder" class="placeholder">
+              Selecione uma organizacao a esquerda, ou crie uma nova.
+            </p>
+
+            <div id="editor" class="editor hidden">
+
+              <nav class="tabs">
+                <button class="tab active" data-tab="config">Configuracao</button>
+                <button class="tab" data-tab="members" id="tabMembers">Membros</button>
+                <button class="tab" data-tab="resources" id="tabResources">Recursos</button>
+              </nav>
+
+              <!-- ------------------------------------- configuracao --- -->
+              <div class="tab-body" data-body="config">
+
+                <div class="row two">
+                  <label class="field">
+                    <span>Nome</span>
+                    <input type="text" id="fLabel" maxlength="50" placeholder="Policia de Los Santos" />
+                  </label>
+
+                  <label class="field">
+                    <span>Set <em id="setHint">(nao muda depois de criado)</em></span>
+                    <input type="text" id="fSet" maxlength="20" placeholder="police" />
+                  </label>
+                </div>
+
+                <!-- div, e nao label: um <label> reenvia o clique para o
+                     controle associado, e com botoes dentro dele a selecao de
+                     estilo disparava duas vezes e se perdia. -->
+                <div class="field">
+                  <span>Estilo</span>
+                  <div class="seg" id="fStyle"></div>
+                </div>
+
+                <!-- So aparece para estilos que tem subtipo (hoje, estatal). -->
+                <div class="field hidden" id="subtypeField">
+                  <span>Tipo</span>
+                  <div class="seg" id="fSubtype"></div>
+                </div>
+
+                <div class="grades-head">
+                  <span>Cargos <em>1 = mais alto</em></span>
+                  <button id="addGrade" class="btn small">+ Cargo</button>
+                </div>
+
+                <div id="grades" class="grades"></div>
+
+              </div>
+
+              <!-- ----------------------------------------- membros ---- -->
+              <div class="tab-body hidden" data-body="members">
+
+                <div class="res-head">
+                  <span>Membros</span>
+                  <button id="addMember" class="btn small">+ Adicionar membro</button>
+                </div>
+
+                <div class="search">
+                  <input type="text" id="fSearch" placeholder="Nome, ID (#12) ou State ID..." />
+                  <div id="results" class="results hidden"></div>
+                </div>
+
+                <div id="members" class="members"></div>
+                <p id="membersEmpty" class="empty hidden">Nenhum membro contratado.</p>
+
+              </div>
+
+              <!-- ---------------------------------------- recursos ---- -->
+              <div class="tab-body hidden" data-body="resources">
+
+                <div class="res">
+                  <div class="res-head">
+                    <span>Fechaduras</span>
+                    <div class="res-head-actions">
+                      <button id="genKey" class="btn small">Gerar chave</button>
+                      <button id="addDoors" class="btn small">+ Criar fechaduras</button>
+                    </div>
+                  </div>
+                  <p class="res-note">
+                    O painel fecha e voce mira nas portas em jogo. Duas portas
+                    marcadas viram uma porta dupla. Quem e da organizacao abre.
+                  </p>
+                  <div id="doors" class="res-list"></div>
+                  <p id="doorsEmpty" class="empty hidden">Nenhuma fechadura criada.</p>
+                </div>
+
+                <div class="res">
+                  <div class="res-head">
+                    <span>Estacionamento</span>
+                    <button id="placePed" class="btn small">Atendente</button>
+                  </div>
+                  <p class="res-note">
+                    O atendente e onde os membros retiram a frota. Em
+                    organizacoes estatais ele aparece para todos; em jobs, so
+                    para quem tem o set. Interagir e sempre so para membros.
+                  </p>
+                  <div id="garagePed" class="res-list"></div>
+
+                  <div class="res-head" style="margin-top:6px;">
+                    <span>Vagas</span>
+                    <button id="addSpawns" class="btn small">+ Marcar vagas</button>
+                  </div>
+                  <div id="spawns" class="res-list"></div>
+                  <p id="spawnsEmpty" class="empty hidden">Nenhuma vaga marcada.</p>
+
+                  <div class="res-head" style="margin-top:6px;">
+                    <span>Frota</span>
+                    <button id="addFleet" class="btn small">+ Veiculo</button>
+                  </div>
+                  <div id="fleet" class="res-list"></div>
+                  <p id="fleetEmpty" class="empty hidden">Nenhum veiculo na frota.</p>
+                </div>
+
+                <div class="res">
+                  <div class="res-head">
+                    <span>Vestiario</span>
+                    <button id="addWardrobe" class="btn small">+ Marcar pontos</button>
+                  </div>
+                  <div id="wardrobes" class="res-list"></div>
+                  <p id="wardrobesEmpty" class="empty hidden">Nenhum vestiario marcado.</p>
+
+                  <div class="res-head" style="margin-top:6px;">
+                    <span>Uniformes</span>
+                    <button id="saveOutfit" class="btn small">+ Salvar roupa atual</button>
+                  </div>
+                  <p class="res-note">
+                    Vista a roupa pelo menu de roupas e depois salve aqui: o
+                    uniforme guardado e o que estiver no seu corpo. Ele so
+                    aparece para quem tem o mesmo tipo de corpo.
+                  </p>
+                  <div id="outfits" class="res-list"></div>
+                  <p id="outfitsEmpty" class="empty hidden">Nenhum uniforme salvo.</p>
+                </div>
+
+                <div class="res">
+                  <div class="res-head">
+                    <span>Contato</span>
+                    <button id="newContact" class="btn small">+ Gerar numero</button>
+                  </div>
+                  <p class="res-note">
+                    Gera um numero novo e entrega o papel para voce. O numero
+                    anterior vira historico: so um fica ativo por vez.
+                  </p>
+                  <div id="contacts" class="res-list"></div>
+                  <p id="contactsEmpty" class="empty hidden">Nenhum numero gerado.</p>
+                </div>
+
+                <div class="res">
+                  <div class="res-head">
+                    <span>Baus</span>
+                    <button id="addStash" class="btn small">+ Adicionar bau</button>
+                  </div>
+                  <p class="res-note">
+                    Cada bau define quantos cargos, a partir do topo, conseguem
+                    abri-lo. Um deles pode ser marcado como o da gerencia.
+                  </p>
+                  <div id="stashes" class="res-list"></div>
+                  <p id="stashesEmpty" class="empty hidden">Nenhum bau criado.</p>
+                </div>
+
+              </div>
+
+            </div>
+          </section>
+        </div>
+
+        <footer class="foot">
+          <span id="status" class="status">Pronto.</span>
+          <div class="actions">
+            <button id="remove" class="btn danger hidden">Excluir</button>
+            <button id="save" class="btn primary hidden">Salvar</button>
+          </div>
+        </footer>
+
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

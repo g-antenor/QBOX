@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>nv_hud</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Biblioteca de icones. Tudo em currentColor, entao cada icone assume a
+       cor do elemento que o usa (a cor do circulo, no caso dos status). -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="ic-vida" viewBox="0 0 24 24">
+      <path d="M12 20.5C7.8 17.7 3 14.1 3 9.9A4.4 4.4 0 0 1 12 7a4.4 4.4 0 0 1 9 2.9c0 4.2-4.8 7.8-9 10.6z"/>
+    </symbol>
+    <symbol id="ic-colete" viewBox="0 0 24 24">
+      <path d="M12 2.5l7.5 2.8v5.6c0 4.6-3.2 8.6-7.5 10.1-4.3-1.5-7.5-5.5-7.5-10.1V5.3L12 2.5z"/>
+    </symbol>
+    <symbol id="ic-fome" viewBox="0 0 24 24">
+      <path d="M4 8.2h16a4 4 0 0 0-8-3.7A4 4 0 0 0 4 8.2z"/>
+      <rect x="3" y="10.6" width="18" height="2.6" rx="1.3"/>
+      <path d="M4.2 15.6h15.6A4 4 0 0 1 16 19.9H8a4 4 0 0 1-3.8-4.3z"/>
+    </symbol>
+    <symbol id="ic-sede" viewBox="0 0 24 24">
+      <path d="M12 2.8c3 3.5 6 7.3 6 10.6a6 6 0 0 1-12 0c0-3.3 3-7.1 6-10.6z"/>
+    </symbol>
+    <symbol id="ic-stress" viewBox="0 0 24 24">
+      <path d="M13.4 2L4.5 13.4h5.4L8.9 22l9.4-11.9h-5.6L13.4 2z"/>
+    </symbol>
+
+    <symbol id="ic-motor" viewBox="0 0 24 24">
+      <path d="M7 8h3V6.4h4V8h2.6l2.4 2.4h2v4h-2L16.6 17H9.4L7 14.6H4.6L3 13v-3l1.6-2H7z"/>
+      <circle cx="12" cy="12.4" r="1.9" fill="#000" fill-opacity=".35"/>
+    </symbol>
+    <symbol id="ic-cinto" viewBox="0 0 24 24">
+      <path d="M6.6 2.6h3.5l6.1 10.6-3 1.8z"/>
+      <rect x="3.6" y="14.8" width="16.8" height="6.2" rx="2"/>
+      <rect x="11.6" y="16.7" width="5.4" height="2.4" rx="1" fill="#000" fill-opacity=".4"/>
+    </symbol>
+    <symbol id="ic-trancado" viewBox="0 0 24 24">
+      <path d="M7.4 10V7.8a4.6 4.6 0 0 1 9.2 0V10h-2V7.8a2.6 2.6 0 0 0-5.2 0V10z"/>
+      <rect x="5.4" y="10" width="13.2" height="10.4" rx="2"/>
+    </symbol>
+    <symbol id="ic-destrancado" viewBox="0 0 24 24">
+      <path d="M14.8 10V7.8a2.6 2.6 0 0 0-5.2 0h-2a4.6 4.6 0 0 1 9.2 0V10z"/>
+      <rect x="5.4" y="10" width="13.2" height="10.4" rx="2"/>
+    </symbol>
+    <symbol id="ic-combustivel" viewBox="0 0 24 24">
+      <path d="M4 3.4h9.2a1.6 1.6 0 0 1 1.6 1.6v15.6H2.4V5A1.6 1.6 0 0 1 4 3.4zm1 2.6v4.2h7.2V6z"/>
+      <path d="M16.4 8.2l2.6 2.6v7a1.4 1.4 0 0 0 2.8 0V9.6l-3.4-3.4z"/>
+    </symbol>
+  </svg>
+
+  <div class="stage" id="stage">
+
+    <!-- O radar do GTA e um scaleform e nao pode ser desenhado aqui dentro.
+         Este elemento marca onde ele esta: serve de alca no modo de edicao e,
+         se a borda estiver ligada, desenha a moldura em volta do radar. -->
+    <div class="hud-item ghost" id="hud-minimap">
+      <span class="hud-tag">Minimapa</span>
+      <!-- Moldura do radar. O recorte redondo agora e feito pelo proprio jogo
+           (SetMinimapClipType + textura de mascara), entao aqui so desenhamos
+           a borda acompanhando o formato. -->
+      <div class="minimap-ghost" id="minimapGhost">
+        <span class="ghost-label">MINIMAPA</span>
+      </div>
+    </div>
+
+    <div class="hud-item" id="hud-compass">
+      <span class="hud-tag">Bussola</span>
+      <div class="compass">
+        <div class="compass-track" id="compassTrack"></div>
+        <div class="compass-center-line"></div>
+      </div>
+      <div class="compass-info">
+        <span class="ci-region" id="compassRegion">&mdash;</span>
+        <span class="ci-sep">&bull;</span>
+        <span class="ci-street" id="compassStreet">&mdash;</span>
+      </div>
+    </div>
+
+    <div class="hud-item" id="hud-compass-compact">
+      <span class="hud-tag">Bussola (compacta)</span>
+      <div class="compass-compact">
+        <span class="cc-dir" id="compassCompactDir">N</span>
+        <span class="cc-sep">|</span>
+        <span class="cc-region" id="compassCompactRegion">&mdash;</span>
+        <span class="cc-sep">|</span>
+        <span id="compassCompactStreet">&mdash;</span>
+      </div>
+    </div>
+
+    <!-- Os status vivem num unico container flex, nao em posicoes absolutas
+         separadas. Assim, quando um some, os outros fecham o buraco sozinhos;
+         quando volta, cada um retoma seu lugar na ordem. -->
+    <div class="hud-item" id="hud-status">
+      <span class="hud-tag">Status</span>
+      <div class="status-row">
+        <div class="status-cell" id="cell-vida">
+          <div class="status-ring" id="ringVida">
+            <svg class="status-icon"><use href="#ic-vida"/></svg>
+          </div>
+          <div class="status-value" id="valVida">100%</div>
+        </div>
+
+        <div class="status-cell" id="cell-colete">
+          <div class="status-ring" id="ringColete">
+            <svg class="status-icon"><use href="#ic-colete"/></svg>
+          </div>
+          <div class="status-value" id="valColete">0%</div>
+        </div>
+
+        <div class="status-cell" id="cell-fome">
+          <div class="status-ring" id="ringFome">
+            <svg class="status-icon"><use href="#ic-fome"/></svg>
+          </div>
+          <div class="status-value" id="valFome">100%</div>
+        </div>
+
+        <div class="status-cell" id="cell-sede">
+          <div class="status-ring" id="ringSede">
+            <svg class="status-icon"><use href="#ic-sede"/></svg>
+          </div>
+          <div class="status-value" id="valSede">100%</div>
+        </div>
+
+        <div class="status-cell" id="cell-stress">
+          <div class="status-ring" id="ringStress">
+            <svg class="status-icon"><use href="#ic-stress"/></svg>
+          </div>
+          <div class="status-value" id="valStress">0%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mesma logica para voz: radio em cima, alcance embaixo. Sem radio
+         ativo, o alcance sobe e ocupa o lugar. -->
+    <div class="hud-item" id="hud-voice">
+      <span class="hud-tag">Voz</span>
+      <div class="voice-stack">
+        <div class="radio" id="radioWidget"><span class="radio-ch" id="radioCh">00.00</span></div>
+        <!-- Sem texto: as tres barras lado a lado ja dizem o alcance
+             (perto / medio / longe). -->
+        <div class="mic" id="micWidget">
+          <div class="mic-bars" id="micBars"><i></i><i></i><i></i></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hud-item" id="hud-vehicle">
+      <span class="hud-tag">Veiculo</span>
+      <div class="vehicle-hud">
+        <div class="vh-speed">
+          <span id="vhSpeedVal">0</span><small>KM/H</small>
+        </div>
+
+        <div class="vh-mid">
+          <div class="vh-gear" id="vhGear">N</div>
+          <div class="vh-fuel" id="vhFuel">
+            <div class="vh-fuel-bar"><div class="vh-fuel-fill" id="vhFuelFill"></div></div>
+            <div class="vh-fuel-label">
+              <svg class="vh-fuel-icon"><use href="#ic-combustivel"/></svg>
+              <span id="vhFuelVal">100%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="vh-icons">
+          <svg class="vh-icon" id="vhEngineIcon" title="Motor"><use href="#ic-motor"/></svg>
+          <svg class="vh-icon" id="vhBeltIcon" title="Cinto"><use href="#ic-cinto"/></svg>
+          <svg class="vh-icon" id="vhLockIcon" title="Tranca"><use href="#ic-destrancado"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="drag-bar" id="dragBar">
+      <span class="drag-hint">
+        <strong>Clique e arraste</strong> qualquer elemento para reposiciona-lo.
+      </span>
+      <div class="drag-actions">
+        <button class="btn" id="btnResetPositions">Resetar posicoes</button>
+        <button class="btn primary" id="btnFinishDrag">Concluir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---------------- modal de configuracao ---------------- -->
+  <div class="backdrop" id="backdrop">
+    <div class="modal">
+      <header class="modal-head">
+        <div>
+          <h1>Configurar HUD</h1>
+          <p>As preferencias ficam salvas neste personagem.</p>
+        </div>
+        <button class="modal-x" id="btnClose" title="Fechar (ESC)">&times;</button>
+      </header>
+
+      <div class="modal-body">
+        <section class="modal-col">
+          <div class="section-label">Minimapa</div>
+
+          <div class="field">
+            <div class="field-label">Formato</div>
+            <div class="seg" data-setting="minimapShape">
+              <button data-value="quadrado">Quadrado</button>
+              <button data-value="redondo">Redondo</button>
+            </div>
+            <p class="field-note">
+              Redondo desenha uma mascara por cima do radar, cobrindo os
+              cantos. O mapa por baixo continua quadrado.
+            </p>
+          </div>
+
+          <p class="field-note">
+            A moldura ja nasce alinhada ao radar. Para mover, use
+            <strong>Editar posicoes</strong> e arraste: o radar acompanha.
+            As setas fazem o ajuste fino.
+          </p>
+
+
+          <div class="section-label">Status</div>
+          <div class="field">
+            <div class="field-label">Formato</div>
+            <div class="seg" data-setting="statusShape">
+              <button data-value="redondo">Redondo</button>
+              <button data-value="quadrado">Quadrado</button>
+            </div>
+          </div>
+
+          <label class="vis-row"><span>Mostrar porcentagem</span><input type="checkbox" data-flag="showPercent"></label>
+
+          <div class="field" style="margin-top:12px;">
+            <div class="field-label">Quais exibir</div>
+            <div class="seg" data-setting="statusMode">
+              <button data-value="auto">Automatico</button>
+              <button data-value="todos">Todos</button>
+              <button data-value="selecao">Selecionar</button>
+            </div>
+            <p class="field-note">
+              <strong>Automatico</strong> esconde o que estiver no valor ideal.
+              <strong>Selecionar</strong> usa a lista de visibilidade ao lado.
+              O colete so aparece quando equipado, em qualquer modo.
+            </p>
+          </div>
+
+          <div class="section-label">Bussola</div>
+          <div class="field">
+            <div class="seg" data-setting="compassStyle">
+              <button data-value="padrao">Padrao</button>
+              <button data-value="compacta">Compacta</button>
+            </div>
+          </div>
+
+          <div class="section-label">Posicionamento</div>
+          <button class="btn block" id="btnStartDrag">Editar posicoes na tela</button>
+        </section>
+
+        <section class="modal-col">
+          <div class="section-label">Visibilidade</div>
+          <label class="vis-row status-pick"><span>Vida</span><input type="checkbox" data-vis="vida"></label>
+          <label class="vis-row status-pick"><span>Colete</span><input type="checkbox" data-vis="colete"></label>
+          <label class="vis-row status-pick"><span>Fome</span><input type="checkbox" data-vis="fome"></label>
+          <label class="vis-row status-pick"><span>Sede</span><input type="checkbox" data-vis="sede"></label>
+          <label class="vis-row status-pick"><span>Stress</span><input type="checkbox" data-vis="stress"></label>
+          <label class="vis-row"><span>Minimapa</span><input type="checkbox" data-vis="minimap"></label>
+          <label class="vis-row"><span>Bussola</span><input type="checkbox" data-vis="compass"></label>
+          <label class="vis-row"><span>Alcance de voz</span><input type="checkbox" data-vis="mic"></label>
+          <label class="vis-row"><span>Radio</span><input type="checkbox" data-vis="radio"></label>
+          <label class="vis-row"><span>Veiculo (velocimetro)</span><input type="checkbox" data-vis="vehicle"></label>
+        </section>
+      </div>
+
+      <footer class="modal-foot">
+        <button class="btn danger" id="btnResetAll">Restaurar padroes</button>
+        <button class="btn primary" id="btnCloseFoot">Fechar</button>
+      </footer>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,404 @@
+:root{
+  --panel: #17161a;
+  --edge: #232025;
+  --text: #e6e4e3;
+  --text-dim: #86828a;
+  --text-faint: #4c4850;
+  --red: #ff2438;
+
+  /* Cor propria de cada status. O icone e o anel usam a mesma, e o pulso de
+     alerta herda dela - nada mais pisca sempre em vermelho. */
+  --c-vida:   #ff2438;
+  --c-colete: #4a90d9;
+  --c-fome:   #e0a83d;
+  --c-sede:   #3fa9d9;
+  --c-stress: #aa66cc;
+}
+
+*{ box-sizing:border-box; }
+
+html,body{
+  height:100%; margin:0;
+  background:transparent; overflow:hidden;
+  color:var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  user-select:none;
+}
+
+/* ---------- stage ---------- */
+.stage{ position:fixed; inset:0; display:none; }
+.stage.shown{ display:block; }
+
+.stage::before{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background-image: radial-gradient(rgba(255,255,255,.06) 1px, transparent 1px);
+  background-size:24px 24px; opacity:0; transition:opacity .15s ease;
+}
+.stage.edit-mode::before{ opacity:1; background-color:rgba(0,0,0,.45); }
+
+.drag-bar{
+  display:none; position:absolute; top:0; left:0; right:0; z-index:40;
+  align-items:center; justify-content:space-between; gap:16px;
+  padding:12px 18px; background:var(--panel); border-bottom:1px solid var(--edge);
+}
+.stage.edit-mode .drag-bar{ display:flex; }
+.drag-hint{ font-size:11.5px; color:var(--text-dim); }
+.drag-hint strong{ color:var(--text); }
+.drag-actions{ display:flex; gap:8px; }
+
+.hud-item{ position:absolute; z-index:5; touch-action:none; }
+.hud-item.hidden{ display:none; }
+.stage.paused .hud-item{ display:none; }
+.stage.edit-mode .hud-item{ outline:1px dashed var(--red); outline-offset:5px; cursor:move; border-radius:4px; }
+.stage.edit-mode .hud-item.selected{ outline-style:solid; }
+
+.hud-tag{
+  display:none; position:absolute; top:-16px; left:0;
+  font-size:8px; letter-spacing:.05em; text-transform:uppercase; color:var(--red); white-space:nowrap;
+}
+.stage.edit-mode .hud-tag{ display:block; }
+
+/* ---------- minimapa ---------- */
+.hud-item.ghost{ pointer-events:none; }
+.stage.edit-mode .hud-item.ghost{ pointer-events:auto; }
+
+/* A moldura ja tem borda propria: o contorno tracejado padrao da edicao
+   desenharia um segundo retangulo deslocado 5px, que so confunde. */
+.stage.edit-mode .hud-item.ghost{ outline:none; }
+
+/* Sem borda no jogo: a moldura so existe como alca de arrasto no modo de
+   edicao. As dimensoes vem do JS, iguais as usadas para posicionar o radar. */
+.minimap-ghost{
+  position:relative;
+  display:flex; align-items:center; justify-content:center;
+  border:1px solid transparent; border-radius:3px;
+}
+.stage.minimap-round .minimap-ghost{ border-radius:50%; }
+
+.ghost-label{
+  font-size:9px; letter-spacing:.12em; color:var(--red);
+  opacity:0; transition: opacity .12s ease;
+}
+.stage.edit-mode .ghost-label{ opacity:1; }
+.stage.edit-mode .minimap-ghost{ border-color:var(--red); background:rgba(255,36,56,.06); }
+
+/* ---------- status ----------
+   Fileira flex: esconder uma celula faz as vizinhas fecharem o espaco
+   automaticamente, sem buraco. */
+.status-row{ display:flex; align-items:flex-end; gap:8px; }
+.status-cell{ display:flex; flex-direction:column; align-items:center; gap:3px; }
+.status-cell.hidden{ display:none; }
+
+/* ---------- voz ----------
+   Pilha vertical: radio em cima, alcance de voz embaixo.
+
+   O espaco dos dois e SEMPRE reservado. `visibility:hidden` esconde sem tirar
+   do fluxo, entao ligar ou desligar o radio nao empurra o alcance de voz para
+   cima e para baixo - o widget fica cravado onde o jogador o posicionou.
+   `display:none` aqui faria o oposto: a pilha encolheria e o layout dancaria
+   toda vez que uma transmissao comecasse.
+
+   Quando os DOIS estao desligados nas configuracoes, quem some e o grupo
+   inteiro (`.hud-item.hidden`), e ai nao sobra espaco reservado nenhum. */
+.voice-stack{ display:flex; flex-direction:column; align-items:flex-end; gap:5px; }
+.voice-stack > .hidden{ visibility:hidden; }
+
+/* Anel de progresso: um conic-gradient cortado por um disco central que tapa
+   o meio. A cor de cada status vive em --ring no proprio cell, entao anel,
+   icone e pulso de alerta mudam juntos - nada pisca sempre em vermelho.
+   O preenchimento e a variavel --pct (0-100), escrita pelo app.js. */
+.status-cell{ --ring: var(--red); }
+
+/* Registrar --pct como <number> e o que torna a transicao possivel: o browser
+   nao interpola `background` quando o valor e um gradiente, entao animar o
+   conic-gradient direto nao faria nada. Animando a variavel, o gradiente e
+   recalculado a cada frame. Onde @property nao existir, o anel apenas salta
+   entre os valores - degrada sem quebrar. */
+@property --pct{
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 100;
+}
+
+/* Medidas do mockup: anel de 44px, disco a 3px da borda. */
+.status-ring{
+  position:relative;
+  width:44px; height:44px;
+  border-radius:50%;
+  display:grid; place-items:center;
+  background: conic-gradient(var(--ring) calc(var(--pct) * 1%), var(--edge) 0);
+  transition: --pct .25s ease, border-radius .12s ease;
+}
+
+/* Disco central: e ele que transforma o circulo cheio em anel. */
+.status-ring::before{
+  content:'';
+  position:absolute; inset:3px;
+  border-radius:50%;
+  background: var(--panel);
+  transition: border-radius .12s ease;
+}
+
+/* Acima do disco, senao o icone some. */
+.status-icon{ position:relative; width:18px; height:18px; fill: var(--ring); }
+
+/* Pulso de alerta: o brilho do mockup, mas na cor do proprio status em vez do
+   vermelho fixo. O quadro "apagado" usa blur e spread zero de proposito - com
+   o anel opaco por cima, a sombra fica escondida atras dele, o que dispensa
+   uma cor transparente (e portanto dispensa color-mix, que nem toda versao de
+   CEF entende). */
+.status-cell.critical .status-ring{ animation: criticalPulse 1s ease-in-out infinite; }
+@keyframes criticalPulse{
+  0%,100%{ box-shadow: 0 0 0 0 var(--ring); }
+  50%    { box-shadow: 0 0 10px 0 var(--ring); }
+}
+
+#cell-vida{ --ring: var(--c-vida); }
+#cell-colete{ --ring: var(--c-colete); }
+#cell-fome{ --ring: var(--c-fome); }
+#cell-sede{ --ring: var(--c-sede); }
+#cell-stress{ --ring: var(--c-stress); }
+
+.status-value{ font-size:9px; color:var(--text-faint); font-family: ui-monospace, Consolas, monospace; }
+.stage.no-percent .status-value{ display:none; }
+
+/* Formato quadrado: o mesmo conic-gradient com cantos arredondados em 10px,
+   como no mockup - quadrado de canto vivo ficava duro ao lado do minimapa. */
+.stage.status-square .status-ring,
+.stage.status-square .status-ring::before{ border-radius:10px; }
+
+/* ---------- bussola ---------- */
+.compass{
+  width:260px; height:30px; background:var(--panel); border:1px solid var(--edge);
+  border-radius:4px; position:relative; overflow:hidden;
+}
+.compass-track{ position:absolute; left:0; top:0; height:100%; display:flex; align-items:center; }
+.compass-mark{ flex:0 0 30px; text-align:center; font-size:9px; color:var(--text-faint); }
+.compass-mark.major{ color:var(--text); font-weight:700; }
+.compass-center-line{ position:absolute; left:50%; top:0; bottom:0; width:1px; background:var(--red); }
+
+/* Sem graus: o que importa dirigindo e onde voce esta.
+   O texto flutua sobre o cenario, entao ganha o mesmo painel da regua. Fundo
+   solido resolve contraste em deserto claro e em rua noturna sem depender de
+   sombra, que so funciona bem contra fundo claro. */
+.compass-info{
+  position:absolute; left:50%; bottom:-26px; transform:translateX(-50%);
+  display:flex; align-items:baseline; gap:7px;
+  white-space:nowrap;
+  padding:3px 10px;
+  background:var(--panel);
+  border:1px solid var(--edge);
+  border-radius:4px;
+}
+.compass-info .ci-region{
+  font-size:12.5px; font-weight:700; letter-spacing:.02em; color:var(--text);
+}
+.compass-info .ci-street{ font-size:11.5px; color:var(--text-dim); }
+.compass-info .ci-sep{ font-size:10px; color:var(--red); }
+
+.compass-compact{
+  background:var(--panel); border:1px solid var(--edge); border-radius:4px;
+  padding:6px 12px; font-size:11px; color:var(--text-dim);
+  display:flex; align-items:center; gap:8px; white-space:nowrap;
+}
+.compass-compact .cc-dir{ color:var(--red); font-weight:700; letter-spacing:.03em; }
+.compass-compact .cc-region{ color:var(--text); }
+.compass-compact .cc-sep{ color:var(--text-faint); }
+
+/* ---------- voz e radio (sem icones) ---------- */
+.mic, .radio{
+  background:var(--panel); border:1px solid var(--edge); border-radius:4px;
+  padding:6px 10px; font-size:11px; letter-spacing:.02em;
+  text-align:center; min-width:74px;
+}
+
+/* Alcance de voz: cinza claro parado, vermelho enquanto fala. */
+.mic{
+  color:var(--text-dim);
+  display:flex; align-items:center; justify-content:center; gap:7px;
+  transition: color .1s ease, border-color .1s ease;
+}
+/* Ao falar muda so a cor: a borda fica fixa para o widget nao "piscar" de
+   tamanho/contorno a cada silaba. */
+.mic.talking{ color:var(--red); }
+
+/* Barras deitadas, uma ao lado da outra. Acendem conforme o alcance:
+   1 = perto, 2 = medio, 3 = longe. */
+.mic-bars{ display:flex; align-items:center; gap:4px; }
+.mic-bars i{
+  width:15px; height:5px; border-radius:2px;
+  background:var(--edge);
+  transition: background .1s ease;
+}
+.mic-bars i.lit{ background: currentColor; }
+
+.radio-ch{ font-family: ui-monospace, Consolas, monospace; color:var(--text); }
+.radio.talking .radio-ch{ color:var(--red); }
+
+/* ---------- veiculo ----------
+   Empilhado: velocimetro grande, depois marcha + combustivel, depois os
+   indicadores de motor/cinto/tranca. */
+.vehicle-hud{
+  display:flex; flex-direction:column; align-items:center; gap:9px;
+  background:var(--panel); border:1px solid var(--edge); border-radius:6px;
+  padding:14px 26px 12px;
+  min-width:250px;
+}
+
+.vh-speed{ display:flex; align-items:baseline; gap:6px; line-height:1; }
+.vh-speed span{
+  font-size:44px; font-weight:700; letter-spacing:-.02em;
+  font-family: ui-monospace, Consolas, monospace;
+}
+.vh-speed small{ font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.08em; }
+
+.vh-mid{
+  display:flex; align-items:center; gap:12px;
+  width:100%; padding-top:8px; border-top:1px solid var(--edge);
+}
+.vh-gear{
+  width:28px; height:28px; flex:none;
+  border:1px solid var(--edge); border-radius:4px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:700; font-family: ui-monospace, Consolas, monospace;
+}
+/* Combustivel: verde cheio, laranja baixo, vermelho piscando no critico.
+   A cor mora numa variavel para barra, icone e numero mudarem juntos. */
+.vh-fuel{ --fuel: #3ddc84; flex:1; display:flex; flex-direction:column; gap:5px; }
+.vh-fuel.low{ --fuel: #e0a83d; }
+.vh-fuel.critical{ --fuel: var(--red); animation: fuelPulse 1s ease-in-out infinite; }
+@keyframes fuelPulse{ 0%,100%{ opacity:1; } 50%{ opacity:.45; } }
+
+.vh-fuel-bar{ height:7px; background:var(--edge); border-radius:4px; overflow:hidden; }
+.vh-fuel-fill{
+  height:100%; width:100%;
+  background: var(--fuel);
+  transition: width .2s linear, background .25s ease;
+}
+
+.vh-fuel-label{ display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color: var(--fuel); }
+.vh-fuel-icon{ width:13px; height:13px; fill: var(--fuel); }
+
+.vh-icons{
+  display:flex; gap:16px; align-items:center;
+  width:100%; justify-content:center;
+  padding-top:8px; border-top:1px solid var(--edge);
+}
+.vh-icon{
+  width:17px; height:17px;
+  fill: var(--text-faint);
+  transition: fill .12s ease;
+}
+.vh-icon.on{ fill: var(--text-dim); }
+
+/* Alerta piscando (sem cinto, motor danificado). */
+.vh-icon.warn{ fill: var(--red); animation: iconPulse 1s ease-in-out infinite; }
+@keyframes iconPulse{ 0%,100%{ opacity:1; } 50%{ opacity:.25; } }
+
+/* Alerta permanente (motor destruido): vermelho fixo, sem piscar. */
+.vh-icon.danger{ fill: var(--red); animation:none; }
+
+/* ---------- modal ---------- */
+.backdrop{
+  position:fixed; inset:0; z-index:60; display:none;
+  align-items:center; justify-content:center;
+  background:rgba(0,0,0,.6); backdrop-filter: blur(2px);
+}
+.backdrop.shown{ display:flex; }
+
+.modal{
+  width:min(680px, 92vw); max-height:86vh; display:flex; flex-direction:column;
+  background:var(--panel); border:1px solid var(--edge); border-radius:6px;
+  box-shadow:0 24px 60px rgba(0,0,0,.55);
+  animation: modalIn .14s ease-out;
+}
+@keyframes modalIn{
+  from{ opacity:0; transform:translateY(8px) scale(.99); }
+  to{ opacity:1; transform:none; }
+}
+
+.modal-head{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
+  padding:18px 20px 14px; border-bottom:1px solid var(--edge);
+}
+.modal-head h1{ margin:0; font-size:14px; font-weight:700; letter-spacing:.02em; }
+.modal-head p{ margin:4px 0 0; font-size:11px; color:var(--text-faint); }
+
+.modal-x{
+  background:transparent; border:none; color:var(--text-faint);
+  font-size:22px; line-height:1; cursor:pointer; padding:0 2px;
+  transition: color .1s ease;
+}
+.modal-x:hover{ color:var(--red); }
+
+.modal-body{
+  display:grid; grid-template-columns:1fr 1fr; gap:0 24px;
+  padding:4px 20px 16px; overflow-y:auto;
+}
+.modal-col{ min-width:0; }
+
+.modal-foot{
+  display:flex; justify-content:flex-end; gap:8px;
+  padding:14px 20px; border-top:1px solid var(--edge);
+}
+
+.section-label{
+  padding:16px 0 8px; font-size:9px; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--text-faint);
+}
+
+.field{ margin-bottom:12px; }
+.field-label{
+  font-size:10px; letter-spacing:.03em; text-transform:uppercase;
+  color:var(--text-faint); margin-bottom:6px;
+  display:flex; justify-content:space-between;
+}
+.field-note{ margin:6px 0 0; font-size:9.5px; line-height:1.45; color:var(--text-faint); }
+.field-note code{ font-family: ui-monospace, Consolas, monospace; color:var(--text-dim); }
+
+.range{
+  width:100%; -webkit-appearance:none; appearance:none;
+  height:2px; background:var(--edge); outline:none;
+}
+.range::-webkit-slider-thumb{
+  -webkit-appearance:none; width:12px; height:12px; border-radius:50%;
+  background:var(--red); cursor:pointer;
+}
+
+.vis-row{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:8px 0; font-size:12px; color:var(--text-dim);
+  border-bottom:1px solid var(--edge); cursor:pointer;
+}
+.vis-row:hover{ color:var(--text); }
+.vis-row input{ accent-color: var(--red); cursor:pointer; }
+
+/* A lista de status so decide algo no modo "Selecionar". */
+.vis-row.status-pick.inactive{ opacity:.4; }
+
+.seg{ display:flex; gap:6px; }
+.seg button{
+  flex:1 1 0; padding:8px 0; font-size:10px; text-transform:uppercase; letter-spacing:.03em;
+  background:transparent; border:1px solid var(--edge); color:var(--text-dim);
+  border-radius:3px; cursor:pointer; font-family:inherit;
+  transition: border-color .1s ease, color .1s ease, background .1s ease;
+}
+.seg button:hover{ color:var(--text); }
+.seg button.active{ border-color:var(--red); color:var(--text); background:rgba(255,36,56,.08); }
+
+.btn{
+  padding:8px 14px; font-size:11px; font-family:inherit;
+  background:transparent; border:1px solid var(--edge); color:var(--text-dim);
+  border-radius:3px; cursor:pointer;
+  transition: border-color .1s ease, color .1s ease, background .1s ease;
+}
+.btn:hover{ color:var(--text); border-color:var(--text-faint); }
+.btn.block{ display:block; width:100%; }
+.btn.primary{ border-color:var(--red); color:var(--text); background:rgba(255,36,56,.1); }
+.btn.primary:hover{ background:rgba(255,36,56,.18); }
+.btn.danger{ color:var(--red); }
+.btn.danger:hover{ border-color:var(--red); }
+
+@media (max-width: 620px){
+  .modal-body{ grid-template-columns:1fr; }
+}

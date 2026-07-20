@@ -1,0 +1,20 @@
+{
+  "name": "web",
+  "version": "1.2.2",
+  "private": true,
+  "homepage": "nui://",
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-select": "^4.2.1",
+    "react-spring": "^8.0.27",
+    "styled-components": "^5.2.1"
+  },
+  "scripts": {
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^1.3.1",
+    "vite": "^2.9.6"
+  }
+}

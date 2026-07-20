@@ -89,5 +89,6 @@
   "crafting_bench": "Bancada de Fabrico",
   "open_crafting_bench": "Abrir Bancada de Fabrico",
   "not_enough_durability": "%s não tem durabilidade suficiente",
-  "storage": "Armazenamento"
+  "storage": "Armazenamento",
+  "no_ammo": "Você não tem %s"
 }

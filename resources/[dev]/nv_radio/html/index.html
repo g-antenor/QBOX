@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>nv_radio</title>
+    <link rel="stylesheet" href="style.css?v=1" />
+  </head>
+  <body>
+    <div id="radio" class="radio hidden">
+      <div class="antenna"></div>
+
+      <div class="body">
+        <div class="grille"></div>
+
+        <!-- Visor -->
+        <div id="screen" class="screen">
+          <div class="row">
+            <span id="status" class="status">DESLIGADO</span>
+            <span id="label" class="label">—</span>
+          </div>
+          <div id="freq" class="freq">--.-</div>
+          <div class="row">
+            <span class="unit">MHz</span>
+            <span id="ptt" class="ptt">ALT p/ falar</span>
+          </div>
+        </div>
+
+        <!-- Frequência -->
+        <div class="tune">
+          <button class="step" data-step="-1">−</button>
+          <input id="input" type="number" step="0.1" />
+          <button class="step" data-step="1">+</button>
+        </div>
+
+        <div class="saved-head">
+          <span>Salvas</span>
+          <button id="save" class="save-btn">Salvar atual</button>
+        </div>
+        <div id="saved" class="presets"></div>
+
+        <!-- Volume -->
+        <div class="control">
+          <span>Volume</span>
+          <input id="volume" type="range" min="0" max="100" />
+          <b id="volval">50</b>
+        </div>
+
+        <div class="control">
+          <span>Clique do microfone</span>
+          <button id="micclick" class="toggle">ON</button>
+        </div>
+
+        <div class="actions">
+          <button id="power" class="btn power">Ligar</button>
+          <button id="close" class="btn">Fechar</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js?v=1"></script>
+  </body>
+</html>

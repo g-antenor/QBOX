@@ -1,0 +1,168 @@
+/* ==========================================================================
+   nv_dispatch — NUI
+
+   Mesma paleta Crimson Edge do nv_hud / nv_garage. O painel nunca toma foco:
+   dispatch chega no meio de uma perseguicao, e roubar o mouse do policial para
+   mostrar um aviso seria pior do que nao avisar.
+   ========================================================================== */
+
+:root {
+    --panel:   #17161a;
+    --panel-2: #1e1d22;
+    --edge:    #2a2930;
+    --text:    #f2f2f4;
+    --muted:   #8b8a94;
+    --red:     #ff2438;
+
+    --alta:  #ff4d4f;
+    --media: #f5a524;
+    --baixa: #6b7280;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: transparent;
+    font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+    color: var(--text);
+    user-select: none;
+    pointer-events: none;
+}
+
+/* Canto superior direito: o esquerdo e do chat e o inferior e do velocimetro
+   e do minimapa. */
+#stack {
+    position: absolute;
+    top: 90px;
+    right: 22px;
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* ------------------------------------------------------------- cartao -- */
+
+.alert {
+    background: linear-gradient(140deg, var(--panel-2), var(--panel));
+    border: 1px solid var(--edge);
+    border-left: 3px solid var(--prio, var(--media));
+    border-radius: 10px;
+    padding: 11px 13px;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, .55);
+    overflow: hidden;
+
+    animation: slide-in .22s cubic-bezier(.2, .8, .3, 1);
+}
+
+.alert.leaving {
+    animation: slide-out .28s ease forwards;
+}
+
+@keyframes slide-in {
+    from { opacity: 0; transform: translateX(28px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slide-out {
+    to { opacity: 0; transform: translateX(28px); max-height: 0; padding-block: 0; margin-top: -8px; }
+}
+
+.head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.head svg {
+    width: 17px;
+    height: 17px;
+    color: var(--prio, var(--media));
+    flex-shrink: 0;
+}
+
+.title {
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: .2px;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.code {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    color: var(--prio, var(--media));
+    background: rgba(255, 255, 255, .05);
+    border-radius: 5px;
+    padding: 2px 6px;
+    flex-shrink: 0;
+}
+
+.detail {
+    font-size: 11px;
+    color: var(--text);
+    opacity: .78;
+    margin-top: 5px;
+    line-height: 1.35;
+}
+
+.foot {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 7px;
+    font-size: 10.5px;
+    color: var(--muted);
+}
+
+.foot svg {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+}
+
+.street {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* A tecla de marcar rota vive no rodape do cartao: e ali que ela e procurada,
+   no instante em que se le o endereco. */
+.key {
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: .4px;
+    color: var(--text);
+    background: rgba(255, 255, 255, .08);
+    border: 1px solid var(--edge);
+    border-radius: 4px;
+    padding: 1px 5px;
+    flex-shrink: 0;
+}
+
+/* Barra de vida do cartao. Sem ela o alerta some sem aviso, e some sempre no
+   segundo em que voce ia acabar de ler. */
+.timer {
+    height: 2px;
+    background: rgba(255, 255, 255, .07);
+    border-radius: 2px;
+    margin-top: 9px;
+    overflow: hidden;
+}
+
+.timer-fill {
+    height: 100%;
+    width: 100%;
+    background: var(--prio, var(--media));
+    opacity: .65;
+    transform-origin: left;
+}

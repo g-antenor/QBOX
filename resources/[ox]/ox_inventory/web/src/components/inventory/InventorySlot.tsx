@@ -33,6 +33,9 @@ interface FootprintResult {
   freeCount: number;
 }
 
+// Number of columns per inventory row (must match $gridCols in index.scss).
+const COLUMNS = 6;
+
 const getBestFootprint = (
   inventoryItems: any[],
   totalSlots: number,
@@ -56,16 +59,16 @@ const getBestFootprint = (
     };
   }
 
-  const totalRows = Math.ceil(totalSlots / 5);
-  const col = (hoveredSlot - 1) % 5;
-  const row = Math.floor((hoveredSlot - 1) / 5);
+  const totalRows = Math.ceil(totalSlots / COLUMNS);
+  const col = (hoveredSlot - 1) % COLUMNS;
+  const row = Math.floor((hoveredSlot - 1) / COLUMNS);
 
   const checkCandidate = (cw: number, ch: number): FootprintResult | null => {
-    const anchorCol = Math.max(0, Math.min(col, 5 - cw));
+    const anchorCol = Math.max(0, Math.min(col, COLUMNS - cw));
     const anchorRow = Math.max(0, Math.min(row, totalRows - ch));
-    const anchorSlot = (anchorRow * 5) + anchorCol + 1;
+    const anchorSlot = (anchorRow * COLUMNS) + anchorCol + 1;
 
-    if (anchorCol + cw > 5 || anchorRow + ch > totalRows) return null;
+    if (anchorCol + cw > COLUMNS || anchorRow + ch > totalRows) return null;
 
     const slots: number[] = [];
     let isBlocked = false;
@@ -73,7 +76,7 @@ const getBestFootprint = (
 
     for (let r = 0; r < ch; r++) {
       for (let c = 0; c < cw; c++) {
-        const slotNum = anchorSlot + (r * 5) + c;
+        const slotNum = anchorSlot + (r * COLUMNS) + c;
         if (slotNum > totalSlots) {
           isBlocked = true;
           continue;
@@ -352,8 +355,8 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
             ? 'rgba(255, 31, 61, 0.45) !important'
             : 'rgba(236, 233, 231, 0.12) !important'
           : undefined,
-        gridColumnStart: (item.slot - 1) % 5 + 1,
-        gridRowStart: Math.floor((item.slot - 1) / 5) + 1,
+        gridColumnStart: (item.slot - 1) % COLUMNS + 1,
+        gridRowStart: Math.floor((item.slot - 1) / COLUMNS) + 1,
         gridColumn: `span ${(() => {
           let w = ((item as any)?.size?.width) || ((item as any)?.size?.[0]) || 1;
           let h = ((item as any)?.size?.height) || ((item as any)?.size?.[1]) || 1;

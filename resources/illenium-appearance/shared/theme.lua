@@ -1,6 +1,21 @@
 Config.Theme = {
-    currentTheme = "qb-core",
+    currentTheme = "crimson-edge",
     themes = {
+        {
+            -- "Crimson Edge" — matches the ox_lib / ox_target / chat UI-kit model
+            id = "crimson-edge",
+            borderRadius = "4px",
+            fontColor = "230, 228, 227",
+            fontColorHover = "255, 255, 255",
+            fontColorSelected = "255, 255, 255",
+            fontFamily = "Inter",
+            primaryBackground = "255, 36, 56",
+            primaryBackgroundSelected = "255, 36, 56",
+            secondaryBackground = "23, 22, 26",
+            scaleOnHover = false,
+            sectionFontWeight = "bold",
+            smoothBackgroundTransition = true
+        },
         {
             id = "default",
             borderRadius = "4px",

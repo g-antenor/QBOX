@@ -32,7 +32,7 @@
   "inventory_player_access": "You can't open your inventory right now",
   "inventory_right_access": "You can not open this inventory",
   "inventory_lost_access": "No longer able to access this inventory",
-  "wrong_ammo": "You can't load the %s with %s ammo",
+  "wrong_ammo": "Você não pode carregar a %s com munição %s",
   "license": "%s License",
   "already_have": "You already have a %s",
   "have_purchased": "You have purchased a %s",
@@ -81,7 +81,7 @@
   "disable_hotbar": "Display inventory hotbar~",
   "reload_weapon": "Reload weapon~",
   "use_hotbar": "Use hotbar item %s~",
-  "no_durability": "%s durability is depleted",
+  "no_durability": "%s está sem durabilidade",
   "cannot_give": "Unable to give %s %s to the target",
   "evidence_cannot_take": "You are not authorised to withdraw evidence",
   "dumpster": "Dumpster",
@@ -89,5 +89,6 @@
   "crafting_bench": "Crafting Bench",
   "open_crafting_bench": "Open Crafting Bench",
   "not_enough_durability": "%s does not have enough durability",
-  "storage": "Storage"
+  "storage": "Storage",
+  "no_ammo": "Você não tem %s"
 }

@@ -8,13 +8,18 @@ Config.Notify = false
 ---Create a persistent notification while in-range of a door, prompting to lock/unlock.
 Config.DrawTextUI = false
 
+---Expor trancar/destrancar como menu do ox_target na porta, em vez de
+---alternar o estado direto na tecla E.
+Config.UseTarget = true
+
 ---Set the properties used by [DrawSprite](https://docs.fivem.net/natives/?_0xE7FFAE5EBF23D890).
+---Cores no padrao visual do servidor: cinza claro parado, vermelho quando trancado.
 Config.DrawSprite = {
     -- Unlocked
-    [0] = { 'mpsafecracking', 'lock_open', 0, 0, 0.018, 0.018, 0, 255, 255, 255, 100 },
+    [0] = { 'mpsafecracking', 'lock_open', 0, 0, 0.018, 0.018, 0, 212, 210, 214, 120 },
 
     -- Locked
-    [1] = { 'mpsafecracking', 'lock_closed', 0, 0, 0.018, 0.018, 0, 255, 255, 255, 100 },
+    [1] = { 'mpsafecracking', 'lock_closed', 0, 0, 0.018, 0.018, 0, 255, 36, 56, 140 },
 }
 
 ---Allow the specified ace principal to use 'command.doorlock'.

@@ -31,10 +31,87 @@ local function getWeightedLoot()
     return Config.Loot[1]
 end
 
+-- ==========================================================================
+-- SESSAO DE VASCULHA
+--
+-- Antes, rewardItem era um evento aberto: qualquer cliente podia dispara-lo em
+-- loop e sacar a tabela de loot inteira, dinheiro incluso. Agora o servidor
+-- abre a sessao, decide quantas rodadas existem, guarda o cooldown da lixeira
+-- e so paga a proxima rodada da sequencia.
+-- ==========================================================================
+local sessions = {}     -- [src]    = { coords, totalRounds, round, expires }
+local binCooldown = {}  -- [binKey] = timestamp de liberacao
+
+local SESSION_TTL = 120000
+local MAX_DISTANCE = 4.0
+
+local function binKeyFor(coords)
+    return ('%.1f_%.1f_%.1f'):format(coords.x, coords.y, coords.z)
+end
+
+lib.callback.register('nv_recycle:server:startScavenge', function(source, coords)
+    if type(coords) ~= 'table' and type(coords) ~= 'vector3' then return false end
+
+    coords = vector3(coords.x, coords.y, coords.z)
+
+    local ped = GetPlayerPed(source)
+    if not ped or ped == 0 then return false end
+
+    -- O jogador precisa estar mesmo na lixeira que alega estar.
+    if #(GetEntityCoords(ped) - coords) > MAX_DISTANCE then return false end
+
+    local key = binKeyFor(coords)
+    local now = GetGameTimer()
+
+    if binCooldown[key] and now < binCooldown[key] then return false end
+
+    -- Cooldown ja na abertura: impede reabrir a sessao em loop.
+    binCooldown[key] = now + (Config.CooldownTime * 1000)
+
+    local totalRounds = math.random(3, 5)
+
+    sessions[source] = {
+        coords = coords,
+        totalRounds = totalRounds,
+        round = 0,
+        expires = now + SESSION_TTL,
+    }
+
+    return totalRounds
+end)
+
 RegisterNetEvent("nv_recycle:server:rewardItem", function(round, isFinalRound)
     local src = source
+    local session = sessions[src]
+
+    -- Sem sessao aberta nao existe premio.
+    if not session then return end
+
+    if GetGameTimer() > session.expires then
+        sessions[src] = nil
+        return
+    end
+
+    -- Cada rodada vale uma vez e so na ordem.
+    if tonumber(round) ~= session.round + 1 then return end
+    if session.round >= session.totalRounds then return end
+
+    local ped = GetPlayerPed(src)
+
+    if not ped or ped == 0 or #(GetEntityCoords(ped) - session.coords) > MAX_DISTANCE then
+        sessions[src] = nil
+        return
+    end
+
+    session.round = session.round + 1
+
+    -- Quem decide se e a rodada final e o servidor: senao o cliente alegaria
+    -- final em toda rodada e farmaria o bonus.
+    isFinalRound = session.round >= session.totalRounds
+    if isFinalRound then sessions[src] = nil end
+
     local loot = getWeightedLoot()
-    
+
     if not loot then return end
     
     local itemName = loot.item
@@ -397,4 +474,9 @@ RegisterNetEvent('nv_recycle:server:sellAll', function()
     else
         TriggerClientEvent('ox_lib:notify', src, { type = 'error', description = 'Nenhum item reciclável no inventário para vender!' })
     end
+end)
+
+-- Sessao de vasculha morre com o jogador.
+AddEventHandler("playerDropped", function()
+    sessions[source] = nil
 end)

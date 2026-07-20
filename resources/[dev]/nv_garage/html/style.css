@@ -1,0 +1,434 @@
+/* ==========================================================================
+   nv_garage — NUI
+
+   Mesma paleta do nv_hud (Crimson Edge), para a garagem nao parecer um enxerto
+   de outro servidor. As barras fogem do vermelho de proposito: ali a cor
+   significa "quanto resta", nao "identidade visual" - por isso verde/laranja/
+   vermelho, que o jogador ja le sem pensar.
+   ========================================================================== */
+
+:root {
+    --bg:        #0c0c0e;
+    --panel:     #17161a;
+    --panel-2:   #1e1d22;
+    --edge:      #2a2930;
+    --text:      #f2f2f4;
+    --muted:     #8b8a94;
+    --red:       #ff2438;
+
+    --good:      #3ddc84;
+    --warn:      #f5a524;
+    --bad:       #ff4d4f;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: transparent;
+    font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+    color: var(--text);
+    user-select: none;
+}
+
+.hidden { display: none !important; }
+
+#root {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    background: rgba(0, 0, 0, .45);
+}
+
+/* ------------------------------------------------------------- paineis -- */
+
+.panel {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    border: 1px solid var(--edge);
+    border-radius: 14px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .6);
+    overflow: hidden;
+}
+
+.panel-list   { width: 420px; max-height: 76vh; }
+.panel-detail { width: 360px; max-height: 76vh; }
+
+.panel-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--edge);
+}
+
+.panel-head.slim { padding: 14px 18px; }
+
+.brand {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: var(--red);
+    flex-shrink: 0;
+}
+
+.brand-icon { width: 18px; height: 18px; fill: #fff; }
+
+.head-text { flex: 1; min-width: 0; }
+.head-text h1 { font-size: 15px; font-weight: 600; letter-spacing: .2px; }
+.head-text p  { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+
+.panel-head h2 { flex: 1; font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: .4px; text-transform: uppercase; }
+
+.close {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--edge);
+    border-radius: 7px;
+    background: var(--panel);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background .15s, border-color .15s;
+}
+
+.close svg { width: 12px; height: 12px; fill: var(--muted); }
+.close:hover { background: var(--panel-2); border-color: var(--red); }
+.close:hover svg { fill: var(--text); }
+
+/* ---------------------------------------------------------------- lista -- */
+
+.list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.list::-webkit-scrollbar { width: 6px; }
+.list::-webkit-scrollbar-thumb { background: var(--edge); border-radius: 3px; }
+
+.empty {
+    padding: 28px 20px;
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--muted);
+}
+
+.vehicle {
+    padding: 12px 14px;
+    background: var(--panel);
+    border: 1px solid var(--edge);
+    border-radius: 11px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+}
+
+.vehicle:hover    { background: var(--panel-2); }
+.vehicle.selected { border-color: var(--red); background: var(--panel-2); }
+
+.vehicle-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 11px;
+}
+
+.vehicle-title { flex: 1; min-width: 0; }
+.vehicle-name {
+    font-size: 13.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.vehicle-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.tag {
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
+.tag.out     { background: rgba(245, 165, 36, .16); color: var(--warn); }
+.tag.impound { background: rgba(255, 77, 79, .16);  color: var(--bad); }
+
+/* Guardado, mas noutro lugar. Neutra de proposito: nao e um alerta, e uma
+   informacao de endereco -- e o nome da garagem pode ser longo, entao ela nao
+   corta como as outras. */
+.tag.elsewhere {
+    background: rgba(255, 255, 255, .07);
+    color: var(--dim, #9aa0a6);
+    text-transform: none;
+    letter-spacing: .2px;
+    font-weight: 600;
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* --------------------------------------------------------------- barras -- */
+
+.metrics-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.metric-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 5px;
+}
+
+.metric-label svg { width: 11px; height: 11px; fill: currentColor; }
+
+.bar {
+    height: 4px;
+    background: var(--edge);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width .3s ease;
+}
+
+.bar-fill.good { background: var(--good); }
+.bar-fill.warn { background: var(--warn); }
+.bar-fill.bad  { background: var(--bad); }
+
+/* ------------------------------------------------------------ detalhes -- */
+
+.detail-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.detail-body::-webkit-scrollbar { width: 6px; }
+.detail-body::-webkit-scrollbar-thumb { background: var(--edge); border-radius: 3px; }
+
+.card {
+    padding: 14px;
+    background: var(--panel);
+    border: 1px solid var(--edge);
+    border-radius: 11px;
+}
+
+.card h3 {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 11px;
+}
+
+/* Metricas grandes: rotulo + valor na mesma linha, barra embaixo. */
+.metric-big + .metric-big { margin-top: 13px; }
+
+.metric-head {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 6px;
+}
+
+.metric-head svg { width: 14px; height: 14px; fill: var(--muted); }
+.metric-head .name { flex: 1; font-size: 12.5px; }
+.metric-head .value { font-size: 12.5px; font-weight: 700; }
+
+.metric-big .bar { height: 5px; }
+
+dl .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    font-size: 12px;
+}
+
+dl .row + .row { border-top: 1px solid var(--edge); }
+dl dt { color: var(--muted); }
+dl dd { font-weight: 600; }
+
+.action {
+    padding: 12px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--red);
+    color: #fff;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter .15s;
+}
+
+.action:hover:not(:disabled) { filter: brightness(1.12); }
+.action:disabled { opacity: .5; cursor: not-allowed; }
+
+.notice {
+    padding: 11px 13px;
+    border: 1px solid rgba(245, 165, 36, .3);
+    border-radius: 9px;
+    background: rgba(245, 165, 36, .08);
+    color: var(--warn);
+    font-size: 11.5px;
+    text-align: center;
+}
+
+/* ==========================================================================
+   CONTROLE DO VEICULO
+
+   Fica na direita, e nao no centro: o painel abre com o jogador dentro do
+   carro, e cobrir o para-brisa com um modal centralizado deixa quem esta
+   dirigindo cego. Sem fundo escurecido, pelo mesmo motivo.
+   ========================================================================== */
+
+#control {
+    position: absolute;
+    top: 50%;
+    right: 3.5vw;
+    transform: translateY(-50%);
+}
+
+.panel-control { width: 320px; max-height: 80vh; }
+
+.control-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.control-body::-webkit-scrollbar { width: 6px; }
+.control-body::-webkit-scrollbar-thumb { background: var(--edge); border-radius: 3px; }
+
+.section-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 2px;
+}
+
+/* ------------------------------------------------------ tranca -- */
+
+.lock-toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 14px;
+    border: 1px solid var(--edge);
+    border-radius: 11px;
+    background: var(--panel);
+    color: var(--text);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+}
+
+.lock-toggle:hover:not(:disabled) { background: var(--panel-2); border-color: var(--red); }
+.lock-toggle:disabled { opacity: .5; cursor: not-allowed; }
+
+.lock-icon {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    transition: background .15s;
+}
+
+.lock-icon svg { width: 19px; height: 19px; transition: fill .15s; }
+
+/* Trancado = vermelho cheio; destrancado = verde discreto. A cor carrega o
+   estado, para nao depender de ler o texto no meio do transito. */
+.lock-toggle.locked   .lock-icon { background: var(--red); }
+.lock-toggle.locked   .lock-icon svg { fill: #fff; }
+.lock-toggle.unlocked .lock-icon { background: rgba(61, 220, 132, .14); }
+.lock-toggle.unlocked .lock-icon svg { fill: var(--good); }
+
+.lock-text { flex: 1; min-width: 0; }
+
+.lock-state { display: block; font-size: 13.5px; font-weight: 600; }
+.lock-hint  { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* ------------------------------------------------------- portas -- */
+
+.door-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.door {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 11px;
+    border: 1px solid var(--edge);
+    border-radius: 10px;
+    background: var(--panel);
+    color: var(--text);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+}
+
+.door:hover { background: var(--panel-2); }
+
+/* Aberta e o estado que interessa enxergar de relance. */
+.door.open { border-color: var(--warn); background: rgba(245, 165, 36, .08); }
+
+.door svg { width: 15px; height: 15px; fill: var(--muted); flex-shrink: 0; transition: fill .15s; }
+.door.open svg { fill: var(--warn); }
+
+.door-text { min-width: 0; }
+.door-name  { font-size: 11.5px; font-weight: 600; line-height: 1.25; }
+.door-state { font-size: 10px; color: var(--muted); margin-top: 1px; }
+.door.open .door-state { color: var(--warn); }
+
+/* Capo e porta-malas ocupam a linha inteira: sao um par, e a grade de duas
+   colunas deixava um buraco quando o modelo so tinha um dos dois. */
+.door.wide { grid-column: 1 / -1; }
+
+.hint {
+    font-size: 10.5px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 2px;
+}

@@ -1,0 +1,372 @@
+/* nv_radio — aparelho portátil (tema Crimson Edge). */
+
+:root {
+  --bg: #17161a;
+  --field: #1f1e23;
+  --edge: #2a282e;
+  --text: #e6e4e3;
+  --dim: #a5a2a8;
+  --faint: #6e6b73;
+  --red: #ff2438;
+  --red-hover: #e01e30;
+  --red-soft: rgba(255, 36, 56, 0.12);
+  --lcd: #3ddc84;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  color: var(--text);
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  user-select: none;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* --------------------------------------------------------------- aparelho */
+
+.radio {
+  position: fixed;
+  right: 4vw;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 268px;
+  animation: rise 0.18s ease-out;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-50% + 12px));
+  }
+}
+
+/* Antena: puramente decorativa, dá a leitura de "rádio HT". */
+.antenna {
+  width: 8px;
+  height: 34px;
+  margin: 0 0 -6px 30px;
+
+  border-radius: 4px 4px 0 0;
+  background: linear-gradient(#3a373f, #17161a);
+}
+
+.body {
+  padding: 12px;
+
+  border-radius: 12px;
+  border: 1px solid #000;
+  background: #0d0d0f;
+  box-shadow: 0 20px 46px rgba(0, 0, 0, 0.7), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+/* Grelha do alto-falante */
+.grille {
+  height: 14px;
+  margin-bottom: 10px;
+
+  border-radius: 3px;
+  background: repeating-linear-gradient(90deg, #221f26 0 3px, transparent 3px 6px);
+}
+
+/* ----------------------------------------------------------------- visor */
+
+.screen {
+  padding: 10px 12px;
+  margin-bottom: 12px;
+
+  border-radius: 6px;
+  border: 1px solid var(--edge);
+  background: #0a0f0c;
+}
+
+.screen .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.status,
+.label,
+.unit,
+.ptt {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.screen.on .status {
+  color: var(--lcd);
+}
+
+.screen.on .label {
+  color: var(--text);
+}
+
+.freq {
+  margin: 4px 0;
+
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: #2c3a32;
+}
+
+.screen.on .freq {
+  color: var(--lcd);
+  text-shadow: 0 0 12px rgba(61, 220, 132, 0.5);
+}
+
+/* ----------------------------------------------------------- sintonia --- */
+
+.tune {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.step {
+  width: 34px;
+  flex: none;
+
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  background: var(--field);
+  color: var(--dim);
+
+  font-family: inherit;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.step:hover {
+  color: #fff;
+  border-color: var(--red);
+  background: var(--red-soft);
+}
+
+input[type='number'] {
+  flex: 1;
+  min-width: 0;
+  padding: 8px;
+
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  background: var(--field);
+  color: var(--text);
+
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 13px;
+  text-align: center;
+
+  /* Sem as setinhas padrão do navegador: quem sintoniza são os botões − / +. */
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type='number']:focus {
+  outline: none;
+  border-color: var(--red);
+}
+
+/* -------------------------------------------------------------- salvas -- */
+
+.saved-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.saved-head span {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.save-btn {
+  padding: 4px 9px;
+
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  background: var(--field);
+  color: var(--dim);
+
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.save-btn:hover {
+  color: #fff;
+  border-color: var(--red);
+  background: var(--red-soft);
+}
+
+.save-btn.on {
+  border-color: var(--red);
+  background: var(--red);
+  color: #fff;
+}
+
+.empty {
+  padding: 8px 0 10px;
+  font-size: 9px;
+  text-align: center;
+  color: var(--faint);
+}
+
+.presets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.preset {
+  padding: 7px 4px;
+
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  background: var(--field);
+  color: var(--dim);
+
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.preset:hover {
+  color: #fff;
+  border-color: var(--red);
+  background: var(--red-soft);
+}
+
+.preset.active {
+  color: #fff;
+  border-color: var(--red);
+  background: var(--red);
+}
+
+/* -------------------------------------------------------------- controles */
+
+.control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.control span {
+  flex: 1;
+  font-size: 10px;
+  color: var(--dim);
+}
+
+.control b {
+  width: 26px;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 10px;
+  text-align: right;
+  color: var(--faint);
+}
+
+input[type='range'] {
+  width: 96px;
+  accent-color: var(--red);
+  background: transparent;
+}
+
+.toggle {
+  padding: 5px 12px;
+
+  border: 1px solid var(--red);
+  border-radius: 4px;
+  background: var(--red);
+  color: #fff;
+
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.toggle.off {
+  border-color: var(--edge);
+  background: var(--field);
+  color: var(--faint);
+}
+
+/* ----------------------------------------------------------------- ações */
+
+.actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.btn {
+  flex: 1;
+  height: 34px;
+
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  background: var(--field);
+  color: var(--dim);
+
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.btn:hover {
+  color: #fff;
+  border-color: var(--red);
+  background: var(--red-soft);
+}
+
+.btn.power.on {
+  border-color: var(--red);
+  background: var(--red);
+  color: #fff;
+}
+
+.btn.power.on:hover {
+  background: var(--red-hover);
+}

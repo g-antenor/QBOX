@@ -381,6 +381,26 @@ client.getAppearanceSettings = getAppearanceSettings
 local config
 function client.getConfig() return config end
 
+-- Preview animations for the customization menu (played in place so the ped
+-- stays framed by the camera). Called from the "Animação" tab in the UI.
+function client.playCustomizationAnimation(name)
+    local ped = cache.ped
+    ClearPedTasksImmediately(ped)
+
+    if name == "walk" then
+        TaskStartScenarioInPlace(ped, "WORLD_HUMAN_JOG_STANDING", 0, true)
+        SetPedMoveRateOverride(ped, 0.7)
+    elseif name == "run" then
+        TaskStartScenarioInPlace(ped, "WORLD_HUMAN_JOG_STANDING", 0, true)
+        SetPedMoveRateOverride(ped, 1.4)
+    elseif name == "wave" then
+        lib.requestAnimDict("mp_player_int_uppersalute")
+        TaskPlayAnim(ped, "mp_player_int_uppersalute", "mp_player_int_salute", 8.0, -8.0, -1, 49, 0.0, false, false, false)
+    else -- "static" / default
+        TaskStandStill(ped, -1)
+    end
+end
+
 local isCameraInterpolating
 local currentCamera
 local cameraHandle
