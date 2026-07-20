@@ -80,6 +80,22 @@ Config.Police = {
     -- Reducoes de pena oferecidas no registro de prisao (%).
     reductions = { 0, 10, 15, 25, 50 },
 
+    -- O registro de prisao ja existe no MDT; estes dados conectam o registro ao
+    -- encarceramento do personagem online, sem depender de outro resource.
+    jail = {
+        minutesPerCharge = 5,
+        coords = vec4(459.18, -994.28, 24.91, 89.0),
+        release = vec4(425.13, -979.56, 30.71, 90.0)
+    },
+
+    -- Cameras existentes no painel. Coordenadas ficam no servidor/config e a
+    -- NUI envia somente o id, evitando aceitar posicoes arbitrarias.
+    cameras = {
+        { id = 'mrpd_front', label = 'MRPD - Entrada', coords = vec3(434.76, -981.91, 34.72), rotation = vec3(-18.0, 0.0, 88.0), fov = 55.0 },
+        { id = 'mrpd_cells', label = 'MRPD - Celas', coords = vec3(464.35, -994.12, 28.05), rotation = vec3(-18.0, 0.0, 178.0), fov = 55.0 },
+        { id = 'mrpd_parking', label = 'MRPD - Garagem', coords = vec3(446.12, -1009.54, 35.20), rotation = vec3(-22.0, 0.0, 42.0), fov = 60.0 }
+    },
+
     -- Tipos de ocorrencia.
     reportTypes = {
         { value = 'furto',    label = 'Furto' },

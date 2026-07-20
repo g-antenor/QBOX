@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NV Orgs — Visual Funcional</title>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#09090a;
+  --surface:#101113;
+  --surface-2:#15171a;
+  --surface-3:#0c0d0f;
+  --edge:#26282d;
+  --edge-soft:#1d2024;
+  --text:#ececec;
+  --dim:#969aa2;
+  --faint:#60656d;
+  --red:#d61f3a;
+  --red-hover:#f02e4e;
+  --red-soft:rgba(214,31,58,.09);
+  --red-glow:rgba(214,31,58,.18);
+  --good:#40c77a;
+  --shadow:0 24px 70px rgba(0,0,0,.62);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%}
+body{
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 50% 20%,rgba(214,31,58,.055),transparent 34%),
+    linear-gradient(180deg,#101114,#07080a);
+  color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  user-select:none;
+}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+.icon{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+.tablet{
+  position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(92vw,1180px);height:min(88vh,760px);
+  padding:12px;border:1px solid #050506;border-radius:18px;
+  background:#0a0b0d;box-shadow:var(--shadow),inset 0 0 0 1px rgba(255,255,255,.035);
+}
+.screen{
+  height:100%;display:flex;flex-direction:column;overflow:hidden;
+  border:1px solid var(--edge);border-radius:10px;background:var(--surface);
+}
+.head{
+  min-height:66px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--edge-soft);background:#0e0f11;
+}
+.title{display:flex;align-items:center;gap:12px}
+.logo{
+  width:34px;height:34px;display:grid;place-items:center;border:1px solid rgba(214,31,58,.4);
+  border-radius:9px;background:var(--red-soft);color:var(--red-hover)
+}
+.title h1{font-size:15px;font-weight:700;letter-spacing:-.01em}
+.title p{margin-top:3px;font-size:10px;color:var(--faint)}
+.close{
+  width:32px;height:32px;display:grid;place-items:center;border:1px solid var(--edge);
+  border-radius:7px;background:var(--surface-2);color:var(--dim)
+}
+.close:hover{border-color:var(--red);color:var(--text)}
+
+.body{flex:1;display:grid;grid-template-columns:260px 1fr;min-height:0}
+.side{
+  min-width:0;padding:14px;display:flex;flex-direction:column;gap:12px;
+  border-right:1px solid var(--edge-soft);background:#0d0e10
+}
+.btn{
+  min-height:36px;padding:8px 13px;border:1px solid var(--edge);border-radius:7px;
+  background:var(--surface-2);color:var(--text);font-size:11px;font-weight:650;
+  transition:.12s ease
+}
+.btn:hover{border-color:var(--red);background:var(--red-soft)}
+.btn.primary{border-color:var(--red);background:var(--red);color:#fff}
+.btn.primary:hover{background:var(--red-hover)}
+.btn.danger{color:var(--red-hover)}
+.btn.small{min-height:30px;padding:6px 10px;font-size:10px}
+.btn.block{width:100%}
+
+.side-label,.section-title{
+  font-size:9px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--faint)
+}
+.list{flex:1;overflow:auto;display:flex;flex-direction:column;gap:7px;padding-right:2px}
+.org{
+  padding:11px;border:1px solid var(--edge-soft);border-radius:8px;background:var(--surface);
+  cursor:pointer;transition:.12s ease
+}
+.org:hover{border-color:var(--edge);background:var(--surface-2)}
+.org.active{border-color:var(--red);background:var(--red-soft);box-shadow:0 0 20px rgba(214,31,58,.08)}
+.org-name{font-size:12px;font-weight:650}
+.org-meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.badge{
+  padding:3px 6px;border:1px solid var(--edge);border-radius:999px;
+  color:var(--faint);font-size:8px
+}
+.badge.red{border-color:rgba(214,31,58,.35);background:var(--red-soft);color:var(--red-hover)}
+
+.panel{min-width:0;display:flex;flex-direction:column}
+.tabs{
+  height:49px;padding:0 16px;display:flex;align-items:flex-end;gap:4px;
+  border-bottom:1px solid var(--edge-soft);background:#101113
+}
+.tab{
+  position:relative;height:38px;padding:0 14px;border:0;background:transparent;
+  color:var(--faint);font-size:11px
+}
+.tab:hover{color:var(--dim)}
+.tab.active{color:var(--text)}
+.tab.active::after{
+  content:"";position:absolute;left:14px;right:14px;bottom:0;height:2px;border-radius:999px;background:var(--red)
+}
+.content{flex:1;overflow:auto;padding:16px}
+.page{display:none}
+.page.active{display:block}
+.grid-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:7px}
+.field span{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+input,select{
+  width:100%;min-height:38px;padding:9px 10px;border:1px solid var(--edge);border-radius:7px;
+  background:var(--surface-3);color:var(--text);font-size:11px;outline:none
+}
+input:focus,select:focus{border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.seg button{
+  min-height:36px;border:1px solid var(--edge);border-radius:7px;background:var(--surface-3);
+  color:var(--dim);font-size:10px
+}
+.seg button.active{border-color:var(--red);background:var(--red-soft);color:var(--text)}
+.section-head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin:18px 0 10px;padding-top:14px;border-top:1px solid var(--edge-soft)
+}
+.section-head:first-child{margin-top:0;padding-top:0;border-top:0}
+.grade-list,.member-list,.resource-list{display:flex;flex-direction:column;gap:8px}
+.card{
+  border:1px solid var(--edge-soft);border-radius:8px;background:var(--surface-2);padding:10px
+}
+.grade-top,.member,.resource-row{
+  display:flex;align-items:center;gap:8px
+}
+.grade-index{
+  width:26px;height:26px;flex:none;display:grid;place-items:center;border-radius:6px;
+  background:var(--red-soft);color:var(--red-hover);font-size:10px;font-weight:700
+}
+.grade-top input{flex:1;min-width:0}
+.icon-btn{
+  width:27px;height:27px;display:grid;place-items:center;flex:none;
+  border:1px solid var(--edge);border-radius:6px;background:transparent;color:var(--dim)
+}
+.icon-btn:hover{border-color:var(--red);color:var(--text)}
+.checks{display:flex;flex-wrap:wrap;gap:10px;margin:9px 0 0 34px}
+.check{display:flex;align-items:center;gap:5px;color:var(--dim);font-size:9px}
+.check input{width:auto;min-height:0;accent-color:var(--red)}
+.role{margin:7px 0 0 34px;font-size:9px;color:var(--faint)}
+.online{width:7px;height:7px;border-radius:50%;background:var(--faint)}
+.online.on{background:var(--good);box-shadow:0 0 7px var(--good)}
+.member-name{flex:1;min-width:0;font-size:11px}
+.member-name small{display:block;margin-top:2px;color:var(--faint)}
+.member select{width:175px;min-height:32px;padding:5px 8px}
+.resource-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.resource-card{
+  border:1px solid var(--edge-soft);border-radius:9px;background:var(--surface-2);padding:12px
+}
+.resource-card.full{grid-column:1/-1}
+.resource-card h3{font-size:11px;font-weight:650}
+.resource-card p{margin-top:4px;color:var(--faint);font-size:9px;line-height:1.45}
+.resource-list{margin-top:10px}
+.resource-row{
+  padding:8px;border:1px solid var(--edge-soft);border-radius:7px;background:var(--surface-3);
+  font-size:10px
+}
+.resource-row strong{flex:1;font-weight:550}
+.resource-row span{color:var(--faint)}
+.empty{
+  padding:22px;text-align:center;border:1px dashed var(--edge);border-radius:8px;
+  color:var(--faint);font-size:10px
+}
+.foot{
+  min-height:52px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;
+  border-top:1px solid var(--edge-soft);background:#0e0f11
+}
+.status{font-size:10px;color:var(--faint)}
+.status.ok{color:var(--good)}
+.status.error{color:var(--red-hover)}
+.actions{display:flex;gap:8px}
+
+.toast{
+  position:fixed;right:24px;bottom:24px;min-width:230px;padding:12px 14px;
+  border:1px solid var(--red);border-radius:8px;background:#101113;color:var(--text);
+  box-shadow:var(--shadow);font-size:10px;opacity:0;transform:translateY(8px);pointer-events:none;
+  transition:.16s ease
+}
+.toast.show{opacity:1;transform:translateY(0)}
+
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:var(--edge);border-radius:999px}
+
+@media(max-width:980px){
+  .tablet{width:96vw;height:92vh}
+  .body{grid-template-columns:220px 1fr}
+  .resource-grid{grid-template-columns:1fr}
+  .resource-card.full{grid-column:auto}
+}
+@media(max-width:760px){
+  body{overflow:auto}
+  .tablet{
+    position:relative;left:auto;top:auto;transform:none;width:100%;height:100%;
+    min-height:100vh;padding:0;border:0;border-radius:0
+  }
+  .screen{border-radius:0;border:0}
+  .body{grid-template-columns:1fr}
+  .side{
+    max-height:190px;border-right:0;border-bottom:1px solid var(--edge-soft)
+  }
+  .list{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(190px,1fr);overflow-x:auto}
+  .panel{min-height:0}
+  .content{padding:13px}
+  .grid-two{grid-template-columns:1fr}
+  .seg{grid-template-columns:1fr}
+  .member{align-items:flex-start;flex-wrap:wrap}
+  .member select{width:100%}
+}
+</style>
+</head>
+<body>
+
+<div class="tablet" id="tablet">
+  <div class="screen">
+    <header class="head">
+      <div class="title">
+        <div class="logo">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M4 20h16M6 20V8l6-4 6 4v12M9 20v-5h6v5M9 10h.01M15 10h.01"/></svg>
+        </div>
+        <div>
+          <h1>Organizações</h1>
+          <p>Gerenciamento central de grupos, membros e recursos</p>
+        </div>
+      </div>
+      <button class="close" id="closeBtn" title="Fechar">
+        <svg class="icon" viewBox="0 0 24 24"><path d="m7 7 10 10M17 7 7 17"/></svg>
+      </button>
+    </header>
+
+    <div class="body">
+      <aside class="side">
+        <button class="btn primary block" id="newOrg">+ Nova organização</button>
+        <div class="side-label">Organizações cadastradas</div>
+        <div class="list" id="orgList"></div>
+      </aside>
+
+      <main class="panel">
+        <nav class="tabs">
+          <button class="tab active" data-page="config">Configuração</button>
+          <button class="tab" data-page="members">Membros</button>
+          <button class="tab" data-page="resources">Recursos</button>
+        </nav>
+
+        <div class="content">
+          <section class="page active" id="page-config">
+            <div class="grid-two">
+              <label class="field">
+                <span>Nome da organização</span>
+                <input id="orgName" value="Polícia de Los Santos">
+              </label>
+              <label class="field">
+                <span>Set</span>
+                <input id="orgSet" value="police" disabled>
+              </label>
+            </div>
+
+            <div class="field" style="margin-top:12px">
+              <span>Estilo</span>
+              <div class="seg" id="styleSeg">
+                <button class="active" data-value="estatal">Estatal</button>
+                <button data-value="job">Job</button>
+                <button data-value="gang">Gang</button>
+              </div>
+            </div>
+
+            <div class="field" style="margin-top:12px">
+              <span>Tipo</span>
+              <div class="seg" id="typeSeg">
+                <button class="active" data-value="police">Polícia</button>
+                <button data-value="hospital">Hospital</button>
+                <button data-value="dealership">Concessionária</button>
+              </div>
+            </div>
+
+            <div class="section-head">
+              <div class="section-title">Cargos <span style="text-transform:none;letter-spacing:0;font-weight:400">• 1 = mais alto</span></div>
+              <button class="btn small" id="addGrade">+ Cargo</button>
+            </div>
+            <div class="grade-list" id="gradeList"></div>
+          </section>
+
+          <section class="page" id="page-members">
+            <div class="section-head">
+              <div class="section-title">Membros ativos</div>
+              <button class="btn small" id="addMember">+ Adicionar membro</button>
+            </div>
+            <label class="field">
+              <span>Buscar personagem</span>
+              <input id="memberSearch" placeholder="Nome, ID ou State ID...">
+            </label>
+            <div class="member-list" id="memberList" style="margin-top:12px"></div>
+          </section>
+
+          <section class="page" id="page-resources">
+            <div class="resource-grid" id="resourceGrid"></div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <footer class="foot">
+      <span class="status" id="status">Pronto.</span>
+      <div class="actions">
+        <button class="btn danger" id="deleteOrg">Excluir</button>
+        <button class="btn primary" id="saveOrg">Salvar</button>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const organizations = [
+  {
+    id:'police', name:'Polícia de Los Santos', style:'estatal', type:'police', members:24, balance:254800,
+    grades:[
+      {name:'Comandante',actions:['Contratar','Demitir','Caixa','Recursos']},
+      {name:'Tenente',actions:['Contratar','Demitir','Caixa']},
+      {name:'Oficial',actions:['Caixa']},
+      {name:'Recruta',actions:[]}
+    ]
+  },
+  {
+    id:'ambulance', name:'Hospital Central', style:'estatal', type:'hospital', members:16, balance:138400,
+    grades:[
+      {name:'Diretor Médico',actions:['Contratar','Demitir','Caixa','Recursos']},
+      {name:'Médico',actions:['Caixa']},
+      {name:'Paramédico',actions:[]}
+    ]
+  },
+  {
+    id:'premium', name:'Premium Motors', style:'job', type:'dealership', members:9, balance:840000,
+    grades:[
+      {name:'Proprietário',actions:['Contratar','Demitir','Caixa','Recursos']},
+      {name:'Gerente',actions:['Contratar','Caixa']},
+      {name:'Vendedor',actions:[]}
+    ]
+  }
+];
+
+const membersData = {
+  police:[
+    {name:'Lucas Almeida',state:'LUC-184',online:true,grade:0},
+    {name:'Marina Costa',state:'MAR-204',online:true,grade:1},
+    {name:'Rafael Mendes',state:'RAF-118',online:false,grade:2},
+    {name:'Bianca Souza',state:'BIA-291',online:true,grade:3}
+  ],
+  ambulance:[
+    {name:'Clara Martins',state:'CLA-110',online:true,grade:0},
+    {name:'Gustavo Lima',state:'GUS-441',online:false,grade:1},
+    {name:'Isabela Rocha',state:'ISA-312',online:true,grade:2}
+  ],
+  premium:[
+    {name:'Eduardo Reis',state:'EDU-073',online:true,grade:0},
+    {name:'Amanda Melo',state:'AMA-512',online:true,grade:1},
+    {name:'Felipe Nunes',state:'FEL-633',online:false,grade:2}
+  ]
+};
+
+let activeOrg = organizations[0];
+let activePage = 'config';
+
+const $ = id => document.getElementById(id);
+const fmt = value => '$' + Number(value).toLocaleString('pt-BR');
+
+function toast(text){
+  const el=$('toast');
+  el.textContent=text;
+  el.classList.add('show');
+  clearTimeout(toast.timer);
+  toast.timer=setTimeout(()=>el.classList.remove('show'),1800);
+}
+function setStatus(text,kind=''){
+  $('status').textContent=text;
+  $('status').className='status '+kind;
+}
+function renderOrganizations(){
+  const box=$('orgList');
+  box.innerHTML='';
+  organizations.forEach(org=>{
+    const item=document.createElement('div');
+    item.className='org'+(activeOrg.id===org.id?' active':'');
+    item.innerHTML=`
+      <div class="org-name">${org.name}</div>
+      <div class="org-meta">
+        <span class="badge">${org.id}</span>
+        <span class="badge red">${org.members} membros</span>
+        <span class="badge">${fmt(org.balance)}</span>
+      </div>`;
+    item.onclick=()=>{activeOrg=org;renderAll();setStatus('Editando '+org.name)};
+    box.appendChild(item);
+  });
+}
+function bindSegment(id,value,onChange){
+  const seg=$(id);
+  [...seg.children].forEach(btn=>{
+    btn.classList.toggle('active',btn.dataset.value===value);
+    btn.onclick=()=>{
+      [...seg.children].forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      onChange(btn.dataset.value);
+    };
+  });
+}
+function renderConfig(){
+  $('orgName').value=activeOrg.name;
+  $('orgSet').value=activeOrg.id;
+  bindSegment('styleSeg',activeOrg.style,v=>activeOrg.style=v);
+  bindSegment('typeSeg',activeOrg.type,v=>activeOrg.type=v);
+
+  const list=$('gradeList');
+  list.innerHTML='';
+  activeOrg.grades.forEach((grade,index)=>{
+    const card=document.createElement('div');
+    card.className='card';
+    const checks=['Contratar','Demitir','Caixa','Recursos'].map(action=>
+      `<label class="check"><input type="checkbox" data-action="${action}" ${grade.actions.includes(action)?'checked':''}><span>${action}</span></label>`
+    ).join('');
+    card.innerHTML=`
+      <div class="grade-top">
+        <span class="grade-index">${index+1}</span>
+        <input value="${grade.name}" data-name>
+        <button class="icon-btn" data-up title="Subir">↑</button>
+        <button class="icon-btn" data-down title="Descer">↓</button>
+        <button class="icon-btn" data-remove title="Remover">×</button>
+      </div>
+      <div class="checks">${checks}</div>
+      <div class="role">Caixa: ${index===0?'owner':index===1?'manager':'contributor'}</div>`;
+    card.querySelector('[data-name]').oninput=e=>grade.name=e.target.value;
+    card.querySelectorAll('[data-action]').forEach(cb=>{
+      cb.onchange=()=>{
+        const action=cb.dataset.action;
+        if(cb.checked&&!grade.actions.includes(action)) grade.actions.push(action);
+        if(!cb.checked) grade.actions=grade.actions.filter(a=>a!==action);
+      };
+    });
+    card.querySelector('[data-up]').onclick=()=>moveGrade(index,-1);
+    card.querySelector('[data-down]').onclick=()=>moveGrade(index,1);
+    card.querySelector('[data-remove]').onclick=()=>{
+      if(activeOrg.grades.length===1)return toast('A organização precisa de ao menos um cargo.');
+      activeOrg.grades.splice(index,1);renderConfig();
+    };
+    list.appendChild(card);
+  });
+}
+function moveGrade(index,delta){
+  const target=index+delta;
+  if(target<0||target>=activeOrg.grades.length)return;
+  [activeOrg.grades[index],activeOrg.grades[target]]=[activeOrg.grades[target],activeOrg.grades[index]];
+  renderConfig();
+}
+function renderMembers(){
+  const query=$('memberSearch').value.trim().toLowerCase();
+  const list=$('memberList');
+  list.innerHTML='';
+  const members=(membersData[activeOrg.id]||[]).filter(m=>(m.name+' '+m.state).toLowerCase().includes(query));
+  if(!members.length){list.innerHTML='<div class="empty">Nenhum membro encontrado.</div>';return}
+  members.forEach((member,index)=>{
+    const row=document.createElement('div');
+    row.className='card member';
+    row.innerHTML=`
+      <span class="online ${member.online?'on':''}"></span>
+      <div class="member-name">${member.name}<small>${member.state} • ${member.online?'Online':'Offline'}</small></div>
+      <select>${activeOrg.grades.map((g,i)=>`<option value="${i}" ${i===member.grade?'selected':''}>${i+1}. ${g.name}</option>`).join('')}</select>
+      <button class="icon-btn" title="Demitir">×</button>`;
+    row.querySelector('select').onchange=e=>member.grade=Number(e.target.value);
+    row.querySelector('button').onclick=()=>{
+      membersData[activeOrg.id].splice(index,1);
+      activeOrg.members=Math.max(0,activeOrg.members-1);
+      renderMembers();renderOrganizations();toast('Membro removido.');
+    };
+    list.appendChild(row);
+  });
+}
+function resourceCard(title,note,items,buttonText){
+  return `
+    <div class="resource-card">
+      <div class="section-head" style="margin:0;padding:0;border:0">
+        <h3>${title}</h3>
+        <button class="btn small resource-action">${buttonText}</button>
+      </div>
+      <p>${note}</p>
+      <div class="resource-list">
+        ${items.map(i=>`<div class="resource-row"><strong>${i.name}</strong><span>${i.meta}</span><button class="icon-btn">×</button></div>`).join('')}
+      </div>
+    </div>`;
+}
+function renderResources(){
+  const type=activeOrg.type;
+  const cards=[];
+  cards.push(resourceCard('Fechaduras','Controle de portas vinculadas à organização.',[
+    {name:'Entrada principal',meta:'142.4, -1042.8'},
+    {name:'Sala de evidências',meta:'452.8, -979.1'}
+  ],'+ Criar'));
+  cards.push(resourceCard('Estacionamento','Atendente, vagas e frota institucional.',[
+    {name:'Atendente',meta:'s_m_y_cop_01'},
+    {name:'Vagas configuradas',meta:'6 pontos'}
+  ],'Configurar'));
+
+  if(type==='dealership'){
+    cards.push(resourceCard('Concessionária','Categorias e pontos utilizados na operação.',[
+      {name:'Categorias',meta:'Sedans, SUVs, Sport'},
+      {name:'Spawn da compra',meta:'Configurado'},
+      {name:'Test-drive',meta:'Configurado'}
+    ],'+ Ponto'));
+  }
+
+  cards.push(resourceCard('Vestiário','Pontos de troca e uniformes disponíveis.',[
+    {name:'Vestiário principal',meta:'Todos os cargos'},
+    {name:'Uniforme operacional',meta:'Masculino / feminino'}
+  ],'+ Uniforme'));
+  cards.push(resourceCard('Contato','Número oficial da organização.',[
+    {name:'555-0184',meta:'Ativo'}
+  ],'Gerar'));
+  cards.push(resourceCard('Baús','Armazenamentos e níveis de acesso.',[
+    {name:'Gerência',meta:'2 cargos do topo'},
+    {name:'Almoxarifado',meta:'Todos os cargos'}
+  ],'+ Baú'));
+
+  $('resourceGrid').innerHTML=cards.join('');
+  document.querySelectorAll('.resource-action').forEach(btn=>btn.onclick=()=>toast('Ação simulada: '+btn.textContent));
+  document.querySelectorAll('.resource-row .icon-btn').forEach(btn=>btn.onclick=()=>{
+    btn.closest('.resource-row').remove();toast('Recurso removido visualmente.');
+  });
+}
+function switchPage(page){
+  activePage=page;
+  document.querySelectorAll('.tab').forEach(tab=>tab.classList.toggle('active',tab.dataset.page===page));
+  document.querySelectorAll('.page').forEach(el=>el.classList.toggle('active',el.id==='page-'+page));
+  if(page==='members')renderMembers();
+  if(page==='resources')renderResources();
+}
+function renderAll(){
+  renderOrganizations();
+  renderConfig();
+  renderMembers();
+  renderResources();
+}
+
+document.querySelectorAll('.tab').forEach(tab=>tab.onclick=()=>switchPage(tab.dataset.page));
+$('memberSearch').oninput=renderMembers;
+$('orgName').oninput=e=>{activeOrg.name=e.target.value;renderOrganizations()};
+$('addGrade').onclick=()=>{
+  activeOrg.grades.push({name:'Novo cargo',actions:[]});
+  renderConfig();toast('Novo cargo adicionado.');
+};
+$('addMember').onclick=()=>{
+  const list=membersData[activeOrg.id]||(membersData[activeOrg.id]=[]);
+  list.push({name:'Novo integrante',state:'NOV-'+Math.floor(Math.random()*900+100),online:true,grade:activeOrg.grades.length-1});
+  activeOrg.members++;renderMembers();renderOrganizations();toast('Membro demonstrativo adicionado.');
+};
+$('newOrg').onclick=()=>{
+  const id='org_'+Date.now().toString().slice(-5);
+  const org={id,name:'Nova organização',style:'job',type:'dealership',members:0,balance:0,grades:[{name:'Proprietário',actions:['Contratar','Demitir','Caixa','Recursos']}]};
+  organizations.push(org);membersData[id]=[];activeOrg=org;renderAll();switchPage('config');setStatus('Nova organização criada.','ok');
+};
+$('saveOrg').onclick=()=>{
+  activeOrg.name=$('orgName').value.trim()||activeOrg.name;
+  setStatus('Alterações salvas.','ok');renderOrganizations();toast('Organização salva.');
+};
+$('deleteOrg').onclick=()=>{
+  if(organizations.length===1)return toast('Não é possível excluir a última organização.');
+  const index=organizations.findIndex(o=>o.id===activeOrg.id);
+  delete membersData[activeOrg.id];
+  organizations.splice(index,1);
+  activeOrg=organizations[0];
+  renderAll();setStatus('Organização excluída.','error');toast('Organização removida.');
+};
+$('closeBtn').onclick=()=>{
+  $('tablet').style.display='none';
+  setTimeout(()=>{document.body.innerHTML='<div style="height:100%;display:grid;place-items:center;color:#92969e;font:13px system-ui">Painel fechado. Recarregue a página para abrir novamente.</div>'},150);
+};
+
+renderAll();
+</script>
+</body>
+</html>

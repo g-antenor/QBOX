@@ -1,0 +1,26 @@
+/* Mesmas dimensoes externas utilizadas pelo tablet de handling. */
+#app {
+  inset: auto;
+  left: 50%;
+  top: 50%;
+  width: min(60vw, 900px);
+  height: min(66vh, 580px);
+  transform: translate(-50%, -50%);
+  grid-template-columns: 170px minmax(0, 1fr) 260px;
+  border: 12px solid #0d0d0f;
+  border-radius: 16px;
+  box-shadow: 0 26px 60px rgba(0, 0, 0, .7), inset 0 0 0 1px rgba(255, 255, 255, .04);
+}
+
+.sidebar, .detail { padding: 16px; }
+.content { padding: 17px; }
+.preview { height: 130px; }
+.grid { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 8px; margin-top: 16px; }
+.card { min-height: 126px; padding: 12px; }
+.card h3 { margin-top: 18px; }
+
+@media (max-width: 900px) {
+  #app { width: min(94vw, 900px); grid-template-columns: 150px 1fr; }
+  .detail { right: 12px; width: 250px; height: calc(100% - 24px); }
+  .content { padding-right: 270px; }
+}

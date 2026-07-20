@@ -13,6 +13,19 @@ local recent = {}
 -- Blips criados por alertas, para apagar quando esfriam.
 ---@type table<number, boolean>
 local blips = {}
+local alertBlips = {}
+
+local function removeAlertBlips(alertId)
+    local pair = alertBlips[alertId]
+    if not pair then return end
+
+    for _, blip in pairs(pair) do
+        if DoesBlipExist(blip) then RemoveBlip(blip) end
+        blips[blip] = nil
+    end
+
+    alertBlips[alertId] = nil
+end
 
 -- ------------------------------------------------------------------ blip --
 
@@ -21,12 +34,14 @@ local function createBlip(alert)
     local coords = alert.coords
     local info = alert.blip
 
-    -- A area vem primeiro para o icone ficar por cima dela.
-    local area = AddBlipForRadius(coords.x, coords.y, coords.z, info.radius)
-
-    SetBlipHighDetail(area, true)
-    SetBlipColour(area, info.color)
-    SetBlipAlpha(area, info.alpha)
+    local area
+    if info.area ~= false then
+        area = AddBlipForRadius(coords.x, coords.y, coords.z, info.radius)
+        SetBlipHighDetail(area, true)
+        SetBlipColour(area, info.color)
+        SetBlipAlpha(area, info.alpha)
+        blips[area] = true
+    end
 
     local blip = AddBlipForCoord(coords.x, coords.y, coords.z)
 
@@ -35,26 +50,23 @@ local function createBlip(alert)
     SetBlipScale(blip, 0.85)
     SetBlipAsShortRange(blip, false)
     SetBlipFlashes(blip, true)
+    if info.flash then SetBlipFlashTimer(blip, info.time * 1000) end
 
     BeginTextCommandSetBlipName('STRING')
     AddTextComponentSubstringPlayerName(alert.label)
     EndTextCommandSetBlipName(blip)
 
-    blips[area] = true
     blips[blip] = true
+    alertBlips[alert.id] = { area = area, blip = blip }
 
     -- O flash e um chamariz para o alerta que acabou de chegar, nao um estado
     -- permanente: um mapa com seis blips piscando nao destaca nenhum.
-    SetTimeout(10000, function()
+    SetTimeout(info.flash and info.time * 1000 or 10000, function()
         if DoesBlipExist(blip) then SetBlipFlashes(blip, false) end
     end)
 
     SetTimeout(info.time * 1000, function()
-        if DoesBlipExist(area) then RemoveBlip(area) end
-        if DoesBlipExist(blip) then RemoveBlip(blip) end
-
-        blips[area] = nil
-        blips[blip] = nil
+        removeAlertBlips(alert.id)
     end)
 end
 
@@ -130,49 +142,35 @@ RegisterNetEvent('nv_dispatch:alert', function(alert)
     end
 end)
 
+RegisterNetEvent('nv_dispatch:stopAlert', function(alertId)
+    if type(alertId) ~= 'string' then return end
+    removeAlertBlips(alertId)
+end)
+
+RegisterNetEvent('nv_dispatch:updateAlert', function(alertId, coords)
+    if type(alertId) ~= 'string' or type(coords) ~= 'table' then return end
+
+    local pair = alertBlips[alertId]
+    if not pair then return end
+
+    for _, blip in pairs(pair) do
+        if DoesBlipExist(blip) then SetBlipCoords(blip, coords.x, coords.y, coords.z) end
+    end
+
+    for i = 1, #recent do
+        if recent[i].id == alertId then
+            recent[i].coords = coords
+            break
+        end
+    end
+end)
+
 lib.addKeybind({
     name = 'nv_dispatch_mark',
     description = 'Marcar no mapa o ultimo chamado',
     defaultKey = Config.MarkKey,
     onPressed = markLatest
 })
-
--- ------------------------------------------------------------ bloqueador --
-
---- Chamado pelo ox_inventory quando o jogador usa o bloqueador de sinal.
----
---- A barra de progresso roda ANTES do sorteio: se o resultado saisse primeiro,
---- cancelar a barra ao ver que falhou devolveria o item.
-local function useJammer()
-    if not lib.progressBar({
-        duration = Config.Jammer.useTime,
-        label = 'Ativando bloqueador...',
-        position = 'bottom',
-        canCancel = true,
-        disable = { move = true, combat = true, car = true },
-        anim = { dict = 'anim@amb@clubhouse@tutorial@bkr_tut_ig3@', clip = 'machinic_loop_mechandplayer' }
-    }) then
-        return
-    end
-
-    local ok, err, duration = lib.callback.await('nv_dispatch:useJammer', false)
-
-    if not ok then
-        return lib.notify({
-            title = 'Bloqueador de sinal',
-            description = err or 'Nao foi possivel.',
-            type = 'error'
-        })
-    end
-
-    lib.notify({
-        title = 'Bloqueador de sinal',
-        description = ('Sinal cortado por %d segundos.'):format(duration or 0),
-        type = 'success'
-    })
-end
-
-exports('useJammer', useJammer)
 
 -- ------------------------------------------------------------- limpeza --
 

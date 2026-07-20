@@ -312,7 +312,16 @@ lib.callback.register('nv_mdt:police:arrest', function(source, charId, data, leg
             rows)
     end
 
-    return true, nil, total
+    local jail = Config.Police.jail
+    local baseMinutes = math.max(1, tonumber(jail and jail.minutesPerCharge) or 5) * #chosen
+    local sentenceMinutes = math.max(1, math.ceil(baseMinutes * (100 - reduction) / 100))
+    local ok, target = pcall(Ox.GetPlayerFromCharId, charId)
+
+    if ok and target and target.source and jail and jail.coords then
+        TriggerClientEvent('nv_mdt:client:jail', target.source, sentenceMinutes * 60)
+    end
+
+    return true, nil, { total = total, sentence = sentenceMinutes }
 end)
 
 -- --------------------------------------------------------- procurados --
@@ -497,6 +506,33 @@ lib.callback.register('nv_mdt:police:vehicle', function(source, plate)
     return vehicle
 end)
 
+lib.callback.register('nv_mdt:police:trackVehicle', function(source, plate)
+    if not guard(source) then return end
+    if type(plate) ~= 'string' or plate == '' then return end
+
+    plate = plate:gsub('^%s+', ''):gsub('%s+$', ''):upper()
+
+    local vehicles = GetAllVehicles()
+    for i = 1, #vehicles do
+        local entity = vehicles[i]
+        local current = (GetVehicleNumberPlateText(entity) or '')
+            :gsub('^%s+', ''):gsub('%s+$', ''):upper()
+
+        if current == plate then
+            local netId = NetworkGetNetworkIdFromEntity(entity)
+            if GetResourceState('nv_garage') == 'started'
+                and exports.nv_garage:IsVehicleBlocked(netId) then
+                return { blocked = true }
+            end
+
+            local coords = GetEntityCoords(entity)
+            return { x = coords.x, y = coords.y, z = coords.z }
+        end
+    end
+
+    return { unavailable = true }
+end)
+
 lib.callback.register('nv_mdt:police:setStolen', function(source, plate, stolen)
     if not guard(source) then return false, 'Sem permissao.' end
     if not Mdt.schemaReady then return false, 'Banco indisponivel.' end
@@ -541,6 +577,31 @@ lib.callback.register('nv_mdt:police:stolenList', function(source)
 end)
 
 -- -------------------------------------------------------- ocorrencias --
+
+--- Registra ocorrencias geradas por recursos confiaveis do servidor, como o
+--- dispatch. Nao e evento de rede e por isso nao aceita chamada direta da NUI.
+exports('AddAutomaticReport', function(data)
+    if not Mdt.schemaReady or type(data) ~= 'table' then return false end
+
+    local validType = false
+    for i = 1, #Config.Police.reportTypes do
+        if Config.Police.reportTypes[i].value == data.type then validType = true break end
+    end
+
+    if not validType then return false end
+
+    MySQL.prepare.await([[
+        INSERT INTO `nv_mdt_reports` (`type`, `citizen`, `phone`, `involved`, `notes`, `author`)
+        VALUES (?, ?, NULL, NULL, ?, ?)
+    ]], {
+        data.type,
+        type(data.citizen) == 'string' and data.citizen:sub(1, 100) or nil,
+        type(data.notes) == 'string' and data.notes:sub(1, 2000) or nil,
+        type(data.author) == 'string' and data.author:sub(1, 80) or 'Sistema'
+    })
+
+    return true
+end)
 
 --- Historico de ocorrencias, com busca e filtro por periodo.
 ---

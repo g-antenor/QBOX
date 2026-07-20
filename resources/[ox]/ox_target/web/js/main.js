@@ -1,24 +1,31 @@
-import { createOptions } from "./createOptions.js";
+import { createOptions } from "./createOptions.js?v=6";
 
 const optionsWrapper = document.getElementById("options-wrapper");
+const optionsList = document.getElementById("options-list");
+const targetTextUi = document.getElementById("target-textui");
 const body = document.body;
 const eye = document.getElementById("eyeSvg");
 
 window.addEventListener("message", (event) => {
   switch (event.data.event) {
     case "visible": {
-      optionsWrapper.innerHTML = "";
+      optionsList.replaceChildren();
+      targetTextUi.textContent = "";
+      optionsWrapper.classList.remove("has-options");
       body.style.visibility = event.data.state ? "visible" : "hidden";
       return eye.classList.remove("eye-hover");
     }
 
     case "leftTarget": {
-      optionsWrapper.innerHTML = "";
+      optionsList.replaceChildren();
+      targetTextUi.textContent = "";
+      optionsWrapper.classList.remove("has-options");
       return eye.classList.remove("eye-hover");
     }
 
     case "setTarget": {
-      optionsWrapper.innerHTML = "";
+      optionsList.replaceChildren();
+      targetTextUi.textContent = "";
       eye.classList.add("eye-hover");
 
       if (event.data.options) {
@@ -36,6 +43,9 @@ window.addEventListener("message", (event) => {
           });
         }
       }
+
+      optionsWrapper.classList.toggle("has-options", optionsList.childElementCount > 0);
+      targetTextUi.textContent = optionsList.firstElementChild?.dataset.label || "";
     }
   }
 });

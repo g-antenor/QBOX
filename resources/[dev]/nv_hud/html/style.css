@@ -29,6 +29,16 @@ html,body{
 .stage{ position:fixed; inset:0; display:none; }
 .stage.shown{ display:block; }
 
+.organization-name{
+  position:fixed; top:18px; right:22px; z-index:6; display:none;
+  max-width:320px; color:#fff; font-size:13px; font-weight:700;
+  text-align:right; text-shadow:0 1px 3px #000,0 0 8px rgba(0,0,0,.9);
+  pointer-events:none;
+}
+.organization-name.visible{display:block}
+.organization-name.on-duty{color:#ff2438}
+.stage.paused .organization-name{display:none}
+
 .stage::before{
   content:""; position:absolute; inset:0; pointer-events:none;
   background-image: radial-gradient(rgba(255,255,255,.06) 1px, transparent 1px);

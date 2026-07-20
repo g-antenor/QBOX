@@ -164,6 +164,18 @@ local function toggleEngine(desired)
 
     if Garage.busy then return end
 
+    if desired then
+        local state = Entity(vehicle).state
+        local model = GetDisplayNameFromVehicleModel(GetEntityModel(vehicle)):lower()
+        local keyless = Config.Ignition.noKeyModels[model] == true
+
+        -- A verificacao local acontece antes da barra. O servidor continua
+        -- validando de verdade depois, mas apertar a tecla sem chave fica mudo.
+        if not keyless and not state.nvHotwired and not Garage.hasKey(Garage.plateOf(vehicle)) then
+            return Garage.hotwire and Garage.hotwire('cutters')
+        end
+    end
+
     local netId = VehToNet(vehicle)
 
     -- Partida: pequena espera para o motor "pegar". Desligar e instantaneo.
@@ -310,6 +322,16 @@ local function hotwire(tool)
 
     local success = exports.nv_minigames:Start(Config.Hotwire.minigame)
 
+    -- O alarme so pode reagir depois que a task/minigame terminou.
+    local jammed = lib.callback.await('nv_garage:isBlocked', false, netId) == true
+    local alertChance = jammed and Config.Hotwire.jammedAlertChance or Config.Hotwire.alertChance
+    local alarmTriggered = math.random(100) <= alertChance
+
+    if alarmTriggered then
+        Garage.triggerTheftAlarm(vehicle, jammed and nil or Config.Hotwire.alertEvent,
+            'Tentativa de ligação direta')
+    end
+
     Garage.busy = false
 
     if not success then
@@ -322,10 +344,6 @@ local function hotwire(tool)
         -- Falhar com o lockpick gasta a ferramenta, igual ao arrombamento.
         if tool == 'lockpick' then
             TriggerServerEvent('nv_garage:lockpickWear', 'fail')
-        end
-
-        if Config.Hotwire.alertEvent and math.random(100) <= Config.Hotwire.alertChance then
-            TriggerServerEvent(Config.Hotwire.alertEvent, GetEntityCoords(cache.ped))
         end
 
         return
@@ -342,6 +360,13 @@ local function hotwire(tool)
     SetVehicleEngineOn(vehicle, true, true, true)
     Garage.setPendingEngine(vehicle, true)
     Garage.authorizeEngine(vehicle, true)
+
+    if jammed then
+        if alarmTriggered then Garage.stopTheftAlarm(vehicle) end
+        TriggerServerEvent('nv_garage:blockerSignalLost', GetEntityCoords(vehicle), {
+            plate = Garage.plateOf(vehicle)
+        })
+    end
 
     -- O texto avisa que a ligacao nao persiste. Dizer "liga sem chave agora",
     -- como dizia antes, era uma promessa que o servidor nao cumpre mais:

@@ -30,5 +30,5 @@ files {
 dependencies {
     'ox_lib',
     'ox_core',
-    'ox_inventory'
+    'oxmysql'
 }

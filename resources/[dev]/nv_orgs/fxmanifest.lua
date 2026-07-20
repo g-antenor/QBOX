@@ -33,7 +33,8 @@ server_scripts {
     'server/members.lua',
     'server/resources.lua',
     'server/garage.lua',
-    'server/wardrobe.lua'
+    'server/wardrobe.lua',
+    'server/dealership.lua'
 }
 
 ui_page 'html/index.html'

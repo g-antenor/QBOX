@@ -1,13 +1,16 @@
 <html>
   <head>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" />
-    <link href="style.css?v=3" rel="stylesheet" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="style.css?v=6" rel="stylesheet" type="text/css" />
   </head>
   <body>
     <div id="eye">
       <div id="eyeSvg" class="crosshair-dot"></div>
     </div>
-    <div id="options-wrapper"></div>
-    <script defer type="module" src="js/main.js"></script>
+    <div id="options-wrapper" aria-label="Interacoes disponiveis">
+      <div id="options-list"></div>
+      <div id="target-textui" role="status"></div>
+    </div>
+    <script defer type="module" src="js/main.js?v=6"></script>
   </body>
 </html>

@@ -20,7 +20,7 @@ Config.Keybinds = {
     -- Ligar tira a chave do inventario: ela fica na ignicao. Desligar devolve
     -- a chave a QUEM DESLIGOU -- e por isso que entrar num carro ligado e
     -- desliga-lo e uma forma legitima de ficar com ele.
-    ignition = 'Z',
+    ignition = 'G',
     -- Fora do veiculo: tranca/destranca o mais proximo com chave.
     -- Dentro: abre o painel de controle.
     lock     = 'L',
@@ -83,11 +83,34 @@ Config.Hotwire = {
         -- Tempo (ms) que o jogador fica no chao levando o choque.
         ragdoll = 1200,
     },
-    -- Falhar a ligacao direta chama a policia. Quem atende e o nv_dispatch, que
-    -- so notifica se estiver ligado no config dele.
-    alertEvent  = 'nv_dispatch:carTheft',
-    -- Chance (0-100) de o alerta disparar quando falha.
-    alertChance = 40
+    -- Iniciar a tentativa pode disparar alarme e chamar a policia. Quem atende
+    -- e o nv_dispatch, que respeita o bloqueador de sinal.
+    alertEvent  = 'nv_garage:dispatchTheft',
+    -- Chance (0-100) ao tentar ligar o veiculo sem chave.
+    alertChance = 60,
+    -- Com bloqueador ativo o alarme fisico ainda pode denunciar a tentativa,
+    -- mas o rastreamento exato so vira perda de sinal quando o motor ligar.
+    jammedAlertChance = 40
+}
+
+-- O alarme e o marcador policial compartilham a mesma janela. Se a sirene for
+-- interrompida antes, o nv_garage avisa o dispatch para retirar o marcador.
+Config.Alarm = {
+    duration = 60
+}
+
+Config.Blocker = {
+    item = 'bloqueador_sinal',
+    cutter = 'alicate',
+    minigame = 'instalar_bloqueador',
+    useTime = 4000,
+    blur = 150.0,
+    cutterWear = {
+        installFail = 20,
+        removeFail = 20,
+        removeSuccess = 10
+    },
+    signalWear = 25
 }
 
 -- ============================================================================
@@ -181,15 +204,14 @@ Config.Lockpick = {
     -- apenas balancando.
     moveSpeed = 1.0,
 
-    -- Falhar o arrombamento dispara o alarme do carro E o chamado a policia --
-    -- os dois no mesmo sorteio (ver locks.lua). Passar sem que nada disso
-    -- aconteca e o resultado de `100 - alertChance`.
+    -- Iniciar o arrombamento pode disparar o alarme do carro E o chamado a
+    -- policia, independentemente do resultado final do minigame.
     --
     -- Quem responde por este evento e o nv_dispatch, e ele so notifica de
     -- verdade se `Config.Enabled` estiver ligado la. Deixar preenchido aqui com
     -- o dispatch desligado nao alerta ninguem.
-    alertEvent  = 'nv_dispatch:carTheft',
-    alertChance = 50
+    alertEvent  = 'nv_garage:dispatchTheft',
+    alertChance = 30
 }
 
 --[[
@@ -513,6 +535,10 @@ Config.Impound = {
     -- Acrescimo unico para veiculo que chegou destruido (explodiu). E o
     -- conserto, nao o guincho, por isso e bem maior que a diaria.
     destroyedFee = 700,
+
+    -- Guincho adicional quando o carro estava na rua e foi recolhido ao
+    -- desaparecer ou durante o restart.
+    disappearedFee = 300,
 
     -- Item usado como dinheiro no ox_inventory. A taxa sai do dinheiro EM
     -- MAOS: nada de debitar conta bancaria.

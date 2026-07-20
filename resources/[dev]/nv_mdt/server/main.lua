@@ -378,20 +378,15 @@ end
 function Mdt.onlineMembers(set)
     local result = {}
 
-    local ok, players = pcall(function() return Ox.GetPlayers({ groups = set }) end)
+    local all = Ox.GetPlayers() or {}
+    local players = {}
 
-    -- Nem toda versao do ox_core aceita filtro por grupo em `GetPlayers`; se
-    -- recusar, cai para a lista completa e filtra na mao.
-    if not ok or type(players) ~= 'table' then
-        local all = Ox.GetPlayers() or {}
+    -- Algumas versoes aceitam filtro em GetPlayers e outras apenas retornam
+    -- uma lista vazia. Filtrar aqui mantem dashboard e Live Map consistentes.
+    for i = 1, #all do
+        local got, grade = pcall(function() return all[i].getGroup(set) end)
 
-        players = {}
-
-        for i = 1, #all do
-            local got, grade = pcall(function() return all[i].getGroup(set) end)
-
-            if got and grade then players[#players + 1] = all[i] end
-        end
+        if got and grade then players[#players + 1] = all[i] end
     end
 
     for i = 1, #players do
@@ -445,6 +440,13 @@ lib.callback.register('nv_mdt:open', function(source)
                 reportTypes = Config.Police.reportTypes,
                 periods     = Config.ReportPeriods,
                 documents   = Config.Police.documents,
+                cameras     = (function()
+                    local rows = {}
+                    for i = 1, #(Config.Police.cameras or {}) do
+                        rows[i] = { id = Config.Police.cameras[i].id, label = Config.Police.cameras[i].label }
+                    end
+                    return rows
+                end)(),
                 invoices    = {
                     dailyRate = Config.Invoices.dailyRate,
                     maxDays   = Config.Invoices.maxDays

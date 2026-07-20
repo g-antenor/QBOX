@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Concessionária — Redesign</title>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#09090a;
+  --panel:#111214;
+  --panel-2:#15171a;
+  --panel-3:#0d0e10;
+  --edge:#26282d;
+  --edge-soft:#1d2024;
+  --text:#ececec;
+  --text-dim:#92969e;
+  --text-faint:#5f646c;
+  --red:#d61f3a;
+  --red-hover:#f02e4e;
+  --red-soft:rgba(214,31,58,.09);
+  --red-glow:rgba(214,31,58,.18);
+  --shadow:0 18px 42px rgba(0,0,0,.42);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{
+  overflow:hidden;color:var(--text);background:var(--bg);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  user-select:none;
+}
+button,input,select{font:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-visible{
+  outline:2px solid var(--red);outline-offset:2px
+}
+.app{
+  display:grid;grid-template-columns:220px 1fr 360px;height:100%;
+  background:
+    radial-gradient(circle at 48% 10%,rgba(214,31,58,.03),transparent 30%),
+    linear-gradient(180deg,#0b0c0e,#07080a);
+}
+.ui-icon{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+/* sidebar */
+.sidebar{
+  overflow-y:auto;border-right:1px solid var(--edge-soft);
+  background:rgba(12,13,15,.97);
+}
+.brand{padding:20px 16px 4px;font-size:14px;font-weight:750;letter-spacing:-.01em}
+.subtitle{padding:0 16px 16px;color:var(--text-faint);font-size:11px;line-height:1.45}
+.section-label{
+  padding:14px 16px 8px;color:var(--text-faint);
+  font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
+}
+.nav-item{
+  min-height:42px;display:flex;align-items:center;gap:10px;
+  margin:0 8px 5px;padding:9px 11px;border:1px solid transparent;border-radius:7px;
+  color:var(--text-dim);cursor:pointer;
+  transition:.12s ease;
+}
+.nav-item:hover{color:var(--text);background:var(--panel-2);border-color:var(--edge)}
+.nav-item.active{color:var(--text);background:var(--red-soft);border-color:rgba(214,31,58,.42)}
+.nav-icon{width:20px;height:20px;display:grid;place-items:center}
+.range-box{padding:0 16px 14px}
+.range-row{display:flex;justify-content:space-between;margin-bottom:7px;font-size:9px;color:var(--text-faint)}
+.range-input{width:100%;appearance:none;height:3px;border-radius:999px;background:#24272b}
+.range-input::-webkit-slider-thumb{appearance:none;width:13px;height:13px;border-radius:50%;background:var(--red);cursor:pointer}
+.range-input::-moz-range-thumb{width:13px;height:13px;border:0;border-radius:50%;background:var(--red);cursor:pointer}
+
+/* center */
+.stage{
+  overflow-y:auto;padding:22px 24px 30px;
+  background:
+    radial-gradient(circle at 50% 20%,rgba(255,255,255,.018),transparent 36%),
+    linear-gradient(180deg,#0c0d0f,#090a0c);
+}
+.stage-header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
+.stage-title{font-size:15px;font-weight:650}
+.stage-subtitle{margin-top:3px;font-size:10px;color:var(--text-faint)}
+.controls{display:flex;gap:8px}
+.search-wrap{position:relative;width:240px}
+.search-icon{position:absolute;left:10px;top:50%;width:16px;height:16px;transform:translateY(-50%);color:var(--text-faint)}
+.search-input,.sort-select{
+  min-height:38px;border:1px solid var(--edge);border-radius:7px;
+  background:var(--panel-3);color:var(--text);font-size:11px;
+}
+.search-input{width:100%;padding:8px 10px 8px 34px}
+.sort-select{padding:8px 30px 8px 10px}
+.search-input:focus,.sort-select:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
+.vehicle-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.vehicle-card{
+  position:relative;overflow:hidden;border:1px solid var(--edge-soft);border-radius:10px;
+  background:rgba(17,18,20,.95);cursor:pointer;
+  transition:transform .12s ease,border-color .12s ease,box-shadow .12s ease,background .12s ease;
+}
+.vehicle-card:hover{transform:translateY(-2px);border-color:var(--red);box-shadow:0 12px 26px rgba(0,0,0,.25),0 0 18px var(--red-glow)}
+.vehicle-card.selected{border-color:var(--red);background:var(--red-soft)}
+.vehicle-preview{
+  position:relative;height:120px;display:grid;place-items:center;
+  background:
+    radial-gradient(circle at 50% 55%,rgba(214,31,58,.08),transparent 46%),
+    linear-gradient(180deg,#15171a,#0f1012);
+  border-bottom:1px solid var(--edge-soft);
+}
+.vehicle-preview::after{
+  content:"";position:absolute;left:18%;right:18%;bottom:17px;height:8px;
+  border-radius:50%;background:rgba(0,0,0,.45);filter:blur(5px);
+}
+.vehicle-svg{width:155px;height:75px;position:relative;z-index:1;color:#d7dade}
+.vehicle-badge{
+  position:absolute;left:9px;top:9px;padding:4px 7px;border:1px solid var(--edge);
+  border-radius:999px;background:rgba(10,11,13,.8);font-size:8px;color:var(--text-faint)
+}
+.vehicle-body{padding:12px}
+.vehicle-name{font-size:12px;font-weight:650}
+.vehicle-brand{margin-top:2px;font-size:9px;color:var(--text-faint)}
+.vehicle-meta{display:flex;justify-content:space-between;gap:8px;margin-top:10px}
+.meta-item{font-size:8px;color:var(--text-faint)}
+.meta-item strong{display:block;margin-top:2px;color:var(--text-dim);font-size:10px;font-weight:600}
+.vehicle-price{margin-top:11px;color:var(--red-hover);font:700 13px ui-monospace,Consolas,monospace}
+.empty{grid-column:1/-1;padding:40px 0;text-align:center;color:var(--text-faint);font-size:11px}
+
+/* detail panel */
+.detail-panel{
+  overflow-y:auto;padding:18px 16px 22px;border-left:1px solid var(--edge-soft);
+  background:rgba(12,13,15,.97);
+}
+.detail-card{
+  overflow:hidden;border:1px solid var(--edge);border-radius:10px;
+  background:#101113;box-shadow:var(--shadow)
+}
+.detail-hero{
+  position:relative;height:190px;display:grid;place-items:center;
+  background:
+    radial-gradient(circle at 50% 55%,rgba(214,31,58,.1),transparent 46%),
+    linear-gradient(180deg,#181a1d,#0d0e10);
+  border-bottom:1px solid var(--edge);
+}
+.detail-hero::after{
+  content:"";position:absolute;left:20%;right:20%;bottom:24px;height:10px;
+  border-radius:50%;background:rgba(0,0,0,.48);filter:blur(6px)
+}
+.detail-car-svg{width:245px;height:115px;position:relative;z-index:1;color:#e1e3e5}
+.detail-content{padding:15px}
+.detail-name{font-size:16px;font-weight:700}
+.detail-brand{margin-top:3px;font-size:10px;color:var(--text-faint)}
+.detail-price{margin-top:12px;color:var(--red-hover);font:700 18px ui-monospace,Consolas,monospace}
+.spec-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px}
+.spec-box{padding:9px;border:1px solid var(--edge-soft);border-radius:7px;background:#0d0e10}
+.spec-label{font-size:8px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-faint)}
+.spec-value{margin-top:4px;font-size:11px;font-weight:600}
+.divider{height:1px;background:var(--edge-soft);margin:14px 0}
+.field-label{margin-bottom:7px;font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint)}
+.color-row{display:flex;gap:8px}
+.color-btn{
+  width:30px;height:30px;border:2px solid transparent;border-radius:50%;cursor:pointer;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)
+}
+.color-btn.active{border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
+.payment-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.payment-seg button{
+  min-height:34px;border:1px solid var(--edge);border-radius:6px;background:#111214;
+  color:var(--text-dim);font-size:9px;text-transform:uppercase;cursor:pointer
+}
+.payment-seg button.active{color:var(--text);border-color:var(--red);background:var(--red-soft)}
+.financing{margin-top:12px}
+.installments{width:100%;min-height:36px;padding:8px;border:1px solid var(--edge);border-radius:6px;background:#0f1012;color:var(--text);font-size:11px}
+.action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.btn{
+  min-height:38px;border:1px solid var(--edge);border-radius:7px;background:#111214;
+  color:var(--text-dim);font-size:10px;font-weight:650;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;
+  transition:.12s ease;
+}
+.btn:hover{color:var(--text);border-color:var(--red);background:var(--red-soft)}
+.btn.primary{color:white;border-color:var(--red);background:var(--red)}
+.btn.primary:hover{background:var(--red-hover);border-color:var(--red-hover)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.status-msg{min-height:15px;margin-top:10px;text-align:center;font-size:9px;color:var(--text-faint)}
+.status-msg.ok{color:var(--red-hover)}
+
+@media(max-width:1050px){
+  .app{grid-template-columns:190px 1fr}
+  .detail-panel{position:fixed;right:0;top:0;bottom:0;width:350px;z-index:20;box-shadow:-20px 0 40px rgba(0,0,0,.3)}
+  .stage{padding-right:375px}
+}
+@media(max-width:760px){
+  .app{display:block}
+  .sidebar{display:none}
+  .stage{height:100%;padding:18px 18px 520px}
+  .detail-panel{top:auto;left:0;width:100%;height:500px;border-left:0;border-top:1px solid var(--edge-soft)}
+  .stage-header{align-items:flex-start;flex-direction:column}
+  .controls{width:100%;flex-direction:column}
+  .search-wrap{width:100%}
+}
+</style>
+</head>
+<body>
+
+<svg aria-hidden="true" width="0" height="0" style="position:absolute;overflow:hidden">
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></symbol>
+  <symbol id="i-all" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-sedan" viewBox="0 0 24 24"><path d="M4 15V11l3-4h10l3 4v4M6 15h12M7 15v3M17 15v3"/><circle cx="7" cy="15" r="2"/><circle cx="17" cy="15" r="2"/></symbol>
+  <symbol id="i-suv" viewBox="0 0 24 24"><path d="M3 15V9l3-4h11l4 5v5M5 15h14M6 15v3M18 15v3"/><circle cx="6" cy="15" r="2"/><circle cx="18" cy="15" r="2"/></symbol>
+  <symbol id="i-sport" viewBox="0 0 24 24"><path d="M3 15l2-5 5-3h7l4 5v3M5 15h14"/><circle cx="7" cy="15" r="2"/><circle cx="17" cy="15" r="2"/></symbol>
+  <symbol id="i-moto" viewBox="0 0 24 24"><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M8 17l4-7h4l2 7M10 13H6l-2 4M12 10l-2-3h3"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24"><path d="M3 6h11v10H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="17" r="2"/><circle cx="18" cy="17" r="2"/></symbol>
+  <symbol id="car-shape" viewBox="0 0 220 100">
+    <path d="M18 65 30 42l32-12h83l27 15 25 8 8 12v13H18z"/>
+    <path d="M61 31 77 14h57l27 28H45z"/>
+    <path d="M82 18h23v22H66zM111 18h20l21 22h-41z"/>
+    <circle cx="60" cy="74" r="14"/><circle cx="166" cy="74" r="14"/>
+    <circle cx="60" cy="74" r="7"/><circle cx="166" cy="74" r="7"/>
+    <path d="M30 58h20M176 58h18M98 45h20"/>
+  </symbol>
+</svg>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">Prime Motors</div>
+    <div class="subtitle">Escolha seu próximo veículo e configure os detalhes da compra.</div>
+    <div class="section-label">Categorias</div>
+    <div id="categoryList"></div>
+
+    <div class="section-label">Preço máximo</div>
+    <div class="range-box">
+      <div class="range-row"><span>Limite</span><strong id="priceLabel">R$ 500.000</strong></div>
+      <input class="range-input" id="priceRange" type="range" min="50000" max="500000" step="10000" value="500000">
+    </div>
+  </aside>
+
+  <main class="stage">
+    <div class="stage-header">
+      <div>
+        <div class="stage-title" id="stageTitle">Todos os veículos</div>
+        <div class="stage-subtitle" id="resultCount">0 veículos encontrados</div>
+      </div>
+      <div class="controls">
+        <div class="search-wrap">
+          <svg class="ui-icon search-icon"><use href="#i-search"></use></svg>
+          <input class="search-input" id="searchInput" placeholder="Buscar veículo...">
+        </div>
+        <select class="sort-select" id="sortSelect">
+          <option value="featured">Destaques</option>
+          <option value="price-asc">Menor preço</option>
+          <option value="price-desc">Maior preço</option>
+          <option value="power">Maior potência</option>
+        </select>
+      </div>
+    </div>
+    <div class="vehicle-grid" id="vehicleGrid"></div>
+  </main>
+
+  <aside class="detail-panel">
+    <div class="detail-card">
+      <div class="detail-hero">
+        <svg class="ui-icon detail-car-svg" id="detailCar"><use href="#car-shape"></use></svg>
+      </div>
+      <div class="detail-content">
+        <div class="detail-name" id="detailName">Selecione um veículo</div>
+        <div class="detail-brand" id="detailBrand">Veja os detalhes completos aqui</div>
+        <div class="detail-price" id="detailPrice">R$ 0</div>
+
+        <div class="spec-grid">
+          <div class="spec-box"><div class="spec-label">Potência</div><div class="spec-value" id="specPower">—</div></div>
+          <div class="spec-box"><div class="spec-label">Velocidade</div><div class="spec-value" id="specSpeed">—</div></div>
+          <div class="spec-box"><div class="spec-label">Tração</div><div class="spec-value" id="specDrive">—</div></div>
+          <div class="spec-box"><div class="spec-label">Portas</div><div class="spec-value" id="specDoors">—</div></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="field-label">Cor do veículo</div>
+        <div class="color-row" id="colorRow"></div>
+
+        <div class="divider"></div>
+
+        <div class="field-label">Forma de pagamento</div>
+        <div class="payment-seg" id="paymentSeg">
+          <button class="active" data-pay="avista">À vista</button>
+          <button data-pay="financiado">Financiado</button>
+          <button data-pay="troca">Troca</button>
+        </div>
+
+        <div class="financing hidden" id="financingBox">
+          <select class="installments" id="installments">
+            <option value="12">12x</option>
+            <option value="24">24x</option>
+            <option value="36">36x</option>
+            <option value="48">48x</option>
+          </select>
+        </div>
+
+        <div class="action-row">
+          <button class="btn" id="testDriveBtn" disabled>Test-drive</button>
+          <button class="btn primary" id="buyBtn" disabled>Comprar</button>
+        </div>
+        <div class="status-msg" id="statusMsg"></div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+const CATEGORIES = [
+  {id:'todos',label:'Todos',icon:'i-all'},
+  {id:'sedan',label:'Sedans',icon:'i-sedan'},
+  {id:'suv',label:'SUVs',icon:'i-suv'},
+  {id:'sport',label:'Esportivos',icon:'i-sport'},
+  {id:'moto',label:'Motos',icon:'i-moto'},
+  {id:'utilitario',label:'Utilitários',icon:'i-truck'},
+];
+
+const VEHICLES = [
+  {id:1,name:'Aster S',brand:'Obey',category:'sedan',price:145000,power:280,speed:240,drive:'RWD',doors:4,badge:'Novo'},
+  {id:2,name:'Komoda RS',brand:'Lampadati',category:'sedan',price:185000,power:340,speed:265,drive:'AWD',doors:4,badge:'Destaque'},
+  {id:3,name:'Rebla X',brand:'Übermacht',category:'suv',price:210000,power:360,speed:245,drive:'AWD',doors:4,badge:'Premium'},
+  {id:4,name:'Toros',brand:'Pegassi',category:'suv',price:265000,power:410,speed:260,drive:'AWD',doors:4,badge:'Luxo'},
+  {id:5,name:'Itali GTO',brand:'Grotti',category:'sport',price:390000,power:620,speed:330,drive:'RWD',doors:2,badge:'Exclusivo'},
+  {id:6,name:'Comet S2',brand:'Pfister',category:'sport',price:345000,power:580,speed:315,drive:'RWD',doors:2,badge:'Performance'},
+  {id:7,name:'Vortex R',brand:'Nagasaki',category:'moto',price:95000,power:190,speed:285,drive:'RWD',doors:0,badge:'Ágil'},
+  {id:8,name:'Shinobi',brand:'Nagasaki',category:'moto',price:125000,power:215,speed:305,drive:'RWD',doors:0,badge:'Sport'},
+  {id:9,name:'Speedo Custom',brand:'Vapid',category:'utilitario',price:115000,power:240,speed:190,drive:'RWD',doors:4,badge:'Trabalho'},
+  {id:10,name:'Bison XL',brand:'Bravado',category:'utilitario',price:135000,power:290,speed:205,drive:'AWD',doors:4,badge:'Robusto'},
+];
+
+const COLORS = ['#d61f3a','#ececec','#111214','#2d5a8f','#8f8f92','#7c5a3d'];
+let activeCategory='todos';
+let searchTerm='';
+let maxPrice=500000;
+let selectedVehicle=null;
+let selectedColor=COLORS[0];
+let payment='avista';
+
+function fmt(v){return 'R$ '+v.toLocaleString('pt-BR')}
+
+function renderCategories(){
+  const box=document.getElementById('categoryList');
+  box.innerHTML='';
+  CATEGORIES.forEach(c=>{
+    const el=document.createElement('div');
+    el.className='nav-item'+(c.id===activeCategory?' active':'');
+    el.innerHTML=`<span class="nav-icon"><svg class="ui-icon"><use href="#${c.icon}"></use></svg></span><span>${c.label}</span>`;
+    el.onclick=()=>{activeCategory=c.id;renderCategories();renderVehicles()};
+    box.appendChild(el);
+  });
+}
+
+function filteredVehicles(){
+  let list=VEHICLES.filter(v=>{
+    const cat=activeCategory==='todos'||v.category===activeCategory;
+    const search=!searchTerm||(v.name+' '+v.brand).toLowerCase().includes(searchTerm);
+    return cat&&search&&v.price<=maxPrice;
+  });
+  const sort=document.getElementById('sortSelect').value;
+  if(sort==='price-asc') list.sort((a,b)=>a.price-b.price);
+  if(sort==='price-desc') list.sort((a,b)=>b.price-a.price);
+  if(sort==='power') list.sort((a,b)=>b.power-a.power);
+  return list;
+}
+
+function renderVehicles(){
+  const list=filteredVehicles();
+  const grid=document.getElementById('vehicleGrid');
+  const cat=CATEGORIES.find(c=>c.id===activeCategory);
+  document.getElementById('stageTitle').textContent=activeCategory==='todos'?'Todos os veículos':cat.label;
+  document.getElementById('resultCount').textContent=`${list.length} veículo${list.length===1?'':'s'} encontrado${list.length===1?'':'s'}`;
+  grid.innerHTML='';
+  if(!list.length){grid.innerHTML='<div class="empty">Nenhum veículo encontrado</div>';return}
+  list.forEach(v=>{
+    const card=document.createElement('div');
+    card.className='vehicle-card'+(selectedVehicle?.id===v.id?' selected':'');
+    card.innerHTML=`
+      <div class="vehicle-preview">
+        <span class="vehicle-badge">${v.badge}</span>
+        <svg class="ui-icon vehicle-svg"><use href="#car-shape"></use></svg>
+      </div>
+      <div class="vehicle-body">
+        <div class="vehicle-name">${v.name}</div>
+        <div class="vehicle-brand">${v.brand}</div>
+        <div class="vehicle-meta">
+          <div class="meta-item">POTÊNCIA<strong>${v.power} cv</strong></div>
+          <div class="meta-item">MÁXIMA<strong>${v.speed} km/h</strong></div>
+        </div>
+        <div class="vehicle-price">${fmt(v.price)}</div>
+      </div>`;
+    card.onclick=()=>selectVehicle(v);
+    grid.appendChild(card);
+  });
+}
+
+function selectVehicle(v){
+  selectedVehicle=v;
+  selectedColor=COLORS[0];
+  document.getElementById('detailName').textContent=v.name;
+  document.getElementById('detailBrand').textContent=v.brand+' • '+v.badge;
+  document.getElementById('detailPrice').textContent=fmt(v.price);
+  document.getElementById('specPower').textContent=v.power+' cv';
+  document.getElementById('specSpeed').textContent=v.speed+' km/h';
+  document.getElementById('specDrive').textContent=v.drive;
+  document.getElementById('specDoors').textContent=v.doors||'—';
+  document.getElementById('testDriveBtn').disabled=false;
+  document.getElementById('buyBtn').disabled=false;
+  document.getElementById('statusMsg').textContent='';
+  renderColors();
+  updateCarColor();
+  renderVehicles();
+}
+
+function renderColors(){
+  const row=document.getElementById('colorRow');
+  row.innerHTML='';
+  COLORS.forEach(color=>{
+    const btn=document.createElement('button');
+    btn.className='color-btn'+(color===selectedColor?' active':'');
+    btn.style.background=color;
+    btn.title=color;
+    btn.onclick=()=>{selectedColor=color;renderColors();updateCarColor()};
+    row.appendChild(btn);
+  });
+}
+
+function updateCarColor(){
+  document.querySelectorAll('#detailCar, .vehicle-card.selected .vehicle-svg').forEach(el=>el.style.color=selectedColor);
+}
+
+document.getElementById('searchInput').addEventListener('input',e=>{
+  searchTerm=e.target.value.trim().toLowerCase();renderVehicles()
+});
+document.getElementById('sortSelect').addEventListener('change',renderVehicles);
+document.getElementById('priceRange').addEventListener('input',e=>{
+  maxPrice=Number(e.target.value);
+  document.getElementById('priceLabel').textContent=fmt(maxPrice);
+  renderVehicles();
+});
+
+document.querySelectorAll('#paymentSeg button').forEach(btn=>{
+  btn.onclick=()=>{
+    document.querySelectorAll('#paymentSeg button').forEach(b=>b.classList.toggle('active',b===btn));
+    payment=btn.dataset.pay;
+    document.getElementById('financingBox').classList.toggle('hidden',payment!=='financiado');
+  };
+});
+
+document.getElementById('testDriveBtn').onclick=()=>{
+  if(!selectedVehicle)return;
+  const msg=document.getElementById('statusMsg');
+  msg.textContent=`Test-drive do ${selectedVehicle.name} iniciado`;
+  msg.className='status-msg ok';
+  setTimeout(()=>{msg.textContent='';msg.className='status-msg'},1800);
+};
+
+document.getElementById('buyBtn').onclick=()=>{
+  if(!selectedVehicle)return;
+  const msg=document.getElementById('statusMsg');
+  let suffix='';
+  if(payment==='financiado'){
+    const n=document.getElementById('installments').value;
+    suffix=` em ${n}x`;
+  }else if(payment==='troca'){
+    suffix=' com avaliação de troca';
+  }else{
+    suffix=' à vista';
+  }
+  msg.textContent=`Compra confirmada${suffix}`;
+  msg.className='status-msg ok';
+};
+
+renderCategories();
+renderVehicles();
+renderColors();
+</script>
+</body>
+</html>

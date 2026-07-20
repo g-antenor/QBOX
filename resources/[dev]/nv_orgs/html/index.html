@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>nv_orgs</title>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="style.css?v=3" />
+    <style>html,body{background-color:transparent!important;background-image:none!important}</style>
   </head>
   <body>
     <div id="tablet" class="tablet hidden">
@@ -12,7 +13,9 @@
 
         <header class="head">
           <div class="title">
-            <span class="dot"></span>
+            <span class="logo" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 20h16M6 20V8l6-4 6 4v12M9 20v-5h6v5M9 10h.01M15 10h.01"/></svg>
+            </span>
             <div>
               <h1>Organizacoes</h1>
               <p id="subtitle">Policia, hospital, jobs e gangs</p>
@@ -26,6 +29,7 @@
           <!-- ------------------------------------------------ lista ---- -->
           <aside class="side">
             <button id="new" class="btn primary block">+ Nova organizacao</button>
+            <div class="side-label">Organizacoes cadastradas</div>
             <div id="list" class="list"></div>
             <p id="listEmpty" class="empty hidden">Nenhuma organizacao criada.</p>
           </aside>
@@ -104,7 +108,7 @@
               <!-- ---------------------------------------- recursos ---- -->
               <div class="tab-body hidden" data-body="resources">
 
-                <div class="res">
+                <div class="res" id="doorsResource">
                   <div class="res-head">
                     <span>Fechaduras</span>
                     <div class="res-head-actions">
@@ -120,7 +124,7 @@
                   <p id="doorsEmpty" class="empty hidden">Nenhuma fechadura criada.</p>
                 </div>
 
-                <div class="res">
+                <div class="res" id="garageResource">
                   <div class="res-head">
                     <span>Estacionamento</span>
                     <button id="placePed" class="btn small">Atendente</button>
@@ -147,7 +151,21 @@
                   <p id="fleetEmpty" class="empty hidden">Nenhum veiculo na frota.</p>
                 </div>
 
-                <div class="res">
+                <div class="res hidden" id="dealershipResource">
+                  <div class="res-head">
+                    <span>Concessionaria</span>
+                    <div><button id="buyDealershipTablet" class="btn small">Tablet $100</button> <button id="setDealershipCategories" class="btn small">+ Categoria</button></div>
+                  </div>
+                  <div class="res-head" style="margin-top:6px;"><span>Categorias de compra</span></div>
+                  <div id="dealershipCategories" class="res-list"></div>
+                  <p id="dealershipCategoriesEmpty" class="empty hidden">Nenhuma categoria habilitada para novas compras.</p>
+                  <div class="res-head" style="margin-top:6px;"><span>Pontos de spawn e interacao</span><div><button id="setDealershipBlip" class="btn small">Blip do local</button> <button id="setDealershipPoint" class="btn small">+ Configurar ponto</button></div></div>
+                  <p class="res-note">Escolha o ponto, mire no local e confirme a previa de posicao e direcao.</p>
+                  <div id="dealershipPoints" class="res-list"></div>
+                  <p id="dealershipEmpty" class="empty">Nenhum ponto configurado.</p>
+                </div>
+
+                <div class="res" id="wardrobeResource">
                   <div class="res-head">
                     <span>Vestiario</span>
                     <button id="addWardrobe" class="btn small">+ Marcar pontos</button>
@@ -168,7 +186,7 @@
                   <p id="outfitsEmpty" class="empty hidden">Nenhum uniforme salvo.</p>
                 </div>
 
-                <div class="res">
+                <div class="res" id="contactResource">
                   <div class="res-head">
                     <span>Contato</span>
                     <button id="newContact" class="btn small">+ Gerar numero</button>
@@ -181,7 +199,7 @@
                   <p id="contactsEmpty" class="empty hidden">Nenhum numero gerado.</p>
                 </div>
 
-                <div class="res">
+                <div class="res" id="stashResource">
                   <div class="res-head">
                     <span>Baus</span>
                     <button id="addStash" class="btn small">+ Adicionar bau</button>

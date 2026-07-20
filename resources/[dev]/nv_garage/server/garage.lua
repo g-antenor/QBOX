@@ -370,6 +370,7 @@ lib.callback.register('nv_garage:takeOut', function(source, garageName, dbId, sp
 
     -- O dono recebe a chave. `giveKey` nao duplica se ele ja tiver uma.
     Server.giveKey(source, row.plate, displayName(row.model))
+    Server.markOut(row.vin)
 
     return true, nil, NetworkGetNetworkIdFromEntity(entity)
 end)
@@ -396,6 +397,10 @@ lib.callback.register('nv_garage:store', function(source, garageName, netId, pro
 
     if vehicle.owner ~= player.charId then
         return false, 'Este veiculo nao e seu.'
+    end
+
+    if exports.nv_garage:IsBlockerInstalled(netId) then
+        return false, 'Retire o bloqueador de sinal antes de guardar o veiculo.'
     end
 
     -- O jogador precisa estar no veiculo, ou ao lado dele.
@@ -449,6 +454,8 @@ lib.callback.register('nv_garage:store', function(source, garageName, netId, pro
     -- UPDATE -- o erro e um SQL com o objeto do veiculo inteiro no lugar do
     -- nome da garagem.
     vehicle.setStored(garageName, true)
+
+    if resolved.vin then Server.markStored(resolved.vin) end
 
     return true
 end)

@@ -15,6 +15,7 @@ const el = (id) => document.getElementById(id);
 const dom = {
   root: el('root'),
   deptTabs: el('deptTabs'),
+  deptSwitch: el('deptSwitch'),
   close: el('close'),
   sideTitle: el('sideTitle'),
   sideSub: el('sideSub'),
@@ -71,6 +72,31 @@ function make(tag, className, text) {
   return node;
 }
 
+function actionMenu(buttons) {
+  if (buttons.length === 1) return buttons[0];
+
+  const wrap = make('div', 'action-menu');
+  const toggle = make('button', 'icon-btn action-toggle', '⋯');
+  const list = make('div', 'action-menu-list');
+
+  toggle.title = 'Mais opções';
+  toggle.setAttribute('aria-label', 'Mais opções');
+  buttons.forEach((button) => {
+    button.classList.remove('small');
+    list.appendChild(button);
+  });
+  toggle.addEventListener('click', (event) => {
+    event.stopPropagation();
+    document.querySelectorAll('.action-menu.open').forEach((menu) => {
+      if (menu !== wrap) menu.classList.remove('open');
+    });
+    wrap.classList.toggle('open');
+  });
+  list.addEventListener('click', () => wrap.classList.remove('open'));
+  wrap.append(toggle, list);
+  return wrap;
+}
+
 function money(value) {
   return '$' + Number(value || 0).toLocaleString('pt-BR');
 }
@@ -92,6 +118,18 @@ const ICONS = {
   shield: 'M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3Z',
   cross: 'M10 2h4v6h6v4h-6v10h-4V12H4V8h6V2Z',
   wrench: 'M21 6a5 5 0 0 1-6.7 4.7l-7 7a2 2 0 1 1-2.8-2.9l7-7A5 5 0 0 1 18 3l-3 3 3 3 3-3Z',
+  dashboard: 'M3 3h8v8H3V3Zm10 0h8v5h-8V3Zm0 7h8v11h-8V10ZM3 13h8v8H3v-8Z',
+  report: 'M5 2h11l3 3v17H5V2Zm3 6h8v2H8V8Zm0 4h8v2H8v-2Zm0 4h5v2H8v-2Z',
+  search: 'M10 3a7 7 0 1 0 4.4 12.4L20 21l1-1-5.6-5.6A7 7 0 0 0 10 3Zm0 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10Z',
+  wanted: 'M12 2 2 20h20L12 2Zm-1 6h2v6h-2V8Zm0 8h2v2h-2v-2Z',
+  invoice: 'M5 2h14v20l-3-2-4 2-4-2-3 2V2Zm3 5h8v2H8V7Zm0 4h8v2H8v-2Zm0 4h5v2H8v-2Z',
+  weapon: 'M3 10h11l3-3h4v5h-5l-2 2h-3l-1 6H6l1-6H3v-4Z',
+  document: 'M6 2h9l4 4v16H6V2Zm8 2v4h4M9 12h6v2H9v-2Zm0 4h6v2H9v-2Z',
+  map: 'M3 5 9 2l6 3 6-3v17l-6 3-6-3-6 3V5Zm6-1v13l6 3V7L9 4Z',
+  team: 'M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm8-1a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM1 21v-2c0-3 3-5 7-5s7 2 7 5v2H1Zm14-7c4 0 8 2 8 5v2h-6v-2c0-2-1-3-2-5Z',
+  call: 'M20 15v4a2 2 0 0 1-2 2C9 20 4 15 3 6a2 2 0 0 1 2-2h4l1 5-3 2c1 3 3 5 6 6l2-3 5 1Z',
+  history: 'M12 3a9 9 0 1 1-8.5 6H1l3-4 4 4H5.5A7 7 0 1 0 12 5v5l4 3-1 2-5-4V3h2Z',
+  camera: 'M3 6h4l2-3h6l2 3h4v15H3V6Zm9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z',
   user: 'M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5 0-9 2.5-9 5.5V22h18v-2.5C21 16.5 17 14 12 14Z',
   car: 'M5 11l1.5-4.5A2 2 0 0 1 8.4 5h7.2a2 2 0 0 1 1.9 1.5L19 11h1a1 1 0 0 1 1 1v5h-3v2h-3v-2H9v2H6v-2H3v-5a1 1 0 0 1 1-1h1Zm2.2-.5h9.6l-1-3H8.2l-1 3ZM6.5 15a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4Zm11 0a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4Z'
 };
@@ -247,6 +285,7 @@ const POLICE_NAV = [
   { id: 'armas', label: 'Porte de arma' },
   { id: 'documentos', label: 'Documentos' },
   { id: 'mapa', label: 'Live Map' },
+  { id: 'cameras', label: 'Câmeras' },
   { id: 'comandos', label: 'Efetivo' }
 ];
 
@@ -719,7 +758,7 @@ async function showCitizen(area, charId, tab) {
     if (result && result.ok) showCitizen(area, charId, state.ctx.citizenTab);
   });
 
-  actions.append(fineBtn, arrestBtn, cnhBtn);
+  actions.appendChild(actionMenu([fineBtn, arrestBtn, cnhBtn]));
   box.appendChild(actions);
   area.appendChild(box);
 
@@ -931,7 +970,7 @@ function drawInvoices(content, area, c) {
     if (result && result.ok) showCitizen(area, c.charId, 'faturas');
   });
 
-  row.append(chargeAll, chargeSome);
+  row.appendChild(actionMenu([chargeAll, chargeSome]));
   box.appendChild(row);
   content.appendChild(box);
 }
@@ -1155,7 +1194,7 @@ async function policeProcurados(stage) {
         if (result && result.ok) go('procurados');
       });
 
-      head.append(view, remove);
+      head.appendChild(actionMenu([view, remove]));
       list.appendChild(item);
     });
   }
@@ -1248,6 +1287,19 @@ function drawVehicle(area, v, refresh) {
     ['VIN', v.vin || '—']
   ]));
 
+  const vehicleActions = [];
+  const track = make('button', 'btn small', 'Rastrear veículo');
+
+  track.addEventListener('click', async () => {
+    const result = await post('trackVehicle', { plate: v.plate });
+
+    if (!result || !result.ok) {
+      info.appendChild(make('div', 'empty-note',
+        result?.error || 'Não foi possível iniciar o rastreamento.'));
+    }
+  });
+  vehicleActions.push(track);
+
   if (v.ownerId) {
     const owner = make('button', 'btn small', 'Abrir ficha do proprietário');
 
@@ -1257,8 +1309,10 @@ function drawVehicle(area, v, refresh) {
       go('cidadao');
     });
 
-    info.appendChild(owner);
+    vehicleActions.push(owner);
   }
+
+  info.appendChild(actionMenu(vehicleActions));
 
   area.appendChild(info);
 
@@ -1390,7 +1444,7 @@ async function policeFaturas(stage) {
         if (result && result.ok) go('faturas');
       });
 
-      head.append(open, charge);
+      head.appendChild(actionMenu([open, charge]));
       list.appendChild(item);
     });
 
@@ -1484,7 +1538,12 @@ async function policeComandos(stage) {
 // ------------------------------------------------------------- live map --
 
 async function policeMapa(stage) {
-  stage.appendChild(make('div', 'page-title', 'Live Map'));
+  const toolbar = make('div', 'toolbar');
+  toolbar.appendChild(make('div', 'page-title', 'Live Map'));
+  const refresh = make('button', 'btn small', 'Atualizar');
+  refresh.addEventListener('click', () => go('mapa'));
+  toolbar.appendChild(refresh);
+  stage.appendChild(toolbar);
 
   const data = await call('nv_mdt:dashboard', 'police');
   const bounds = await post('mapBounds');
@@ -1492,31 +1551,8 @@ async function policeMapa(stage) {
   const map = make('div', 'map');
   const detail = make('div', 'map-detail');
 
-  /* Grade de referência. O mapa real do jogo é textura streamada (.ytd) e a NUI
-     não consegue carregá-la — ver a nota no rodapé. A grade não substitui o
-     mapa, mas dá noção de quadrante, que é o que separa "está no norte" de
-     "está no centro". */
-  for (let i = 1; i < 6; i += 1) {
-    const vertical = make('div', 'map-grid v');
-    const horizontal = make('div', 'map-grid h');
-
-    vertical.style.left = `${(i / 6) * 100}%`;
-    horizontal.style.top = `${(i / 6) * 100}%`;
-    map.append(vertical, horizontal);
-  }
-
-  /* Se existir um map.png ao lado do index, ele entra por cima da grade. É um
-     teste de carregamento e não de existência: pedir o arquivo e ver se ele
-     chega é a única verificação que a NUI tem, e ela falha silenciosamente do
-     jeito certo — sem imagem, fica a grade. */
-  const probe = new Image();
-
-  probe.onload = () => {
-    map.classList.add('has-image');
-    map.style.backgroundImage = "url('map.png')";
-  };
-
-  probe.src = 'map.png';
+  map.classList.add('has-image');
+  map.style.backgroundImage = "url('assets/map.jpeg')";
 
   const online = (data && data.online) || [];
   const withCoords = online.filter((p) => p.coords);
@@ -1563,10 +1599,27 @@ async function policeMapa(stage) {
   wrap.append(map, detail);
   stage.appendChild(wrap);
 
-  stage.appendChild(make('div', 'muted',
-    'Posições aproximadas. Para usar a imagem real do mapa, coloque um PNG em '
-    + 'nv_mdt/html/map.png e declare-o no fxmanifest: a grade dá lugar a ele '
-    + 'automaticamente.'));
+  stage.appendChild(make('div', 'muted', 'Posições aproximadas do efetivo em serviço.'));
+}
+
+async function policeCameras(stage) {
+  stage.appendChild(make('div', 'page-title', 'Câmeras'));
+  const cameras = state.cfg.police.cameras || [];
+
+  if (cameras.length === 0) {
+    stage.appendChild(make('div', 'empty-note', 'Nenhuma câmera configurada.'));
+    return;
+  }
+
+  const grid = make('div', 'cam-grid');
+  cameras.forEach((camera) => {
+    const tile = make('button', 'cam-tile');
+    tile.appendChild(icon(ICONS.camera));
+    tile.appendChild(make('span', null, camera.label));
+    tile.addEventListener('click', () => post('viewCamera', { id: camera.id }));
+    grid.appendChild(tile);
+  });
+  stage.appendChild(grid);
 }
 
 // ============================================================= HOSPITAL ===
@@ -2259,6 +2312,7 @@ const ROUTES = {
       armas: policeArmas,
       documentos: policeDocumentos,
       mapa: policeMapa,
+      cameras: policeCameras,
       comandos: policeComandos
     }
   },
@@ -2284,13 +2338,21 @@ const ROUTES = {
   }
 };
 
+const NAV_ICONS = {
+  ocorrencias: 'report', cidadao: 'user', procurados: 'wanted', veiculos: 'car',
+  faturas: 'invoice', armas: 'weapon', documentos: 'document', comandos: 'team',
+  chamados: 'call', paciente: 'user', consulta: 'report', cameras: 'camera'
+};
+
 function renderNav() {
   const route = ROUTES[state.dept.id];
 
   dom.nav.replaceChildren();
 
   route.nav.forEach((item) => {
-    const node = make('div', 'nav-item', item.label);
+    const node = make('div', 'nav-item');
+    node.appendChild(icon(ICONS[item.icon || NAV_ICONS[item.id] || item.id] || ICONS.document));
+    node.appendChild(make('span', null, item.label));
 
     node.classList.toggle('active', item.id === state.page);
     node.addEventListener('click', () => go(item.id));
@@ -2323,11 +2385,13 @@ async function go(pageId) {
 
 function selectDept(tab) {
   state.dept = tab;
+  document.body.dataset.dept = tab.id;
   state.ctx = {};
 
   dom.deptTabs.querySelectorAll('.dept-tab').forEach((t) => {
     t.classList.toggle('active', t.dataset.id === tab.id);
   });
+  dom.deptTabs.classList.add('hidden');
 
   dom.sideTitle.textContent = `MDT — ${tab.label}`;
   dom.sideSub.textContent = tab.org || '';
@@ -2348,6 +2412,8 @@ function renderTabs() {
 
     dom.deptTabs.appendChild(node);
   });
+
+  dom.deptSwitch.classList.toggle('hidden', state.tabs.length < 2);
 }
 
 // ---------------------------------------------------------------- eventos --
@@ -2360,6 +2426,14 @@ function close() {
 }
 
 dom.close.addEventListener('click', close);
+dom.deptSwitch.addEventListener('click', (event) => {
+  event.stopPropagation();
+  dom.deptTabs.classList.toggle('hidden');
+});
+document.addEventListener('click', () => {
+  dom.deptTabs.classList.add('hidden');
+  document.querySelectorAll('.action-menu.open').forEach((menu) => menu.classList.remove('open'));
+});
 window.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
 
 window.addEventListener('message', (event) => {

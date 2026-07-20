@@ -44,7 +44,16 @@ Config.Subtypes = {
     state = {
         { value = 'police',   label = 'Policia' },
         { value = 'hospital', label = 'Hospital' },
-        { value = 'mecanica', label = 'Mecanica' }
+        { value = 'dealership', label = 'Concessionaria' }
+    },
+    job = {
+        { value = 'restaurant', label = 'Restaurante' },
+        { value = 'mechanic', label = 'Mecanica' },
+        { value = 'custom', label = 'Custom' }
+    },
+    gang = {
+        { value = 'drugs', label = 'Drogas' },
+        { value = 'weapons', label = 'Armas' }
     }
 }
 
@@ -77,6 +86,7 @@ Config.Actions = {
     -- ------------------------------------------------------- comuns --
     { value = 'hire',      label = 'Contratar e demitir' },
     { value = 'contacts',  label = 'Acesso a contatos' },
+    { value = 'bank',      label = 'Movimentar conta da organizacao' },
 
     -- ----------------------------------------- estatais e empregos --
     { value = 'vehicles',  label = 'Retirar veiculos da frota', styles = { 'state', 'job' } },
@@ -85,6 +95,7 @@ Config.Actions = {
 
     -- ------------------------------------------- so estatais --
     { value = 'duty',      label = 'Bater ponto (em servico)',  styles = { 'state' } },
+    { value = 'dealership', label = 'Gerenciar concessionaria', styles = { 'state' } },
 
     -- ------------------------------------------------ so gangs --
     { value = 'territory', label = 'Gerenciar territorio',      styles = { 'gang' } },
@@ -138,6 +149,51 @@ Config.Org = {
 
     -- Cor do grupo (usada pelo ox_core em blips/UI). nil = sem cor.
     colour = nil
+}
+
+-- Icones disponibilizados no seletor de blip. Os nomes ficam em PT-BR no
+-- painel; o id e o sprite nativo do GTA/FiveM.
+Config.DealershipBlips = {
+    { value = 225, label = 'Veiculo' },
+    { value = 326, label = 'Concessionaria' },
+    { value = 357, label = 'Garagem' },
+    { value = 523, label = 'Garagem de veiculos' },
+    { value = 1, label = 'Local padrao' },
+    { value = 280, label = 'Estrela' },
+    { value = 431, label = 'Oficina' },
+    { value = 446, label = 'Reparos automotivos' },
+    { value = 50, label = 'Loja' },
+    { value = 52, label = 'Loja de conveniencia' },
+    { value = 59, label = 'Armas' },
+    { value = 60, label = 'Policia' },
+    { value = 61, label = 'Hospital' },
+    { value = 71, label = 'Barbearia' },
+    { value = 73, label = 'Loja de roupas' },
+    { value = 76, label = 'Helicoptero' },
+    { value = 80, label = 'Heliporto' },
+    { value = 85, label = 'Bar' },
+    { value = 93, label = 'Boate' },
+    { value = 106, label = 'Taxi' },
+    { value = 108, label = 'Banco' },
+    { value = 110, label = 'Casa' },
+    { value = 121, label = 'Ponto de observacao' },
+    { value = 135, label = 'Cinema' },
+    { value = 136, label = 'Barco' },
+    { value = 162, label = 'Informacao' },
+    { value = 164, label = 'Objetivo' },
+    { value = 171, label = 'Ponto de interesse' },
+    { value = 205, label = 'Caminhao' },
+    { value = 226, label = 'Moto' },
+    { value = 227, label = 'Bicicleta' },
+    { value = 237, label = 'Combustivel' },
+    { value = 269, label = 'Deposito' },
+    { value = 318, label = 'Elevador' },
+    { value = 354, label = 'Chave' },
+    { value = 361, label = 'Posto de combustivel' },
+    { value = 374, label = 'Lavagem de veiculos' },
+    { value = 408, label = 'Corrida' },
+    { value = 478, label = 'Caminhao de carga' },
+    { value = 525, label = 'Armazem' }
 }
 
 -- ============================================================================
@@ -253,18 +309,18 @@ Config.Placement = {
     -- Alcance do raycast que posiciona baus e vestiarios olhando para o chao.
     aimRange = 12.0,
 
-    -- Duas portas marcadas a menos que isto uma da outra sao a MESMA fechadura
-    -- (porta dupla). Acima disso viram fechaduras separadas.
+    -- Distancia maxima entre as duas folhas da mesma fechadura. Uma segunda
+    -- porta acima deste limite e recusada para evitar pares incorretos.
     --
     -- 2.2 m cobre porta dupla de delegacia e de garagem sem juntar por engano
     -- duas portas de quartos vizinhos, que costumam ficar bem mais longe.
     doubleDistance = 2.2,
 
-    -- Marcador do ponto do bau.
+    -- Cor solida do editor de pontos.
     marker = {
-        type  = 27,
+        type  = 28,
         scale = vec3(0.9, 0.9, 0.9),
-        color = { r = 255, g = 36, b = 56, a = 140 }
+        color = { r = 42, g = 142, b = 255, a = 255 }
     }
 }
 

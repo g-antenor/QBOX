@@ -152,12 +152,18 @@ lib.callback.register('nv_mdt:police:chargeInvoices', function(source, charId, i
     -- ox_banking, que mexe na conta e nao no bolso.
     local charged = false
 
-    if GetResourceState('ox_banking') == 'started' then
+    local account = Ox.GetCharacterAccount(charId)
+
+    if account then
         local ok, result = pcall(function()
-            return exports.ox_banking:RemoveMoney(charId, total, 'Faturas — MDT')
+            return account:removeBalance({
+                amount = total,
+                overdraw = Config.Invoices.allowNegative == true,
+                message = 'Faturas - MDT'
+            })
         end)
 
-        charged = ok and result ~= false
+        charged = ok and type(result) == 'table' and result.success == true
     end
 
     -- Sem ox_banking (ou recusado por falta de saldo, quando o banco nao aceita

@@ -137,6 +137,82 @@ RegisterNUICallback('close', function(_, cb)
     cb(1)
 end)
 
+RegisterNUICallback('dealership', function(data, cb)
+    cb(lib.callback.await('nv_orgs:dealership', false, data.set))
+end)
+
+RegisterNUICallback('dealershipPoint', function(data, cb)
+    local options = {
+        { value = 'payment', label = 'Local de pagamento' },
+        { value = 'truckSpawn', label = 'Spawn do caminhao' },
+        { value = 'invoiceNpc', label = 'Retirada da NF / NPC' },
+        { value = 'trailerSpawn', label = 'Spawn do trailer' },
+        { value = 'unload', label = 'Ponto de entrega' },
+        { value = 'preview', label = 'Previa do veiculo' },
+        { value = 'saleSpawn', label = 'Spawn da compra' },
+        { value = 'testSpawn', label = 'Spawn do test-drive' }
+    }
+    local answer = lib.inputDialog('Configurar concessionaria', {{
+        type = 'select', label = 'Ponto que recebera sua posicao atual', options = options, required = true
+    }})
+    if not answer then return cb({ ok = false }) end
+    cb({ ok = true })
+    close()
+    Panel.placeDealershipPoint(data.set, answer[1], options)
+end)
+
+RegisterNUICallback('dealershipBlip', function(data, cb)
+    local options = {}
+    for i = 1, #(Config.DealershipBlips or {}) do
+        options[i] = { value = Config.DealershipBlips[i].value, label = Config.DealershipBlips[i].label }
+    end
+    local answer = lib.inputDialog('Blip da concessionaria', {
+        { type = 'select', label = 'Icone do mapa', options = options, searchable = true, required = true, default = 326 },
+        { type = 'input', label = 'Nome exibido no mapa', default = 'Concessionaria', max = 50, required = true },
+        { type = 'number', label = 'Raio da area operacional (metros)', default = 60, min = 10, max = 500, required = true }
+    })
+    if not answer then return cb({ ok = false }) end
+    local coords = GetEntityCoords(cache.ped)
+    local ok, err = lib.callback.await('nv_orgs:setDealershipBlip', false, data.set, {
+        x = coords.x, y = coords.y, z = coords.z,
+        sprite = answer[1], label = answer[2], radius = answer[3]
+    })
+    if not ok then notify(err or 'Nao foi possivel configurar o blip.', 'error') end
+    cb({ ok = ok == true })
+end)
+
+RegisterNUICallback('removeDealershipCategory', function(data, cb)
+    local ok, err = lib.callback.await('nv_orgs:removeDealershipCategory', false, data.set, data.category)
+    if not ok then notify(err or 'Nao foi possivel remover a categoria.', 'error') end
+    cb({ ok = ok == true })
+end)
+
+RegisterNUICallback('removeDealershipPoint', function(data, cb)
+    local ok, err = lib.callback.await('nv_orgs:removeDealershipPoint', false, data.set, data.point)
+    if not ok then notify(err or 'Nao foi possivel remover o ponto.', 'error') end
+    cb({ ok = ok == true })
+end)
+
+RegisterNUICallback('dealershipCategories', function(data, cb)
+    local answer = lib.inputDialog('Categorias da concessionaria', {{
+        type = 'multi-select', label = 'Tipos vendidos', required = true,
+        options = {
+            { value = 'sedan', label = 'Sedans' }, { value = 'suv', label = 'SUVs' },
+            { value = 'sport', label = 'Esportivos' }, { value = 'moto', label = 'Motos' }
+        }
+    }})
+    if not answer then return cb({ ok = false }) end
+    local ok, err = lib.callback.await('nv_orgs:setDealershipCategories', false, data.set, answer[1])
+    if not ok then notify(err or 'Nao foi possivel salvar as categorias.', 'error') end
+    cb({ ok = ok == true })
+end)
+
+bridge('buyDealershipTablet', 'nv_orgs:buyDealershipTablet', function(data)
+    return data.set
+end, function()
+    notify('Tablet adquirido por $100.', 'success')
+end)
+
 -- Consultas: devolvem dados para a tela, sem notificacao.
 RegisterNUICallback('get', function(data, cb)
     cb(lib.callback.await('nv_orgs:get', false, data and data.set) or false)

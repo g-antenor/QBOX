@@ -10,7 +10,7 @@ Config = {}
 --
 -- Ligar aqui liga TUDO -- inclusive os alertas que o nv_garage dispara.
 -- ============================================================================
-Config.Enabled = false
+Config.Enabled = true
 
 -- Subtipos de organizacao (nv_orgs) que recebem os alertas.
 --
@@ -116,45 +116,5 @@ Config.Categories = {
         priority   = 'baixa',
         blipSprite = 184,
         blipColor  = 47
-    }
-}
-
--- ============================================================================
--- BLOQUEADOR DE SINAL
---
--- COMO FUNCIONA, e por que assim:
---
--- Sucesso  -> os alertas de roubo ficam mudos pelo tempo de `duration`, MAS um
---             alerta `perda_sinal` sai no lugar, com a posicao borrada por
---             `blur` metros e prioridade baixa. A policia fica sabendo que ha
---             algo acontecendo naquela regiao, sem saber o que nem onde
---             exatamente.
---
--- Falha    -> o item e gasto e nada e bloqueado. O ladrao so descobre quando o
---             alarme toca.
---
--- O bloqueador nao apaga o jogo policial, ele o troca por um pior para os dois
--- lados: e isso que faz valer a pena carregar um, e faz valer a pena a policia
--- atender um "perda de sinal".
--- ============================================================================
-Config.Jammer = {
-    item = 'bloqueador_sinal',
-
-    -- Segundos de bloqueio depois de um uso bem-sucedido.
-    duration = 180,
-
-    -- Chance (%) de o aparelho falhar.
-    failChance = 25,
-
-    -- Tempo da barra de progresso ao usar (ms).
-    useTime = 4000,
-
-    -- Raio (m) do borrao na posicao do alerta de perda de sinal.
-    blur = 150.0,
-
-    -- Desgaste por uso (0-100). O item some sozinho ao zerar (decay).
-    wear = {
-        success = 25,
-        fail    = 40
     }
 }

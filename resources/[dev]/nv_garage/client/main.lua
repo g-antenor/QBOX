@@ -92,6 +92,55 @@ function Garage.plateOf(vehicle)
     return (plate:gsub('%s+$', ''))
 end
 
+--- Dispara a sirene e registra a mesma tentativa no dispatch. O id liga o
+--- alarme local ao blip remoto, permitindo encerrar ambos antes do limite.
+---@param vehicle number
+---@param event string?
+---@param reason string
+function Garage.triggerTheftAlarm(vehicle, event, reason)
+    if not vehicle or vehicle == 0 or not DoesEntityExist(vehicle) then return end
+
+    local duration = math.max(1, tonumber(Config.Alarm and Config.Alarm.duration) or 60)
+    local alertId = ('vehicle_%s_%d'):format(GetPlayerServerId(PlayerId()), GetGameTimer())
+
+    SetVehicleAlarm(vehicle, true)
+    SetVehicleAlarmTimeLeft(vehicle, duration * 1000)
+    StartVehicleAlarm(vehicle)
+
+    if event then
+        TriggerServerEvent(event, GetEntityCoords(vehicle), {
+            id = alertId,
+            netId = VehToNet(vehicle),
+            plate = Garage.plateOf(vehicle),
+            reason = reason,
+            duration = duration
+        })
+    end
+
+    CreateThread(function()
+        local deadline = GetGameTimer() + duration * 1000
+        Wait(750)
+
+        while DoesEntityExist(vehicle) and GetGameTimer() < deadline and IsVehicleAlarmActivated(vehicle) do
+            if event then
+                TriggerServerEvent('nv_garage:dispatchTheftMoved', alertId, GetEntityCoords(vehicle))
+            end
+
+            Wait(100)
+        end
+
+        TriggerServerEvent('nv_garage:dispatchTheftStopped', alertId)
+    end)
+end
+
+---@param vehicle number
+function Garage.stopTheftAlarm(vehicle)
+    if not vehicle or vehicle == 0 or not DoesEntityExist(vehicle) then return end
+
+    SetVehicleAlarmTimeLeft(vehicle, 0)
+    SetVehicleAlarm(vehicle, false)
+end
+
 --- O jogador tem a chave desta placa no inventario?
 --- Consulta local do ox_inventory: sem ida ao servidor, serve para decidir o
 --- que MOSTRAR. Quem autoriza de verdade e o servidor.

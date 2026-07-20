@@ -21351,7 +21351,7 @@ async function InsertGroup({ name, label, type, colour, hasAccount, grades, acco
     if (!insertedGroup) return true;
     const insertedGrades = await conn.batch(
       "INSERT INTO `ox_group_grades` (`group`, `grade`, `label`, `accountRole`) VALUES (?, ?, ?, ?)",
-      grades.map((gradeLabel, index) => [name, index + 1, gradeLabel, accountRoles2[index + 1]])
+      grades.map((gradeLabel, index) => [name, index + 1, gradeLabel, accountRoles2[index + 1] ?? null])
     );
     return insertedGrades.reduce((acc, curr) => acc + curr.affectedRows, 0) > 0;
   } catch (_) {
@@ -22033,8 +22033,9 @@ async function CreateGroup(data) {
   if (data.label.length > 50) {
     throw new Error(`Cannot create OxGroup<${data.name}> (label is too long)`);
   }
-  const grades = data.grades.filter((grade) => grade.label).map((grade) => grade.label);
-  const accountRoles2 = data.grades.reduce(
+  const gradeEntries = Array.isArray(data.grades) ? data.grades : Object.values(data.grades || {});
+  const grades = gradeEntries.filter((grade) => grade?.label).map((grade) => grade.label);
+  const accountRoles2 = gradeEntries.reduce(
     (acc, grade, index) => {
       if (grade.accountRole) acc[index + 1] = grade.accountRole;
       return acc;

@@ -26,6 +26,34 @@ Orgs = {}
 
 Orgs.schemaReady = false
 
+--- Garante que o grupo tenha exatamente uma conta empresarial padrao. O
+--- ox_banking e Ox.GetGroupAccount ignoram contas de grupo com isDefault = 0.
+function Orgs.ensureGroupAccount(set, label)
+    local rows = MySQL.query.await([[
+        SELECT `id`, `isDefault` FROM `accounts`
+        WHERE `group` = ? AND `type` = 'group' ORDER BY `isDefault` DESC, `id`
+    ]], { set }) or {}
+
+    if #rows == 0 then
+        local Ox = require '@ox_core.lib.init'
+        local made = pcall(function() Ox.CreateAccount(set, label or set) end)
+        if not made then return false end
+        rows = MySQL.query.await([[
+            SELECT `id`, `isDefault` FROM `accounts`
+            WHERE `group` = ? AND `type` = 'group' ORDER BY `id`
+        ]], { set }) or {}
+    end
+
+    if #rows == 0 then return false end
+
+    local defaultId = rows[1].id
+    MySQL.update.await([[
+        UPDATE `accounts` SET `isDefault` = CASE WHEN `id` = ? THEN 1 ELSE 0 END
+        WHERE `group` = ? AND `type` = 'group'
+    ]], { defaultId, set })
+    return true
+end
+
 CreateThread(function()
     -- Mesmo padrao do nv_garage: tenta com chave estrangeira e, se o schema do
     -- ox_core nao permitir, cai para a versao sem FK. Ter a tabela sem cascata
@@ -183,6 +211,36 @@ CreateThread(function()
     ]])
 
     Orgs.syncPermissions()
+end)
+
+-- Repara contas antigas criadas antes da normalizacao de isDefault.
+CreateThread(function()
+    Wait(1500)
+    local styles = {}
+    for i = 1, #Config.Styles do styles[#styles + 1] = Config.Styles[i].value end
+    local placeholders = ('?,'):rep(#styles):sub(1, -2)
+    local groups = MySQL.query.await(([[
+        SELECT `name`, `label` FROM `ox_groups` WHERE `type` IN (%s)
+    ]]):format(placeholders), styles) or {}
+
+    for i = 1, #groups do
+        if not Orgs.ensureGroupAccount(groups[i].name, groups[i].label) then
+            lib.print.error(('Nao foi possivel reparar a conta da organizacao `%s`.'):format(groups[i].name))
+        end
+    end
+
+    -- O banking exige um accountRole nao nulo para listar contas de grupo.
+    -- Viewer concede somente visualizacao; cargos com a acao bank conservam o
+    -- papel superior que ja foi gravado pelo painel.
+    MySQL.update.await(([[
+        UPDATE `ox_group_grades` gg
+        JOIN `ox_groups` g ON g.`name` = gg.`group`
+        SET gg.`accountRole` = 'viewer'
+        WHERE g.`type` IN (%s) AND gg.`accountRole` IS NULL
+    ]]):format(placeholders), styles)
+
+    -- Atualiza o cache/GlobalState usado pelo ox_core e pelo ox_banking.
+    Orgs.reloadGroups()
 end)
 
 -- ------------------------------------------------------------- subtipo --

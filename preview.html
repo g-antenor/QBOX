@@ -1,0 +1,1640 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MDT — Redesign</title>
+<style>
+  :root{
+    --bg: #0c0c0e;
+    --panel: #17161a;
+    --edge: #232025;
+    --text: #e6e4e3;
+    --text-dim: #86828a;
+    --text-faint: #4c4850;
+    --red: #ff2438;
+    --green: #3ddc84;
+    --amber: #e0a83d;
+    --blue: #4a90d9;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    overflow:hidden;
+    user-select:none;
+  }
+  .hidden{ display:none !important; }
+
+  /* ---------- shell ---------- */
+  .mdt-root{ height:100%; display:flex; flex-direction:column; }
+  .dept-tabs{ display:flex; background:var(--panel); border-bottom:1px solid var(--edge); flex:none; }
+  .dept-tab{ padding:13px 24px; font-size:12px; letter-spacing:.04em; text-transform:uppercase; color:var(--text-dim); cursor:pointer; border-bottom:2px solid transparent; display:flex; align-items:center; gap:8px; transition: color .12s ease, border-color .12s ease; }
+  .dept-tab:hover{ color:var(--text); }
+  .dept-tab.active{ color:var(--text); border-bottom-color:var(--red); }
+  .dept-body{ flex:1; overflow:hidden; }
+  .dept-view{ display:none; height:100%; }
+  .dept-view.active{ display:flex; }
+
+  /* ---------- nav sidebar ---------- */
+  .sidebar{ width:220px; flex:none; background:var(--panel); border-right:1px solid var(--edge); overflow-y:auto; }
+  .sidebar-title{ padding:16px 14px 3px; font-size:12px; font-weight:700; letter-spacing:.03em; color:var(--text); }
+  .sidebar-sub{ padding:0 14px 12px; font-size:10.5px; color:var(--text-faint); line-height:1.4; }
+  .section-label{ padding:13px 14px 6px; font-size:9px; letter-spacing:.09em; text-transform:uppercase; color:var(--text-faint); }
+  .nav-item{ padding:9px 14px; font-size:12px; color:var(--text-dim); border-left:2px solid transparent; border-bottom:1px solid var(--edge); cursor:pointer; display:flex; align-items:center; gap:9px; transition: color .1s ease, border-color .1s ease, background .1s ease; }
+  .nav-item:hover{ color:var(--text); border-left-color:var(--red); background:rgba(255,36,56,.05); }
+  .nav-item.active{ color:var(--text); border-left-color:var(--red); background:rgba(255,36,56,.07); }
+
+  /* ---------- generic form controls ---------- */
+  .field-row{ padding:0 14px 12px; }
+  .field-label{ font-size:10px; letter-spacing:.03em; text-transform:uppercase; color:var(--text-faint); margin-bottom:6px; display:block; }
+  .field-input{ width:100%; background:#0f0e10; border:1px solid var(--edge); color:var(--text); font-size:12px; padding:7px 8px; border-radius:3px; font-family:inherit; }
+  .field-input:focus{ outline:none; border-color:var(--red); }
+  .field-input::placeholder{ color:var(--text-faint); }
+  .textarea{ width:100%; background:#0f0e10; border:1px solid var(--edge); color:var(--text); font-size:12px; padding:8px; border-radius:3px; font-family:inherit; resize:vertical; min-height:64px; }
+  .textarea:focus{ outline:none; border-color:var(--red); }
+  .check-row{ display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-dim); cursor:pointer; margin-bottom:8px; }
+  .check-row input{ accent-color:var(--red); }
+
+  .mic-seg{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
+  .mic-seg button{ flex:1 1 28%; padding:7px 0; font-size:10px; text-transform:uppercase; letter-spacing:.03em; background:transparent; border:1px solid var(--edge); color:var(--text-dim); border-radius:3px; cursor:pointer; }
+  .mic-seg button.active{ border-color:var(--red); color:var(--text); background:rgba(255,36,56,.08); }
+
+  .btn{ padding:9px 14px; font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; border-radius:3px; border:1px solid var(--edge); background:transparent; color:var(--text-dim); cursor:pointer; transition: border-color .1s ease, color .1s ease, background .1s ease; display:inline-block; }
+  .btn:hover{ color:var(--text); border-color:var(--text-faint); }
+  .btn.primary{ background:var(--red); border-color:var(--red); color:#fff; }
+  .btn.primary:hover{ background:#e01d30; }
+  .btn.primary:disabled{ opacity:.35; cursor:not-allowed; }
+  .btn.block{ width:100%; text-align:center; }
+
+  /* ---------- stage ---------- */
+  .stage{ flex:1; background: linear-gradient(180deg,#0e0d10,#0a090b); overflow-y:auto; padding:20px 24px; }
+  .stage-header{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:16px; }
+  .page-title{ font-size:14px; font-weight:700; letter-spacing:.03em; color:var(--text); margin-bottom:16px; }
+  .stage-title{ font-size:13px; font-weight:700; letter-spacing:.03em; color:var(--text); margin-bottom:12px; }
+  .search-input{ width:220px; background:#0f0e10; border:1px solid var(--edge); color:var(--text); font-size:12px; padding:8px 10px; border-radius:3px; font-family:inherit; }
+  .search-input:focus{ outline:none; border-color:var(--red); }
+  .empty-note{ font-size:11px; color:var(--text-faint); text-align:center; padding:30px 0; }
+
+  /* ---------- dashboard ---------- */
+  .dash-grid{ display:grid; grid-template-columns:1.3fr 1fr; gap:18px; }
+  .dash-col-title{ font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-faint); margin-bottom:10px; }
+  .call-item{ background:var(--panel); border:1px solid var(--edge); border-left:2px solid var(--edge); border-radius:4px; padding:10px 12px; margin-bottom:8px; }
+  .call-item.alta{ border-left-color:var(--red); }
+  .call-item.media{ border-left-color:var(--amber); }
+  .call-item.baixa{ border-left-color:var(--text-faint); }
+  .call-title{ font-size:11.5px; color:var(--text); font-weight:600; display:flex; justify-content:space-between; gap:8px; }
+  .call-meta{ font-size:9.5px; color:var(--text-faint); margin-top:3px; }
+  .online-item{ display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--edge); font-size:11.5px; }
+  .online-item:last-child{ border-bottom:none; }
+  .online-name{ color:var(--text); }
+  .online-status{ font-size:9.5px; color:var(--text-faint); }
+  .online-dot{ width:6px; height:6px; border-radius:50%; background:var(--green); display:inline-block; margin-right:6px; }
+
+  /* ---------- profile / badge / record ---------- */
+  .profile-card{ background:var(--panel); border:1px solid var(--edge); border-radius:5px; padding:16px; margin-bottom:16px; }
+  .profile-header{ display:flex; gap:14px; align-items:center; margin-bottom:12px; }
+  .profile-avatar{ width:50px; height:50px; border-radius:50%; background:var(--edge); display:flex; align-items:center; justify-content:center; font-size:20px; color:var(--text-faint); flex:none; }
+  .profile-name{ font-size:14px; font-weight:700; color:var(--text); }
+  .profile-sub{ font-size:11px; color:var(--text-faint); margin-top:2px; }
+  .profile-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px 16px; margin:12px 0; }
+  .profile-field .k{ display:block; color:var(--text-faint); text-transform:uppercase; font-size:9px; letter-spacing:.04em; margin-bottom:3px; }
+  .profile-field .v{ color:var(--text); font-size:12px; }
+
+  .badge{ display:inline-flex; align-items:center; gap:5px; font-size:10px; letter-spacing:.03em; text-transform:uppercase; padding:3px 8px; border-radius:3px; border:1px solid var(--edge); color:var(--text-dim); }
+  .badge::before{ content:""; width:5px; height:5px; border-radius:50%; background:var(--text-faint); }
+  .badge.ok{ color:var(--green); border-color:rgba(61,220,132,.3); } .badge.ok::before{ background:var(--green); }
+  .badge.warn{ color:var(--amber); border-color:rgba(224,168,61,.3); } .badge.warn::before{ background:var(--amber); }
+  .badge.danger{ color:var(--red); border-color:rgba(255,36,56,.3); } .badge.danger::before{ background:var(--red); box-shadow:0 0 5px rgba(255,36,56,.5); }
+
+  .record-list{ display:flex; flex-direction:column; gap:8px; }
+  .record-item{ background:var(--panel); border:1px solid var(--edge); border-left:2px solid var(--edge); border-radius:4px; padding:10px 12px; }
+  .record-item.danger{ border-left-color:var(--red); }
+  .record-title{ font-size:12px; color:var(--text); font-weight:600; display:flex; justify-content:space-between; gap:8px; }
+  .record-meta{ font-size:9.5px; color:var(--text-faint); margin-top:2px; }
+  .record-desc{ font-size:11px; color:var(--text-dim); margin-top:6px; line-height:1.5; }
+
+  .section-block{ margin-bottom:18px; }
+  .section-block-title{ font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--text-faint); margin-bottom:8px; }
+
+  /* ---------- accordion ---------- */
+  .accordion-item{ border:1px solid var(--edge); border-radius:4px; margin-bottom:6px; overflow:hidden; }
+  .accordion-head{ padding:9px 12px; font-size:11.5px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; background:var(--panel); color:var(--text); }
+  .accordion-head:hover{ background:rgba(255,36,56,.05); }
+  .accordion-head .arrow{ color:var(--text-faint); transition: transform .15s ease; }
+  .accordion-item.open .arrow{ transform:rotate(90deg); color:var(--red); }
+  .accordion-body{ max-height:0; overflow:hidden; transition:max-height .18s ease; background:#121114; }
+  .accordion-item.open .accordion-body{ max-height:220px; }
+  .accordion-body-inner{ padding:10px 12px; font-size:11px; color:var(--text-dim); line-height:1.7; }
+
+  /* ---------- multi-select search ---------- */
+  .ms-wrap{ position:relative; margin-bottom:4px; }
+  .ms-dropdown{ display:none; position:absolute; top:100%; left:0; right:0; background:var(--panel); border:1px solid var(--edge); border-radius:3px; max-height:180px; overflow-y:auto; z-index:20; margin-top:4px; }
+  .ms-dropdown.visible{ display:block; }
+  .ms-option{ padding:8px 10px; font-size:11.5px; cursor:pointer; display:flex; justify-content:space-between; border-bottom:1px solid var(--edge); color:var(--text-dim); }
+  .ms-option:last-child{ border-bottom:none; }
+  .ms-option:hover{ background:rgba(255,36,56,.06); color:var(--text); }
+  .ms-chips{ display:flex; flex-wrap:wrap; gap:6px; margin:10px 0; }
+  .chip{ background:var(--panel); border:1px solid var(--edge); border-radius:3px; padding:4px 8px; font-size:10.5px; display:flex; align-items:center; gap:7px; color:var(--text); }
+  .chip .x{ cursor:pointer; color:var(--text-faint); }
+  .chip .x:hover{ color:var(--red); }
+  .ms-total{ font-size:12px; font-weight:700; color:var(--text); margin:8px 0 14px; }
+  .ms-total span{ color:var(--red); }
+
+  /* ---------- body diagram (hospital) ---------- */
+  .body-diagram{ width:110px; height:210px; position:relative; margin:0 auto; }
+  .bp{ position:absolute; background:var(--edge); border:1px solid var(--text-faint); cursor:pointer; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:9px; color:var(--text-faint); transition:border-color .12s ease, background .12s ease; }
+  .bp[data-sev="1"]{ border-color:var(--red); background:rgba(255,36,56,.16); color:var(--text); }
+  .bp[data-sev="2"]{ border-color:var(--red); background:rgba(255,36,56,.32); color:var(--text); }
+  .bp[data-sev="3"]{ border-color:var(--red); background:rgba(255,36,56,.55); color:var(--text); }
+  .bp-head{ top:0; left:50%; margin-left:-16px; width:32px; height:32px; border-radius:50%; }
+  .bp-torso{ top:34px; left:50%; margin-left:-26px; width:52px; height:68px; }
+  .bp-armL{ top:38px; left:6px; width:16px; height:60px; }
+  .bp-armR{ top:38px; right:6px; width:16px; height:60px; }
+  .bp-legL{ top:104px; left:23px; width:20px; height:90px; }
+  .bp-legR{ top:104px; right:23px; width:20px; height:90px; }
+
+  /* ---------- car diagram (mecânica) ---------- */
+  .car-diagram{ display:grid; grid-template-columns:1fr 1.6fr 1fr; grid-template-rows:auto auto auto auto auto auto; gap:4px; width:230px; margin:0 auto; }
+  .car-part{ background:var(--edge); border:1px solid var(--text-faint); border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:8.5px; color:var(--text-dim); text-align:center; padding:6px 3px; cursor:pointer; min-height:32px; line-height:1.2; transition:border-color .12s ease, background .12s ease, color .12s ease; }
+  .car-part.selected{ border-color:var(--red); background:rgba(255,36,56,.18); color:var(--text); }
+  .cp-bumper-f{ grid-column:1/4; grid-row:1; }
+  .cp-hood{ grid-column:1/4; grid-row:2; position:relative; }
+  .cp-motor{ position:absolute; top:4px; left:50%; transform:translateX(-50%); width:70px; height:22px; z-index:2; }
+  .cp-doorFL{ grid-column:1; grid-row:3; }
+  .cp-roof{ grid-column:2; grid-row:3/5; }
+  .cp-doorFR{ grid-column:3; grid-row:3; }
+  .cp-doorRL{ grid-column:1; grid-row:4; }
+  .cp-doorRR{ grid-column:3; grid-row:4; }
+  .cp-trunk{ grid-column:1/4; grid-row:5; }
+  .cp-bumper-r{ grid-column:1/4; grid-row:6; }
+
+  /* ---------- map / cameras / doc tabs ---------- */
+  .map-mock{ position:relative; height:360px; background:#0f0e10; border:1px solid var(--edge); border-radius:4px; overflow:hidden; background-image:linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px); background-size:28px 28px; }
+  .map-dot{ position:absolute; width:9px; height:9px; border-radius:50%; background:var(--red); box-shadow:0 0 6px rgba(255,36,56,.6); }
+  .map-dot::after{ content:""; position:absolute; inset:-6px; border:1px solid rgba(255,36,56,.4); border-radius:50%; animation:mapPulse 1.8s ease-out infinite; }
+  @keyframes mapPulse{ 0%{ transform:scale(.6); opacity:.8; } 100%{ transform:scale(2.4); opacity:0; } }
+  .map-label{ position:absolute; font-size:9px; color:var(--text-dim); white-space:nowrap; transform:translate(9px,-5px); }
+  .map-note{ font-size:10px; color:var(--text-faint); margin-top:10px; }
+
+  .cam-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .cam-tile{ aspect-ratio:16/10; background:#0f0e10; border:1px solid var(--edge); border-radius:4px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; color:var(--text-faint); font-size:10px; cursor:pointer; }
+  .cam-tile:hover{ border-color:var(--text-faint); }
+  .cam-tile.active{ border-color:var(--red); color:var(--text); }
+  .cam-preview{ height:220px; background:#0f0e10; border:1px solid var(--edge); border-radius:4px; display:flex; align-items:center; justify-content:center; color:var(--text-faint); font-size:12px; margin-bottom:16px; }
+
+  .doc-tabs{ display:flex; gap:6px; margin-bottom:14px; }
+  .doc-tab{ padding:7px 14px; font-size:10.5px; border:1px solid var(--edge); border-radius:3px; cursor:pointer; color:var(--text-dim); text-transform:uppercase; letter-spacing:.03em; }
+  .doc-tab.active{ border-color:var(--red); color:var(--text); background:rgba(255,36,56,.08); }
+  .doc-content{ font-size:12px; color:var(--text-dim); line-height:1.8; white-space:pre-line; max-width:560px; }
+
+  /* ---------- receipt (mecânica) ---------- */
+  .receipt-panel{ width:300px; flex:none; background:var(--panel); border-left:1px solid var(--edge); overflow-y:auto; padding:16px 14px 20px; }
+  .receipt-paper{ background:#121114; border:1px dashed var(--edge); border-radius:2px; padding:16px 14px; font-family: ui-monospace, Consolas, monospace; position:relative; }
+  .receipt-store{ font-size:13px; font-weight:700; letter-spacing:.05em; text-align:center; color:var(--text); }
+  .receipt-meta{ font-size:9.5px; color:var(--text-faint); text-align:center; line-height:1.5; margin-top:4px; }
+  .receipt-divider{ border-top:1px dashed var(--edge); margin:10px 0; }
+  .receipt-items{ display:flex; flex-direction:column; gap:7px; }
+  .receipt-row{ display:flex; justify-content:space-between; font-size:11px; color:var(--text-dim); padding:2px 0; }
+  .receipt-row.total{ font-size:14px; font-weight:700; color:var(--text); margin-top:4px; }
+  .receipt-row.total span:last-child{ color:var(--red); }
+  .receipt-barcode{ height:28px; margin-top:12px; opacity:.55; background: repeating-linear-gradient(90deg, var(--text-faint) 0px, var(--text-faint) 2px, transparent 2px, transparent 4px, var(--text-faint) 4px, var(--text-faint) 5px, transparent 5px, transparent 9px); }
+  .receipt-stamp{ position:absolute; top:18px; right:14px; border:2px solid var(--red); color:var(--red); font-size:11px; font-weight:700; letter-spacing:.06em; padding:4px 9px; border-radius:4px; transform:rotate(-8deg); opacity:.9; }
+
+
+  /* ---------- 2026 minimal command-center redesign ---------- */
+  :root{
+    --bg:#070b12; --panel:#0d1420; --panel-2:#111b2a; --panel-3:#162235;
+    --edge:rgba(148,163,184,.13); --edge-strong:rgba(148,163,184,.22);
+    --text:#edf4ff; --text-dim:#9aa9bd; --text-faint:#5f718a;
+    --accent:#3b82f6; --accent-rgb:59,130,246; --accent-2:#60a5fa;
+    --red:#ef4444; --green:#22c55e; --amber:#f59e0b; --blue:#3b82f6;
+    --radius:10px; --radius-sm:7px;
+  }
+  body{background:radial-gradient(circle at 75% -10%,rgba(var(--accent-rgb),.10),transparent 30%),var(--bg);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.005em}
+  body[data-dept="policia"]{--accent:#1d4ed8;--accent-rgb:29,78,216;--accent-2:#60a5fa}
+  body[data-dept="hospital"]{--accent:#b91c1c;--accent-rgb:185,28,28;--accent-2:#fb7185}
+  body[data-dept="mecanica"]{--accent:#c2410c;--accent-rgb:194,65,12;--accent-2:#fb923c}
+  .mdt-root{padding:14px;gap:10px;max-width:1580px;margin:auto}
+  .dept-tabs{height:58px;background:rgba(13,20,32,.92);border:1px solid var(--edge);border-radius:var(--radius);padding:7px;gap:5px;box-shadow:0 18px 50px rgba(0,0,0,.28);backdrop-filter:blur(14px)}
+  .dept-tab{flex:0 0 auto;padding:0 18px;border:1px solid transparent;border-radius:8px;text-transform:none;font-size:12px;font-weight:650;letter-spacing:.01em;color:var(--text-dim);gap:9px}
+  .dept-tab:hover{background:rgba(148,163,184,.06)}
+  .dept-tab.active{color:var(--text);border-color:rgba(var(--accent-rgb),.28);background:rgba(var(--accent-rgb),.12);box-shadow:inset 0 0 0 1px rgba(var(--accent-rgb),.04)}
+  .dept-tab.active::after{content:"Ativo";font-size:8px;text-transform:uppercase;letter-spacing:.09em;color:var(--accent-2);background:rgba(var(--accent-rgb),.14);padding:3px 6px;border-radius:999px}
+  .icon{width:16px;height:16px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round;flex:none}
+  .dept-tab .icon{width:17px;height:17px;color:var(--accent-2)}
+  .dept-body{border:1px solid var(--edge);border-radius:var(--radius);overflow:hidden;background:rgba(8,13,22,.88);box-shadow:0 24px 70px rgba(0,0,0,.32)}
+  .sidebar{width:244px;background:rgba(13,20,32,.96);border-right:1px solid var(--edge);padding:8px;scrollbar-width:thin}
+  .sidebar-title{padding:17px 14px 4px;font-size:14px;letter-spacing:-.01em}
+  .sidebar-title::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 16px rgba(var(--accent-rgb),.8);margin-right:9px}
+  .sidebar-sub{padding:0 14px 18px;font-size:10px;color:var(--text-faint);border-bottom:1px solid var(--edge)}
+  .section-label{padding:17px 12px 7px;font-size:8px;font-weight:700}
+  .nav-item{margin:3px 0;padding:10px 11px;border:1px solid transparent;border-radius:7px;border-left:1px solid transparent;border-bottom:1px solid transparent;font-size:11.5px;font-weight:550;gap:10px}
+  .nav-item .icon{color:var(--text-faint)}
+  .nav-item:hover{border-color:var(--edge);border-left-color:var(--edge);background:rgba(148,163,184,.05)}
+  .nav-item.active{color:var(--text);border-color:rgba(var(--accent-rgb),.18);border-left-color:rgba(var(--accent-rgb),.18);background:linear-gradient(90deg,rgba(var(--accent-rgb),.15),rgba(var(--accent-rgb),.05))}
+  .nav-item.active .icon{color:var(--accent-2)}
+  .stage{background:radial-gradient(circle at 90% 0,rgba(var(--accent-rgb),.07),transparent 26%),#090f19;padding:24px 28px;scrollbar-width:thin}
+  .page-title{font-size:19px;letter-spacing:-.025em;margin-bottom:19px;display:flex;align-items:center;gap:10px}
+  .page-title::after{content:"Central operacional";font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-2);padding:4px 8px;border:1px solid rgba(var(--accent-rgb),.22);background:rgba(var(--accent-rgb),.08);border-radius:999px}
+  .dash-grid{grid-template-columns:minmax(0,1.45fr) minmax(280px,.8fr);gap:14px}
+  .dash-grid>div,.section-block,.profile-card{background:rgba(13,20,32,.72);border:1px solid var(--edge);border-radius:var(--radius);padding:16px}
+  .section-block{margin-bottom:14px}
+  .profile-card{margin-bottom:14px;box-shadow:none}
+  .dash-col-title,.section-block-title{font-size:9px;font-weight:750;color:var(--text-faint);letter-spacing:.09em;margin-bottom:12px}
+  .call-item,.record-item{background:rgba(17,27,42,.72);border:1px solid var(--edge);border-left:3px solid var(--edge-strong);border-radius:8px;padding:11px 12px;margin-bottom:7px;transition:.14s ease}
+  .call-item:hover,.record-item:hover{border-color:var(--edge-strong);transform:translateY(-1px)}
+  .call-item.alta,.record-item.danger{border-left-color:var(--red)}
+  .call-item.media{border-left-color:var(--amber)}
+  .call-title,.record-title{font-size:11.5px}.call-meta,.record-meta{font-size:9.5px}
+  .online-item{padding:10px 3px}.online-dot{width:7px;height:7px;box-shadow:0 0 9px rgba(34,197,94,.55)}
+  .field-input,.textarea,.search-input{background:rgba(5,10,17,.75);border-color:var(--edge);border-radius:7px;padding:9px 10px;transition:.14s ease}
+  .field-input:focus,.textarea:focus,.search-input:focus{border-color:rgba(var(--accent-rgb),.65);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.08)}
+  .field-label{font-size:8.5px;font-weight:700;letter-spacing:.08em}
+  .btn{border-radius:7px;padding:9px 13px;font-size:9.5px;border-color:var(--edge-strong);background:rgba(148,163,184,.04)}
+  .btn:hover{background:rgba(148,163,184,.08);border-color:rgba(var(--accent-rgb),.38)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);box-shadow:0 7px 20px rgba(var(--accent-rgb),.16)}
+  .btn.primary:hover{filter:brightness(1.18);background:var(--accent);border-color:var(--accent)}
+  .mic-seg button{border-radius:7px;background:rgba(5,10,17,.45);font-size:9px}
+  .mic-seg button.active,.doc-tab.active{border-color:rgba(var(--accent-rgb),.48);background:rgba(var(--accent-rgb),.12);color:var(--accent-2)}
+  .profile-avatar{width:48px;height:48px;border-radius:10px;background:linear-gradient(145deg,rgba(var(--accent-rgb),.18),rgba(var(--accent-rgb),.06));border:1px solid rgba(var(--accent-rgb),.22);color:var(--accent-2)}
+  .profile-avatar .icon{width:22px;height:22px}
+  .badge{border-radius:999px;padding:4px 8px;font-size:8.5px;font-weight:700}
+  .accordion-item{border-color:var(--edge);border-radius:8px}.accordion-head{background:rgba(17,27,42,.72);padding:11px 12px}.accordion-head:hover{background:rgba(var(--accent-rgb),.06)}
+  .accordion-item.open .arrow{color:var(--accent);transform:rotate(90deg)}
+  .ms-dropdown{background:#111b2a;border-color:var(--edge-strong);border-radius:8px}.ms-option:hover{background:rgba(var(--accent-rgb),.08)}
+  .chip{border-radius:999px;background:rgba(var(--accent-rgb),.08);border-color:rgba(var(--accent-rgb),.19)}
+  .ms-total span,.receipt-row.total span:last-child{color:var(--accent-2)}
+  .map-mock,.cam-preview,.cam-tile{background-color:#080e17;border-radius:9px}.map-dot{background:var(--accent);box-shadow:0 0 10px rgba(var(--accent-rgb),.65)}.map-dot::after{border-color:rgba(var(--accent-rgb),.45)}
+  .cam-tile.active{border-color:var(--accent);color:var(--accent-2);background:rgba(var(--accent-rgb),.07)}
+  .cam-icon .icon{width:21px;height:21px}
+  .doc-tab{border-radius:7px;font-size:9px}.receipt-panel{background:#0d1420}.receipt-paper{background:#090f19;border-color:var(--edge-strong);border-radius:8px}.receipt-stamp{border-color:var(--accent);color:var(--accent)}
+  .car-part.selected{border-color:var(--accent);background:rgba(var(--accent-rgb),.16)}
+  .bp[data-sev="1"],.bp[data-sev="2"],.bp[data-sev="3"]{border-color:var(--accent);color:var(--text)}
+  .bp[data-sev="1"]{background:rgba(var(--accent-rgb),.14)}.bp[data-sev="2"]{background:rgba(var(--accent-rgb),.28)}.bp[data-sev="3"]{background:rgba(var(--accent-rgb),.48)}
+  @media(max-width:900px){.mdt-root{padding:0}.dept-tabs,.dept-body{border-radius:0}.sidebar{width:200px}.dash-grid{grid-template-columns:1fr}.stage{padding:18px}.dept-tab.active::after{display:none}}
+
+
+
+  /* ---------- accessibility + matte black refinement ---------- */
+  :root{
+    --bg:#090a0c;
+    --panel:#111317;
+    --panel-2:#16191e;
+    --panel-3:#1b2027;
+    --edge:rgba(226,232,240,.14);
+    --edge-strong:rgba(226,232,240,.24);
+    --text:#f3f5f7;
+    --text-dim:#c1c8d1;
+    --text-faint:#929daa;
+  }
+  body{
+    background:radial-gradient(circle at 75% -10%,rgba(var(--accent-rgb),.07),transparent 30%),var(--bg);
+    user-select:text;
+  }
+  .dept-tabs,.sidebar,.receipt-panel{background:rgba(17,19,23,.97)}
+  .dept-body{background:rgba(9,10,12,.96)}
+  .stage{background:radial-gradient(circle at 90% 0,rgba(var(--accent-rgb),.05),transparent 27%),#0b0d10}
+  .dash-grid>div,.section-block,.profile-card{background:rgba(17,19,23,.82)}
+  .call-item,.record-item,.accordion-head{background:rgba(22,25,30,.86)}
+  .accordion-body,.receipt-paper{background:#0d0f12}
+  .field-input,.textarea,.search-input,.map-mock,.cam-preview,.cam-tile{background:#0d0f12}
+
+  /* WCAG-friendly minimums and target sizes */
+  .sidebar-sub,.field-label,.section-label,.dash-col-title,.section-block-title,
+  .call-meta,.record-meta,.profile-sub,.online-status,.map-note,.receipt-meta{color:var(--text-faint)}
+  .field-label,.section-label{font-size:10px}
+  .call-meta,.record-meta,.online-status,.profile-sub,.receipt-meta{font-size:10.5px;line-height:1.5}
+  .record-desc,.doc-content,.accordion-body-inner{color:var(--text-dim);font-size:12px}
+  .dept-tab,.nav-item,.btn,.mic-seg button,.doc-tab,.cam-tile,.accordion-head,.car-part,.bp{min-height:44px}
+  .dept-tab{padding-inline:16px}
+  .nav-item{padding-block:11px}
+  .btn{min-width:44px;padding:10px 14px}
+  input,textarea,button{font-size:12px}
+  input::placeholder,textarea::placeholder{color:#87919d;opacity:1}
+
+  /* visible keyboard focus */
+  :where(button,input,textarea,select,[tabindex]:not([tabindex="-1"])):focus-visible{
+    outline:3px solid rgba(var(--accent-rgb),.72)!important;
+    outline-offset:3px;
+    border-color:var(--accent)!important;
+    box-shadow:0 0 0 5px rgba(var(--accent-rgb),.14)!important;
+  }
+  .dept-tab:focus-visible,.nav-item:focus-visible,.doc-tab:focus-visible,.cam-tile:focus-visible,
+  .accordion-head:focus-visible,.car-part:focus-visible,.bp:focus-visible{border-radius:8px}
+  .btn:disabled{opacity:.55;color:#a3acb8;cursor:not-allowed}
+
+  /* state is not communicated by color alone */
+  .nav-item.active::after{content:"Selecionado";margin-left:auto;font-size:8px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-2)}
+  .call-item.alta .call-title::before{content:"Alta";font-size:8px;text-transform:uppercase;color:#fff;background:#b91c1c;border-radius:999px;padding:3px 6px;margin-right:7px}
+  .call-item.media .call-title::before{content:"Média";font-size:8px;text-transform:uppercase;color:#18120a;background:#fbbf24;border-radius:999px;padding:3px 6px;margin-right:7px}
+  .call-item.baixa .call-title::before{content:"Baixa";font-size:8px;text-transform:uppercase;color:#111827;background:#cbd5e1;border-radius:999px;padding:3px 6px;margin-right:7px}
+  .online-dot{position:relative}.online-dot::after{content:"Online";position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .icon{pointer-events:none}
+
+  @media (max-width:900px){
+    body{overflow:auto}
+    .mdt-root{min-height:100%;height:auto;padding:8px}
+    .dept-tabs{overflow-x:auto;min-height:58px}
+    .dept-body{min-height:calc(100vh - 84px)}
+    .sidebar{width:210px}
+    .dash-grid{grid-template-columns:1fr}
+    .cam-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+  @media (max-width:640px){
+    .dept-view.active{display:block}
+    .sidebar{width:100%;max-height:250px;border-right:0;border-bottom:1px solid var(--edge)}
+    .stage{padding:18px 14px}
+    .profile-grid{grid-template-columns:1fr}
+    .cam-grid{grid-template-columns:1fr}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+    .call-item:hover,.record-item:hover{transform:none}
+  }
+  @media (prefers-contrast:more){
+    :root{--edge:rgba(255,255,255,.34);--edge-strong:rgba(255,255,255,.52);--text-dim:#e2e8f0;--text-faint:#cbd5e1}
+  }
+
+</style>
+</head>
+<body>
+
+  <div class="mdt-root">
+    <div class="dept-tabs">
+      <div class="dept-tab active" data-dept="policia"><span data-icon="police"></span>Polícia</div>
+      <div class="dept-tab" data-dept="hospital"><span data-icon="hospital"></span>EMS</div>
+      <div class="dept-tab" data-dept="mecanica"><span data-icon="wrench"></span>Mecânica</div>
+    </div>
+
+    <div class="dept-body">
+      <!-- ================= POLÍCIA ================= -->
+      <div class="dept-view active" id="view-policia">
+        <div class="sidebar">
+          <div class="sidebar-title">MDT — Polícia</div>
+          <div class="sidebar-sub">Relatórios, perfis e consulta operacional.</div>
+          <div class="section-label">Menu</div>
+          <div id="polNav"></div>
+        </div>
+        <div class="stage"><div id="polPageContent"></div></div>
+      </div>
+
+      <!-- ================= HOSPITAL ================= -->
+      <div class="dept-view" id="view-hospital">
+        <div class="sidebar">
+          <div class="sidebar-title">MDT — Hospital</div>
+          <div class="sidebar-sub">Chamados, pacientes e atendimentos EMS.</div>
+          <div class="section-label">Menu</div>
+          <div id="hospNav"></div>
+        </div>
+        <div class="stage"><div id="hospPageContent"></div></div>
+      </div>
+
+      <!-- ================= MECÂNICA ================= -->
+      <div class="dept-view" id="view-mecanica">
+        <div class="sidebar">
+          <div class="sidebar-title">MDT — Oficina</div>
+          <div class="sidebar-sub">Ordens de serviço e histórico da oficina.</div>
+          <div class="section-label">Menu</div>
+          <div id="mecNav"></div>
+        </div>
+        <div class="stage"><div id="mecPageContent"></div></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+
+const ICONS = {
+  police:'<path d="M12 3l7 3v5c0 4.4-2.8 8-7 10-4.2-2-7-5.6-7-10V6l7-3z"/><path d="M9 11l2 2 4-4"/>',
+  hospital:'<path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6V3z"/>',
+  wrench:'<path d="M14.7 6.3a4 4 0 0 0-5-5l2.1 2.1-2.4 2.4-2.1-2.1a4 4 0 0 0 5 5L19 15.4a2.1 2.1 0 0 1-3 3l-6.7-6.7"/>',
+  dashboard:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+  clipboard:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2h6v2M9 9h6M9 13h6M9 17h4"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  alert:'<path d="M12 3l10 18H2L12 3z"/><path d="M12 9v5M12 18h.01"/>',
+  car:'<path d="M5 17h14l2-5-2-5H5l-2 5 2 5z"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M5 12h14"/>',
+  target:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
+  file:'<path d="M6 2h8l4 4v16H6z"/><path d="M14 2v5h5M9 12h6M9 16h6"/>',
+  map:'<path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3V6z"/><path d="M9 3v15M15 6v15"/>',
+  users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+  camera:'<path d="M3 7h4l2-3h6l2 3h4v13H3z"/><circle cx="12" cy="13" r="4"/>',
+  phone:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.4 2.1L8.1 10a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.6 1.9z"/>',
+  medical:'<path d="M12 21s-7-4.4-7-11a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 6.6-7 11-7 11z"/><path d="M9 12h6M12 9v6"/>',
+  edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4z"/>',
+  history:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/>',
+  chevron:'<path d="M9 18l6-6-6-6"/>',
+  close:'<path d="M18 6L6 18M6 6l12 12"/>'
+};
+function icon(name, cls=''){ return `<svg class="icon ${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] || ICONS.file}</svg>`; }
+function setDepartmentTheme(dept){ document.body.dataset.dept = dept; }
+
+function fmt(v){ return 'R$ ' + v.toFixed(2).replace('.', ','); }
+function esc(s){ const d=document.createElement('div'); d.textContent = s==null?'':String(s); return d.innerHTML; }
+
+document.querySelectorAll('[data-icon]').forEach(el => el.innerHTML = icon(el.dataset.icon));
+setDepartmentTheme('policia');
+document.querySelectorAll('.dept-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.dept-tab').forEach(t => t.classList.toggle('active', t === tab));
+    document.querySelectorAll('.dept-view').forEach(v => v.classList.toggle('active', v.id === 'view-' + tab.dataset.dept));
+    setDepartmentTheme(tab.dataset.dept);
+  });
+});
+
+function renderNav(navId, items, activeId, onClick){
+  const nav = document.getElementById(navId);
+  nav.innerHTML = '';
+  items.forEach(it => {
+    const el = document.createElement('div');
+    el.className = 'nav-item' + (it.id === activeId ? ' active' : '');
+    el.innerHTML = `${icon(it.icon)}<span>${it.label}</span>`;
+    el.addEventListener('click', () => onClick(it.id));
+    nav.appendChild(el);
+  });
+}
+
+function createMultiSelect({ inputEl, dropdownEl, chipsEl, totalEl, options, onChange }){
+  let selected = [];
+  function renderDropdown(term){
+    const filtered = options.filter(o => !selected.includes(o.key) && o.label.toLowerCase().includes(term));
+    dropdownEl.innerHTML = '';
+    if(term === '' || filtered.length === 0){ dropdownEl.classList.remove('visible'); return; }
+    filtered.forEach(o => {
+      const item = document.createElement('div');
+      item.className = 'ms-option';
+      item.innerHTML = `<span>${esc(o.label)}</span><span>${o.value ? fmt(o.value) : ''}</span>`;
+      item.addEventListener('mousedown', e => {
+        e.preventDefault();
+        selected.push(o.key);
+        inputEl.value = '';
+        dropdownEl.classList.remove('visible');
+        renderChips();
+        if(onChange) onChange(selected);
+      });
+      dropdownEl.appendChild(item);
+    });
+    dropdownEl.classList.add('visible');
+  }
+  function renderChips(){
+    chipsEl.innerHTML = '';
+    selected.forEach(key => {
+      const o = options.find(x => x.key === key);
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.innerHTML = `<span>${esc(o.label)}${o.value ? ' — ' + fmt(o.value) : ''}</span><span class="x">${icon('close')}</span>`;
+      chip.querySelector('.x').addEventListener('click', () => {
+        selected = selected.filter(k => k !== key);
+        renderChips();
+        if(onChange) onChange(selected);
+      });
+      chipsEl.appendChild(chip);
+    });
+    if(totalEl){
+      const total = selected.reduce((s,key) => { const o = options.find(x => x.key === key); return s + (o.value || 0); }, 0);
+      totalEl.innerHTML = `Total: <span>${fmt(total)}</span>`;
+    }
+  }
+  inputEl.addEventListener('input', () => renderDropdown(inputEl.value.trim().toLowerCase()));
+  inputEl.addEventListener('blur', () => setTimeout(() => dropdownEl.classList.remove('visible'), 150));
+  renderChips();
+  return { getSelected: () => selected.map(k => options.find(o => o.key === k)), reset: () => { selected = []; renderChips(); inputEl.value=''; } };
+}
+
+/* ============================================================
+   SHARED DATA
+============================================================ */
+const VEHICLES_DB = [
+  { plate:'ABC1234', model:'Sultan RS', color:'Preto', owner:'Marcus Silva', status:'regular', fines:[{ motivo:'Estacionamento irregular', value:80, date:'01/03/2026' }], seizures:[] },
+  { plate:'XYZ9988', model:'Kuruma', color:'Branco', owner:'Ana Costa', status:'roubado', fines:[], seizures:[{ motivo:'Veículo utilizado em assalto', date:'15/07/2026' }] },
+  { plate:'JHD4521', model:'Buffalo S', color:'Vermelho', owner:'Rick Torres', status:'regular', fines:[], seizures:[] },
+];
+
+const CITIZENS = [
+  { id:1, name:'Marcus Silva', cpf:'123.456.789-00', dob:'12/04/1990', cnh:'ok', wanted:false, wantedReason:'', gunPermit:false,
+    fines:[{ type:'Excesso de velocidade', value:250, date:'02/03/2026' }],
+    arrests:[{ motivo:'Resistência à prisão', desc:'Tentou fugir durante abordagem de rotina próxima ao Legion Square.', officer:'Rick Torres', date:'01/03/2026 14:32' }] },
+  { id:2, name:'Ana Costa', cpf:'987.654.321-00', dob:'23/09/1995', cnh:'suspensa', wanted:true, wantedReason:'Suspeita de receptação', gunPermit:false,
+    fines:[], arrests:[{ motivo:'Porte ilegal de arma', desc:'Arma apreendida sem registro durante abordagem de rotina.', officer:'Marcus Silva', date:'14/01/2026 09:10' }] },
+  { id:3, name:'Rick Torres', cpf:'555.222.111-33', dob:'05/07/1988', cnh:'nenhuma', wanted:false, wantedReason:'', gunPermit:false, fines:[], arrests:[] },
+  { id:4, name:'Diego Ferreira', cpf:'444.111.222-55', dob:'19/11/1992', cnh:'ok', wanted:false, wantedReason:'', gunPermit:false, fines:[], arrests:[] },
+];
+
+const CNH_META = { ok:{ label:'CNH Válida', cls:'ok' }, suspensa:{ label:'CNH Suspensa', cls:'warn' }, nenhuma:{ label:'Sem CNH', cls:'danger' } };
+const VSTATUS_META = { regular:{ label:'Regular', cls:'ok' }, roubado:{ label:'Roubado', cls:'danger' }, apreendido:{ label:'Apreendido', cls:'warn' } };
+
+/* ============================================================
+   POLÍCIA
+============================================================ */
+(function(){
+  const NAV = [
+    { id:'dashboard', icon:'dashboard', label:'Dashboard' },
+    { id:'ocorrencias', icon:'clipboard', label:'Relatórios' },
+    { id:'cidadao', icon:'user', label:'Perfis' },
+    { id:'procurados', icon:'alert', label:'Mandados ativos' },
+    { id:'veiculos', icon:'car', label:'Veículos / BOLO' },
+    { id:'armas', icon:'target', label:'Armas' },
+    { id:'documentos', icon:'file', label:'Documentos' },
+    { id:'mapa', icon:'map', label:'Live Map' },
+    { id:'comandos', icon:'users', label:'Efetivo' },
+    { id:'cameras', icon:'camera', label:'Câmeras' },
+  ];
+
+  const CALLS = [
+    { title:'Roubo em andamento', location:'Legion Square', time:'há 4 min', priority:'alta' },
+    { title:'Acidente de trânsito', location:'Vinewood Blvd', time:'há 22 min', priority:'media' },
+    { title:'Perturbação de sossego', location:'Rancho', time:'há 51 min', priority:'baixa' },
+    { title:'Disparos reportados', location:'Grove Street', time:'há 1h 10min', priority:'alta' },
+  ];
+  const ONLINE = [
+    { name:'Marcus Silva', status:'Em patrulha — Unidade 101' },
+    { name:'Ana Costa', status:'Em ocorrência — Unidade 104' },
+    { name:'Rick Torres', status:'Disponível — Central' },
+  ];
+  const STAFF = [
+    { name:'Chief John Reyes', rank:'Chefe de Polícia' },
+    { name:'Cpt. Marcus Silva', rank:'Capitão' },
+    { name:'Sgt. Ana Costa', rank:'Sargento' },
+    { name:'Ofc. Rick Torres', rank:'Oficial' },
+    { name:'Ofc. Diego Ferreira', rank:'Oficial' },
+  ];
+  const FINE_TYPES = [
+    { key:'01', label:'Excesso de velocidade', value:250 },
+    { key:'02', label:'Estacionamento irregular', value:80 },
+    { key:'03', label:'Uso de celular ao dirigir', value:150 },
+    { key:'04', label:'Não uso de cinto de segurança', value:120 },
+    { key:'05', label:'Avanço de sinal vermelho', value:300 },
+    { key:'06', label:'Conduzir sem CNH', value:500 },
+    { key:'07', label:'Poluição sonora', value:180 },
+    { key:'08', label:'Direção perigosa', value:400 },
+  ];
+  const ARREST_REASONS = ['Roubo','Furto','Porte ilegal de arma','Tráfico de drogas','Homicídio','Resistência à prisão','Agressão','Desacato à autoridade','Receptação','Sequestro'];
+  const GUN_BLOCK_LIST = ['Porte ilegal de arma','Roubo','Homicídio','Tráfico de drogas','Sequestro'];
+  const DOCS = {
+    codigo:'CÓDIGO PENAL DO DEPARTAMENTO\n\nArt. 1º - Todo cidadão tem direito a um tratamento justo durante abordagens.\nArt. 2º - O uso de força letal só é autorizado em caso de risco iminente à vida.\nArt. 3º - Toda prisão deve ser acompanhada de leitura de direitos e registro em MDT.\nArt. 4º - Evidências devem ser anexadas antes da conclusão do registro de prisão.',
+    modulacao:'MODULAÇÃO DE RÁDIO\n\nCanal 1 — Comando Geral\nCanal 2 — Patrulhamento Zona Sul\nCanal 3 — Patrulhamento Zona Norte\nCanal 4 — Operações Táticas (SWAT)\nCanal 5 — Trânsito',
+    procedimento:'PROCEDIMENTO OPERACIONAL PADRÃO\n\n1. Identifique-se antes de qualquer abordagem.\n2. Solicite documentos do cidadão.\n3. Em caso de infração, registre a multa correspondente no MDT.\n4. Em caso de prisão, selecione os motivos, descreva a ocorrência e anexe evidências.\n5. Atualize a lista de procurados quando aplicável.',
+  };
+
+  let REPORTS = [];
+  let activePage = 'dashboard';
+  let currentCitizen = null;
+  let currentVehicle = null;
+
+  function go(pageId){ activePage = pageId; renderNav('polNav', NAV, activePage, go); render(); }
+
+  function render(){
+    const c = document.getElementById('polPageContent');
+    if(activePage === 'dashboard') return renderDashboard(c);
+    if(activePage === 'ocorrencias') return renderOcorrencias(c);
+    if(activePage === 'cidadao') return renderCidadaoSearch(c);
+    if(activePage === 'procurados') return renderProcurados(c);
+    if(activePage === 'veiculos') return renderVeiculos(c);
+    if(activePage === 'armas') return renderArmas(c);
+    if(activePage === 'documentos') return renderDocumentos(c);
+    if(activePage === 'mapa') return renderMapa(c);
+    if(activePage === 'comandos') return renderComandos(c);
+    if(activePage === 'cameras') return renderCameras(c);
+  }
+
+  function renderDashboard(c){
+    c.innerHTML = `
+      <div class="page-title">Dashboard</div><div class="record-meta" style="margin:-10px 0 16px">Visão rápida das atividades recentes e equipes disponíveis.</div>
+      <div class="dash-grid">
+        <div>
+          <div class="dash-col-title">Atividade operacional recente</div>
+          <div id="polCallsList"></div>
+        </div>
+        <div>
+          <div class="dash-col-title">Unidades em serviço</div>
+          <div id="polOnlineList"></div>
+        </div>
+      </div>
+    `;
+    const callsList = document.getElementById('polCallsList');
+    CALLS.forEach(call => {
+      const el = document.createElement('div');
+      el.className = 'call-item ' + call.priority;
+      el.innerHTML = `<div class="call-title"><span>${esc(call.title)}</span></div><div class="call-meta">${esc(call.location)} — ${esc(call.time)}</div>`;
+      callsList.appendChild(el);
+    });
+    const onlineList = document.getElementById('polOnlineList');
+    ONLINE.forEach(p => {
+      const el = document.createElement('div');
+      el.className = 'online-item';
+      el.innerHTML = `<span class="online-name"><span class="online-dot"></span>${esc(p.name)}</span><span class="online-status">${esc(p.status)}</span>`;
+      onlineList.appendChild(el);
+    });
+  }
+
+  function renderOcorrencias(c){
+    c.innerHTML = `
+      <div class="page-title">Relatórios de ocorrência</div>
+      <div class="section-block">
+        <div class="section-block-title">Novo relatório</div>
+        <div class="field-row" style="padding-left:0;"><label class="field-label">Cidadão envolvido</label><input class="field-input" id="repCitizen" placeholder="Nome do envolvido"></div>
+        <div class="field-row" style="padding-left:0;"><label class="field-label">Tipo</label>
+          <div class="mic-seg" id="repTypeSeg">
+            <button data-type="furto" class="active">Furto</button>
+            <button data-type="roubo">Roubo</button>
+            <button data-type="transito">Trânsito</button>
+            <button data-type="agressao">Agressão</button>
+            <button data-type="outro">Outro</button>
+          </div>
+        </div>
+        <div class="field-row" style="padding-left:0;"><label class="field-label">Descrição</label><textarea class="textarea" id="repDesc" placeholder="Detalhes da ocorrência..."></textarea></div>
+        <button class="btn primary" id="btnRegisterReport">Salvar relatório</button>
+      </div>
+      <div class="section-block">
+        <div class="section-block-title">Histórico (mais recente primeiro)</div>
+        <div class="record-list" id="reportsLogList"></div>
+      </div>
+    `;
+    document.querySelectorAll('#repTypeSeg button').forEach(btn => btn.addEventListener('click', () => document.querySelectorAll('#repTypeSeg button').forEach(b => b.classList.toggle('active', b === btn))));
+    document.getElementById('btnRegisterReport').addEventListener('click', () => {
+      const type = document.querySelector('#repTypeSeg button.active').dataset.type;
+      REPORTS.push({ citizen: document.getElementById('repCitizen').value.trim(), type, desc: document.getElementById('repDesc').value.trim(), date: new Date().toLocaleString('pt-BR') });
+      renderOcorrencias(c);
+    });
+    const TYPE_LABELS = { furto:'Furto', roubo:'Roubo', transito:'Trânsito', agressao:'Agressão', outro:'Outro' };
+    const list = document.getElementById('reportsLogList');
+    if(REPORTS.length === 0){ list.innerHTML = '<div class="record-meta">Nenhuma ocorrência registrada ainda.</div>'; }
+    else {
+      REPORTS.slice().reverse().forEach(r => {
+        const item = document.createElement('div');
+        item.className = 'record-item danger';
+        item.innerHTML = `<div class="record-title">${esc(TYPE_LABELS[r.type])} — ${esc(r.citizen || 'Não identificado')}</div><div class="record-meta">${esc(r.date)}</div><div class="record-desc">${esc(r.desc || '(sem descrição)')}</div>`;
+        list.appendChild(item);
+      });
+    }
+  }
+
+  function renderCidadaoSearch(c){
+    c.innerHTML = `
+      <div class="page-title">Pesquisa de perfis</div>
+      <div class="field-row" style="padding-left:0; max-width:320px;">
+        <label class="field-label">Buscar por nome ou CPF</label>
+        <div style="display:flex; gap:8px;">
+          <input class="field-input" id="citizenSearchInput" placeholder="Nome ou CPF...">
+          <button class="btn" id="btnCitizenSearch">Buscar</button>
+        </div>
+      </div>
+      <div id="citizenResultArea"></div>
+    `;
+    document.getElementById('btnCitizenSearch').addEventListener('click', () => {
+      const term = document.getElementById('citizenSearchInput').value.trim().toLowerCase();
+      const found = CITIZENS.find(cz => cz.name.toLowerCase().includes(term) || cz.cpf.includes(term));
+      const area = document.getElementById('citizenResultArea');
+      if(!found){ area.innerHTML = '<div class="empty-note">Nenhum cidadão encontrado.</div>'; return; }
+      currentCitizen = found;
+      renderCitizenProfile(area);
+    });
+  }
+
+  function renderCitizenProfile(area){
+    const c = currentCitizen;
+    const cnh = CNH_META[c.cnh];
+    const totalFines = c.fines.reduce((s,f) => s + f.value, 0);
+    area.innerHTML = `
+      <div class="profile-card">
+        <div class="profile-header">
+          <div class="profile-avatar">${icon('user')}</div>
+          <div><div class="profile-name">${esc(c.name)}</div><div class="profile-sub">CPF ${esc(c.cpf)}</div></div>
+        </div>
+        <div class="profile-grid">
+          <div class="profile-field"><span class="k">Nascimento</span><span class="v">${esc(c.dob)}</span></div>
+          <div class="profile-field"><span class="k">Habilitação</span><span class="badge ${cnh.cls}">${cnh.label}</span></div>
+          <div class="profile-field"><span class="k">Procurado</span><span class="badge ${c.wanted ? 'danger' : 'ok'}">${c.wanted ? 'Sim' : 'Não'}</span></div>
+          <div class="profile-field"><span class="k">Porte de arma</span><span class="badge ${c.gunPermit ? 'ok' : 'warn'}">${c.gunPermit ? 'Registrado' : 'Sem registro'}</span></div>
+        </div>
+        <div style="display:flex; gap:8px; margin-bottom:6px;">
+          <button class="btn" id="btnToggleFinePanel">Aplicar multa</button>
+          <button class="btn" id="btnToggleArrestPanel">Prender</button>
+          <button class="btn" id="btnToggleWanted">${c.wanted ? 'Remover dos procurados' : 'Adicionar aos procurados'}</button>
+        </div>
+      </div>
+
+      <div class="hidden section-block" id="finePanel">
+        <div class="section-block-title">Aplicar multa</div>
+        <div class="ms-wrap">
+          <input class="field-input" id="fineMsInput" placeholder="Buscar tipo de infração...">
+          <div class="ms-dropdown" id="fineMsDropdown"></div>
+        </div>
+        <div class="ms-chips" id="fineMsChips"></div>
+        <div class="ms-total" id="fineMsTotal">Total: <span>R$ 0,00</span></div>
+        <button class="btn primary" id="btnApplyFine">Aplicar multa(s)</button>
+      </div>
+
+      <div class="hidden section-block" id="arrestPanel">
+        <div class="section-block-title">Prender cidadão</div>
+        <div class="field-label">Motivos</div>
+        <div id="arrestReasonList" style="margin-bottom:10px;"></div>
+        <label class="field-label">Descrição</label>
+        <textarea class="textarea" id="arrestDesc" placeholder="Descreva a ocorrência da prisão..."></textarea>
+        <div style="margin:10px 0;">
+          <button class="btn" id="btnEvidence">Adicionar evidência (teleportar para Brooklyn)</button>
+          <div class="record-meta hidden" id="evidenceStatus" style="margin-top:6px;">Jogador teleportado para Brooklyn — evidência anexada ✓</div>
+        </div>
+        <button class="btn primary" id="btnConfirmArrest">Registrar prisão</button>
+      </div>
+
+      <div class="hidden section-block" id="wantedPanelForm">
+        <div class="section-block-title">Adicionar aos procurados</div>
+        <label class="field-label">Motivo</label>
+        <input class="field-input" id="wantedReasonInput" placeholder="Motivo da procura">
+        <button class="btn primary" style="margin-top:10px;" id="btnConfirmWanted">Confirmar</button>
+      </div>
+
+      <div class="section-block">
+        <div class="section-block-title">Histórico de multas — Total: ${fmt(totalFines)}</div>
+        <div class="record-list" id="citizenFinesList"></div>
+      </div>
+
+      <div class="section-block">
+        <div class="section-block-title">Histórico de prisões</div>
+        <div id="citizenArrestsAccordion"></div>
+      </div>
+    `;
+
+    const finesList = document.getElementById('citizenFinesList');
+    if(c.fines.length === 0) finesList.innerHTML = '<div class="record-meta">Nenhuma multa registrada.</div>';
+    else c.fines.forEach(f => {
+      const item = document.createElement('div');
+      item.className = 'record-item';
+      item.innerHTML = `<div class="record-title">${esc(f.type)}<span>${fmt(f.value)}</span></div><div class="record-meta">${esc(f.date)}</div>`;
+      finesList.appendChild(item);
+    });
+
+    const accordion = document.getElementById('citizenArrestsAccordion');
+    if(c.arrests.length === 0) accordion.innerHTML = '<div class="record-meta">Nenhuma prisão registrada.</div>';
+    else c.arrests.forEach(a => {
+      const item = document.createElement('div');
+      item.className = 'accordion-item';
+      item.innerHTML = `
+        <div class="accordion-head"><span>${esc(a.motivo)} — ${esc(a.date)}</span><span class="arrow">${icon('chevron')}</span></div>
+        <div class="accordion-body"><div class="accordion-body-inner"><b>Descrição:</b> ${esc(a.desc)}<br><b>Registrado por:</b> ${esc(a.officer)}<br><b>Data/hora:</b> ${esc(a.date)}</div></div>
+      `;
+      item.querySelector('.accordion-head').addEventListener('click', () => item.classList.toggle('open'));
+      accordion.appendChild(item);
+    });
+
+    document.getElementById('btnToggleFinePanel').addEventListener('click', () => document.getElementById('finePanel').classList.toggle('hidden'));
+    document.getElementById('btnToggleArrestPanel').addEventListener('click', () => document.getElementById('arrestPanel').classList.toggle('hidden'));
+
+    const fineMs = createMultiSelect({
+      inputEl: document.getElementById('fineMsInput'),
+      dropdownEl: document.getElementById('fineMsDropdown'),
+      chipsEl: document.getElementById('fineMsChips'),
+      totalEl: document.getElementById('fineMsTotal'),
+      options: FINE_TYPES,
+    });
+    document.getElementById('btnApplyFine').addEventListener('click', () => {
+      const chosen = fineMs.getSelected();
+      if(chosen.length === 0) return;
+      chosen.forEach(f => c.fines.push({ type:f.label, value:f.value, date:new Date().toLocaleString('pt-BR') }));
+      renderCitizenProfile(area);
+    });
+
+    const reasonBox = document.getElementById('arrestReasonList');
+    ARREST_REASONS.forEach(r => {
+      const label = document.createElement('label');
+      label.className = 'check-row';
+      label.innerHTML = `<input type="checkbox" value="${esc(r)}"><span>${esc(r)}</span>`;
+      reasonBox.appendChild(label);
+    });
+    let evidenceAttached = false;
+    document.getElementById('btnEvidence').addEventListener('click', () => {
+      evidenceAttached = true;
+      document.getElementById('evidenceStatus').classList.remove('hidden');
+    });
+    document.getElementById('btnConfirmArrest').addEventListener('click', () => {
+      const reasons = Array.from(reasonBox.querySelectorAll('input:checked')).map(i => i.value);
+      if(reasons.length === 0) return;
+      c.arrests.push({ motivo: reasons.join(', '), desc: document.getElementById('arrestDesc').value.trim() || '(sem descrição)', officer:'Você', date:new Date().toLocaleString('pt-BR'), evidence:evidenceAttached });
+      renderCitizenProfile(area);
+    });
+
+    document.getElementById('btnToggleWanted').addEventListener('click', () => {
+      if(c.wanted){ c.wanted = false; c.wantedReason = ''; renderCitizenProfile(area); }
+      else { document.getElementById('wantedPanelForm').classList.toggle('hidden'); }
+    });
+    document.getElementById('btnConfirmWanted').addEventListener('click', () => {
+      c.wanted = true;
+      c.wantedReason = document.getElementById('wantedReasonInput').value.trim() || 'Motivo não informado';
+      renderCitizenProfile(area);
+    });
+  }
+
+  function renderProcurados(c){
+    c.innerHTML = `<div class="page-title">Mandados ativos</div><div class="record-list" id="wantedList"></div>`;
+    const list = document.getElementById('wantedList');
+    const wanted = CITIZENS.filter(cz => cz.wanted);
+    if(wanted.length === 0){ list.innerHTML = '<div class="empty-note">Nenhum cidadão procurado no momento.</div>'; return; }
+    wanted.forEach(cz => {
+      const item = document.createElement('div');
+      item.className = 'accordion-item';
+      item.innerHTML = `
+        <div class="accordion-head"><span>${esc(cz.name)}</span><span class="arrow">${icon('chevron')}</span></div>
+        <div class="accordion-body"><div class="accordion-body-inner">
+          <b>Motivo:</b> ${esc(cz.wantedReason)}<br>
+          <button class="btn" style="margin-top:8px;" data-remove="${cz.id}">Remover dos procurados</button>
+        </div></div>
+      `;
+      item.querySelector('.accordion-head').addEventListener('click', () => item.classList.toggle('open'));
+      item.querySelector('[data-remove]').addEventListener('click', e => {
+        e.stopPropagation();
+        cz.wanted = false; cz.wantedReason = '';
+        renderProcurados(c);
+      });
+      list.appendChild(item);
+    });
+  }
+
+  function renderVeiculos(c){
+    c.innerHTML = `
+      <div class="page-title">Consulta de veículos</div>
+      <div class="field-row" style="padding-left:0; max-width:320px;">
+        <label class="field-label">Buscar por placa</label>
+        <div style="display:flex; gap:8px;">
+          <input class="field-input" id="vehSearchInput" placeholder="Placa...">
+          <button class="btn" id="btnVehSearch">Buscar</button>
+        </div>
+      </div>
+      <div id="vehResultArea"></div>
+      <div class="section-block">
+        <div class="section-block-title">BOLOs de veículos ativos</div>
+        <div class="record-list" id="stolenList"></div>
+      </div>
+    `;
+    document.getElementById('btnVehSearch').addEventListener('click', () => {
+      const term = document.getElementById('vehSearchInput').value.trim().toUpperCase();
+      const found = VEHICLES_DB.find(v => v.plate === term);
+      const area = document.getElementById('vehResultArea');
+      if(!found){ area.innerHTML = '<div class="empty-note">Nenhum veículo encontrado.</div>'; return; }
+      renderVehicleDetail(area, found);
+    });
+    const stolenList = document.getElementById('stolenList');
+    const stolen = VEHICLES_DB.filter(v => v.status === 'roubado');
+    if(stolen.length === 0) stolenList.innerHTML = '<div class="record-meta">Nenhum veículo roubado no momento.</div>';
+    else stolen.forEach(v => {
+      const item = document.createElement('div');
+      item.className = 'record-item danger';
+      item.innerHTML = `<div class="record-title">${esc(v.plate)} — ${esc(v.model)}</div><div class="record-meta">Proprietário: ${esc(v.owner)}</div>`;
+      stolenList.appendChild(item);
+    });
+  }
+
+  function renderVehicleDetail(area, v){
+    const meta = VSTATUS_META[v.status];
+    area.innerHTML = `
+      <div class="profile-card">
+        <div class="profile-header"><div class="profile-avatar">${icon('car')}</div><div><div class="profile-name">${esc(v.plate)}</div><div class="profile-sub">${esc(v.model)} — ${esc(v.color)}</div></div></div>
+        <div class="profile-grid">
+          <div class="profile-field"><span class="k">Proprietário</span><span class="v">${esc(v.owner)}</span></div>
+          <div class="profile-field"><span class="k">Situação</span><span class="badge ${meta.cls}">${meta.label}</span></div>
+        </div>
+      </div>
+      <div class="section-block"><div class="section-block-title">Histórico de multas</div><div class="record-list" id="vehFines"></div></div>
+      <div class="section-block"><div class="section-block-title">Histórico de apreensões</div><div class="record-list" id="vehSeizures"></div></div>
+    `;
+    const finesEl = document.getElementById('vehFines');
+    finesEl.innerHTML = v.fines.length === 0 ? '<div class="record-meta">Nenhuma multa registrada.</div>' : '';
+    v.fines.forEach(f => { const item = document.createElement('div'); item.className='record-item'; item.innerHTML = `<div class="record-title">${esc(f.motivo)}<span>${fmt(f.value)}</span></div><div class="record-meta">${esc(f.date)}</div>`; finesEl.appendChild(item); });
+    const seizEl = document.getElementById('vehSeizures');
+    seizEl.innerHTML = v.seizures.length === 0 ? '<div class="record-meta">Nenhuma apreensão registrada.</div>' : '';
+    v.seizures.forEach(s => { const item = document.createElement('div'); item.className='record-item danger'; item.innerHTML = `<div class="record-title">${esc(s.motivo)}</div><div class="record-meta">${esc(s.date)}</div>`; seizEl.appendChild(item); });
+  }
+
+  function renderArmas(c){
+    c.innerHTML = `
+      <div class="page-title">Armas — Registro de porte</div>
+      <div class="record-meta" style="margin-bottom:14px;">Infrações que impedem o registro: ${GUN_BLOCK_LIST.join(', ')}. Qualquer prisão registrada também bloqueia o porte.</div>
+      <div class="field-row" style="padding-left:0; max-width:320px;">
+        <label class="field-label">Buscar cidadão</label>
+        <div style="display:flex; gap:8px;">
+          <input class="field-input" id="gunSearchInput" placeholder="Nome ou CPF...">
+          <button class="btn" id="btnGunSearch">Buscar</button>
+        </div>
+      </div>
+      <div id="gunResultArea"></div>
+    `;
+    document.getElementById('btnGunSearch').addEventListener('click', () => {
+      const term = document.getElementById('gunSearchInput').value.trim().toLowerCase();
+      const found = CITIZENS.find(cz => cz.name.toLowerCase().includes(term) || cz.cpf.includes(term));
+      const area = document.getElementById('gunResultArea');
+      if(!found){ area.innerHTML = '<div class="empty-note">Nenhum cidadão encontrado.</div>'; return; }
+      renderGunResult(area, found);
+    });
+  }
+  function renderGunResult(area, cz){
+    const eligible = cz.arrests.length === 0;
+    area.innerHTML = `
+      <div class="profile-card">
+        <div class="profile-header"><div class="profile-avatar">${icon('user')}</div><div><div class="profile-name">${esc(cz.name)}</div><div class="profile-sub">CPF ${esc(cz.cpf)}</div></div></div>
+        <div class="profile-grid">
+          <div class="profile-field"><span class="k">Elegibilidade</span><span class="badge ${eligible ? 'ok' : 'danger'}">${eligible ? 'Elegível' : 'Não elegível'}</span></div>
+          <div class="profile-field"><span class="k">Porte atual</span><span class="badge ${cz.gunPermit ? 'ok' : 'warn'}">${cz.gunPermit ? 'Registrado' : 'Sem registro'}</span></div>
+        </div>
+        ${!eligible ? `<div class="record-meta" style="margin-bottom:10px;">Bloqueado — possui prisão registrada: ${esc(cz.arrests[0].motivo)}</div>` : ''}
+        <button class="btn primary" id="btnGrantGun" ${(!eligible || cz.gunPermit) ? 'disabled' : ''}>${cz.gunPermit ? 'Porte já registrado' : 'Registrar porte de arma'}</button>
+      </div>
+    `;
+    const btn = document.getElementById('btnGrantGun');
+    if(btn && !btn.disabled) btn.addEventListener('click', () => { cz.gunPermit = true; renderGunResult(area, cz); });
+  }
+
+  function renderDocumentos(c){
+    c.innerHTML = `
+      <div class="page-title">Documentos</div>
+      <div class="doc-tabs" id="docTabs">
+        <div class="doc-tab active" data-doc="codigo">Código</div>
+        <div class="doc-tab" data-doc="modulacao">Modulação</div>
+        <div class="doc-tab" data-doc="procedimento">Procedimento</div>
+      </div>
+      <div class="doc-content" id="docContent">${esc(DOCS.codigo)}</div>
+    `;
+    document.querySelectorAll('#docTabs .doc-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#docTabs .doc-tab').forEach(t => t.classList.toggle('active', t === tab));
+        document.getElementById('docContent').textContent = DOCS[tab.dataset.doc];
+      });
+    });
+  }
+
+  function renderMapa(c){
+    c.innerHTML = `
+      <div class="page-title">Live Map</div>
+      <div class="map-mock" id="mapMock"></div>
+      <div class="map-note">Mapa ilustrativo — posições simuladas para fins de demonstração do layout.</div>
+    `;
+    const map = document.getElementById('mapMock');
+    const positions = [ [18,22],[62,15],[40,55],[78,68],[25,80] ];
+    ONLINE.concat([{name:'Diego Ferreira', status:'Em patrulha — Unidade 108'}]).forEach((p,i) => {
+      const [x,y] = positions[i % positions.length];
+      const dot = document.createElement('div');
+      dot.className = 'map-dot';
+      dot.style.left = x + '%'; dot.style.top = y + '%';
+      const label = document.createElement('div');
+      label.className = 'map-label';
+      label.style.left = x + '%'; label.style.top = y + '%';
+      label.textContent = p.name;
+      map.appendChild(dot); map.appendChild(label);
+    });
+  }
+
+  function renderComandos(c){
+    c.innerHTML = `<div class="page-title">Efetivo do departamento</div><div class="record-list" id="staffList"></div>`;
+    const list = document.getElementById('staffList');
+    STAFF.forEach(s => {
+      const item = document.createElement('div');
+      item.className = 'record-item';
+      item.innerHTML = `<div class="record-title">${esc(s.name)}<span class="badge ok">${esc(s.rank)}</span></div>`;
+      list.appendChild(item);
+    });
+  }
+
+  function renderCameras(c){
+    c.innerHTML = `
+      <div class="page-title">Câmeras</div>
+      <div class="cam-preview" id="camPreview">Selecione uma câmera abaixo</div>
+      <div class="cam-grid" id="camGrid"></div>
+    `;
+    const grid = document.getElementById('camGrid');
+    for(let i=1;i<=8;i++){
+      const tile = document.createElement('div');
+      tile.className = 'cam-tile';
+      tile.innerHTML = `<span class="cam-icon">${icon('camera')}</span><span>CAM ${String(i).padStart(2,'0')}</span>`;
+      tile.addEventListener('click', () => {
+        document.querySelectorAll('.cam-tile').forEach(t => t.classList.remove('active'));
+        tile.classList.add('active');
+        document.getElementById('camPreview').textContent = `CAM ${String(i).padStart(2,'0')} — sem sinal (mock)`;
+      });
+      grid.appendChild(tile);
+    }
+  }
+
+  renderNav('polNav', NAV, activePage, go);
+  render();
+})();
+
+/* ============================================================
+   HOSPITAL
+============================================================ */
+(function(){
+  const NAV = [
+    { id:'dashboard', icon:'dashboard', label:'Dashboard' },
+    { id:'chamados', icon:'phone', label:'Chamados' },
+    { id:'paciente', icon:'medical', label:'Paciente' },
+    { id:'consulta', icon:'edit', label:'Registrar consulta' },
+    { id:'historico', icon:'history', label:'Histórico de atendimentos' },
+  ];
+  const CALLS = [
+    { title:'Atropelamento na Grove Street', location:'Grove Street', time:'há 3 min', priority:'alta' },
+    { title:'Mal súbito no shopping', location:'Del Perro Mall', time:'há 19 min', priority:'media' },
+    { title:'Queda de bicicleta', location:'Vespucci Beach', time:'há 40 min', priority:'baixa' },
+  ];
+  const ONLINE = [
+    { name:'Dra. Camila Rocha', status:'Em atendimento — UTI' },
+    { name:'Dr. Felipe Nunes', status:'Disponível — Recepção' },
+  ];
+  const REASONS = [
+    { key:'r1', label:'Ferimento por arma de fogo' },
+    { key:'r2', label:'Fratura' },
+    { key:'r3', label:'Corte profundo' },
+    { key:'r4', label:'Queimadura' },
+    { key:'r5', label:'Intoxicação' },
+    { key:'r6', label:'Overdose' },
+    { key:'r7', label:'Atropelamento' },
+    { key:'r8', label:'Parada cardíaca' },
+  ];
+  const RESOURCES = [
+    { key:'m1', label:'Bandagem', value:50 },
+    { key:'m2', label:'Soro Fisiológico', value:80 },
+    { key:'m3', label:'Analgésico', value:60 },
+    { key:'m4', label:'Antibiótico', value:120 },
+    { key:'m5', label:'Kit de Sutura', value:150 },
+    { key:'m6', label:'Adrenalina', value:200 },
+    { key:'m7', label:'Oxigênio', value:90 },
+  ];
+  const BODY_ZONES = [
+    { key:'head', label:'Cabeça', cls:'bp-head' },
+    { key:'torso', label:'Tronco', cls:'bp-torso' },
+    { key:'armL', label:'Braço E', cls:'bp-armL' },
+    { key:'armR', label:'Braço D', cls:'bp-armR' },
+    { key:'legL', label:'Perna E', cls:'bp-legL' },
+    { key:'legR', label:'Perna D', cls:'bp-legR' },
+  ];
+
+  const PATIENTS = [
+    { name:'Marcus Silva', age:34, blood:'O+', notes:[], history:[{ title:'Fratura no braço', date:'10/02/2026', desc:'Atendido após acidente de moto. Imobilizado e liberado.' }] },
+    { name:'Ana Costa', age:29, blood:'A-', notes:[], history:[{ title:'Ferimento por arma de fogo', date:'18/07/2026', desc:'Entrada em estado crítico, encaminhada para cirurgia.' }] },
+  ];
+  let ATTENDANCES = [];
+  let activePage = 'dashboard';
+  let currentPatient = null;
+  let bodySeverity = { head:0, torso:0, armL:0, armR:0, legL:0, legR:0 };
+  let resourcesMs = null;
+
+  function go(pageId){ activePage = pageId; renderNav('hospNav', NAV, activePage, go); render(); }
+
+  function render(){
+    const c = document.getElementById('hospPageContent');
+    if(activePage === 'dashboard') return renderDashboard(c);
+    if(activePage === 'chamados') return renderChamados(c);
+    if(activePage === 'paciente') return renderPacienteSearch(c);
+    if(activePage === 'consulta') return renderConsulta(c);
+    if(activePage === 'historico') return renderHistorico(c);
+  }
+
+  function renderDashboard(c){
+    c.innerHTML = `
+      <div class="page-title">Dashboard</div><div class="record-meta" style="margin:-10px 0 16px">Visão rápida das atividades recentes e equipes disponíveis.</div>
+      <div class="dash-grid">
+        <div><div class="dash-col-title">Últimos chamados</div><div id="hospCallsList"></div></div>
+        <div><div class="dash-col-title">Unidades em serviço</div><div id="hospOnlineList"></div></div>
+      </div>
+    `;
+    const callsList = document.getElementById('hospCallsList');
+    CALLS.forEach(call => {
+      const el = document.createElement('div');
+      el.className = 'call-item ' + call.priority;
+      el.innerHTML = `<div class="call-title"><span>${esc(call.title)}</span></div><div class="call-meta">${esc(call.location)} — ${esc(call.time)}</div>`;
+      callsList.appendChild(el);
+    });
+    const onlineList = document.getElementById('hospOnlineList');
+    ONLINE.forEach(p => {
+      const el = document.createElement('div');
+      el.className = 'online-item';
+      el.innerHTML = `<span class="online-name"><span class="online-dot"></span>${esc(p.name)}</span><span class="online-status">${esc(p.status)}</span>`;
+      onlineList.appendChild(el);
+    });
+  }
+
+  function renderChamados(c){
+    c.innerHTML = `
+      <div class="page-title">Chamados</div>
+      <div class="section-block">
+        <div class="section-block-title">Registrar chamado</div>
+        <div class="field-row" style="padding-left:0;"><label class="field-label">Título</label><input class="field-input" id="callTitle" placeholder="Ex: Queda de altura"></div>
+        <div class="field-row" style="padding-left:0;"><label class="field-label">Local</label><input class="field-input" id="callLocation" placeholder="Ex: Legion Square"></div>
+        <div class="field-row" style="padding-left:0;"><label class="field-label">Prioridade</label>
+          <div class="mic-seg" id="callPrioSeg">
+            <button data-p="baixa">Baixa</button>
+            <button data-p="media" class="active">Média</button>
+            <button data-p="alta">Alta</button>
+          </div>
+        </div>
+        <button class="btn primary" id="btnAddCall">Registrar chamado</button>
+      </div>
+      <div class="section-block">
+        <div class="section-block-title">Chamados (mais recente primeiro)</div>
+        <div id="callsFullList"></div>
+      </div>
+    `;
+    document.querySelectorAll('#callPrioSeg button').forEach(btn => btn.addEventListener('click', () => document.querySelectorAll('#callPrioSeg button').forEach(b => b.classList.toggle('active', b === btn))));
+    document.getElementById('btnAddCall').addEventListener('click', () => {
+      const title = document.getElementById('callTitle').value.trim();
+      if(!title) return;
+      CALLS.unshift({ title, location: document.getElementById('callLocation').value.trim() || 'Não informado', time:'agora', priority: document.querySelector('#callPrioSeg button.active').dataset.p });
+      renderChamados(c);
+    });
+    const list = document.getElementById('callsFullList');
+    CALLS.forEach(call => {
+      const el = document.createElement('div');
+      el.className = 'call-item ' + call.priority;
+      el.innerHTML = `<div class="call-title"><span>${esc(call.title)}</span></div><div class="call-meta">${esc(call.location)} — ${esc(call.time)}</div>`;
+      list.appendChild(el);
+    });
+  }
+
+  function renderPacienteSearch(c){
+    c.innerHTML = `
+      <div class="page-title">Paciente</div>
+      <div class="field-row" style="padding-left:0; max-width:320px;">
+        <label class="field-label">Buscar por nome</label>
+        <div style="display:flex; gap:8px;">
+          <input class="field-input" id="patSearchInput" placeholder="Nome do paciente...">
+          <button class="btn" id="btnPatSearch">Buscar</button>
+        </div>
+      </div>
+      <div id="patResultArea"></div>
+    `;
+    document.getElementById('btnPatSearch').addEventListener('click', () => {
+      const term = document.getElementById('patSearchInput').value.trim().toLowerCase();
+      const found = PATIENTS.find(p => p.name.toLowerCase().includes(term));
+      const area = document.getElementById('patResultArea');
+      if(!found){ area.innerHTML = '<div class="empty-note">Nenhum paciente encontrado.</div>'; return; }
+      currentPatient = found;
+      renderPatientProfile(area);
+    });
+  }
+
+  function renderPatientProfile(area){
+    const p = currentPatient;
+    area.innerHTML = `
+      <div class="profile-card">
+        <div class="profile-header"><div class="profile-avatar">${icon('medical')}</div><div><div class="profile-name">${esc(p.name)}</div><div class="profile-sub">${p.age} anos — Tipo sanguíneo ${esc(p.blood)}</div></div></div>
+      </div>
+      <div class="section-block">
+        <div class="section-block-title">Histórico de consultas</div>
+        <div class="record-list" id="patHistoryList"></div>
+      </div>
+      <div class="section-block">
+        <div class="section-block-title">Anotações de consulta</div>
+        <textarea class="textarea" id="patNoteInput" placeholder="Nova anotação..."></textarea>
+        <button class="btn" style="margin-top:8px;" id="btnAddNote">Adicionar anotação</button>
+        <div class="record-list" id="patNotesList" style="margin-top:10px;"></div>
+      </div>
+    `;
+    const hist = document.getElementById('patHistoryList');
+    if(p.history.length === 0) hist.innerHTML = '<div class="record-meta">Nenhum atendimento anterior.</div>';
+    else p.history.forEach(h => { const item = document.createElement('div'); item.className='record-item'; item.innerHTML = `<div class="record-title">${esc(h.title)}</div><div class="record-meta">${esc(h.date)}</div><div class="record-desc">${esc(h.desc)}</div>`; hist.appendChild(item); });
+
+    function renderNotes(){
+      const notesList = document.getElementById('patNotesList');
+      notesList.innerHTML = '';
+      if(p.notes.length === 0){ notesList.innerHTML = '<div class="record-meta">Nenhuma anotação ainda.</div>'; return; }
+      p.notes.slice().reverse().forEach(n => { const item = document.createElement('div'); item.className='record-item'; item.innerHTML = `<div class="record-meta">${esc(n.date)}</div><div class="record-desc">${esc(n.text)}</div>`; notesList.appendChild(item); });
+    }
+    renderNotes();
+    document.getElementById('btnAddNote').addEventListener('click', () => {
+      const text = document.getElementById('patNoteInput').value.trim();
+      if(!text) return;
+      p.notes.push({ text, date:new Date().toLocaleString('pt-BR') });
+      document.getElementById('patNoteInput').value = '';
+      renderNotes();
+    });
+  }
+
+  function renderConsulta(c){
+    c.innerHTML = `
+      <div class="page-title">Registrar consulta</div>
+      <div class="field-row" style="padding-left:0; max-width:320px;"><label class="field-label">Nome do paciente</label><input class="field-input" id="csName" placeholder="Nome completo"></div>
+
+      <div class="section-block">
+        <div class="section-block-title">Motivos</div>
+        <div class="ms-wrap" style="max-width:360px;">
+          <input class="field-input" id="reasonMsInput" placeholder="Buscar motivo...">
+          <div class="ms-dropdown" id="reasonMsDropdown"></div>
+        </div>
+        <div class="ms-chips" id="reasonMsChips"></div>
+      </div>
+
+      <div class="section-block">
+        <div class="section-block-title">Pontos de lesão (clique nas partes — 0 a 3, R$100 por ponto)</div>
+        <div class="body-diagram" id="bodyDiagram">
+          ${BODY_ZONES.map(z => `<div class="bp ${z.cls}" data-zone="${z.key}" data-sev="0">0</div>`).join('')}
+        </div>
+        <div class="record-meta" style="text-align:center; margin-top:10px;" id="bodyCostLabel">Custo por lesões: R$ 0,00</div>
+      </div>
+
+      <div class="section-block">
+        <div class="section-block-title">Recursos usados</div>
+        <div class="ms-wrap" style="max-width:360px;">
+          <input class="field-input" id="resMsInput" placeholder="Buscar recurso/medicamento...">
+          <div class="ms-dropdown" id="resMsDropdown"></div>
+        </div>
+        <div class="ms-chips" id="resMsChips"></div>
+        <div class="ms-total" id="resMsTotal">Total: <span>R$ 0,00</span></div>
+      </div>
+
+      <div class="section-block">
+        <div class="field-row" style="padding-left:0; max-width:220px;"><label class="field-label">Horas de atendimento (R$10/h)</label><input type="number" class="field-input" id="csHours" min="0" step="0.5" value="1"></div>
+        <label class="check-row"><input type="checkbox" id="csRescue"><span>Teve resgate? (+R$500)</span></label>
+        <label class="check-row"><input type="checkbox" id="csShowInvoice"><span>Exibir nota fiscal</span></label>
+      </div>
+
+      <div class="hidden section-block" id="csInvoiceBlock">
+        <div class="receipt-paper" style="max-width:320px;">
+          <div class="receipt-store">HOSPITAL CENTRAL</div>
+          <div class="receipt-meta">Nota de Atendimento</div>
+          <div class="receipt-divider"></div>
+          <div class="receipt-items" id="csInvoiceItems"></div>
+          <div class="receipt-divider"></div>
+          <div class="receipt-row total"><span>TOTAL</span><span id="csInvoiceTotal">R$ 0,00</span></div>
+        </div>
+      </div>
+
+      <button class="btn primary" id="btnRegisterConsulta">Registrar consulta</button>
+    `;
+
+    const reasonMs = createMultiSelect({
+      inputEl: document.getElementById('reasonMsInput'),
+      dropdownEl: document.getElementById('reasonMsDropdown'),
+      chipsEl: document.getElementById('reasonMsChips'),
+      options: REASONS,
+    });
+
+    bodySeverity = { head:0, torso:0, armL:0, armR:0, legL:0, legR:0 };
+    document.querySelectorAll('#bodyDiagram .bp').forEach(el => {
+      el.addEventListener('click', () => {
+        const zone = el.dataset.zone;
+        bodySeverity[zone] = (bodySeverity[zone] + 1) % 4;
+        el.dataset.sev = bodySeverity[zone];
+        el.textContent = bodySeverity[zone];
+        updateBodyCost();
+      });
+    });
+    function bodyCost(){ return Object.values(bodySeverity).reduce((s,v) => s + v*100, 0); }
+    function updateBodyCost(){
+      document.getElementById('bodyCostLabel').textContent = 'Custo por lesões: ' + fmt(bodyCost());
+      updateInvoice();
+    }
+
+    resourcesMs = createMultiSelect({
+      inputEl: document.getElementById('resMsInput'),
+      dropdownEl: document.getElementById('resMsDropdown'),
+      chipsEl: document.getElementById('resMsChips'),
+      totalEl: document.getElementById('resMsTotal'),
+      options: RESOURCES,
+      onChange: updateInvoice,
+    });
+
+    document.getElementById('csHours').addEventListener('input', updateInvoice);
+    document.getElementById('csRescue').addEventListener('change', updateInvoice);
+    document.getElementById('csShowInvoice').addEventListener('change', e => {
+      document.getElementById('csInvoiceBlock').classList.toggle('hidden', !e.target.checked);
+      updateInvoice();
+    });
+
+    function getTotals(){
+      const hours = parseFloat(document.getElementById('csHours').value) || 0;
+      const hourCost = hours * 10;
+      const resCost = resourcesMs.getSelected().reduce((s,r) => s + r.value, 0);
+      const rescue = document.getElementById('csRescue').checked ? 500 : 0;
+      const body = bodyCost();
+      return { hourCost, resCost, rescue, body, total: hourCost + resCost + rescue + body };
+    }
+    function updateInvoice(){
+      const t = getTotals();
+      const itemsBox = document.getElementById('csInvoiceItems');
+      if(!itemsBox) return;
+      itemsBox.innerHTML = `
+        <div class="receipt-row"><span>Pontos de lesão</span><span>${fmt(t.body)}</span></div>
+        ${resourcesMs.getSelected().map(r => `<div class="receipt-row"><span>${esc(r.label)}</span><span>${fmt(r.value)}</span></div>`).join('')}
+        <div class="receipt-row"><span>Tempo de atendimento</span><span>${fmt(t.hourCost)}</span></div>
+        ${t.rescue ? `<div class="receipt-row"><span>Resgate</span><span>${fmt(t.rescue)}</span></div>` : ''}
+      `;
+      document.getElementById('csInvoiceTotal').textContent = fmt(t.total);
+    }
+    updateInvoice();
+
+    document.getElementById('btnRegisterConsulta').addEventListener('click', () => {
+      const name = document.getElementById('csName').value.trim();
+      if(!name) return;
+      const t = getTotals();
+      const reasons = reasonMs.getSelected().map(r => r.label);
+      const record = { name, reasons, total:t.total, date:new Date().toLocaleString('pt-BR') };
+      ATTENDANCES.push(record);
+      let patient = PATIENTS.find(p => p.name === name);
+      if(!patient){ patient = { name, age:0, blood:'—', notes:[], history:[] }; PATIENTS.push(patient); }
+      patient.history.push({ title: reasons.join(', ') || 'Consulta geral', date: record.date, desc: `Total pago: ${fmt(t.total)}` });
+      go('historico');
+    });
+  }
+
+  function renderHistorico(c){
+    c.innerHTML = `<div class="page-title">Histórico de atendimentos</div><div class="record-list" id="attList"></div>`;
+    const list = document.getElementById('attList');
+    if(ATTENDANCES.length === 0){ list.innerHTML = '<div class="empty-note">Nenhum atendimento registrado ainda.</div>'; return; }
+    ATTENDANCES.slice().reverse().forEach(a => {
+      const item = document.createElement('div');
+      item.className = 'record-item';
+      item.innerHTML = `<div class="record-title">${esc(a.name)}<span>${fmt(a.total)}</span></div><div class="record-meta">${esc(a.date)}</div><div class="record-desc">${esc(a.reasons.join(', ') || 'Sem motivo especificado')}</div>`;
+      list.appendChild(item);
+    });
+  }
+
+  renderNav('hospNav', NAV, activePage, go);
+  render();
+})();
+
+/* ============================================================
+   MECÂNICA
+============================================================ */
+(function(){
+  const NAV = [
+    { id:'dashboard', icon:'dashboard', label:'Dashboard' },
+    { id:'veiculos', icon:'car', label:'Veículos' },
+    { id:'historico', icon:'history', label:'Histórico de conserto' },
+  ];
+  const CALLS = [
+    { title:'Carro quebrado na autoestrada', location:'Route 68', time:'há 8 min', priority:'media' },
+    { title:'Guincho solicitado', location:'Sandy Shores', time:'há 30 min', priority:'baixa' },
+  ];
+  const ONLINE = [
+    { name:'João Mecânico', status:'Disponível — Oficina Central' },
+    { name:'Paula Reparos', status:'Em atendimento' },
+  ];
+  const PART_PRICES = {
+    'Para-choque Dianteiro':120, 'Capô':180, 'Motor':450, 'Porta Dianteira Esquerda':160, 'Teto':300,
+    'Porta Dianteira Direita':160, 'Porta Traseira Esquerda':150, 'Porta Traseira Direita':150,
+    'Porta-malas':140, 'Para-choque Traseiro':120,
+  };
+  const TOW_FEE = 150;
+
+  let REPAIRS = [];
+  let activePage = 'dashboard';
+  let currentVehicle = null;
+  let selectedParts = new Set();
+  let mecPaid = false;
+
+  function go(pageId){ activePage = pageId; renderNav('mecNav', NAV, activePage, go); render(); }
+
+  function render(){
+    const c = document.getElementById('mecPageContent');
+    if(activePage === 'dashboard') return renderDashboard(c);
+    if(activePage === 'veiculos') return renderVeiculos(c);
+    if(activePage === 'historico') return renderHistorico(c);
+  }
+
+  function renderDashboard(c){
+    c.innerHTML = `
+      <div class="page-title">Dashboard</div><div class="record-meta" style="margin:-10px 0 16px">Visão rápida das atividades recentes e equipes disponíveis.</div>
+      <div class="dash-grid">
+        <div><div class="dash-col-title">Últimos chamados</div><div id="mecCallsList"></div></div>
+        <div><div class="dash-col-title">Unidades em serviço</div><div id="mecOnlineList"></div></div>
+      </div>
+    `;
+    const callsList = document.getElementById('mecCallsList');
+    CALLS.forEach(call => {
+      const el = document.createElement('div');
+      el.className = 'call-item ' + call.priority;
+      el.innerHTML = `<div class="call-title"><span>${esc(call.title)}</span></div><div class="call-meta">${esc(call.location)} — ${esc(call.time)}</div>`;
+      callsList.appendChild(el);
+    });
+    const onlineList = document.getElementById('mecOnlineList');
+    ONLINE.forEach(p => {
+      const el = document.createElement('div');
+      el.className = 'online-item';
+      el.innerHTML = `<span class="online-name"><span class="online-dot"></span>${esc(p.name)}</span><span class="online-status">${esc(p.status)}</span>`;
+      onlineList.appendChild(el);
+    });
+  }
+
+  function renderVeiculos(c){
+    c.innerHTML = `
+      <div class="page-title">Veículos</div>
+      <div class="field-row" style="padding-left:0; max-width:320px;">
+        <label class="field-label">Buscar por placa</label>
+        <div style="display:flex; gap:8px;">
+          <input class="field-input" id="mecPlateInput" placeholder="Placa...">
+          <button class="btn" id="btnMecSearch">Buscar</button>
+        </div>
+      </div>
+      <div id="mecVehicleArea"></div>
+    `;
+    document.getElementById('btnMecSearch').addEventListener('click', () => {
+      const term = document.getElementById('mecPlateInput').value.trim().toUpperCase();
+      const found = VEHICLES_DB.find(v => v.plate === term);
+      const area = document.getElementById('mecVehicleArea');
+      if(!found){ area.innerHTML = '<div class="empty-note">Nenhum veículo encontrado com essa placa.</div>'; return; }
+      currentVehicle = found;
+      selectedParts = new Set();
+      mecPaid = false;
+      renderVehicleWork(area);
+    });
+  }
+
+  function renderVehicleWork(area){
+    const v = currentVehicle;
+    area.innerHTML = `
+      <div class="profile-card">
+        <div class="profile-header"><div class="profile-avatar">${icon('car')}</div><div><div class="profile-name">${esc(v.plate)}</div><div class="profile-sub">${esc(v.model)} — ${esc(v.color)}</div></div></div>
+        <div class="profile-grid"><div class="profile-field"><span class="k">Proprietário</span><span class="v">${esc(v.owner)}</span></div></div>
+      </div>
+
+      <div class="section-block">
+        <div class="section-block-title">Selecione as partes reparadas</div>
+        <div class="car-diagram" id="carDiagram">
+          <div class="car-part cp-bumper-f" data-part="Para-choque Dianteiro">Para-choque D.</div>
+          <div class="car-part cp-hood" data-part="Capô">Capô<div class="car-part cp-motor" data-part="Motor">Motor</div></div>
+          <div class="car-part cp-doorFL" data-part="Porta Dianteira Esquerda">Porta Diant. E</div>
+          <div class="car-part cp-roof" data-part="Teto">Teto</div>
+          <div class="car-part cp-doorFR" data-part="Porta Dianteira Direita">Porta Diant. D</div>
+          <div class="car-part cp-doorRL" data-part="Porta Traseira Esquerda">Porta Tras. E</div>
+          <div class="car-part cp-doorRR" data-part="Porta Traseira Direita">Porta Tras. D</div>
+          <div class="car-part cp-trunk" data-part="Porta-malas">Porta-malas</div>
+          <div class="car-part cp-bumper-r" data-part="Para-choque Traseiro">Para-choque Tras.</div>
+        </div>
+      </div>
+
+      <div class="section-block">
+        <label class="field-label">Descrição</label>
+        <textarea class="textarea" id="mecDesc" placeholder="Descreva o serviço realizado..."></textarea>
+      </div>
+
+      <label class="check-row"><input type="checkbox" id="mecTow"><span>Teve reboque? (+${fmt(TOW_FEE)})</span></label>
+      <div class="field-row" style="padding-left:0; max-width:320px;">
+        <label class="field-label">Cobrar de (se diferente do proprietário)</label>
+        <input class="field-input" id="mecPlayerInput" placeholder="${esc(v.owner)}">
+      </div>
+
+      <div class="receipt-paper" style="max-width:320px; margin-bottom:14px;">
+        <div class="receipt-stamp hidden" id="mecStamp">PAGO ✓</div>
+        <div class="receipt-store">OFICINA MECÂNICA</div>
+        <div class="receipt-meta">Ordem de Serviço — ${esc(v.plate)}</div>
+        <div class="receipt-divider"></div>
+        <div class="receipt-items" id="mecInvoiceItems"></div>
+        <div class="receipt-divider"></div>
+        <div class="receipt-row total"><span>TOTAL</span><span id="mecInvoiceTotal">R$ 0,00</span></div>
+        <div class="receipt-barcode"></div>
+      </div>
+
+      <button class="btn primary" id="btnMecFinish">Gerar nota fiscal</button>
+    `;
+
+    document.querySelectorAll('#carDiagram [data-part]').forEach(el => {
+      el.addEventListener('click', e => {
+        e.stopPropagation();
+        if(mecPaid) return;
+        const part = el.dataset.part;
+        if(selectedParts.has(part)){ selectedParts.delete(part); el.classList.remove('selected'); }
+        else { selectedParts.add(part); el.classList.add('selected'); }
+        updateMecInvoice();
+      });
+    });
+    document.getElementById('mecTow').addEventListener('change', updateMecInvoice);
+
+    function getMecTotal(){
+      let total = 0;
+      selectedParts.forEach(p => total += PART_PRICES[p] || 0);
+      if(document.getElementById('mecTow').checked) total += TOW_FEE;
+      return total;
+    }
+    function updateMecInvoice(){
+      const itemsBox = document.getElementById('mecInvoiceItems');
+      if(selectedParts.size === 0){ itemsBox.innerHTML = '<div class="receipt-row"><span>Nenhuma peça selecionada</span><span></span></div>'; }
+      else itemsBox.innerHTML = Array.from(selectedParts).map(p => `<div class="receipt-row"><span>${esc(p)}</span><span>${fmt(PART_PRICES[p] || 0)}</span></div>`).join('');
+      if(document.getElementById('mecTow').checked) itemsBox.innerHTML += `<div class="receipt-row"><span>Reboque</span><span>${fmt(TOW_FEE)}</span></div>`;
+      document.getElementById('mecInvoiceTotal').textContent = fmt(getMecTotal());
+    }
+    updateMecInvoice();
+
+    document.getElementById('btnMecFinish').addEventListener('click', () => {
+      if(mecPaid || selectedParts.size === 0) return;
+      mecPaid = true;
+      document.getElementById('mecStamp').classList.remove('hidden');
+      REPAIRS.push({
+        plate: v.plate, model: v.model,
+        parts: Array.from(selectedParts),
+        desc: document.getElementById('mecDesc').value.trim(),
+        billedTo: document.getElementById('mecPlayerInput').value.trim() || v.owner,
+        total: getMecTotal(),
+        date: new Date().toLocaleString('pt-BR'),
+      });
+    });
+  }
+
+  function renderHistorico(c){
+    c.innerHTML = `<div class="page-title">Histórico de conserto</div><div class="record-list" id="repairList"></div>`;
+    const list = document.getElementById('repairList');
+    if(REPAIRS.length === 0){ list.innerHTML = '<div class="empty-note">Nenhum conserto registrado ainda.</div>'; return; }
+    REPAIRS.slice().reverse().forEach(r => {
+      const item = document.createElement('div');
+      item.className = 'record-item';
+      item.innerHTML = `<div class="record-title">${esc(r.plate)} — ${esc(r.model)}<span>${fmt(r.total)}</span></div><div class="record-meta">${esc(r.date)} — Cobrado de: ${esc(r.billedTo)}</div><div class="record-desc">Peças: ${esc(r.parts.join(', ') || '—')}${r.desc ? '<br>' + esc(r.desc) : ''}</div>`;
+      list.appendChild(item);
+    });
+  }
+
+  renderNav('mecNav', NAV, activePage, go);
+  render();
+})();
+
+
+/* ---------- accessibility runtime enhancements ---------- */
+(function enhanceAccessibility(){
+  const keyActivate = (el, handler) => {
+    el.addEventListener('keydown', event => {
+      if(event.key === 'Enter' || event.key === ' '){
+        event.preventDefault();
+        handler();
+      }
+    });
+  };
+
+  function makeInteractive(el, role='button'){
+    if(!el.hasAttribute('tabindex')) el.tabIndex = 0;
+    if(!el.hasAttribute('role')) el.setAttribute('role', role);
+    if(el.dataset.a11yKeyboard !== 'true'){
+      keyActivate(el, () => el.click());
+      el.dataset.a11yKeyboard = 'true';
+    }
+  }
+
+  function labelControls(root=document){
+    root.querySelectorAll('input, textarea, select').forEach((control, index) => {
+      if(!control.id) control.id = `mdt-control-${index}-${Math.random().toString(36).slice(2,7)}`;
+      if(control.hasAttribute('aria-label') || control.hasAttribute('aria-labelledby')) return;
+      const row = control.closest('.field-row, .section-block, .ms-wrap');
+      const label = row && row.querySelector('.field-label');
+      if(label){
+        if(!label.id) label.id = `label-${control.id}`;
+        label.setAttribute('for', control.id);
+        control.setAttribute('aria-labelledby', label.id);
+      } else if(control.placeholder){
+        control.setAttribute('aria-label', control.placeholder);
+      }
+    });
+  }
+
+  function refresh(root=document){
+    labelControls(root);
+    root.querySelectorAll('.nav-item').forEach(el => {
+      makeInteractive(el);
+      el.setAttribute('aria-current', el.classList.contains('active') ? 'page' : 'false');
+    });
+    root.querySelectorAll('.dept-tab').forEach(el => {
+      makeInteractive(el, 'tab');
+      el.setAttribute('aria-selected', el.classList.contains('active') ? 'true' : 'false');
+    });
+    root.querySelectorAll('.doc-tab').forEach(el => {
+      makeInteractive(el, 'tab');
+      el.setAttribute('aria-selected', el.classList.contains('active') ? 'true' : 'false');
+    });
+    root.querySelectorAll('.cam-tile,.car-part,.bp').forEach(el => {
+      makeInteractive(el);
+      const selected = el.classList.contains('active') || el.classList.contains('selected') || Number(el.dataset.sev || 0) > 0;
+      el.setAttribute('aria-pressed', selected ? 'true' : 'false');
+      if(!el.getAttribute('aria-label')) el.setAttribute('aria-label', el.dataset.part || el.textContent.trim());
+    });
+    root.querySelectorAll('.accordion-head').forEach((el,index) => {
+      makeInteractive(el);
+      const item = el.closest('.accordion-item');
+      const body = item && item.querySelector('.accordion-body');
+      if(body){
+        if(!body.id) body.id = `accordion-panel-${index}-${Math.random().toString(36).slice(2,6)}`;
+        el.setAttribute('aria-controls',body.id);
+        el.setAttribute('aria-expanded',item.classList.contains('open') ? 'true' : 'false');
+      }
+    });
+    root.querySelectorAll('.ms-dropdown').forEach(el => { el.setAttribute('role','listbox'); });
+    root.querySelectorAll('.ms-option').forEach(el => { makeInteractive(el,'option'); });
+    root.querySelectorAll('svg.icon').forEach(svg => { svg.setAttribute('aria-hidden','true'); svg.setAttribute('focusable','false'); });
+    root.querySelectorAll('.empty-note,.record-meta').forEach(el => { if(!el.hasAttribute('role')) el.setAttribute('role','status'); });
+  }
+
+  document.querySelector('.dept-tabs')?.setAttribute('role','tablist');
+  document.querySelectorAll('.dept-view').forEach(view => { view.setAttribute('role','tabpanel'); view.setAttribute('aria-hidden',view.classList.contains('active')?'false':'true'); });
+  document.querySelectorAll('.sidebar').forEach(sidebar => sidebar.setAttribute('aria-label','Navegação do departamento'));
+  document.querySelectorAll('.stage').forEach(stage => { stage.setAttribute('role','main'); stage.setAttribute('aria-live','polite'); });
+
+  const observer = new MutationObserver(() => refresh());
+  observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','data-sev']});
+  refresh();
+
+  document.addEventListener('click', event => {
+    if(event.target.closest('.dept-tab')){
+      document.querySelectorAll('.dept-view').forEach(view => view.setAttribute('aria-hidden',view.classList.contains('active')?'false':'true'));
+    }
+    queueMicrotask(() => refresh());
+  });
+})();
+
+</script>
+</body>
+</html>

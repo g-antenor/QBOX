@@ -3,7 +3,7 @@
 
     Um alerta so existe se o SERVIDOR mandar. O cliente que comete o crime
     apenas conta o que fez e onde estava; quem decide se aquilo vira alerta,
-    para quem vai e se o bloqueador estava ativo e este arquivo.
+    e para quem vai e este arquivo.
 
     Isso importa porque o cliente do ladrao e exatamente a maquina que tem
     interesse em suprimir o alerta. Se a supressao morasse la, bastaria nao
@@ -14,12 +14,9 @@ local Ox = require '@ox_core.lib.init'
 
 Dispatch = {}
 
--- Bloqueios ativos, por charId -> os.time() em que expiram.
---
--- Por charId e nao por source: sair e voltar no servidor trocaria o source e
--- limparia o bloqueio, o que daria ao ladrao um botao de cancelar consequencia.
----@type table<number, number>
-local jammed = {}
+-- Destinatarios congelados no momento do alerta. Atualizar um blip dez vezes
+-- por segundo nao pode refazer a consulta de corporacoes dez vezes por segundo.
+local vehicleAlerts = {}
 
 -- ------------------------------------------------------------ destinatarios --
 
@@ -79,53 +76,7 @@ local function receivers()
     return result
 end
 
--- --------------------------------------------------------------- bloqueio --
-
---- Este personagem esta com bloqueador ativo agora?
----@param charId number?
----@return boolean
-local function isJammed(charId)
-    if not charId then return false end
-
-    local until_ = jammed[charId]
-
-    if not until_ then return false end
-
-    if os.time() >= until_ then
-        jammed[charId] = nil
-        return false
-    end
-
-    return true
-end
-
-Dispatch.isJammed = isJammed
-
-exports('IsJammed', function(source)
-    local player = Ox.GetPlayer(source)
-
-    return player and isJammed(player.charId) or false
-end)
-
 -- ----------------------------------------------------------------- enviar --
-
---- Coordenada deslocada aleatoriamente dentro de um raio.
----
---- Usada no alerta de perda de sinal: o ponto exato entregaria justamente o que
---- o bloqueador acabou de esconder.
----@param coords vector3
----@param radius number
----@return vector3
-local function blur(coords, radius)
-    local angle = math.random() * math.pi * 2
-    local distance = math.sqrt(math.random()) * radius
-
-    return vec3(
-        coords.x + math.cos(angle) * distance,
-        coords.y + math.sin(angle) * distance,
-        coords.z
-    )
-end
 
 --- Dispara um alerta.
 ---
@@ -153,13 +104,15 @@ function Dispatch.send(category, coords, data)
     -- historico no MDT: o crime aconteceu, e a corporacao deve poder ver depois
     -- que aconteceu enquanto nao havia ninguem.
     local payload = {
-        id       = ('%s_%d'):format(category, math.random(100000, 999999)),
+        id       = type(data.id) == 'string' and data.id:match('^[%w_%-]+$') and data.id:sub(1, 64)
+                   or ('%s_%d'):format(category, math.random(100000, 999999)),
         category = category,
         label    = settings.label,
         code     = settings.code,
         icon     = settings.icon,
         priority = settings.priority,
         detail   = type(data.detail) == 'string' and data.detail:sub(1, 90) or nil,
+        plate    = type(data.plate) == 'string' and data.plate:sub(1, 12) or nil,
         street   = type(data.street) == 'string' and data.street:sub(1, 60) or nil,
         coords   = { x = coords.x, y = coords.y, z = coords.z },
         blip     = {
@@ -167,7 +120,9 @@ function Dispatch.send(category, coords, data)
             color  = settings.blipColor,
             radius = Config.Blip.radius,
             alpha  = Config.Blip.alpha,
-            time   = Config.Blip.duration
+            time   = math.min(tonumber(data.duration) or Config.Blip.duration, Config.Blip.duration),
+            flash  = data.flash == true,
+            area   = data.area ~= false
         }
     }
 
@@ -187,17 +142,24 @@ function Dispatch.send(category, coords, data)
                 y        = coords.y
             })
         end)
+
+        if category == 'roubo_veiculo' or category == 'perda_sinal' then
+            pcall(function()
+                exports.nv_mdt:AddAutomaticReport({
+                    type = category == 'roubo_veiculo' and 'furto' or 'outro',
+                    citizen = payload.plate and ('Veiculo ' .. payload.plate) or 'Veiculo nao identificado',
+                    notes = ('%s. Local: %s. Coordenadas: %.0f, %.0f.')
+                        :format(payload.detail or settings.label, payload.street or 'nao informado', coords.x, coords.y),
+                    author = 'Sistema de dispatch'
+                })
+            end)
+        end
     end
 
     return true
 end
 
---- Igual ao `send`, mas respeitando o bloqueador de quem cometeu o crime.
----
---- E este o ponto em que o bloqueador age -- nao no cliente, nao no nv_garage.
---- Qualquer resource que chame `Alert` ganha o comportamento de graca, e nenhum
---- deles precisa saber que bloqueador existe.
----
+--- Envia um alerta associado ao jogador informado pelo resource chamador.
 ---@param source number    quem cometeu
 ---@param category string
 ---@param coords vector3
@@ -205,20 +167,6 @@ end
 ---@return boolean
 function Dispatch.alert(source, category, coords, data)
     if not Config.Enabled then return false end
-
-    local player = Ox.GetPlayer(source)
-    local charId = player and player.charId
-
-    if isJammed(charId) then
-        -- Trocado, nao apagado: sai um "perda de sinal" com a posicao borrada.
-        -- A policia sabe que algo acontece naquela regiao, sem saber o que.
-        Dispatch.send('perda_sinal', blur(coords, Config.Jammer.blur), {
-            detail = 'Interferencia em equipamento de rastreio'
-        })
-
-        return false
-    end
-
     return Dispatch.send(category, coords, data)
 end
 
@@ -231,46 +179,6 @@ exports('Send', function(category, coords, data)
     return Dispatch.send(category, coords, data)
 end)
 
--- ------------------------------------------------------------- bloqueador --
-
---- Chamado pelo cliente quando o jogador usa o item.
----
---- O sorteio de falha e feito AQUI. No cliente, "falhou" seria uma informacao
---- que a maquina do ladrao produz sobre si mesma -- e ela tem todo o interesse
---- em nunca falhar.
-lib.callback.register('nv_dispatch:useJammer', function(source)
-    if not Config.Enabled then
-        return false, 'O aparelho nao encontra nenhuma rede para bloquear.'
-    end
-
-    local player = Ox.GetPlayer(source)
-    if not player then return false end
-
-    local cfg = Config.Jammer
-
-    if (exports.ox_inventory:GetItemCount(source, cfg.item) or 0) < 1 then
-        return false, 'Voce nao tem um bloqueador.'
-    end
-
-    if isJammed(player.charId) then
-        return false, 'Ja ha um bloqueio ativo.'
-    end
-
-    local failed = math.random(100) <= cfg.failChance
-
-    -- O desgaste sai nos dois casos: o aparelho trabalhou, tendo funcionado ou
-    -- nao. Cobrar so no sucesso faria da falha um evento sem custo.
-    exports.ox_inventory:RemoveItem(source, cfg.item, 1)
-
-    if failed then
-        return false, 'O bloqueador falhou. Nenhum sinal foi cortado.'
-    end
-
-    jammed[player.charId] = os.time() + cfg.duration
-
-    return true, nil, cfg.duration
-end)
-
 -- ------------------------------------------------- entradas de outros --
 --                                                    resources          --
 
@@ -279,13 +187,82 @@ end)
 --- A assinatura e `(coords)` porque e o que o nv_garage ja enviava quando estes
 --- ganchos foram criados; mudar la seria mexer em codigo que funciona para
 --- ganhar um parametro que este arquivo consegue deduzir.
-RegisterNetEvent('nv_dispatch:carTheft', function(coords)
-    if type(coords) ~= 'vector3' then return end
+local function vehicleTheft(source, coords, data)
+    if type(coords) ~= 'vector3' and type(coords) ~= 'table' then return end
 
-    Dispatch.alert(source, 'roubo_veiculo', coords, {
-        detail = 'Tentativa de furto de veiculo'
+    local x, y, z = tonumber(coords.x), tonumber(coords.y), tonumber(coords.z)
+    if not x or not y or not z then return end
+
+    data = type(data) == 'table' and data or {}
+    local reason = type(data.reason) == 'string' and data.reason:sub(1, 60) or 'Tentativa de furto de veiculo'
+    local plate = type(data.plate) == 'string' and data.plate:sub(1, 12) or nil
+
+    local sent = Dispatch.alert(source, 'roubo_veiculo', vec3(x, y, z), {
+        id = data.id,
+        netId = data.netId,
+        detail = plate and ('%s - placa %s'):format(reason, plate) or reason,
+        plate = plate,
+        duration = math.min(tonumber(data.duration) or 60, 60),
+        flash = true,
+        area = false
     })
-end)
+
+    if sent and type(data.id) == 'string' and data.id:match(('^vehicle_%d_'):format(source)) then
+        local alertId = data.id:sub(1, 64)
+        vehicleAlerts[alertId] = {
+            source = source,
+            targets = receivers(),
+            expires = os.time() + math.min(tonumber(data.duration) or 60, 60)
+        }
+
+        SetTimeout(61000, function()
+            vehicleAlerts[alertId] = nil
+        end)
+    end
+end
+
+exports('VehicleTheft', vehicleTheft)
+RegisterNetEvent('nv_dispatch:carTheft', function(coords, data) vehicleTheft(source, coords, data) end)
+
+local function stopVehicleTheft(source, alertId)
+    if type(alertId) ~= 'string' or not alertId:match('^[%w_%-]+$') then return end
+    if not alertId:match(('^vehicle_%d_'):format(source)) then return end
+
+    local active = vehicleAlerts[alertId]
+    local targets = active and active.source == source and active.targets or receivers()
+    for i = 1, #targets do
+        TriggerClientEvent('nv_dispatch:stopAlert', targets[i], alertId:sub(1, 64))
+    end
+    vehicleAlerts[alertId] = nil
+end
+
+exports('StopVehicleTheft', stopVehicleTheft)
+RegisterNetEvent('nv_dispatch:carTheftStopped', function(alertId) stopVehicleTheft(source, alertId) end)
+
+local function moveVehicleTheft(source, alertId, coords)
+    if type(alertId) ~= 'string' or not alertId:match(('^vehicle_%d_'):format(source)) then return end
+    if type(coords) ~= 'vector3' and type(coords) ~= 'table' then return end
+
+    local active = vehicleAlerts[alertId]
+    if not active or active.source ~= source or os.time() > active.expires then return end
+
+    local x, y, z = tonumber(coords.x), tonumber(coords.y), tonumber(coords.z)
+    if not x or not y or not z then return end
+
+    local ped = GetPlayerPed(source)
+    local actual = ped and ped ~= 0 and GetEntityCoords(ped) or nil
+    if not actual or #(actual - vec3(x, y, z)) > 35.0 then return end
+
+    local targets = active.targets
+    for i = 1, #targets do
+        TriggerClientEvent('nv_dispatch:updateAlert', targets[i], alertId:sub(1, 64), {
+            x = x, y = y, z = z
+        })
+    end
+end
+
+exports('MoveVehicleTheft', moveVehicleTheft)
+RegisterNetEvent('nv_dispatch:carTheftMoved', function(alertId, coords) moveVehicleTheft(source, alertId, coords) end)
 
 RegisterNetEvent('nv_dispatch:robbery', function(coords)
     if type(coords) ~= 'vector3' then return end
@@ -303,18 +280,4 @@ RegisterNetEvent('nv_dispatch:atmExplosion', function(coords)
     if type(coords) ~= 'vector3' then return end
 
     Dispatch.alert(source, 'explosao_caixa', coords)
-end)
-
--- Limpeza: um charId que saiu nao precisa manter o bloqueio na memoria depois
--- de expirar, e ninguem passa por aqui para conferir.
-CreateThread(function()
-    while true do
-        Wait(60000)
-
-        local now = os.time()
-
-        for charId, until_ in pairs(jammed) do
-            if now >= until_ then jammed[charId] = nil end
-        end
-    end
 end)

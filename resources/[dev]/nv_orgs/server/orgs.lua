@@ -115,20 +115,23 @@ local function toOxGrades(grades, style)
         local position = Orgs.gradeToPosition(grade, total)
         local entry = grades[position]
 
-        oxGrades[grade] = {
-            label = entry.label,
-            accountRole = Orgs.accountRoleFor(position)
-        }
-
         local actions = {}
 
         for _, action in ipairs(entry.actions or {}) do
-            -- So passa o que o config permite PARA ESTE ESTILO: a NUI nao
-            -- define permissao nova, nem da a uma gang uma acao de estatal.
-            if actionAllowed(action, style) then
-                actions[#actions + 1] = action
-            end
+            if actionAllowed(action, style) then actions[#actions + 1] = action end
         end
+
+        local bankAllowed = false
+        for i = 1, #actions do
+            if actions[i] == 'bank' then bankAllowed = true break end
+        end
+
+        oxGrades[grade] = {
+            label = entry.label,
+            -- Viewer faz a conta aparecer no ox_banking, mas nao permite
+            -- depositar, sacar ou gerenciar. A acao bank eleva o papel.
+            accountRole = bankAllowed and Orgs.accountRoleFor(position) or 'viewer'
+        }
 
         gradeActions[grade] = actions
     end
@@ -244,7 +247,7 @@ lib.callback.register('nv_orgs:create', function(source, data)
 
     -- CreateGroup grava ox_groups e ox_group_grades numa transacao so, e
     -- sinaliza erro com throw -- dai o pcall.
-    local created = pcall(function()
+    local called, createError = pcall(function()
         Ox.CreateGroup({
             name       = set,
             label      = data.label,
@@ -255,8 +258,25 @@ lib.callback.register('nv_orgs:create', function(source, data)
         })
     end)
 
-    if not created then
-        return false, 'O ox_core recusou a criacao. Confira o console do servidor.'
+    if not called then
+        lib.print.error(('Falha ao criar a organizacao `%s` no ox_core: %s'):format(set, tostring(createError)))
+        return false, ('O ox_core recusou a criacao: %s'):format(tostring(createError))
+    end
+
+    -- CreateGroup e async no ox_core e nao devolve um booleano. Confirme o
+    -- resultado persistido antes de criar os dados complementares da org.
+    local persisted = MySQL.scalar.await('SELECT 1 FROM `ox_groups` WHERE `name` = ?', { set })
+
+    if not persisted then
+        lib.print.error(('O ox_core nao persistiu a organizacao `%s`. Verifique a conexao com o banco.'):format(set))
+        return false, 'Nao foi possivel gravar a organizacao no banco de dados.'
+    end
+
+    -- SetupGroup cria a conta em segundo plano. Aguarde-a e, caso o framework
+    -- ainda nao a tenha materializado, crie explicitamente antes de concluir.
+    if Config.Org.hasAccount and not Orgs.ensureGroupAccount(set, data.label) then
+        lib.print.error(('A organizacao `%s` foi criada, mas a conta bancaria nao foi persistida.')
+            :format(set))
     end
 
     Orgs.saveActions(set, gradeActions)

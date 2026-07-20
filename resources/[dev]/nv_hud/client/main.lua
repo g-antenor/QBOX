@@ -14,7 +14,8 @@ local state = {
     micRange = 0, micTalking = false,
     radioOn = false, radioChannel = 0, radioTalking = false,
     inVehicle = false, speed = 0, fuel = 100, gear = 'N',
-    engineOn = false, engineHealth = 1000, belt = false, locked = false
+    engineOn = false, engineHealth = 1000, belt = false, locked = false,
+    organization = '', onDuty = false
 }
 
 local dirty = {}
@@ -522,7 +523,13 @@ CreateThread(function()
 
     while true do
         if shouldWarnSeatbelt() then
-            PlaySoundFrontend(-1, sound.name, sound.set, true)
+            SendNUIMessage({
+                action = 'seatbeltChime',
+                data = {
+                    duration = sound.duration or 1500,
+                    volume = sound.volume or 0.12
+                }
+            })
 
             -- O intervalo e a espera: assim o primeiro bipe sai no instante em
             -- que o carro passa dos 2 km/h, e nao no fim de um ciclo.
@@ -690,6 +697,38 @@ end)
 AddEventHandler('ox:playerLoaded', function()
     applyMinimapOnLoad()
     setHudVisible(true)
+end)
+
+-- Exibe a organizacao no canto superior direito. O grupo ativo representa o
+-- servico; fora dele mantemos o primeiro grupo operacional do personagem.
+CreateThread(function()
+    local Ox = require '@ox_core.lib.init'
+    local player = Ox.GetPlayer()
+
+    while true do
+        local active = player:get('activeGroup')
+        local groups = player.getGroups and player.getGroups() or {}
+        local activeData = active and Ox.GetGroup(active)
+        local selected = activeData
+            and (activeData.type == 'state' or activeData.type == 'job' or activeData.type == 'gang')
+            and active or nil
+
+        if not selected and type(groups) == 'table' then
+            for name in pairs(groups) do
+                local group = Ox.GetGroup(name)
+                if group and (group.type == 'state' or group.type == 'job' or group.type == 'gang') then
+                    selected = name
+                    break
+                end
+            end
+        end
+
+        local group = selected and Ox.GetGroup(selected)
+        set('organization', group and (group.label or selected) or '')
+        set('onDuty', selected ~= nil and active == selected)
+        flush()
+        Wait(1000)
+    end
 end)
 
 AddEventHandler('ox:playerLogout', function()

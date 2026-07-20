@@ -9,6 +9,9 @@
    ox_core (que e o inverso) acontece no servidor, em `Orgs.positionToGrade`.
    ========================================================================== */
 
+document.documentElement.style.backgroundColor = 'transparent';
+document.body.style.backgroundColor = 'transparent';
+
 const resource = (typeof GetParentResourceName === 'function')
   ? GetParentResourceName()
   : 'nv_orgs';
@@ -60,6 +63,20 @@ const dom = {
   addFleet: el('addFleet'),
   fleet: el('fleet'),
   fleetEmpty: el('fleetEmpty'),
+  dealershipResource: el('dealershipResource'),
+  dealershipPoints: el('dealershipPoints'),
+  dealershipEmpty: el('dealershipEmpty'),
+  dealershipCategories: el('dealershipCategories'),
+  dealershipCategoriesEmpty: el('dealershipCategoriesEmpty'),
+  setDealershipPoint: el('setDealershipPoint'),
+  setDealershipBlip: el('setDealershipBlip'),
+  setDealershipCategories: el('setDealershipCategories'),
+  buyDealershipTablet: el('buyDealershipTablet'),
+  doorsResource: el('doorsResource'),
+  garageResource: el('garageResource'),
+  wardrobeResource: el('wardrobeResource'),
+  contactResource: el('contactResource'),
+  stashResource: el('stashResource'),
   addWardrobe: el('addWardrobe'),
   wardrobes: el('wardrobes'),
   wardrobesEmpty: el('wardrobesEmpty'),
@@ -680,13 +697,102 @@ async function loadResources() {
   const contacts = await post('contacts', { set: state.editing });
   const garage = await post('garage', { set: state.editing });
   const wardrobe = await post('wardrobe', { set: state.editing });
+  const dealership = state.draft && state.draft.subtype === 'dealership'
+    ? await post('dealership', { set: state.editing }) : null;
 
   renderDoors(Array.isArray(doors) ? doors : []);
   renderStashes(Array.isArray(stashes) ? stashes : []);
   renderContacts(Array.isArray(contacts) ? contacts : []);
   renderGarage(garage && typeof garage === 'object' ? garage : null);
   renderWardrobe(wardrobe && typeof wardrobe === 'object' ? wardrobe : null);
+  renderDealership(dealership);
+  applyResourceVisibility();
 }
+
+function applyResourceVisibility() {
+  const style = state.draft ? state.draft.style : '';
+  const subtype = state.draft ? state.draft.subtype : '';
+  const rules = {
+    dealership: ['doorsResource', 'dealershipResource', 'wardrobeResource'],
+    police: ['doorsResource', 'garageResource', 'wardrobeResource', 'contactResource', 'stashResource'],
+    hospital: ['doorsResource', 'garageResource', 'wardrobeResource', 'contactResource', 'stashResource'],
+    restaurant: ['doorsResource', 'wardrobeResource', 'contactResource', 'stashResource'],
+    mechanic: ['doorsResource', 'garageResource', 'wardrobeResource', 'contactResource', 'stashResource'],
+    custom: ['doorsResource', 'garageResource', 'wardrobeResource', 'contactResource', 'stashResource'],
+    drugs: ['doorsResource', 'garageResource', 'contactResource', 'stashResource'],
+    weapons: ['doorsResource', 'garageResource', 'contactResource', 'stashResource']
+  };
+  const fallback = style === 'gang'
+    ? ['doorsResource', 'garageResource', 'contactResource', 'stashResource']
+    : ['doorsResource', 'wardrobeResource', 'contactResource', 'stashResource'];
+  const visible = new Set(rules[subtype] || fallback);
+  ['doorsResource', 'garageResource', 'dealershipResource', 'wardrobeResource', 'contactResource', 'stashResource']
+    .forEach((id) => dom[id].classList.toggle('hidden', !visible.has(id)));
+}
+
+const dealershipLabels = {
+  payment: 'Local de pagamento', truckSpawn: 'Spawn do caminhao', invoiceNpc: 'Retirada da NF',
+  trailerSpawn: 'Spawn do trailer', unload: 'Ponto de entrega', preview: 'Previa',
+  saleSpawn: 'Spawn da compra', testSpawn: 'Spawn do test-drive', blip: 'Blip e area operacional'
+};
+
+function renderDealership(data) {
+  const visible = state.draft && state.draft.subtype === 'dealership';
+  dom.dealershipResource.classList.toggle('hidden', !visible);
+  dom.dealershipPoints.replaceChildren();
+  const points = data && data.points ? data.points : {};
+  const categories = data && data.categories ? data.categories : {};
+  const categoryNames = { sedan: 'Sedans', suv: 'SUVs', sport: 'Esportivos', moto: 'Motos' };
+  dom.dealershipCategories.replaceChildren();
+  Object.keys(categories).filter((key) => categories[key]).forEach((key) => {
+    const item = make('div', 'res-item');
+    item.appendChild(make('span', 'name', categoryNames[key] || key));
+    const remove = make('button', 'icon danger', '×');
+    remove.title = 'Remover categoria de novas compras';
+    remove.addEventListener('click', async () => {
+      await post('removeDealershipCategory', { set: state.editing, category: key });
+      loadResources();
+    });
+    item.appendChild(remove);
+    dom.dealershipCategories.appendChild(item);
+  });
+  dom.dealershipCategoriesEmpty.classList.toggle('hidden', dom.dealershipCategories.children.length > 0);
+  Object.entries(points).forEach(([key, coords]) => {
+    const item = make('div', 'res-item');
+    item.appendChild(make('span', 'name', dealershipLabels[key] || key));
+    item.appendChild(make('span', 'muted', key === 'blip'
+      ? `${coords.label || 'Concessionaria'} · raio ${Number(coords.radius || 60)} m`
+      : `${Number(coords.x).toFixed(1)}, ${Number(coords.y).toFixed(1)}, ${Number(coords.z).toFixed(1)}`));
+    const remove = make('button', 'icon danger', '×');
+    remove.title = 'Remover ponto';
+    remove.addEventListener('click', async () => {
+      await post('removeDealershipPoint', { set: state.editing, point: key });
+      loadResources();
+    });
+    item.appendChild(remove);
+    dom.dealershipPoints.appendChild(item);
+  });
+  dom.dealershipEmpty.classList.toggle('hidden', Object.keys(points).length > 0);
+}
+
+dom.setDealershipPoint.addEventListener('click', async () => {
+  const result = await post('dealershipPoint', { set: state.editing });
+  if (result && result.ok) loadResources();
+});
+
+dom.setDealershipBlip.addEventListener('click', async () => {
+  const result = await post('dealershipBlip', { set: state.editing });
+  if (result && result.ok) loadResources();
+});
+
+dom.setDealershipCategories.addEventListener('click', async () => {
+  await post('dealershipCategories', { set: state.editing });
+  loadResources();
+});
+
+dom.buyDealershipTablet.addEventListener('click', async () => {
+  await post('buyDealershipTablet', { set: state.editing });
+});
 
 function renderContacts(contacts) {
   if (Array.isArray(contacts)) state.contacts = contacts;

@@ -4,19 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>nv_mdt</title>
-    <link rel="stylesheet" href="style.css?v=2" />
+    <link rel="stylesheet" href="style.css?v=8" />
   </head>
   <body>
     <div id="root" class="mdt-root hidden">
-      <!-- Abas de departamento. Só aparecem as que o jogador tem acesso. -->
-      <div class="dept-tabs">
-        <div id="deptTabs" class="dept-tabs-list"></div>
-        <button id="close" class="icon-btn" title="Fechar (ESC)">&#10005;</button>
-      </div>
-
       <div class="dept-body">
         <aside class="sidebar">
-          <div class="sidebar-title" id="sideTitle">MDT</div>
+          <div class="sidebar-head">
+            <div class="sidebar-title" id="sideTitle">MDT</div>
+            <div class="sidebar-controls">
+              <button id="deptSwitch" class="icon-btn hidden" title="Trocar departamento" aria-label="Trocar departamento">&#8943;</button>
+              <button id="close" class="icon-btn" title="Fechar (ESC)" aria-label="Fechar">&#10005;</button>
+            </div>
+            <div id="deptTabs" class="dept-menu hidden"></div>
+          </div>
           <div class="sidebar-sub" id="sideSub">&nbsp;</div>
           <div class="section-label">Menu</div>
           <div id="nav"></div>
@@ -26,6 +27,6 @@
       </div>
     </div>
 
-    <script src="app.js?v=2"></script>
+    <script src="app.js?v=6"></script>
   </body>
 </html>

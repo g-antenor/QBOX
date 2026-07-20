@@ -458,31 +458,16 @@ local function lockpick()
 
     local success = exports.nv_minigames:Start(Config.Lockpick.minigame)
 
+    -- A sirene nunca antecipa o resultado visual da task.
+    if math.random(100) <= Config.Lockpick.alertChance then
+        Garage.triggerTheftAlarm(vehicle, Config.Lockpick.alertEvent, 'Tentativa de arrombamento')
+    end
+
     Garage.busy = false
 
     if not success then
         TriggerServerEvent('nv_garage:lockpickWear', 'fail')
         Garage.notify('A tranca resistiu.', 'error')
-
-        -- Um unico sorteio decide as duas consequencias, e isso e proposital:
-        -- alarme e chamado sao o MESMO evento visto de dois lugares. Sortear
-        -- separado produziria o carro berrando sem ninguem ser avisado, ou a
-        -- policia sabendo de um roubo silencioso -- os dois sem explicacao para
-        -- quem esta na rua.
-        --
-        -- Quem esta com o bloqueador ativo tambem faz o alarme tocar: o
-        -- aparelho corta o rastreio, nao a buzina. O que ele muda e o servidor
-        -- transformar o chamado num "perda de sinal" (ver nv_dispatch).
-        if math.random(100) <= Config.Lockpick.alertChance then
-            if DoesEntityExist(vehicle) then
-                SetVehicleAlarm(vehicle, true)
-                StartVehicleAlarm(vehicle)
-            end
-
-            if Config.Lockpick.alertEvent then
-                TriggerServerEvent(Config.Lockpick.alertEvent, GetEntityCoords(cache.ped))
-            end
-        end
 
         return
     end

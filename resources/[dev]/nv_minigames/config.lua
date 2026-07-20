@@ -103,6 +103,14 @@ Config.Presets = {
         timeout    = 25000,
     },
 
+    ['instalar_bloqueador'] = {
+        game       = 'skillbar',
+        difficulty = 'medium',
+        rounds     = 3,
+        zone       = 15,
+        timeout    = 25000,
+    },
+
     --- Vasculhar a pilha de sucata (nv_recycle). A dificuldade sobe a cada
     --- rodada de busca: o caller passa `zone`/`speed` como override.
     ['reciclagem'] = {

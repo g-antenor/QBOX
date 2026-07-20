@@ -22,19 +22,13 @@ Config.SeatbeltBeep = {
     -- A partir de quantos km/h o aviso comeca.
     minSpeed = 2,
 
-    -- Intervalo entre bipes (ms). Abaixo de ~2000 vira tortura auditiva.
-    interval = 3000,
+    -- O toque melodico dura 1,5 s; o intervalo deixa uma pausa limpa entre
+    -- repeticoes enquanto o motorista continua sem cinto.
+    interval = 3500,
 
-    -- Som do aviso. `PlaySoundFrontend` nao tem controle de volume, entao
-    -- "baixo" e escolha de SOM, nao de parametro.
-    --
-    -- Era 'Beep_Red' do soundset de hacking: um bipe agudo e seco, de alarme.
-    -- Este e o toque curto do menu do celular -- mesma funcao (te lembrar), sem
-    -- o tom de emergencia. Se ainda estiver presente demais, o mais discreto
-    -- que existe e 'NAV_UP_DOWN' / 'HUD_FRONTEND_DEFAULT_SOUNDSET'.
     sound = {
-        name = 'Menu_Accept',
-        set  = 'Phone_SoundSet_Default'
+        duration = 1500,
+        volume = 0.12
     },
 
     -- Classes que nao tem cinto e por isso nunca avisam:

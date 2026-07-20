@@ -68,68 +68,83 @@ p {
   transform: scale(1.25) !important;
 }
 
-/* The wrapper becomes the panel that holds every option row. */
+/* Interaction icons stay attached to the centre raycast point. */
 #options-wrapper {
   position: absolute;
-  top: 48.4%;
-  left: calc(50% + 18pt);
-  width: 210px;
-  background: var(--panel);
-  border: 1px solid var(--edge);
-  border-radius: 4px;
-  overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+  top: calc(50% - 30px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  pointer-events: none;
 }
 
-/* Hide the panel chrome entirely when there are no options. */
-#options-wrapper:empty {
-  border: none;
-  background: none;
-  box-shadow: none;
+#options-wrapper:not(.has-options) { display: none; }
+
+#options-list {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .option-container {
+  width: 34px;
+  height: 34px;
   color: var(--color-default);
   display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
-  gap: 4px;
-  padding: 9px 12px;
-  border-left: 2px solid transparent;
-  border-bottom: 1px solid var(--edge);
-  font-size: 12px;
-  line-height: 1.2;
+  padding: 0;
+  border: 1px solid var(--edge);
+  border-radius: 5px;
+  background: rgba(23, 22, 26, .94);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .42);
   cursor: pointer;
-  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
-}
-
-.option-container:last-child {
-  border-bottom: none;
+  pointer-events: auto;
+  animation: target-in 120ms ease both;
+  transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
 }
 
 .option-container:hover {
-  color: var(--color-hover);
-  background: rgba(255, 36, 56, 0.06);
-  border-left-color: var(--red);
+  background: #1d1b20;
+  border-color: var(--red);
+  transform: translateY(-2px);
 }
 
 .option-icon {
-  font-size: 12px;
-  width: 18px;
-  text-align: center;
-  margin-right: 4px;
-  color: var(--text-faint);
+  width:18px; height:18px;
+  color:var(--icon-color, var(--red));
+  fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;
   transition: color 120ms ease;
 }
 
 .option-container:hover .option-icon {
-  color: var(--red);
+  color: var(--icon-color, var(--red));
 }
 
-.option-label {
+.option-label { display: none; }
+
+#target-textui {
+  min-height: 25px;
+  max-width: 260px;
+  display: flex;
+  align-items: center;
+  padding: 6px 9px;
+  border: 1px solid var(--edge);
+  border-left: 2px solid var(--red);
+  border-radius: 3px;
+  background: rgba(15, 14, 16, .92);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .36);
+  color: var(--text);
+  font-size: 11px;
   font-weight: 500;
-  white-space: nowrap;
+  line-height: 1.2;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+@keyframes target-in { from { opacity:0; transform:translateY(3px); } to { opacity:1; transform:none; } }
+@media (prefers-reduced-motion:reduce) { .option-container { animation:none; transition:none; } }

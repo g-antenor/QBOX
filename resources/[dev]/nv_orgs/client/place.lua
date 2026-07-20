@@ -12,6 +12,33 @@
 ]]
 
 local placing = false
+local outlinedDoors = {}
+
+---@param entity number
+---@param enabled boolean
+local function setDoorOutline(entity, enabled)
+    if not entity or entity == 0 then return end
+
+    if DoesEntityExist(entity) then
+        SetEntityDrawOutline(entity, enabled)
+    end
+
+    if enabled then
+        outlinedDoors[entity] = true
+    else
+        outlinedDoors[entity] = nil
+    end
+end
+
+local function clearDoorOutlines()
+    for entity in pairs(outlinedDoors) do
+        if DoesEntityExist(entity) then
+            SetEntityDrawOutline(entity, false)
+        end
+    end
+
+    table.wipe(outlinedDoors)
+end
 
 --- Texto de ajuda no rodape, no mesmo estilo do editor de props do
 --- nv_adminmenu.
@@ -39,39 +66,24 @@ end
 local function finish(set)
     placing = false
     lib.hideTextUI()
+    clearDoorOutlines()
 
     if set then Panel.open(set) end
 end
 
+AddEventHandler('onResourceStop', function(resource)
+    if resource == cache.resource then clearDoorOutlines() end
+end)
+
 -- ------------------------------------------------- mira com previa --
 
---- Desenha a caixa que vai virar a zona do ox_target.
----
---- Mostrar a AREA, e nao so um ponto, e o que evita a surpresa classica: o
---- marcador parece bem posicionado, mas a zona de 1.6 m atravessa a parede ou
---- fica fora do balcao. Aqui o admin ve exatamente o volume que o
---- `addBoxZone` vai receber.
 ---@param point vector3
 ---@param size number
 local function drawZonePreview(point, size)
-    local half = size / 2
-    local top = point.z + 1.0
-    local bottom = point.z - 0.6
-
-    local marker = Config.Placement.marker
-
-    -- Caixa em wireframe: e a leitura mais honesta do volume real.
-    DrawBox(
-        point.x - half, point.y - half, bottom,
-        point.x + half, point.y + half, top,
-        marker.color.r, marker.color.g, marker.color.b, 90)
-
-    -- Disco no chao, para nao perder o ponto exato de vista dentro da caixa.
-    DrawMarker(27, point.x, point.y, point.z + 0.02,
-        0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-        size * 0.7, size * 0.7, size * 0.7,
-        marker.color.r, marker.color.g, marker.color.b, 160,
-        false, false, 2, nil, nil, false)
+    local color = Config.Placement.marker.color
+    local radius = math.min(0.12, math.max(0.08, size * 0.065))
+    DrawSphere(point.x, point.y, point.z + radius, radius,
+        color.r, color.g, color.b, 1.0)
 end
 
 --- Modo de mira: o ponto vai para onde o admin esta OLHANDO, e nao para onde
@@ -87,6 +99,7 @@ end
 ---@return vector3?
 local function aimForPoint(label, size)
     local height = 0.0
+    local lastPoint, lastHelp
 
     while true do
         Wait(0)
@@ -95,19 +108,20 @@ local function aimForPoint(label, size)
         -- passou na frente moveria o ponto para cima dele.
         local hit, _, endCoords = lib.raycast.fromCamera(1, 4, Config.Placement.aimRange)
 
-        local point = hit and endCoords
-            and vec3(endCoords.x, endCoords.y, endCoords.z + height)
-            or nil
+        if hit and endCoords then
+            lastPoint = vec3(endCoords.x, endCoords.y, endCoords.z)
+        end
+        local point = lastPoint and vec3(lastPoint.x, lastPoint.y, lastPoint.z + height) or nil
 
         if point then
             drawZonePreview(point, size)
         end
 
-        showHelp(([[
+        local help = (([[
 **%s**
-Olhe para onde o ponto deve ficar. A caixa e a area do target.
+Mova a mira com o mouse para posicionar o ponto.
 
-Altura: **%+.2f m**  (setas **↑ ↓**)
+Altura: **%+.2f m**  (setas **PARA CIMA / PARA BAIXO**)
 %s
 **[BACKSPACE]** cancelar
 ]]):format(
@@ -115,6 +129,10 @@ Altura: **%+.2f m**  (setas **↑ ↓**)
             height,
             point and '**[ENTER]** confirmar' or '_Mire numa superficie._'
         ))
+        if help ~= lastHelp then
+            lastHelp = help
+            showHelp(help)
+        end
 
         if IsControlPressed(0, 172) then height = height + Config.Placement.nudgeStep end
         if IsControlPressed(0, 173) then height = height - Config.Placement.nudgeStep end
@@ -125,6 +143,34 @@ Altura: **%+.2f m**  (setas **↑ ↓**)
             return point
         end
     end
+end
+
+--- Posiciona um ponto da concessionaria pela mira, com previa da area e da
+--- direcao usada por spawns de veiculo.
+function Panel.placeDealershipPoint(set, pointType, options)
+    if placing then return end
+    placing = true
+
+    local label = pointType
+    for i = 1, #(options or {}) do
+        if options[i].value == pointType then label = options[i].label break end
+    end
+
+    CreateThread(function()
+        local point = aimForPoint(('Concessionaria: %s'):format(label), 1.8)
+        if not point then
+            Panel.notify('Posicionamento cancelado.', 'inform')
+            return finish(set)
+        end
+
+        local heading = GetGameplayCamRot(2).z
+        local ok, err = lib.callback.await('nv_orgs:setDealershipPoint', false, set, pointType, {
+            x = point.x, y = point.y, z = point.z, w = heading
+        })
+        Panel.notify(ok and 'Ponto configurado.' or (err or 'Nao foi possivel salvar o ponto.'),
+            ok and 'success' or 'error')
+        finish(set)
+    end)
 end
 
 -- --------------------------------------------------------- fechaduras --
@@ -170,6 +216,8 @@ function Panel.placeDoors(set)
     placing = true
 
     local picked = {}
+    local pickedEntities = {}
+    local aimedEntity
     local groups = lib.callback.await('nv_orgs:doorGroups', false, set)
 
     if not groups then
@@ -182,21 +230,26 @@ function Panel.placeDoors(set)
 
             local entity = aimedDoor()
 
+            if aimedEntity and aimedEntity ~= entity and not pickedEntities[aimedEntity] then
+                setDoorOutline(aimedEntity, false)
+            end
+
+            aimedEntity = entity
+
             if entity then
                 -- Contorno so na porta mirada: sem isso o admin nao tem como
                 -- saber se esta mirando o batente ou a parede atras dele.
-                SetEntityDrawOutline(entity, true)
+                setDoorOutline(entity, true)
             end
 
             showHelp(([[
 **Criando fechaduras — %s**
 Mire numa porta e pressione **[E]** para marcar.
-Portas encostadas uma na outra viram automaticamente
-uma porta dupla; as separadas viram fechaduras proprias.
+Marque uma folha para porta simples ou duas folhas lado a lado para porta dupla.
 
-Marcadas: **%d**
+Marcadas: **%d/2**
 **[ENTER]** concluir  •  **[BACKSPACE]** cancelar
-]]):format(set, #picked))
+ ]]):format(set, #picked))
 
             -- E
             if IsControlJustReleased(0, 38) then
@@ -215,8 +268,16 @@ Marcadas: **%d**
 
                     if duplicate then
                         Panel.notify('Esta porta ja foi marcada.', 'error')
+                    elseif #picked >= 2 then
+                        Panel.notify('Uma fechadura aceita no maximo duas folhas.', 'error')
+                    elseif picked[1] and #(vec3(picked[1].coords.x, picked[1].coords.y, picked[1].coords.z)
+                        - vec3(data.coords.x, data.coords.y, data.coords.z)) > Config.Placement.doubleDistance
+                    then
+                        Panel.notify(('A segunda porta deve estar a no maximo %.1f m da primeira.')
+                            :format(Config.Placement.doubleDistance), 'error')
                     else
                         picked[#picked + 1] = data
+                        pickedEntities[entity] = true
                         Panel.notify(('Porta marcada (%d).'):format(#picked), 'success')
                     end
                 else
@@ -226,8 +287,6 @@ Marcadas: **%d**
 
             -- BACKSPACE
             if IsControlJustReleased(0, 194) then
-                if entity then SetEntityDrawOutline(entity, false) end
-
                 Panel.notify('Criacao de fechaduras cancelada.', 'inform')
 
                 return finish(set)
@@ -235,20 +294,16 @@ Marcadas: **%d**
 
             -- ENTER
             if IsControlJustReleased(0, 191) then
-                if entity then SetEntityDrawOutline(entity, false) end
-
                 if #picked == 0 then
-                    Panel.notify('Nenhuma porta marcada.', 'error')
+                    Panel.notify('Marque ao menos uma porta.', 'error')
+                else
+                    placing = false
+                    lib.hideTextUI()
+                    clearDoorOutlines()
 
-                    return finish(set)
-                end
-
-                placing = false
-                lib.hideTextUI()
-
-                -- O nome e pedido AQUI, e nao antes de comecar: so depois de
-                -- marcar as portas o admin sabe o que elas sao de fato.
-                local answer = lib.inputDialog('Nome da fechadura', {
+                    -- O nome e pedido AQUI, e nao antes de comecar: so depois de
+                    -- marcar as portas o admin sabe o que elas sao de fato.
+                    local answer = lib.inputDialog('Nome da fechadura', {
                     {
                         type = 'input',
                         label = 'Nome',
@@ -256,60 +311,27 @@ Marcadas: **%d**
                         placeholder = 'Sala do Chefe',
                         required = true,
                         max = 40
+                    },
+                    {
+                        type = 'checkbox',
+                        label = 'Permitir lockpick',
+                        description = 'Permite destrancar esta fechadura com os itens do ox_doorlock.',
+                        checked = false
                     }
-                })
+                    })
 
-                if not answer or not answer[1] then
-                    Panel.notify('Criacao cancelada: sem nome.', 'error')
+                    if not answer or not answer[1] then
+                        Panel.notify('Criacao cancelada: sem nome.', 'error')
 
-                    return finish(set)
-                end
-
-                local desired = answer[1]
-
-                -- Agrupa por PROXIMIDADE, e nao pela ordem dos cliques.
-                --
-                -- Antes eu pareava de dois em dois na ordem em que foram
-                -- marcados. Isso obrigava o admin a adivinhar a ordem certa, e
-                -- errar a ordem virava duas fechaduras separadas numa porta
-                -- dupla -- exatamente o sintoma relatado. Agora duas portas a
-                -- menos de `doubleDistance` uma da outra sao a mesma
-                -- fechadura, que e o que "uma ao lado da outra" quer dizer.
-                local groupsOfDoors = {}
-                local used = {}
-
-                for i = 1, #picked do
-                    if not used[i] then
-                        used[i] = true
-
-                        local pair = { picked[i] }
-                        local a = vec3(picked[i].coords.x, picked[i].coords.y, picked[i].coords.z)
-
-                        -- Uma porta dupla tem exatamente duas folhas: assim que
-                        -- achamos a companheira mais proxima, paramos.
-                        local closest, closestDistance
-
-                        for j = i + 1, #picked do
-                            if not used[j] then
-                                local b = vec3(picked[j].coords.x, picked[j].coords.y, picked[j].coords.z)
-                                local distance = #(a - b)
-
-                                if distance <= Config.Placement.doubleDistance
-                                    and (not closestDistance or distance < closestDistance)
-                                then
-                                    closest, closestDistance = j, distance
-                                end
-                            end
-                        end
-
-                        if closest then
-                            used[closest] = true
-                            pair[2] = picked[closest]
-                        end
-
-                        groupsOfDoors[#groupsOfDoors + 1] = pair
+                        return finish(set)
                     end
-                end
+
+                    local desired = answer[1]
+                    local allowLockpick = answer[2] == true
+
+                    -- Uma ou duas folhas sempre geram um unico registro. No caso
+                    -- duplo, o ox_doorlock recebe ambas no array `doors`.
+                    local groupsOfDoors = { picked }
 
                 local created = 0
                 local doubles = 0
@@ -325,13 +347,19 @@ Marcadas: **%d**
                         groups      = groups,
                         maxDistance = 2.5,
                         state       = 1,
-                        hideUi      = false
+                        hideUi      = false,
+                        lockpick    = allowLockpick or nil
                     }
 
                     if pair[2] then
-                        -- O ox_doorlock calcula o `coords` do meio sozinho
-                        -- quando recebe `doors`.
                         data.doors = { pair[1], pair[2] }
+                        -- O evento do ox_doorlock recebe tabelas comuns pelo
+                        -- bridge; calcular aqui evita subtracao de table no servidor.
+                        data.coords = {
+                            x = (pair[1].coords.x + pair[2].coords.x) / 2,
+                            y = (pair[1].coords.y + pair[2].coords.y) / 2,
+                            z = (pair[1].coords.z + pair[2].coords.z) / 2
+                        }
                         doubles = doubles + 1
                     else
                         data.coords  = pair[1].coords
@@ -354,7 +382,8 @@ Marcadas: **%d**
                     and ('%d fechadura(s) criada(s), %d dupla(s).'):format(created, doubles)
                     or ('%d fechadura(s) criada(s).'):format(created), 'success')
 
-                return finish(set)
+                    return finish(set)
+                end
             end
         end
     end)

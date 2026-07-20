@@ -41,6 +41,8 @@ CreateThread(function()
         `spawn`             VARCHAR(120) NULL,
         `impounded_at`      DATETIME NULL,
         `impound_destroyed` TINYINT(1) NOT NULL DEFAULT 0,
+        `impound_disappeared` TINYINT(1) NOT NULL DEFAULT 0,
+        `was_out`           TINYINT(1) NOT NULL DEFAULT 0,
         PRIMARY KEY (`vin`)
     ]]
 
@@ -71,6 +73,8 @@ CreateThread(function()
     pcall(MySQL.query.await, 'ALTER TABLE `nv_vehicle_state` ADD COLUMN `spawn` VARCHAR(120) NULL')
     pcall(MySQL.query.await, 'ALTER TABLE `nv_vehicle_state` ADD COLUMN `impounded_at` DATETIME NULL')
     pcall(MySQL.query.await, 'ALTER TABLE `nv_vehicle_state` ADD COLUMN `impound_destroyed` TINYINT(1) NOT NULL DEFAULT 0')
+    pcall(MySQL.query.await, 'ALTER TABLE `nv_vehicle_state` ADD COLUMN `impound_disappeared` TINYINT(1) NOT NULL DEFAULT 0')
+    pcall(MySQL.query.await, 'ALTER TABLE `nv_vehicle_state` ADD COLUMN `was_out` TINYINT(1) NOT NULL DEFAULT 0')
 end)
 
 -- ------------------------------------------------------------- patio --
@@ -86,11 +90,13 @@ function Server.markImpounded(vin, destroyed)
     if not vin or not schemaReady then return end
 
     MySQL.prepare([[
-        INSERT INTO `nv_vehicle_state` (`vin`, `locked`, `impounded_at`, `impound_destroyed`)
-        VALUES (?, ?, NOW(), ?)
+        INSERT INTO `nv_vehicle_state` (`vin`, `locked`, `impounded_at`, `impound_destroyed`, `impound_disappeared`, `was_out`)
+        VALUES (?, ?, NOW(), ?, 0, 0)
         ON DUPLICATE KEY UPDATE
             `impounded_at`      = COALESCE(`impounded_at`, NOW()),
-            `impound_destroyed` = GREATEST(`impound_destroyed`, VALUES(`impound_destroyed`))
+            `impound_destroyed` = GREATEST(`impound_destroyed`, VALUES(`impound_destroyed`)),
+            `impound_disappeared` = IF(VALUES(`impound_destroyed`) = 1, 0, `impound_disappeared`),
+            `was_out` = 0
     ]], {
         vin,
         Config.Lock.defaultLocked and 1 or 0,
@@ -102,17 +108,19 @@ end
 ---@param vin string
 ---@return number days
 ---@return boolean destroyed
+---@return boolean disappeared
 function Server.getImpoundInfo(vin)
-    if not vin or not schemaReady then return 0, false end
+    if not vin or not schemaReady then return 0, false, false end
 
     local ok, row = pcall(MySQL.single.await, [[
-        SELECT TIMESTAMPDIFF(DAY, `impounded_at`, NOW()) AS days, `impound_destroyed` AS destroyed
+        SELECT TIMESTAMPDIFF(DAY, `impounded_at`, NOW()) AS days,
+            `impound_destroyed` AS destroyed, `impound_disappeared` AS disappeared
         FROM `nv_vehicle_state` WHERE `vin` = ?
     ]], { vin })
 
-    if not ok or type(row) ~= 'table' then return 0, false end
+    if not ok or type(row) ~= 'table' then return 0, false, false end
 
-    return math.max(0, tonumber(row.days) or 0), row.destroyed == 1
+    return math.max(0, tonumber(row.days) or 0), row.destroyed == 1, row.disappeared == 1
 end
 
 --- Quanto custa liberar este veiculo agora.
@@ -121,7 +129,7 @@ end
 ---@return number days
 ---@return boolean destroyed
 function Server.impoundFee(vin)
-    local days, destroyed = Server.getImpoundInfo(vin)
+    local days, destroyed, disappeared = Server.getImpoundInfo(vin)
     local cfg = Config.Impound
 
     local fee = (cfg.baseFee or 0) + days * (cfg.dailyFee or 0)
@@ -129,8 +137,9 @@ function Server.impoundFee(vin)
     if destroyed then
         fee = fee + (cfg.destroyedFee or 0)
     end
+    if disappeared then fee = fee + (cfg.disappearedFee or 0) end
 
-    return fee, days, destroyed
+    return fee, days, destroyed, disappeared
 end
 
 --- Veiculo saiu do patio: o relogio para e a marca de destruido cai.
@@ -139,8 +148,21 @@ function Server.clearImpound(vin)
     if not vin or not schemaReady then return end
 
     MySQL.prepare(
-        'UPDATE `nv_vehicle_state` SET `impounded_at` = NULL, `impound_destroyed` = 0 WHERE `vin` = ?',
+        'UPDATE `nv_vehicle_state` SET `impounded_at` = NULL, `impound_destroyed` = 0, `impound_disappeared` = 0, `was_out` = 1 WHERE `vin` = ?',
         { vin })
+end
+
+function Server.markOut(vin)
+    if not vin or not schemaReady then return end
+    MySQL.prepare([[
+        INSERT INTO `nv_vehicle_state` (`vin`, `locked`, `was_out`) VALUES (?, ?, 1)
+        ON DUPLICATE KEY UPDATE `was_out` = 1
+    ]], { vin, Config.Lock.defaultLocked and 1 or 0 })
+end
+
+function Server.markStored(vin)
+    if not vin or not schemaReady then return end
+    MySQL.prepare('UPDATE `nv_vehicle_state` SET `was_out` = 0, `impound_disappeared` = 0 WHERE `vin` = ?', { vin })
 end
 
 --- Sincroniza os carimbos com a coluna `stored` do ox_core.
@@ -160,7 +182,15 @@ local function syncImpoundStamps()
         SELECT `vin`, ? FROM `vehicles` WHERE `stored` = ?
     ]], { Config.Lock.defaultLocked and 1 or 0, impound })
 
-    -- 2. Carimba quem ainda nao tem data.
+    -- 2. Veiculo que estava na rua e reapareceu no patio foi recolhido.
+    pcall(MySQL.query.await, [[
+        UPDATE `nv_vehicle_state` s
+        JOIN `vehicles` v ON v.`vin` = s.`vin`
+        SET s.`impound_disappeared` = 1, s.`was_out` = 0
+        WHERE v.`stored` = ? AND s.`was_out` = 1 AND s.`impound_destroyed` = 0
+    ]], { impound })
+
+    -- 3. Carimba quem ainda nao tem data.
     pcall(MySQL.query.await, [[
         UPDATE `nv_vehicle_state` s
         JOIN `vehicles` v ON v.`vin` = s.`vin`
@@ -168,11 +198,11 @@ local function syncImpoundStamps()
         WHERE v.`stored` = ? AND s.`impounded_at` IS NULL
     ]], { impound })
 
-    -- 3. Limpa quem saiu do patio por fora (comando de admin, por exemplo).
+    -- 4. Limpa quem saiu do patio por fora (comando de admin, por exemplo).
     pcall(MySQL.query.await, [[
         UPDATE `nv_vehicle_state` s
         JOIN `vehicles` v ON v.`vin` = s.`vin`
-        SET s.`impounded_at` = NULL, s.`impound_destroyed` = 0
+        SET s.`impounded_at` = NULL, s.`impound_destroyed` = 0, s.`impound_disappeared` = 0
         WHERE s.`impounded_at` IS NOT NULL AND (v.`stored` IS NULL OR v.`stored` <> ?)
     ]], { impound })
 end
@@ -220,6 +250,7 @@ CreateThread(function()
             -- olhar.
             if entity and DoesEntityExist(entity) and (vehicle.owner or vehicle.group) then
                 if isWrecked(entity) then
+                    exports.nv_garage:RemoveVehicleBlocker(NetworkGetNetworkIdFromEntity(entity))
                     Server.markImpounded(vehicle.vin, true)
 
                     pcall(function()
@@ -405,6 +436,12 @@ end)
 local function takeKey(source, plate)
     return exports.ox_inventory:RemoveItem(source, Config.Items.key, 1, { plate = plate }, nil, false, false)
 end
+
+exports('RemoveKey', function(source, plate)
+    if type(source) ~= 'number' or type(plate) ~= 'string' then return false end
+
+    return takeKey(source, (plate:gsub('%s+$', '')))
+end)
 
 --- Este modelo dispensa chave? (viaturas, taxi da cidade, etc.)
 ---@param entity number

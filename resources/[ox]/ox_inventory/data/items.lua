@@ -171,9 +171,11 @@ return {
 		weight = 800,
 		close = true,
 		consume = 0,
-		description = 'Corta e emenda fios. Usado no banco do motorista para ligacao direta.',
+		durability = true,
+		decay = true,
+		description = 'Ferramenta para ligacao direta e retirada de bloqueadores.',
 		client = {
-			export = 'nv_garage.useCutters',
+			export = 'nv_garage.removeBlocker',
 			-- O pacote de imagens do ox_inventory nao tem alicate. A chave
 			-- inglesa e o que mais se aproxima de "ferramenta"; troque por um
 			-- `alicate.png` proprio em web/images quando tiver um.
@@ -462,16 +464,38 @@ return {
 	-- entao a policia continua sabendo que ha algo acontecendo na regiao.
 	--
 	-- `consume = 0` porque quem remove o item e o nv_dispatch, que precisa
-	-- descontar tambem quando o aparelho FALHA -- e o ox_inventory so cobraria
-	-- no caminho de sucesso.
+	-- O aparelho preserva a carga enquanto instalado no veiculo. A carga volta
+	-- no metadata ao retirar; se chegar a zero, o modulo quebrado nao retorna.
 	['bloqueador_sinal'] = {
 		label = 'Bloqueador de Sinal',
 		weight = 340,
 		stack = false,
 		consume = 0,
-		description = 'Aparelho de interferencia. Nem sempre funciona.',
+		durability = true,
+		decay = true,
+		description = 'Modulo persistente de bloqueio do rastreamento veicular.',
 		client = {
-			export = 'nv_dispatch.useJammer'
+			export = 'nv_garage.installBlocker'
 		}
+	},
+
+	['dealership'] = {
+		label = 'Painel da Concessionaria',
+		weight = 350,
+		stack = false,
+		consume = 0,
+		close = true,
+		description = 'Painel de estoque, vendas e encomendas da concessionaria.',
+		client = { export = 'nv_dealership.open' },
+		image = 'dealership_tablet.png'
+	},
+
+	['dealership_invoice'] = {
+		label = 'Nota Fiscal da Concessionaria',
+		weight = 10,
+		stack = false,
+		consume = 0,
+		close = false,
+		description = 'Nota fiscal usada para retirar uma encomenda de veiculos.'
 	},
 }

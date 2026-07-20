@@ -21,6 +21,7 @@ client_scripts {
     -- Ordem importa: main.lua declara o namespace usado pelos demais.
     'client/main.lua',
     'client/keys.lua',
+    'client/blocker.lua',
     'client/locks.lua',
     'client/garage.lua'
 }
@@ -28,6 +29,7 @@ client_scripts {
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
     'server/main.lua',
+    'server/blocker.lua',
     'server/garage.lua'
 }
 

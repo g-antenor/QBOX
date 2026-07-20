@@ -46,6 +46,7 @@ const state = {
   radioOn: false, radioFreq: 0, radioTalking: false,
   inVehicle: false, speed: 0, fuel: 100, gear: 'N',
   engineOn: false, engineHealth: 1000, belt: false, locked: false
+  , organization: '', onDuty: false
 };
 
 const post = (name, data) =>
@@ -363,6 +364,10 @@ function renderAll() {
   renderMic();
   renderRadio();
   renderVehicle();
+  const organization = document.getElementById('organizationName');
+  organization.textContent = state.organization || '';
+  organization.classList.toggle('visible', Boolean(state.organization));
+  organization.classList.toggle('on-duty', state.onDuty === true);
 }
 
 /* ---------------- painel ---------------- */
@@ -598,6 +603,36 @@ document.querySelectorAll('.hud-item').forEach(makeDraggable);
 
 /* ---------------- ponte com o cliente ---------------- */
 const HANDLERS = {
+  seatbeltChime(data) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+
+    if (!window.__seatbeltAudio) window.__seatbeltAudio = new AudioContext();
+    const context = window.__seatbeltAudio;
+    if (context.state === 'suspended') context.resume();
+    const duration = Math.max(300, Math.min(1500, Number(data?.duration) || 1500));
+    const volume = Math.max(0.01, Math.min(0.2, Number(data?.volume) || 0.12));
+    const started = context.currentTime;
+    const notes = [523.25, 659.25, 783.99, 659.25];
+
+    notes.forEach((frequency, index) => {
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      const noteStart = started + index * 0.36;
+      const noteEnd = Math.min(started + duration / 1000, noteStart + 0.42);
+
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(frequency, noteStart);
+      gain.gain.setValueAtTime(0.0001, noteStart);
+      gain.gain.exponentialRampToValueAtTime(volume, noteStart + 0.035);
+      gain.gain.exponentialRampToValueAtTime(0.0001, noteEnd);
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start(noteStart);
+      oscillator.stop(noteEnd);
+    });
+  },
+
   settings(data) {
     if (data.critical) critical = data.critical;
     if (data.idle) idle = data.idle;

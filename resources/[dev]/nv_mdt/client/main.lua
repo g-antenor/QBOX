@@ -111,11 +111,10 @@ end)
 
 --- Converte coordenada do mundo para porcentagem no mapa da tela.
 ---
---- Os limites sao os do mapa jogavel do GTA V. Nao sao exatos ao metro -- o
---- mapa nao e um retangulo perfeito -- mas colocam o ponto no bairro certo,
---- que e o que um Live Map precisa.
+--- Limites calibrados para o map.jpeg do ps-mdt. Assim o fundo e os marcadores
+--- usam a mesma projecao, em vez de apenas aproximar os bairros.
 RegisterNUICallback('mapBounds', function(_, cb)
-    cb({ minX = -4000.0, maxX = 4500.0, minY = -4000.0, maxY = 8000.0 })
+    cb({ minX = -5690.93, maxX = 6723.76, minY = -4050.18, maxY = 8388.60 })
 end)
 
 --- Marca um chamado no mapa e fecha o MDT.
@@ -138,6 +137,166 @@ RegisterNUICallback('markMap', function(data, cb)
     SetNewWaypoint(x, y)
 
     notify('Rota tracada.', 'success')
+end)
+
+-- ----------------------------------------------------- rastrear veiculo --
+
+local vehicleTrackToken = 0
+local vehicleTrackBlip
+
+local function stopVehicleTracking()
+    vehicleTrackToken = vehicleTrackToken + 1
+    if vehicleTrackBlip and DoesBlipExist(vehicleTrackBlip) then RemoveBlip(vehicleTrackBlip) end
+    vehicleTrackBlip = nil
+end
+
+RegisterNUICallback('trackVehicle', function(data, cb)
+    local plate = type(data) == 'table' and type(data.plate) == 'string' and data.plate or nil
+    if not plate then return cb({ ok = false }) end
+
+    local first = lib.callback.await('nv_mdt:police:trackVehicle', false, plate)
+    if not first or first.unavailable then
+        return cb({ ok = false, error = 'Veiculo fora da rede de rastreamento.' })
+    end
+    if first.blocked then
+        return cb({ ok = false, error = 'Sinal bloqueado neste veiculo.' })
+    end
+
+    cb({ ok = true })
+    close()
+    stopVehicleTracking()
+
+    local token = vehicleTrackToken
+    vehicleTrackBlip = AddBlipForCoord(first.x, first.y, first.z)
+    SetBlipSprite(vehicleTrackBlip, 225)
+    SetBlipColour(vehicleTrackBlip, 3)
+    SetBlipScale(vehicleTrackBlip, 0.9)
+    SetBlipAsShortRange(vehicleTrackBlip, false)
+    BeginTextCommandSetBlipName('STRING')
+    AddTextComponentSubstringPlayerName(('Rastreamento %s'):format(plate))
+    EndTextCommandSetBlipName(vehicleTrackBlip)
+    notify(('Rastreando o veiculo %s.'):format(plate), 'success')
+
+    CreateThread(function()
+        local current = vec3(first.x, first.y, first.z)
+        local deadline = GetGameTimer() + 300000
+
+        while vehicleTrackToken == token and GetGameTimer() < deadline do
+            local nextPosition = lib.callback.await('nv_mdt:police:trackVehicle', false, plate)
+
+            if not nextPosition or nextPosition.blocked or nextPosition.unavailable then
+                notify(nextPosition and nextPosition.blocked and 'Rastreamento interrompido: perda de sinal.'
+                    or 'Rastreamento interrompido: veiculo indisponivel.', 'error')
+                break
+            end
+
+            local target = vec3(nextPosition.x, nextPosition.y, nextPosition.z)
+            local started = GetGameTimer()
+
+            while vehicleTrackToken == token and GetGameTimer() - started < 400 do
+                local progress = math.min(1.0, (GetGameTimer() - started) / 400)
+                local position = current + (target - current) * progress
+                SetBlipCoords(vehicleTrackBlip, position.x, position.y, position.z)
+                Wait(0)
+            end
+
+            current = target
+        end
+
+        if vehicleTrackToken == token then stopVehicleTracking() end
+    end)
+end)
+
+-- ----------------------------------------------------------- cameras --
+
+local activeCamera
+
+local function stopCamera()
+    if activeCamera and DoesCamExist(activeCamera) then
+        RenderScriptCams(false, false, 0, true, true)
+        DestroyCam(activeCamera, false)
+    end
+
+    activeCamera = nil
+end
+
+RegisterNUICallback('viewCamera', function(data, cb)
+    cb(1)
+
+    local selected
+    local cameras = Config.Police.cameras or {}
+
+    for i = 1, #cameras do
+        if cameras[i].id == data.id then selected = cameras[i] break end
+    end
+
+    if not selected then return notify('Camera indisponivel.', 'error') end
+
+    close()
+    stopCamera()
+
+    activeCamera = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
+    SetCamCoord(activeCamera, selected.coords.x, selected.coords.y, selected.coords.z)
+    SetCamRot(activeCamera, selected.rotation.x, selected.rotation.y, selected.rotation.z, 2)
+    SetCamFov(activeCamera, selected.fov or 55.0)
+    RenderScriptCams(true, false, 0, true, true)
+    notify(('Camera: %s. ESC para sair.'):format(selected.label), 'inform')
+
+    CreateThread(function()
+        local camera = activeCamera
+
+        while activeCamera == camera and DoesCamExist(camera) do
+            DisableAllControlActions(0)
+            EnableControlAction(0, 200, true)
+            EnableControlAction(0, 322, true)
+
+            if IsDisabledControlJustReleased(0, 200) or IsDisabledControlJustReleased(0, 322) then
+                stopCamera()
+            end
+
+            Wait(0)
+        end
+    end)
+end)
+
+-- ------------------------------------------------------------- prisao --
+
+local jailToken = 0
+
+RegisterNetEvent('nv_mdt:client:jail', function(duration)
+    local jail = Config.Police.jail
+    duration = math.max(1, math.floor(tonumber(duration) or 1))
+
+    if not jail or not jail.coords or not jail.release then return end
+
+    jailToken = jailToken + 1
+    local token = jailToken
+    local ped = PlayerPedId()
+    local center = vec3(jail.coords.x, jail.coords.y, jail.coords.z)
+
+    SetEntityCoords(ped, center.x, center.y, center.z, false, false, false, false)
+    SetEntityHeading(ped, jail.coords.w or 0.0)
+    notify(('Prisao aplicada por %d minuto(s).'):format(math.ceil(duration / 60)), 'error')
+
+    CreateThread(function()
+        local deadline = GetGameTimer() + duration * 1000
+
+        while jailToken == token and GetGameTimer() < deadline do
+            ped = PlayerPedId()
+
+            if #(GetEntityCoords(ped) - center) > 35.0 then
+                SetEntityCoords(ped, center.x, center.y, center.z, false, false, false, false)
+            end
+
+            Wait(1000)
+        end
+
+        if jailToken ~= token then return end
+
+        SetEntityCoords(PlayerPedId(), jail.release.x, jail.release.y, jail.release.z, false, false, false, false)
+        SetEntityHeading(PlayerPedId(), jail.release.w or 0.0)
+        notify('Pena cumprida. Voce foi liberado.', 'success')
+    end)
 end)
 
 -- ---------------------------------------------------------- retratos --
@@ -229,6 +388,8 @@ AddEventHandler('onResourceStop', function(resource)
     if resource ~= GetCurrentResourceName() then return end
 
     releaseHeadshots()
+    stopCamera()
+    stopVehicleTracking()
 
     if open then SetNuiFocus(false, false) end
 end)
