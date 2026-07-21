@@ -27,7 +27,7 @@ local function reloadRecipes()
     local rows = MySQL.query.await('SELECT * FROM `nv_crafting_recipes` ORDER BY `id`') or {}
     for i = 1, #rows do
         local row, project = rows[i], projects[rows[i].projectId]
-        if project and project.access and project.access.set == row.orgSet then
+        if project and not project.dynamic and project.access and project.access.set == row.orgSet then
             project.recipes[#project.recipes + 1] = {
                 id = ('db:%d'):format(row.id), dbId = row.id, item = row.item,
                 label = row.label, description = row.description,
@@ -39,11 +39,16 @@ local function reloadRecipes()
 end
 
 local function loadDynamicProjects()
-    local rows=MySQL.query.await('SELECT * FROM `nv_crafting_projects`') or {}
+    local rows=MySQL.query.await([[SELECT p.*,g.`type` AS `orgType`,s.`subtype` FROM `nv_crafting_projects` p
+        LEFT JOIN `ox_groups` g ON g.`name`=p.`orgSet`
+        LEFT JOIN `nv_org_subtype` s ON s.`group`=p.`orgSet`]]) or {}
     for _,row in ipairs(rows) do
         local id='org:'..row.orgSet
-        projects[id]={id=id,label=row.label or 'Bancada da oficina',subtitle='',coords=vec3(row.x,row.y,row.z),heading=row.heading or 0.0,
-            access={set=row.orgSet,minGrade=0,permission='craft'},prop={enabled=row.prop==1,model=row.propModel or 'prop_tool_box_04'},staticRecipes={},recipes={}}
+        local configured=Config.RecipesByType or {}
+        local recipes=configured[row.subtype] or configured[row.orgType] or configured.default or {}
+        projects[id]={id=id,label=row.label or 'Bancada da organizacao',subtitle='',coords=vec3(row.x,row.y,row.z),heading=row.heading or 0.0,
+            access={set=row.orgSet,minGrade=0,permission='craft'},prop={enabled=row.prop==1 or row.prop==true,model=row.propModel or 'prop_tool_box_04'},
+            staticRecipes=recipes,recipes=recipes,dynamic=true,recipeType=row.subtype or row.orgType}
         outputs[id]=outputs[id] or {}
     end
 end
@@ -248,7 +253,8 @@ local function recipesPayload(project)
                 label = recipe.label or result.label or recipe.item,
                 description = recipe.description or result.description,
                 count = recipe.count or 1, duration = recipe.duration or 3000,
-                ingredients = ingredients
+                ingredients = ingredients,
+                layout = recipe.layout
             }
         else
             lib.print.warn(('Item resultado "%s" do projeto "%s" nao existe.'):format(recipe.item, project.id))

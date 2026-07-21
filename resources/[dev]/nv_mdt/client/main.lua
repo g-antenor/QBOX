@@ -97,6 +97,10 @@ RegisterNetEvent('nv_mdt:openMechanicOrder',function(order)
     if open then SendNUIMessage({action='mechanicOrder',order=order}) end
 end)
 
+RegisterNetEvent('nv_mdt:updateMechanicOrder',function(order)
+    if type(order)=='table' then SendNUIMessage({action='mechanicOrder',order=order}) end
+end)
+
 -- ------------------------------------------------------ ponte generica --
 
 --- Encaminha um callback NUI para um callback do servidor.

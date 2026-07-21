@@ -77,6 +77,26 @@ local function save(vin, data)
     return data
 end
 
+-- Usado ao concluir uma ordem: limpa tambem o desgaste persistente, para o
+-- dano nao voltar quando o veiculo for guardado, respawnado ou o recurso reiniciar.
+exports('RestoreVehicle', function(netId, mechanicSource)
+    local vehicle, entity = resolve(netId)
+    if not vehicle then return false end
+
+    local clean = save(vehicle.vin, defaults())
+    if not clean then return false end
+
+    Entity(entity).state:set('nvMechanical', clean, true)
+    local owner = NetworkGetEntityOwner(entity)
+    if owner and owner > 0 then
+        TriggerClientEvent('nv_mechanic:finalizeVehicle', owner, NetworkGetNetworkIdFromEntity(entity))
+    end
+    if mechanicSource and mechanicSource ~= owner then
+        TriggerClientEvent('nv_mechanic:finalizeVehicle', mechanicSource, NetworkGetNetworkIdFromEntity(entity))
+    end
+    return true
+end)
+
 exports('SaveSnapshot', function(vin, data) return save(vin, data) end)
 exports('GetSnapshot', function(vin) return load(vin) end)
 exports('ApplyToEntity', function(vin, entity)

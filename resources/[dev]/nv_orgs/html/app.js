@@ -702,7 +702,7 @@ async function loadResources() {
   const wardrobe = await post('wardrobe', { set: state.editing });
   const dealership = state.draft && state.draft.subtype === 'dealership'
     ? await post('dealership', { set: state.editing }) : null;
-  const craftProject=state.draft && state.draft.subtype==='mecanica'?await post('craftProject',{set:state.editing}):null;
+  const craftProject=state.draft?await post('craftProject',{set:state.editing}):null;
 
   renderDoors(Array.isArray(doors) ? doors : []);
   renderStashes(Array.isArray(stashes) ? stashes : []);
@@ -718,24 +718,24 @@ function applyResourceVisibility() {
   const style = state.draft ? state.draft.style : '';
   const subtype = state.draft ? state.draft.subtype : '';
   const rules = {
-    dealership: ['doorsResource', 'dealershipResource', 'wardrobeResource'],
-    police: ['doorsResource', 'garageResource', 'wardrobeResource', 'contactResource', 'stashResource'],
-    hospital: ['doorsResource', 'garageResource', 'wardrobeResource', 'contactResource', 'stashResource'],
-    restaurant: ['doorsResource', 'wardrobeResource', 'contactResource', 'stashResource'],
+    dealership: ['doorsResource', 'dealershipResource', 'wardrobeResource','craftResource'],
+    police: ['doorsResource', 'garageResource', 'wardrobeResource', 'contactResource', 'stashResource','craftResource'],
+    hospital: ['doorsResource', 'garageResource', 'wardrobeResource', 'contactResource', 'stashResource','craftResource'],
+    restaurant: ['doorsResource', 'wardrobeResource', 'contactResource', 'stashResource','craftResource'],
     mecanica: ['doorsResource', 'garageResource', 'wardrobeResource', 'contactResource', 'stashResource','craftResource'],
-    custom: ['doorsResource', 'garageResource', 'wardrobeResource', 'contactResource', 'stashResource'],
-    drugs: ['doorsResource', 'garageResource', 'contactResource', 'stashResource'],
-    weapons: ['doorsResource', 'garageResource', 'contactResource', 'stashResource']
+    custom: ['doorsResource', 'garageResource', 'wardrobeResource', 'contactResource', 'stashResource','craftResource'],
+    drugs: ['doorsResource', 'garageResource', 'contactResource', 'stashResource','craftResource'],
+    weapons: ['doorsResource', 'garageResource', 'contactResource', 'stashResource','craftResource']
   };
   const fallback = style === 'gang'
-    ? ['doorsResource', 'garageResource', 'contactResource', 'stashResource']
-    : ['doorsResource', 'wardrobeResource', 'contactResource', 'stashResource'];
+    ? ['doorsResource', 'garageResource', 'contactResource', 'stashResource','craftResource']
+    : ['doorsResource', 'wardrobeResource', 'contactResource', 'stashResource','craftResource'];
   const visible = new Set(rules[subtype] || fallback);
   ['doorsResource', 'garageResource', 'dealershipResource', 'wardrobeResource', 'contactResource', 'stashResource','craftResource']
     .forEach((id) => dom[id].classList.toggle('hidden', !visible.has(id)));
 }
 
-function renderCraftProject(data){state.craftProject=data||null;dom.craftProject.replaceChildren();dom.craftEmpty.classList.toggle('hidden',!!data);if(!data)return;const item=make('div','res-item');item.appendChild(make('span','name',`${data.label} · ${Number(data.x).toFixed(2)}, ${Number(data.y).toFixed(2)}`));const del=make('button','icon danger','×');del.onclick=async()=>{const out=await post('deleteCraftProject',{set:state.editing});if(out?.ok)renderCraftProject(null)};item.appendChild(del);dom.craftProject.appendChild(item)}
+function renderCraftProject(data){state.craftProject=data||null;dom.craftProject.replaceChildren();dom.craftEmpty.classList.toggle('hidden',!!data);if(!data)return;const item=make('div','res-item');item.appendChild(make('span','name',`${data.label} · ${Number(data.x).toFixed(2)}, ${Number(data.y).toFixed(2)} · ${data.prop?'com prop':'sem prop'}`));const del=make('button','icon danger','×');del.onclick=async()=>{const out=await post('deleteCraftProject',{set:state.editing});if(out?.ok)renderCraftProject(null)};item.appendChild(del);dom.craftProject.appendChild(item)}
 
 const dealershipLabels = {
   payment: 'Local de pagamento', truckSpawn: 'Spawn do caminhao', invoiceNpc: 'Retirada da NF',

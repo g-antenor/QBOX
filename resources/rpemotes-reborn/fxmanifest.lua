@@ -67,36 +67,36 @@ client_scripts {
     'client/emojis.lua',
 }
 
-data_file 'DLC_ITYP_REQUEST' 'stream/rpemotesreborn_props.ytyp'
+data_file 'DLC_ITYP_REQUEST' 'stream/[Props]/rpemotesreborn/rpemotesreborn_props.ytyp'
 
-data_file 'DLC_ITYP_REQUEST' 'stream/brummie_props.ytyp'
+data_file 'DLC_ITYP_REQUEST' 'stream/[Props]/Brummiee/brummie_props.ytyp'
 
-data_file 'DLC_ITYP_REQUEST' 'stream/bzzz_props.ytyp'
+data_file 'DLC_ITYP_REQUEST' 'stream/[Props]/BzzziProps/bzzz_props.ytyp'
 
-data_file 'DLC_ITYP_REQUEST' 'stream/bzzz_camp_props.ytyp'
+data_file 'DLC_ITYP_REQUEST' 'stream/[Props]/BzzziProps/bzzz_camp_props.ytyp'
 
-data_file 'DLC_ITYP_REQUEST' 'stream/apple_1.ytyp'
+data_file 'DLC_ITYP_REQUEST' 'stream/[Props]/CandyApple/apple_1.ytyp'
 
-data_file 'DLC_ITYP_REQUEST' 'stream/kaykaymods_props.ytyp'
+data_file 'DLC_ITYP_REQUEST' 'stream/[Props]/KayKayMods/kaykaymods_props.ytyp'
 
-data_file 'DLC_ITYP_REQUEST' 'stream/knjgh_pizzas.ytyp'
+data_file 'DLC_ITYP_REQUEST' 'stream/[Props]/KnjghPizzaSlices/knjgh_pizzas.ytyp'
 
-data_file 'DLC_ITYP_REQUEST' 'stream/natty_props_lollipops.ytyp'
+data_file 'DLC_ITYP_REQUEST' 'stream/[Props]/NattyLollipops/natty_props_lollipops.ytyp'
 
-data_file 'DLC_ITYP_REQUEST' 'stream/ultra_ringcase.ytyp'
+data_file 'DLC_ITYP_REQUEST' 'stream/[Props]/UltraRingCase/ultra_ringcase.ytyp'
 
-data_file 'DLC_ITYP_REQUEST' 'stream/pata_props.ytyp'
+data_file 'DLC_ITYP_REQUEST' 'stream/[Props]/PataMods/pata_props.ytyp'
 
-data_file 'DLC_ITYP_REQUEST' 'stream/vedere_props.ytyp'
+data_file 'DLC_ITYP_REQUEST' 'stream/[Props]/vedere/vedere_props.ytyp'
 
-data_file 'DLC_ITYP_REQUEST' 'stream/pnwsigns.ytyp'
+data_file 'DLC_ITYP_REQUEST' 'stream/[Props]/PNWParksFan/pnwsigns.ytyp'
 
-data_file 'DLC_ITYP_REQUEST' 'stream/pprp_icefishing.ytyp'
+data_file 'DLC_ITYP_REQUEST' 'stream/[Props]/EP/pprp_icefishing.ytyp'
 
-data_file 'DLC_ITYP_REQUEST' 'stream/scully_props.ytyp'
+data_file 'DLC_ITYP_REQUEST' 'stream/[Props]/Scully/scully_props.ytyp'
 
-data_file 'DLC_ITYP_REQUEST' 'stream/samnick_prop_lighter01.ytyp'
+data_file 'DLC_ITYP_REQUEST' 'stream/[Props]/BzzziProps/samnick_prop_lighter01.ytyp'
 
-data_file 'DLC_ITYP_REQUEST' 'stream/bzzz_murderpack.ytyp'
+data_file 'DLC_ITYP_REQUEST' 'stream/[Props]/BzzziProps/bzzz_murderpack.ytyp'
 
-data_file 'DLC_ITYP_REQUEST' 'stream/prop_protestsign_fh.ytyp'
+data_file 'DLC_ITYP_REQUEST' 'stream/[Props]/protestsigns_fh/prop_protestsign_fh.ytyp'

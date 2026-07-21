@@ -47,6 +47,37 @@ Config.Projects = {
                 ingredients = {
                     scrapmetal = 5
                 }
+            },
+            {
+                -- Prototipo comunitario: os encaixes formam uma pistola.
+                id = 'pistol_shape_test',
+                item = 'WEAPON_PISTOL',
+                label = 'Pistola 9mm',
+                description = 'Prototipo comunitario de montagem por formato',
+                count = 1,
+                duration = 12000,
+                ingredients = {
+                    pistol_slide = 1,
+                    pistol_barrel = 1,
+                    pistol_grip = 1,
+                    pistol_trigger = 1,
+                    pistol_magazine = 1
+                },
+                -- A grade e apenas visual; quantidades continuam validadas
+                -- pelo servidor a partir de ingredients.
+                layout = {
+                    -- Modelo do preview: cinco colunas, tres linhas e cada
+                    -- componente ocupando um encaixe independente.
+                    columns = 5,
+                    rows = 3,
+                    slots = {
+                        pistol_grip     = { column = 1, row = 2 },
+                        pistol_trigger  = { column = 2, row = 2 },
+                        pistol_barrel   = { column = 3, row = 2 },
+                        pistol_slide    = { column = 4, row = 2 },
+                        pistol_magazine = { column = 3, row = 3 }
+                    }
+                }
             }
         }
     },
@@ -63,4 +94,22 @@ Config.Projects = {
     --           duration = 5000, ingredients = { scrapmetal = 5 } }
     --     }
     -- }
+}
+
+-- Receitas usadas pelas bancadas posicionadas no nv_orgs. A chave pode ser
+-- um subtipo (mecanica, restaurant, drugs), um estilo (job, gang, state) ou
+-- `default`. O subtipo tem prioridade sobre o estilo.
+Config.RecipesByType = {
+    mecanica = {
+        {
+            id='lockpick', item='lockpick', label='Lockpick', count=2,
+            description='Ferramenta de abertura improvisada', duration=5000,
+            ingredients={scrapmetal=5},
+            -- Durabilidade: desgaste em %. Sem durabilidade: consome 1 item.
+            tools={toolbox=5}
+        }
+    },
+    -- restaurant = { ... }, drugs = { ... }, weapons = { ... },
+    -- job = { ... }, gang = { ... }, state = { ... },
+    default = {}
 }

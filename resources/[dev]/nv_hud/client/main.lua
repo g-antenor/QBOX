@@ -31,6 +31,12 @@ local function sendNui(action, data)
     SendNUIMessage({ action = action, data = data })
 end
 
+exports('notify', function(data)
+    if type(data) ~= 'table' or not hudReady then return false end
+    sendNui('notify', data)
+    return true
+end)
+
 local function flush()
     if not hudReady or not next(dirty) then return end
 

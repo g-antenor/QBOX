@@ -158,6 +158,9 @@ body {
   border-radius: 2px;
   background: var(--red);
   box-shadow: 0 0 6px var(--red);
+  transform: scaleX(1);
+  transform-origin: left center;
+  will-change: transform;
 }
 
 /* Ultimos 25%: pulsa. Quem esta concentrado no jogo nao olha o rodape, e o
@@ -362,9 +365,11 @@ kbd {
   top: -1px;
   bottom: -1px;
   width: 3px;
+  left: 0;
   margin-left: -1.5px;
   background: var(--text);
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+  will-change: transform;
 }
 
 /* =========================================================
@@ -390,6 +395,9 @@ kbd {
   width: 0;
   background: linear-gradient(90deg, rgba(255, 36, 56, 0.25), rgba(255, 36, 56, 0.55));
   border-right: 2px solid var(--text);
+  transform: scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
 }
 
 .timing .window {

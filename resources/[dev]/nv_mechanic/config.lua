@@ -9,7 +9,7 @@ Config.WorkOrders = {
     inspectDuration = 9000,
     repairDistance = 4.0,
     parts = {
-        engine  = { label='Motor', item='engine_parts', amount=2, tool='toolbox', value=900, animation='engine' },
+        engine  = { label='Motor', item='sheet_metal', amount=2, tool='toolbox', value=900, animation='engine' },
         body    = { label='Lataria', item='sheet_metal', amount=2, tool='blowtorch', value=500, animation='torch' },
         hood    = { label='Capo', item='car_hood', amount=1, tool='blowtorch', value=450, animation='torch' },
         trunk   = { label='Porta-malas', item='car_trunk', amount=1, tool='blowtorch', value=400, animation='torch' },
@@ -21,12 +21,14 @@ Config.WorkOrders = {
         bumperR = { label='Para-choque traseiro', item='car_bumper', amount=1, tool='blowtorch', value=300, animation='torch', bumper=1 },
         window0 = { label='Vidro dianteiro esquerdo', item='automotive_glass', amount=1, tool='toolbox', value=180, animation='body', window=0 },
         window1 = { label='Vidro dianteiro direito', item='automotive_glass', amount=1, tool='toolbox', value=180, animation='body', window=1 },
+        windshield = { label='Para-brisa dianteiro', item='automotive_glass', amount=1, tool='toolbox', value=300, animation='body', window=6, bone='windscreen' },
+        rearWindow = { label='Vidro traseiro', item='automotive_glass', amount=1, tool='toolbox', value=260, animation='body', window=7, bone='windscreen_r' },
         tyre0   = { label='Pneu dianteiro esquerdo', item='car_tyre', amount=1, tool='wheel_wrench', value=250, animation='tyre', tyre=0 },
         tyre1   = { label='Pneu dianteiro direito', item='car_tyre', amount=1, tool='wheel_wrench', value=250, animation='tyre', tyre=1 },
         tyre4   = { label='Pneu traseiro esquerdo', item='car_tyre', amount=1, tool='wheel_wrench', value=250, animation='tyre', tyre=4 },
         tyre5   = { label='Pneu traseiro direito', item='car_tyre', amount=1, tool='wheel_wrench', value=250, animation='tyre', tyre=5 },
         fuel    = { label='Sistema de combustivel', item='sheet_metal', amount=1, tool='toolbox', value=350, animation='under' },
-        transmission = { label='Transmissao', item='engine_parts', amount=1, tool='toolbox', value=500, animation='under' }
+        transmission = { label='Transmissao', item='sheet_metal', amount=1, tool='toolbox', value=500, animation='under' }
     }
 }
 

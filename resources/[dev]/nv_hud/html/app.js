@@ -10,7 +10,8 @@ const DEFAULT_POSITIONS = {
   'hud-compass':         { left: 50,   top: 3, center: true },
   'hud-status':          { left: 18.5, top: 86 },
   'hud-voice':           { left: 88,   top: 85 },
-  'hud-vehicle':         { left: 50,   top: 76, center: true }
+  'hud-vehicle':         { left: 50,   top: 76, center: true },
+  'hud-notifications':   { left: 80.5, top: 50, centerY: true }
 };
 
 const STATUS_ELEMENTS = {
@@ -38,6 +39,7 @@ let minimapCfg = {
 let panelOpen = false;
 let dragMode = false;
 let selected = null;
+const notifications = new Map();
 
 const state = {
   vida: 100, colete: 0, fome: 100, sede: 100, stress: 0,
@@ -67,7 +69,9 @@ function applyPosition(id) {
 
   el.style.left = pos.left + '%';
   el.style.top = pos.top + '%';
-  el.style.transform = (!saved && pos.center) ? 'translateX(-50%)' : 'none';
+  el.style.transform = !saved
+    ? `${pos.center ? 'translateX(-50%)' : ''} ${pos.centerY ? 'translateY(-50%)' : ''}`.trim() || 'none'
+    : 'none';
 }
 
 function applyAllPositions() {
@@ -370,6 +374,52 @@ function renderAll() {
   organization.classList.toggle('on-duty', state.onDuty === true);
 }
 
+function removeNotification(key, entry) {
+  if (!entry || notifications.get(key) !== entry) return;
+  const generation = entry.generation;
+  entry.node.classList.add('removing');
+  setTimeout(() => {
+    if (notifications.get(key) === entry && entry.generation === generation) {
+      entry.node.remove();
+      notifications.delete(key);
+    }
+  }, 170);
+}
+
+function scheduleNotification(key, entry, duration) {
+  clearTimeout(entry.timer);
+  entry.generation = (entry.generation || 0) + 1;
+  entry.timer = setTimeout(() => removeNotification(key, entry), duration);
+}
+
+function showNotification(data) {
+  data = data || {};
+  const title = String(data.title || '');
+  const description = String(data.description || '');
+  const type = data.type === 'inform' ? 'info' : String(data.type || 'info');
+  const key = String(data.id || `${type}\u0000${title}\u0000${description}`);
+  const duration = Math.max(500, Math.min(60000, Number(data.duration) || 5000));
+  let entry = notifications.get(key);
+
+  if (entry) {
+    entry.node.classList.remove('removing');
+    scheduleNotification(key, entry, duration);
+    return;
+  }
+
+  const node = document.createElement('div');
+  node.className = `notification ${type}`;
+  const accent = document.createElement('div'); accent.className = 'notification-accent';
+  const content = document.createElement('div'); content.className = 'notification-content';
+  if (title) { const heading = document.createElement('div'); heading.className = 'notification-title'; heading.textContent = title; content.appendChild(heading); }
+  if (description) { const body = document.createElement('div'); body.className = 'notification-description'; body.textContent = description; content.appendChild(body); }
+  node.append(accent, content);
+  document.getElementById('notificationStack').appendChild(node);
+  entry = { node, timer: null, generation: 0 };
+  notifications.set(key, entry);
+  scheduleNotification(key, entry, duration);
+}
+
 /* ---------------- painel ---------------- */
 function syncPanel() {
   document.querySelectorAll('.seg').forEach(seg => {
@@ -655,6 +705,10 @@ const HANDLERS = {
 
   paused(paused) {
     stage.classList.toggle('paused', paused === true);
+  },
+
+  notify(data) {
+    showNotification(data);
   },
 
   panel(open) {

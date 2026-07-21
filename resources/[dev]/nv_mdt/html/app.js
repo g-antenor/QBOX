@@ -1936,7 +1936,6 @@ async function hospitalHistorico(stage) {
 
 const MECHANIC_NAV = [
   { id: 'dashboard', label: 'Dashboard' },
-  { id: 'crafting', label: 'Crafting', icon: 'wrench' },
   { id: 'veiculos', label: 'Ordem de serviço' },
   { id: 'historico', label: 'Histórico' },
   { id: 'comandos', label: 'Efetivo' }
@@ -2405,7 +2404,6 @@ const ROUTES = {
     nav: MECHANIC_NAV,
     pages: {
       dashboard: mechanicDashboard,
-      crafting: mechanicCrafting,
       veiculos: mechanicOrders,
       historico: mechanicHistorico,
       comandos: (stage) => renderStaff(stage, 'mecanica')

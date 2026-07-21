@@ -34,12 +34,17 @@ function lib.notify(data)
     local sound = settings.notification_audio and data.sound
     local payload = table.clone(data)
     payload.sound = nil
-    payload.position = payload.position or settings.notification_position
+    local handled = false
 
-    SendNUIMessage({
-        action = 'notify',
-        data = payload
-    })
+    if GetResourceState('nv_hud') == 'started' then
+        local ok, result = pcall(function() return exports.nv_hud:notify(payload) end)
+        handled = ok and result == true
+    end
+
+    if not handled then
+        payload.position = payload.position or settings.notification_position
+        SendNUIMessage({ action = 'notify', data = payload })
+    end
 
     if not sound then return end
 

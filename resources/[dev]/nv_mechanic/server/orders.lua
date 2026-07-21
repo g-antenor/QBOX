@@ -27,7 +27,19 @@ CreateThread(function()
         PRIMARY KEY (`id`), KEY `nv_mechanic_orders_org` (`orgSet`,`status`),
         KEY `nv_mechanic_orders_plate` (`plate`)
     )]])
-    if not ready then lib.print.error('Nao foi possivel criar nv_mechanic_orders.') end
+    if not ready then
+        lib.print.error('Nao foi possivel criar nv_mechanic_orders.')
+        return
+    end
+
+    -- Mantem ordens criadas antes da remocao de engine_parts utilizaveis.
+    local migrated = pcall(MySQL.update.await, [[UPDATE `nv_mechanic_orders`
+        SET `requirements` = REPLACE(`requirements`, 'engine_parts', 'sheet_metal')
+        WHERE `requirements` LIKE '%engine_parts%']])
+
+    if not migrated then
+        lib.print.error('Nao foi possivel migrar engine_parts para sheet_metal nas ordens existentes.')
+    end
 end)
 
 local function decode(value)
@@ -118,11 +130,21 @@ local function orderFor(source,id)
     return order,player,org
 end
 
+-- Portas dianteiras carregam seus respectivos vidros. Se o diagnostico
+-- marcou os dois como quebrados, a troca usa ambos os materiais e conclui os
+-- dois componentes. Se apenas a porta quebrou, nenhum vidro e cobrado.
+local doorWindows={door0='window0',door1='window1'}
+
 lib.callback.register('nv_mechanic:beginOrderRepair', function(source,id,key)
     local order=orderFor(source,id);local spec=Config.WorkOrders.parts[key]
     if not order or order.status~='in_progress' or not spec or not order.requirements[key] or order.completedParts[key] then return false,'Reparo indisponivel.' end
     local entity=entityFromNet(order.netId);if not nearby(source,entity) then return false,'Aproxime-se do veiculo.' end
     if (exports.ox_inventory:GetItemCount(source,spec.item) or 0)<spec.amount then return false,('Falta %s.'):format(spec.label) end
+    local windowKey=doorWindows[key]
+    if windowKey and order.requirements[windowKey] and not order.completedParts[windowKey] then
+        local glass=Config.WorkOrders.parts[windowKey]
+        if (exports.ox_inventory:GetItemCount(source,glass.item) or 0)<glass.amount then return false,('Falta %s.'):format(glass.label) end
+    end
     if spec.tool and (exports.ox_inventory:GetItemCount(source,spec.tool) or 0)<1 then return false,('Falta ferramenta: %s.'):format(spec.tool) end
     local token=('%s:%s'):format(id,key);if active[token] then return false,'Peca em reparo.' end
     active[token]={source=source,id=tonumber(id),key=key,expires=os.time()+120};return true,nil,token,spec.animation
@@ -147,11 +169,22 @@ lib.callback.register('nv_mechanic:finishOrderRepair', function(source,token)
     local order=orderFor(source,job.id);local spec=Config.WorkOrders.parts[job.key]
     local entity=order and entityFromNet(order.netId);if not order or not nearby(source,entity) then return false,'Veiculo indisponivel.' end
     if not exports.ox_inventory:RemoveItem(source,spec.item,spec.amount) then return false,'Material indisponivel.' end
-    if spec.tool and not useTool(source,spec.tool,5) then exports.ox_inventory:AddItem(source,spec.item,spec.amount);return false,'Ferramenta sem durabilidade.' end
+    local windowKey=doorWindows[job.key]
+    local glass=windowKey and order.requirements[windowKey] and not order.completedParts[windowKey] and Config.WorkOrders.parts[windowKey] or nil
+    if glass and not exports.ox_inventory:RemoveItem(source,glass.item,glass.amount) then
+        exports.ox_inventory:AddItem(source,spec.item,spec.amount);return false,'Vidro automotivo indisponivel.'
+    end
+    if spec.tool and not useTool(source,spec.tool,5) then
+        exports.ox_inventory:AddItem(source,spec.item,spec.amount)
+        if glass then exports.ox_inventory:AddItem(source,glass.item,glass.amount) end
+        return false,'Ferramenta sem durabilidade.'
+    end
     order.completedParts[job.key]=true
+    if glass then order.completedParts[windowKey]=true end
     local complete=true;for key in pairs(order.requirements) do if not order.completedParts[key] then complete=false break end end
     MySQL.update.await('UPDATE `nv_mechanic_orders` SET `completedParts`=?,`status`=? WHERE `id`=?',{json.encode(order.completedParts),complete and 'ready' or 'in_progress',order.id})
     TriggerClientEvent('nv_mechanic:applyOrderPart',source,order.netId,job.key)
+    if glass then TriggerClientEvent('nv_mechanic:applyOrderPart',source,order.netId,windowKey) end
     return true,nil,getOrder(order.id)
 end)
 
@@ -188,10 +221,14 @@ exports('CancelOrder', function(set,id,reason)
         WHERE `id`=? AND `orgSet`=? AND `status` IN ('draft','in_progress','ready','awaiting_payment')]],{tostring(reason or 'Cancelada'):sub(1,255),id,set})
     return changed and changed>0,getOrder(id)
 end)
-exports('CompleteOrder', function(set,id,payment,customerCharId,invoiceId,total)
+exports('CompleteOrder', function(set,id,payment,customerCharId,invoiceId,total,mechanicSource)
+    local current=getOrder(id)
     local status=payment=='invoice' and 'awaiting_payment' or 'completed'
     local changed=MySQL.update.await([[UPDATE `nv_mechanic_orders` SET `status`=?,`payment`=?,`customerCharId`=?,`invoiceId`=?,`total`=?,`finished`=NOW()
         WHERE `id`=? AND `orgSet`=? AND `status` IN ('in_progress','ready')]],{status,payment,customerCharId,invoiceId,total,id,set})
+    if changed and changed>0 and current and current.netId then
+        exports.nv_mechanic:RestoreVehicle(current.netId,mechanicSource)
+    end
     return changed and changed>0,getOrder(id)
 end)
 

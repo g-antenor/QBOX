@@ -93,8 +93,8 @@ local function release(success)
 end
 
 RegisterNUICallback('finish', function(data, cb)
-    cb(1)
     release(data and data.success)
+    cb(1)
 end)
 
 -- ---------------------------------------------------------------- exports --

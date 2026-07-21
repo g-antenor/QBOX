@@ -232,7 +232,7 @@ lib.callback.register('nv_mdt:mechanic:completeOrder',function(source,data)
             VALUES (?,'mecanica',?,?,?)]],{customer,('Ordem de servico #%d - %s'):format(order.id,order.plate),repairedTotal,Mdt.authorName(source)})
         if not invoiceId then return false,'Nao foi possivel criar a fatura.' end
     end
-    local ok,updated=exports.nv_mechanic:CompleteOrder(org.set,order.id,payment,customer,invoiceId,repairedTotal)
+    local ok,updated=exports.nv_mechanic:CompleteOrder(org.set,order.id,payment,customer,invoiceId,repairedTotal,source)
     if not ok then
         if payment=='cash' then
             local account=Ox.GetGroupAccount(org.set);if account then pcall(function() account.removeBalance({amount=repairedTotal,message=('Estorno OS #%d'):format(order.id)}) end) end
@@ -241,46 +241,4 @@ lib.callback.register('nv_mdt:mechanic:completeOrder',function(source,data)
         return false,'A ordem mudou antes da conclusao.'
     end
     TriggerClientEvent('nv_mechanic:clearOrder',source);return true,nil,updated
-end)
-
-local function canConfigureCraft(source, org)
-    local player = Ox.GetPlayer(source)
-    if not player or not org then return false end
-    local ok, allowed = pcall(function()
-        return player.hasPermission(('group.%s.craft'):format(org.set))
-    end)
-    return ok and allowed == true
-end
-
-lib.callback.register('nv_mdt:mechanic:craftData', function(source)
-    local org = mechanicOrg(source)
-    if not canConfigureCraft(source, org) then return end
-    local definitions = exports.ox_inventory:Items() or {}
-    local items = {}
-    for name, item in pairs(definitions) do
-        if type(item) == 'table' and item.label then
-            items[#items + 1] = {
-                name = name, label = item.label,
-                durability = item.durability ~= nil or item.degrade ~= nil
-            }
-        end
-    end
-    table.sort(items, function(a, b) return a.label < b.label end)
-    return {
-        projects = exports.nv_crafting:GetEditableProjects(org.set),
-        recipes = exports.nv_crafting:GetOrgRecipes(org.set),
-        items = items
-    }
-end)
-
-lib.callback.register('nv_mdt:mechanic:saveCraft', function(source, data)
-    local org = mechanicOrg(source)
-    if not canConfigureCraft(source, org) then return false, 'Seu cargo nao pode configurar crafting.' end
-    return exports.nv_crafting:SaveOrgRecipe(org.set, data)
-end)
-
-lib.callback.register('nv_mdt:mechanic:deleteCraft', function(source, id)
-    local org = mechanicOrg(source)
-    if not canConfigureCraft(source, org) then return false, 'Seu cargo nao pode configurar crafting.' end
-    return exports.nv_crafting:DeleteOrgRecipe(org.set, id)
 end)

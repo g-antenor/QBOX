@@ -113,28 +113,39 @@
     if (!active || !active.ui || !active.ui.timerFill) return;
 
     var fill = active.ui.timerFill;
-    var began = Date.now();
+    var began = performance.now();
+    var lastPaint = 0;
+    var low = false;
 
-    function tick() {
+    function tick(now) {
       if (!active || active.done) return;
 
-      var left = 1 - (Date.now() - began) / limit;
+      var left = 1 - (now - began) / limit;
 
       if (left <= 0) {
-        fill.style.width = '0%';
+        fill.style.transform = 'scaleX(0)';
         return;
       }
 
-      fill.style.width = left * 100 + '%';
+      /* O jogo ja usa um rAF para movimento. O cronometro nao precisa de 60
+         escritas por segundo: 30 fps e visualmente continuo e corta pela
+         metade o trabalho de style/repaint da segunda animacao. */
+      if (now - lastPaint >= 33) {
+        fill.style.transform = 'scaleX(' + left + ')';
+        lastPaint = now;
+      }
 
       /* Ultimos 25%: pulsa. E o aviso de que o tempo vai acabar, para quem
          esta olhando o jogo e nao o rodape. */
-      if (left <= 0.25) fill.classList.add('low');
+      if (!low && left <= 0.25) {
+        low = true;
+        fill.classList.add('low');
+      }
 
       active.timerRaf = requestAnimationFrame(tick);
     }
 
-    tick();
+    active.timerRaf = requestAnimationFrame(tick);
   }
 
   /* ---------------------------------------------------------- ciclo de vida */
@@ -144,6 +155,8 @@
     if (active.raf) cancelAnimationFrame(active.raf);
     if (active.timerRaf) cancelAnimationFrame(active.timerRaf);
     if (active.timer) clearTimeout(active.timer);
+    if (active.resultTimer) clearTimeout(active.resultTimer);
+    if (active.cleanupTimer) clearTimeout(active.cleanupTimer);
     if (active.onKey) window.removeEventListener('keydown', active.onKey);
     active = null;
     stage.innerHTML = '';
@@ -159,14 +172,21 @@
     if (active.ui) active.ui.flash(success);
     if (active.onKey) window.removeEventListener('keydown', active.onKey);
 
-    var panel = active.ui && active.ui.panel;
-    setTimeout(function () {
+    var session = active;
+    var panel = session.ui && session.ui.panel;
+
+    /* O resultado logico nao espera a animacao de saida. Antes, cada chamada
+       pagava ~390 ms depois do ultimo input; agora o Lua recebe no mesmo
+       frame, enquanto o feedback visual termina de forma independente. */
+    post('finish', { success: !!success });
+
+    session.resultTimer = setTimeout(function () {
       if (panel) panel.classList.add('is-out');
-      setTimeout(function () {
-        stop();
-        post('finish', { success: !!success });
-      }, 130);
-    }, 260);
+      session.cleanupTimer = setTimeout(function () {
+        // Uma nova partida pode ter iniciado enquanto esta animacao terminava.
+        if (active === session) stop();
+      }, 80);
+    }, 80);
   }
 
   /* Registra o handler de teclado do jogo (ESC sempre cancela). */
@@ -403,7 +423,7 @@
         pos = 0;
         dir = 1;
       }
-      cursorEl.style.left = pos + '%';
+      cursorEl.style.transform = 'translate3d(' + (pos * 3.2) + 'px, 0, 0)';
     });
 
     bindKeys(function (e) {
@@ -455,7 +475,7 @@
       winEl.style.left = winStart + '%';
       winEl.style.width = cfg.window + '%';
       winEl.classList.remove('hit');
-      fillEl.style.width = '0%';
+      fillEl.style.transform = 'scaleX(0)';
     }
 
     nextRound();
@@ -464,12 +484,12 @@
       progress += (dt * 1000 * 100) / cfg.duration;
       if (progress >= 100) {
         progress = 100;
-        fillEl.style.width = '100%';
+        fillEl.style.transform = 'scaleX(1)';
         /* Deixou a janela passar sem apertar. */
         if (armed) return finish(false);
         return;
       }
-      fillEl.style.width = progress + '%';
+      fillEl.style.transform = 'scaleX(' + (progress / 100) + ')';
     });
 
     bindKeys(function (e) {

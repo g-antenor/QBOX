@@ -507,10 +507,31 @@ return {
 	['car_bumper'] = { label = 'Para-choque', weight = 9000, stack = true },
 	['car_window'] = { label = 'Vidro Automotivo', weight = 4500, stack = true },
 	['car_tyre'] = { label = 'Pneu', weight = 11000, stack = true },
-	['engine_parts'] = { label = 'Pecas de Motor', weight = 6500, stack = true },
 	['reinforced_plastic'] = { label = 'Plastico Reforcado', weight = 2500, stack = true },
 	['sheet_metal'] = { label = 'Chapa de Metal', weight = 5000, stack = true },
 	['automotive_glass'] = { label = 'Vidro Automotivo', weight = 4000, stack = true },
+
+	-- Componentes de armamento usados pelo crafting por formato.
+	['pistol_slide'] = {
+		label = 'Ferrolho de Pistola', weight = 420, stack = true,
+		client = { image = 'pistol_slide.png' }
+	},
+	['pistol_barrel'] = {
+		label = 'Cano de Pistola', weight = 260, stack = true,
+		client = { image = 'pistol_barrel.png' }
+	},
+	['pistol_grip'] = {
+		label = 'Armacao de Pistola', weight = 320, stack = true,
+		client = { image = 'pistol_grip.png' }
+	},
+	['pistol_trigger'] = {
+		label = 'Conjunto de Gatilho', weight = 110, stack = true,
+		client = { image = 'pistol_trigger.png' }
+	},
+	['pistol_magazine'] = {
+		label = 'Carregador de Pistola', weight = 180, stack = true,
+		client = { image = 'pistol_magazine.png' }
+	},
 	['toolbox'] = {
 		label = 'Caixa de Ferramentas', weight = 8000, stack = false,
 		consume = 0, durability = true, decay = true,

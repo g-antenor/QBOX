@@ -7,7 +7,11 @@
     <title>NUI React Boilerplate</title>
     <script type="module" crossorigin src="./assets/index-CE4UR8q5.js?v=2"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-SonfJNby.css">
-    <style>html,body,#root{background:transparent!important}</style>
+    <style>
+      html,body,#root{background:transparent!important}
+      /* Remove apenas o contador circular dos toasts; o tempo de vida permanece. */
+      [role="status"] circle{display:none!important}
+    </style>
   </head>
   <body>
     <div id="root"></div>

@@ -1,5 +1,5 @@
 Config = {
-    MenuLanguage = 'en', -- Change the language of the menu here
+    MenuLanguage = 'pt', -- Portugues; chaves ausentes usam ingles como fallback
 
     EnableCancelKeybind = true,
     CancelEmoteKey = 'X',

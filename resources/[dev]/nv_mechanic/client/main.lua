@@ -122,7 +122,11 @@ CreateThread(function()
             if impact >= 45.0 and nativeLoss >= 25.0 then
                 local door=math.random(0,3)
                 if GetIsDoorValid(vehicle,door) then SetVehicleDoorBroken(vehicle,door,true) end
-                if math.random(100)<=45 then SmashVehicleWindow(vehicle,door) end
+                if math.random(100)<=45 then
+                    SmashVehicleWindow(vehicle,door)
+                    local broken=Entity(vehicle).state.nvBrokenWindows or {};broken[tostring(door)]=true
+                    Entity(vehicle).state:set('nvBrokenWindows',broken,true)
+                end
             end
         end
 
@@ -218,9 +222,9 @@ RegisterNetEvent('nv_mechanic:applyRepair',function(netId,kind,index)
     if kind=='engine' or kind=='offroad' then SetVehicleEngineHealth(vehicle,1000.0); SetVehicleUndriveable(vehicle,false)
     elseif kind=='body' then SetVehicleBodyHealth(vehicle,1000.0); SetVehicleDeformationFixed(vehicle)
     elseif kind=='tyre' and index then SetVehicleTyreFixed(vehicle,index)
-    elseif kind=='door' and index then SetVehicleDoorFixed(vehicle,index)
-    elseif kind=='hood' then SetVehicleDoorFixed(vehicle,4)
-    elseif kind=='trunk' then SetVehicleDoorFixed(vehicle,5)
+    elseif kind=='door' and index then RestoreMechanicVehicleDoor(vehicle,index)
+    elseif kind=='hood' then RestoreMechanicVehicleDoor(vehicle,4)
+    elseif kind=='trunk' then RestoreMechanicVehicleDoor(vehicle,5)
     elseif kind=='window' and index then FixVehicleWindow(vehicle,index) end
 end)
 

@@ -55,6 +55,11 @@ que possui o mesmo set. Cargos com a permissao `craft` podem criar, editar e
 excluir receitas usando o catalogo completo do ox_inventory. As receitas ficam
 em `nv_crafting_recipes` e entram na bancada sem reiniciar os resources.
 
+Receitas estaticas podem declarar `layout` para posicionar os encaixes em um
+formato visual. `columns` e `rows` definem a grade; cada ingrediente em `slots`
+aceita `column`, `row`, `width` e `height`. O layout nao altera o consumo nem a
+validacao do servidor.
+
 Materiais sao sempre consumidos. Itens adicionados como ferramentas usam o
 percentual de desgaste configurado quando o slot possui durabilidade; quando o
 item nao possui durabilidade, uma unidade e consumida por fabricacao.

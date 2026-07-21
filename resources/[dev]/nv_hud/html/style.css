@@ -31,7 +31,7 @@ html,body{
 
 .server-logo{
   position:fixed;
-  top:16px;
+  top:21px;
   right:22px;
   z-index:6;
   width:180px;
@@ -41,6 +41,15 @@ html,body{
   object-fit:contain;
 }
 .stage.paused .server-logo{ display:none; }
+
+#hud-notifications{width:340px;z-index:30}
+.notification-stack{display:flex;flex-direction:column;gap:8px;width:100%}
+.notification{position:relative;overflow:hidden;display:grid;grid-template-columns:4px 1fr;min-height:58px;border:1px solid rgba(255,255,255,.08);border-radius:6px;background:rgba(15,14,18,.96);box-shadow:0 10px 28px rgba(0,0,0,.48);animation:notify-in .16s ease-out}
+.notification.removing{opacity:0;transform:translateX(15px);transition:.16s ease}
+.notification-accent{background:#85818a}.notification.success .notification-accent{background:#35c878}.notification.error .notification-accent{background:#ff3448}.notification.warning .notification-accent{background:#e6a83e}.notification.info .notification-accent{background:#4a90d9}
+.notification-content{padding:10px 12px}.notification-title{font-size:12px;font-weight:800;color:#fff}.notification-description{margin-top:3px;color:#b2aeb6;font-size:11px;line-height:1.35;white-space:pre-wrap}
+.stage.edit-mode #hud-notifications .notification-stack:empty::after{content:'Exemplo de notificacao';display:block;padding:18px;border:1px dashed var(--red);border-radius:5px;background:#111;color:#aaa;font-size:11px;text-align:center}
+@keyframes notify-in{from{opacity:0;transform:translateX(18px)}}
 
 .organization-name{
   position:fixed; top:94px; right:22px; z-index:6; display:none;

@@ -466,6 +466,10 @@ input[type='text']:disabled { opacity: .5; cursor: not-allowed; }
 ::-webkit-scrollbar-thumb { background: var(--edge); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #38353d; }
 
+#craftResource{grid-column:1/-1;width:100%;overflow:hidden}
+.craft-subhead{margin-top:14px}.craft-recipe-form{width:100%;min-width:0;margin-top:10px;padding:14px;border:1px solid var(--edge-soft);border-radius:8px;background:var(--surface-3)}
+.craft-recipe-form>label,.craft-inline label{display:flex;min-width:0;flex-direction:column;gap:6px;color:var(--dim);font-size:10px;font-weight:600}.craft-recipe-form input,.craft-recipe-form select{width:100%;min-width:0;height:36px;padding:0 10px;border:1px solid var(--edge);border-radius:6px;background:var(--field);color:var(--text);font:inherit;outline:none;color-scheme:dark}.craft-recipe-form select option{background:#15171a;color:#ececec}.craft-recipe-form input:focus,.craft-recipe-form select:focus{border-color:var(--red)}.craft-inline{display:grid;grid-template-columns:minmax(150px,1fr) minmax(80px,110px) minmax(105px,130px);gap:10px;margin:10px 0}.craft-component-head,.craft-component{display:grid;grid-template-columns:42px minmax(0,1fr) 88px 112px;gap:8px;align-items:center}.craft-component-head{margin-top:12px;padding:7px 9px;color:var(--faint);font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}.craft-component-head span:last-child{text-align:center}.craft-components{width:100%;max-height:290px;overflow-x:hidden;overflow-y:auto;border:1px solid var(--edge-soft);border-radius:6px;background:#0d0e10}.craft-component{min-height:40px;padding:6px 9px;border-bottom:1px solid var(--edge-soft);font-size:10px}.craft-component>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.craft-component:last-child{border-bottom:0}.craft-component input[type=checkbox]{width:16px;height:16px;padding:0;accent-color:var(--red);justify-self:center}.craft-component input[type=checkbox]:disabled{opacity:.35}.craft-component input[type=number]{width:100%;height:29px;text-align:center}.craft-recipe-form>.actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;margin-top:12px}
+
 @media (max-width: 980px) {
   .tablet { width: 96vw; height: 92vh; }
   .side { width: 220px; }
@@ -486,4 +490,17 @@ input[type='text']:disabled { opacity: .5; cursor: not-allowed; }
   .res-head > div, .res-head-actions { width: 100%; justify-content: flex-start; }
   .res-item { flex-wrap: wrap; }
   .res-item .muted { flex: 1 1 100%; order: 2; }
+  .craft-inline{grid-template-columns:minmax(0,1fr) minmax(78px,95px)}
+  .craft-inline label:first-child{grid-column:1/-1}
+  .craft-component-head,.craft-component{grid-template-columns:34px minmax(0,1fr) 74px 86px;gap:5px}
+  .craft-component-head{font-size:7px;padding-inline:6px}
+  .craft-component{padding-inline:6px}
+}
+
+@media (max-width: 520px) {
+  .craft-recipe-form{padding:10px}
+  .craft-component-head{display:none}
+  .craft-component{grid-template-columns:28px minmax(0,1fr) 62px 70px;font-size:9px}
+  .craft-component input[type=number]{padding:0 4px}
+  .craft-recipe-form>.actions .btn{flex:1}
 }
