@@ -1,8 +1,8 @@
 --[[
     nv_orgs — servidor: estacionamento da organizacao
 
-    Atendente (ped), vagas e frota. Retirar um veiculo debita o caixa da
-    empresa; guardar devolve o carro para a garagem.
+    Atendente (ped), vagas e frota. Comprar um veiculo debita o banco uma vez;
+    retirar e guardar movimentam sempre o mesmo VIN, sem nova cobranca.
 
     Sobre a relacao com o nv_garage: nao ha duplicacao de mecanica. O veiculo
     criado aqui e um veiculo do ox_core com `group` preenchido, entao o
@@ -18,7 +18,7 @@ local Ox = require '@ox_core.lib.init'
 --- Lista de veiculos para o select da frota. Construida uma vez e guardada:
 --- ler e ordenar o json do ox_core a cada abertura de dialogo seria trabalho
 --- repetido para um dado que nao muda em runtime.
----@type { model: string, label: string }[]?
+---@type { model: string, label: string, price: number, class: string, weight: number }[]?
 local catalog
 
 --- Le o catalogo do ox_core (common/data/vehicles.json).
@@ -47,7 +47,10 @@ local function catalogFromOxCore()
 
                 list[#list + 1] = {
                     model = model,
-                    label = (make and make ~= '') and ('%s %s'):format(make, name) or name
+                    label = (make and make ~= '') and ('%s %s'):format(make, name) or name,
+                    price = math.max(1, math.floor(tonumber(data.price) or Config.VehicleBasePrice or 1000)),
+                    class = data.category or data.class or 'land',
+                    weight = math.max(0, math.floor(tonumber(data.weight) or 0))
                 }
             end
         end
@@ -82,7 +85,10 @@ local function catalogFromExport()
         if type(entry) == 'table' and entry.model then
             list[#list + 1] = {
                 model = entry.model,
-                label = entry.label or entry.model
+                label = entry.label or entry.model,
+                price = math.max(1, math.floor(tonumber(entry.price) or Config.VehicleBasePrice or 1000)),
+                class = entry.category or entry.class or 'land',
+                weight = math.max(0, math.floor(tonumber(entry.weight) or 0))
             }
         end
     end
@@ -114,6 +120,10 @@ local function getCatalog()
     catalog = list
 
     return catalog
+end
+
+local function catalogVehicle(model)
+    for _,entry in ipairs(getCatalog()) do if entry.model==model then return entry end end
 end
 
 lib.callback.register('nv_orgs:vehicleCatalog', function(source)
@@ -175,6 +185,17 @@ local function loadGarages()
 
     if not ok or type(rows) ~= 'table' then return {} end
 
+    local spawnRows=MySQL.query.await('SELECT `group`,`coords` FROM `nv_org_spawns` ORDER BY `id`') or {}
+    local spawnsByGroup={}
+    for i=1,#spawnRows do
+        local spawn=toVec4(spawnRows[i].coords)
+        if spawn then
+            local list=spawnsByGroup[spawnRows[i].group] or {}
+            list[#list+1]={x=spawn.x,y=spawn.y,z=spawn.z,w=spawn.w}
+            spawnsByGroup[spawnRows[i].group]=list
+        end
+    end
+
     local result = {}
 
     for i = 1, #rows do
@@ -188,6 +209,7 @@ local function loadGarages()
                 model   = model,
                 coords  = { x = spot.x, y = spot.y, z = spot.z },
                 heading = spot.w,
+                spawns  = spawnsByGroup[row.group] or {},
                 -- Job so aparece para quem e do set; organizacao estatal
                 -- aparece para todo mundo (mas so membro interage). Foi o
                 -- pedido, e faz sentido: delegacia tem atendente visivel, a
@@ -231,6 +253,11 @@ lib.callback.register('nv_orgs:garage', function(source, set)
     local fleet = MySQL.query.await(
         'SELECT `id`, `model`, `label`, `price`, `minPosition` FROM `nv_org_fleet` WHERE `group` = ? ORDER BY `label`',
         { set }) or {}
+
+    for i=1,#fleet do
+        local entry=catalogVehicle(fleet[i].model)
+        fleet[i].price=entry and entry.price or Config.VehicleBasePrice or 1000
+    end
 
     return {
         ped    = row and row.ped or nil,
@@ -319,7 +346,9 @@ lib.callback.register('nv_orgs:saveFleet', function(source, set, data)
     local label = type(data.label) == 'string' and data.label ~= '' and data.label:sub(1, 50)
         or model:upper()
 
-    local price = math.max(0, math.floor(tonumber(data.price) or 0))
+    local catalogEntry=catalogVehicle(model)
+    if not catalogEntry then return false,'Modelo inexistente no catalogo.' end
+    local price = catalogEntry.price
     local position = math.max(1, math.min(total, math.floor(tonumber(data.minPosition) or total)))
 
     if data.id then
@@ -348,133 +377,235 @@ end)
 
 -- ------------------------------------------------------- uso pelo membro --
 
---- A frota que ESTE jogador pode retirar, com o saldo do caixa.
----
---- Diferente dos callbacks acima: aqui quem chama e um membro qualquer, nao um
---- admin. A autorizacao e o cargo dele na organizacao.
-lib.callback.register('nv_orgs:fleetFor', function(source, set)
-    if type(set) ~= 'string' or not Orgs.schemaReady then return end
-
-    local player = Ox.GetPlayer(source)
+local locks={}
+local function membership(source,set)
+    local player=Ox.GetPlayer(source)
     if not player then return end
+    local ok,groups=pcall(function() return player.getGroups() end)
+    if not ok or type(groups)~='table' or groups[set]==nil then return end
+    return player,groups[set]
+end
 
-    local ok, groups = pcall(function() return player.getGroups() end)
-    if not ok or type(groups) ~= 'table' then return end
+--- Comprar exige as duas condicoes: ser o lider (cargo mais alto) e possuir a
+--- acao `buyVehicles`. Assim a permissao nao libera compra para cargo comum e
+--- ser chefe sozinho tambem nao ignora a configuracao feita no painel.
+local function canBuyFleet(player,set,grade)
+    local permitted=false
+    pcall(function() permitted=player.hasPermission(('group.%s.buyVehicles'):format(set))==true end)
+    local total=gradeCount(set)
+    return permitted and total>0 and Orgs.gradeToPosition(grade,total)==1
+end
 
-    local grade = groups[set]
-    if not grade then return end
+local function canUseFleet(player,set)
+    local permitted=false
+    pcall(function() permitted=player.hasPermission(('group.%s.vehicles'):format(set))==true end)
+    return permitted
+end
 
-    local total = gradeCount(set)
-    if total == 0 then return end
-
-    local position = Orgs.gradeToPosition(grade, total)
-
-    local rows = MySQL.query.await(
-        'SELECT `id`, `model`, `label`, `price`, `minPosition` FROM `nv_org_fleet` WHERE `group` = ? ORDER BY `label`',
-        { set }) or {}
-
-    local fleet = {}
-
-    for i = 1, #rows do
-        -- `minPosition` = "a partir do cargo N". Posicao menor = mais alto.
-        if position <= rows[i].minPosition then
-            fleet[#fleet + 1] = rows[i]
-        end
+local function quality(properties, mechanical)
+    local engine=math.max(0,math.min(100,(tonumber(properties.engineHealth) or 1000)/10))
+    local body=math.max(0,math.min(100,(tonumber(properties.bodyHealth) or 1000)/10))
+    local tank=math.max(0,math.min(100,(tonumber(properties.tankHealth) or 1000)/10))
+    local tyres=100
+    if mechanical and type(mechanical.tyres)=='table' then
+        local sum=0 for i=1,4 do sum=sum+(tonumber(mechanical.tyres[i]) or 100) end tyres=sum/4
     end
+    local mech=mechanical and mechanical.engineFault and 0 or 100
+    return math.floor(engine*.35+body*.25+tyres*.20+tank*.10+mech*.10+.5),math.floor(engine+.5),math.floor(body+.5),math.floor(tyres+.5)
+end
 
-    local balance
+lib.callback.register('nv_orgs:fleetFor', function(source,set)
+    if type(set)~='string' or not Orgs.schemaReady then return end
+    local player,grade=membership(source,set); if not player then return end
+    local org=MySQL.single.await('SELECT `label` FROM `ox_groups` WHERE `name`=?',{set})
+    if not org then return end
+    local owned=MySQL.query.await([[SELECT v.`id`,v.`vin`,v.`plate`,v.`model`,v.`data`,v.`stored`,
+        v.`group` AS `vehicleGroup`,
+        s.`taken_by` AS `takenById`, c.`fullName` AS `takenBy`, DATE_FORMAT(s.`taken_at`,'%d/%m %H:%i') AS `takenAt`
+        FROM `vehicles` v LEFT JOIN `nv_org_vehicle_state` s ON s.`vin`=v.`vin`
+        LEFT JOIN `characters` c ON c.`charId`=s.`taken_by`
+        WHERE v.`group`=? OR s.`group`=? ORDER BY v.`id`]],{set,set}) or {}
+    for i=1,#owned do
+        -- Recupera compras feitas por uma versao anterior que registrou o VIN
+        -- na frota, mas deixou de preencher a coluna group de vehicles.
+        if owned[i].vehicleGroup~=set then
+            MySQL.update.await('UPDATE `vehicles` SET `group`=? WHERE `id`=?',{set,owned[i].id})
+        end
+        owned[i].vehicleGroup=nil
+        local ok,data=pcall(json.decode,owned[i].data or '{}'); if not ok or type(data)~='table' then data={} end
+        local properties=data.properties or data
+        local live=Ox.GetVehicleFromVin(owned[i].vin)
+        if live and live.entity and DoesEntityExist(live.entity) then
+            properties.engineHealth=GetVehicleEngineHealth(live.entity)
+            properties.bodyHealth=GetVehicleBodyHealth(live.entity)
+            properties.tankHealth=GetVehiclePetrolTankHealth(live.entity)
+        end
+        local mechanical
+        if GetResourceState('nv_mechanic')=='started' then mechanical=exports.nv_mechanic:GetSnapshot(owned[i].vin) end
+        owned[i].quality,owned[i].engine,owned[i].body,owned[i].tyres=quality(properties,mechanical)
+        owned[i].status=owned[i].stored==set and 'stored' or (owned[i].stored and 'impound' or 'out')
+        owned[i].ownerLabel=org.label
+        owned[i].data=nil
+        local entry=catalogVehicle(owned[i].model); owned[i].label=entry and entry.label or owned[i].model
 
-    pcall(function()
-        local account = Ox.GetGroupAccount(set)
-
-        balance = account and account.balance or nil
-    end)
-
-    return { fleet = fleet, balance = balance }
+        -- Recuperacao para veiculo retirado antes desta correcao: se continua
+        -- atribuido a este personagem, garante a chave ao reabrir o menu.
+        if owned[i].status=='out' and tonumber(owned[i].takenById)==tonumber(player.charId) then
+            pcall(function() exports.nv_garage:GiveKey(source,owned[i].plate,owned[i].label) end)
+        end
+        owned[i].takenById=nil
+    end
+    local templates=MySQL.query.await('SELECT `id`,`model`,`label`,`minPosition` FROM `nv_org_fleet` WHERE `group`=? ORDER BY `label`',{set}) or {}
+    for i=1,#templates do local entry=catalogVehicle(templates[i].model); templates[i].price=entry and entry.price or Config.VehicleBasePrice or 1000 end
+    local permitted=canBuyFleet(player,set,grade)
+    local canUse=canUseFleet(player,set)
+    for i=1,#owned do
+        owned[i].authorized=canUse
+        if owned[i].status=='impound' and GetResourceState('nv_garage')=='started' then
+            local ok,fee=pcall(function() return exports.nv_garage:GetImpoundFee(owned[i].vin) end)
+            owned[i].fee=ok and (tonumber(fee) or 0) or 0
+        end
+        owned[i].here=owned[i].status=='stored'
+        owned[i].garageLabel=org.label
+    end
+    return {owned=owned,catalog=templates,canBuy=permitted,canUse=canUse,org=org.label}
 end)
 
---- Retira um veiculo da frota, debitando o caixa.
-lib.callback.register('nv_orgs:takeFleetVehicle', function(source, set, fleetId)
-    if type(set) ~= 'string' or type(fleetId) ~= 'number' then return false, 'Dados invalidos.' end
-    if not Orgs.schemaReady then return false, 'Indisponivel.' end
-
-    local player = Ox.GetPlayer(source)
-    if not player then return false, 'Personagem nao carregado.' end
-
-    local ok, groups = pcall(function() return player.getGroups() end)
-    if not ok or type(groups) ~= 'table' then return false, 'Sem permissao.' end
-
-    local grade = groups[set]
-    if not grade then return false, 'Voce nao e desta organizacao.' end
-
-    local total = gradeCount(set)
-    if total == 0 then return false, 'Organizacao sem cargos.' end
-
-    local row = MySQL.single.await(
-        'SELECT `model`, `label`, `price`, `minPosition` FROM `nv_org_fleet` WHERE `id` = ? AND `group` = ?',
-        { fleetId, set })
-
-    if not row then return false, 'Veiculo nao encontrado na frota.' end
-
-    if Orgs.gradeToPosition(grade, total) > row.minPosition then
-        return false, 'Seu cargo nao libera este veiculo.'
-    end
-
-    -- Vaga livre. Sem isso o carro nasce em cima do anterior e os dois saem
-    -- voando.
-    local spawns = MySQL.query.await(
-        'SELECT `coords` FROM `nv_org_spawns` WHERE `group` = ? ORDER BY `id`', { set }) or {}
-
-    if #spawns == 0 then return false, 'Esta organizacao nao tem vagas configuradas.' end
-
-    local spot = toVec4(spawns[1].coords)
-    if not spot then return false, 'Vaga com coordenada invalida.' end
-
-    -- A cobranca vem ANTES do spawn: se o veiculo nascesse primeiro e o debito
-    -- falhasse, sairia frota de graca.
-    if row.price > 0 then
-        local account
-
-        local gotAccount = pcall(function() account = Ox.GetGroupAccount(set) end)
-
-        if not gotAccount or not account then
-            return false, 'A organizacao nao tem caixa configurado.'
-        end
-
-        -- Duas checagens, e nao uma: o `removeBalance` pode lancar (pcall pega)
-        -- OU devolver um resultado falso quando o saldo nao cobre. Confiar so
-        -- no pcall deixaria passar o segundo caso -- e ai sairia frota de
-        -- graca.
-        local charged, result = pcall(function()
-            return account.removeBalance({
-                amount = row.price,
-                message = ('Frota: %s'):format(row.label)
-            })
-        end)
-
-        if not charged or result == false then
-            return false, ('Saldo insuficiente no caixa (precisa de $%d).'):format(row.price)
-        end
-    end
-
-    local vehicle
-
-    local spawned = pcall(function()
-        -- `group = set` faz o veiculo pertencer a organizacao: o nv_garage
-        -- passa a trata-lo como qualquer veiculo com dono, e o painel de
-        -- garagem do jogador nao o mostra como pessoal.
-        vehicle = Ox.CreateVehicle({ model = row.model, group = set },
-            vec3(spot.x, spot.y, spot.z), spot.w)
+lib.callback.register('nv_orgs:buyFleetVehicle',function(source,set,fleetId)
+    if type(set)~='string' or type(fleetId)~='number' then return false,'Dados invalidos.' end
+    local player,grade=membership(source,set); if not player then return false,'Voce nao pertence a esta organizacao.' end
+    local allowed=canBuyFleet(player,set,grade)
+    if not allowed then return false,'Seu cargo nao pode comprar veiculos.' end
+    local row=MySQL.single.await('SELECT `model`,`label` FROM `nv_org_fleet` WHERE `id`=? AND `group`=?',{fleetId,set})
+    if not row then return false,'Modelo nao autorizado.' end
+    local entry=catalogVehicle(row.model); if not entry then return false,'Modelo fora do catalogo.' end
+    local account=Ox.GetGroupAccount(set); if not account then return false,'Conta da organizacao indisponivel.' end
+    local orgLabel=MySQL.scalar.await('SELECT `label` FROM `ox_groups` WHERE `name`=?',{set}) or set
+    local ok,result=pcall(function() return account.removeBalance({amount=entry.price,message=('Compra de veiculo: %s'):format(entry.label)}) end)
+    if not ok or type(result)~='table' or result.success~=true then return false,('Saldo insuficiente (precisa de $%d).'):format(entry.price) end
+    local made,vehicle=pcall(function()
+        return Ox.CreateVehicle({model=row.model,group=set,stored=set,data={registeredOwner=orgLabel}})
     end)
-
-    if not spawned or not vehicle then
-        return false, 'Nao foi possivel criar o veiculo. Confira o nome do modelo.'
+    if not made or not vehicle or not vehicle.id then
+        pcall(function() account.addBalance({amount=entry.price,message='Estorno de compra de veiculo'}) end)
+        return false,'Falha ao criar o veiculo; valor estornado.'
     end
 
-    -- Chave na mao de quem retirou, seguindo a mecanica do nv_garage.
-    pcall(function()
-        exports.nv_garage:GiveKey(source, vehicle.plate, row.label)
-    end)
+    -- Confirma explicitamente o destino. Alem de proteger contra versoes do
+    -- ox_core que ignoram `stored` durante CreateVehicle, isto garante que a
+    -- consulta da frota enxergue o carro imediatamente apos a compra.
+    MySQL.update.await(
+        'UPDATE `vehicles` SET `group`=?, `stored`=? WHERE `id`=? AND `vin`=?',
+        {set,set,vehicle.id,vehicle.vin}
+    )
+    -- UPDATE pode devolver zero quando os valores ja eram iguais; por isso a
+    -- confirmacao precisa ler o registro, nao confiar em affectedRows.
+    local persisted=MySQL.single.await(
+        'SELECT `group`,`stored` FROM `vehicles` WHERE `id`=? AND `vin`=?',
+        {vehicle.id,vehicle.vin}
+    )
+    if not persisted or persisted.group~=set or persisted.stored~=set then
+        pcall(function() vehicle.delete() end)
+        pcall(function() account.addBalance({amount=entry.price,message='Estorno de compra de veiculo'}) end)
+        return false,'Falha ao vincular o veiculo a garagem; valor estornado.'
+    end
+    MySQL.prepare.await([[INSERT INTO `nv_org_vehicle_state` (`vin`,`group`) VALUES (?,?)
+        ON DUPLICATE KEY UPDATE `group`=VALUES(`group`)]],{vehicle.vin,set})
+    return true,nil,('%s comprado em nome da organizacao.'):format(entry.label)
+end)
 
-    return true, nil, row.label
+lib.callback.register('nv_orgs:takeFleetVehicle',function(source,set,vehicleId)
+    if type(set)~='string' or type(vehicleId)~='number' then return false,'Dados invalidos.' end
+    local member=membership(source,set)
+    if not member then return false,'Voce nao pertence a esta organizacao.' end
+    if not canUseFleet(member,set) then return false,'Seu cargo nao pode retirar veiculos da frota.' end
+    if locks[vehicleId] then return false,'Veiculo em movimentacao.' end
+    locks[vehicleId]=true
+    local row=MySQL.single.await('SELECT `id`,`vin`,`plate`,`model`,`stored` FROM `vehicles` WHERE `id`=? AND `group`=?',{vehicleId,set})
+    local impoundName='impound'
+    local impounded=row and row.stored==impoundName
+    if not row or (row.stored~=set and not impounded) then locks[vehicleId]=nil return false,'O veiculo nao esta disponivel.' end
+    local spawns=MySQL.query.await('SELECT `coords` FROM `nv_org_spawns` WHERE `group`=? ORDER BY `id`',{set}) or {}
+    local spot
+    for i=1,#spawns do local candidate=toVec4(spawns[i].coords); if candidate then
+        local occupied=false for _,entity in ipairs(GetAllVehicles()) do if #(GetEntityCoords(entity)-vec3(candidate.x,candidate.y,candidate.z))<2.5 then occupied=true break end end
+        if not occupied then spot=candidate break end
+    end end
+    if not spot then locks[vehicleId]=nil return false,'Nenhuma vaga livre.' end
+    local charged,account,fee=false,nil,0
+    if impounded then
+        account=Ox.GetGroupAccount(set)
+        if not account then locks[vehicleId]=nil return false,'Conta da organizacao indisponivel.' end
+        local ok,value=pcall(function() return exports.nv_garage:GetImpoundFee(row.vin) end)
+        fee=ok and (tonumber(value) or 0) or 0
+        if fee>0 then
+            local paid,result=pcall(function()
+                return account.removeBalance({amount=fee,message=('Patio: liberacao do veiculo %s'):format(row.plate)})
+            end)
+            if not paid or type(result)~='table' or result.success~=true then
+                locks[vehicleId]=nil
+                return false,('Saldo insuficiente no caixa da organizacao (taxa: $%d).'):format(fee)
+            end
+            charged=true
+        end
+    end
+    local vehicle=Ox.SpawnVehicle(row.id,vec3(spot.x,spot.y,spot.z),spot.w)
+    if not vehicle then
+        if charged then pcall(function() account.addBalance({amount=fee,message='Estorno: falha ao liberar veiculo do patio'}) end) end
+        locks[vehicleId]=nil return false,'Nao foi possivel retirar o veiculo.'
+    end
+    if GetResourceState('nv_mechanic')=='started' then exports.nv_mechanic:ApplyToEntity(row.vin,vehicle.entity) end
+    local keyCall,keyGiven,keyError=pcall(function()
+        return exports.nv_garage:GiveKey(source,row.plate,(catalogVehicle(row.model) or {}).label or row.model)
+    end)
+    if not keyCall or keyGiven~=true then
+        -- Sem chave a retirada nao pode ser concluida. Devolve o mesmo VIN a
+        -- garagem para o jogador tentar novamente apos liberar um slot.
+        pcall(function() vehicle.setStored(set,true) end)
+        if charged then pcall(function() account.addBalance({amount=fee,message='Estorno: chave nao entregue'}) end) end
+        locks[vehicleId]=nil
+        local reasons={
+            inventory_full='O inventario nao possui um slot livre.',
+            invalid_inventory='O inventario do personagem ainda nao esta carregado.',
+            invalid_item='O item vehiclekey nao esta registrado no ox_inventory.',
+            invalid_source_or_plate='Os dados do personagem ou da placa sao invalidos.',
+            invalid_plate='A placa do veiculo esta vazia.'
+        }
+        local reason=keyCall and keyError or keyGiven
+        return false,reasons[reason] or ('Nao foi possivel entregar a chave (%s).'):format(tostring(reason or 'erro desconhecido'))
+    end
+    if impounded then pcall(function() exports.nv_garage:ClearImpound(row.vin) end) end
+    pcall(function() exports.nv_garage:MarkOut(row.vin) end)
+    local player=Ox.GetPlayer(source)
+    MySQL.prepare.await([[INSERT INTO `nv_org_vehicle_state` (`vin`,`group`,`taken_by`,`taken_at`) VALUES (?,?,?,NOW())
+        ON DUPLICATE KEY UPDATE `taken_by`=VALUES(`taken_by`),`taken_at`=NOW()]],{row.vin,set,player and player.charId})
+    locks[vehicleId]=nil
+    return true,nil,row.plate
+end)
+
+lib.callback.register('nv_orgs:storeFleetVehicle',function(source,set,netId,properties,mechanical)
+    if type(set)~='string' then return false,'Sem permissao.' end
+    local member=membership(source,set)
+    if not member or not canUseFleet(member,set) then return false,'Seu cargo nao pode movimentar veiculos da frota.' end
+    local vehicle=Ox.GetVehicleFromNetId(netId); if not vehicle or vehicle.group~=set then return false,'Este veiculo nao pertence a esta organizacao.' end
+    if not vehicle.entity or #(GetEntityCoords(GetPlayerPed(source))-GetEntityCoords(vehicle.entity))>8.0 then return false,'Aproxime o veiculo da garagem.' end
+    local spawns=MySQL.query.await('SELECT `coords` FROM `nv_org_spawns` WHERE `group`=?',{set}) or {}
+    local atSpot=false
+    for i=1,#spawns do
+        local spot=toVec4(spawns[i].coords)
+        if spot and #(GetEntityCoords(vehicle.entity)-vec3(spot.x,spot.y,spot.z))<=4.0 then atSpot=true break end
+    end
+    if not atSpot then return false,'Estacione o veiculo em uma vaga da organizacao.' end
+    if type(properties)=='table' then vehicle.setProperties(properties) end
+    if type(mechanical)=='table' and GetResourceState('nv_mechanic')=='started' then exports.nv_mechanic:SaveSnapshot(vehicle.vin,mechanical) end
+    local plate=vehicle.plate
+    local stored=pcall(function() vehicle.setStored(set,true) end)
+    if not stored then return false,'Falha ao persistir o veiculo; ele foi mantido no local.' end
+    if plate and GetResourceState('nv_garage')=='started' then
+        pcall(function() exports.nv_garage:RemoveKey(source,plate) end)
+    end
+    local player=Ox.GetPlayer(source)
+    MySQL.prepare.await([[INSERT INTO `nv_org_vehicle_state` (`vin`,`group`,`returned_by`,`returned_at`) VALUES (?,?,?,NOW())
+        ON DUPLICATE KEY UPDATE `returned_by`=VALUES(`returned_by`),`returned_at`=NOW()]],{vehicle.vin,set,player and player.charId})
+    return true
 end)

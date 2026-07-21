@@ -3,6 +3,15 @@ local POINTS = {
     unload = true, preview = true, saleSpawn = true, testSpawn = true, blip = true
 }
 
+local VEHICLE_CATEGORIES = {
+    compact = true, sedan = true, suv = true, coupe = true, muscle = true,
+    sportsclassic = true, sports = true, super = true, motorcycle = true,
+    offroad = true, industrial = true, utility = true, van = true, cycle = true,
+    boat = true, helicopter = true, plane = true, service = true, emergency = true,
+    military = true, commercial = true, train = true, openwheel = true,
+    sport = true, moto = true
+}
+
 local function validBlipSprite(sprite)
     sprite = tonumber(sprite)
     for i = 1, #(Config.DealershipBlips or {}) do
@@ -47,11 +56,10 @@ end)
 
 lib.callback.register('nv_orgs:setDealershipCategories', function(source, set, selected)
     if not Orgs.isAdmin(source) or Orgs.getSubtype(set) ~= 'dealership' then return false, 'Sem permissao.' end
-    local allowed = { sedan = true, suv = true, sport = true, moto = true }
     local current = read(set) or { points = {}, categories = {} }
     local categories = current.categories or {}
     for _, value in ipairs(type(selected) == 'table' and selected or {}) do
-        if allowed[value] then categories[value] = true end
+        if VEHICLE_CATEGORIES[value] then categories[value] = true end
     end
     MySQL.prepare.await([[
         INSERT INTO `nv_org_dealerships` (`group`, `points`, `categories`) VALUES (?, '{}', ?)

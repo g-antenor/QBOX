@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="style.css">
+  <title>NV Crafting</title>
+</head>
+<body>
+  <main id="app" class="app hidden">
+    <section class="window">
+      <aside class="inventory">
+        <div id="materialsPanel" class="materials-panel hidden">
+          <h2>Materiais utilizaveis</h2>
+          <input id="search" placeholder="Buscar material..." autocomplete="off">
+          <div id="inventory" class="item-list"></div>
+        </div>
+        <div id="inventoryHint" class="inventory-hint"><span>⌁</span><strong>Escolha um craft</strong><small>Os materiais utilizaveis aparecerao aqui.</small></div>
+      </aside>
+
+      <section class="crafting">
+        <header>
+          <div class="brand"><span class="brand-icon">⌁</span><div><h1 id="title">Bancada</h1></div></div>
+          <button id="close" class="close" aria-label="Fechar">×</button>
+        </header>
+        <div class="canvas">
+          <section id="catalog" class="catalog"></section>
+          <article id="recipeDetail" class="recipe-card hidden">
+            <div class="recipe-head"><div class="recipe-title"><button id="back" class="back" aria-label="Voltar">←</button><h3 id="recipeName"></h3></div><strong id="requirementCount"></strong></div>
+            <div class="blueprint">
+              <img id="resultImage" alt="">
+              <div id="slots" class="slot-map"></div>
+            </div>
+            <div class="status">
+              <div><span id="statusText">Verificando materiais</span><strong id="statusPct">0%</strong></div>
+              <div class="bar"><i id="statusBar"></i></div>
+            </div>
+            <footer>
+              <div class="result"><img id="footerImage" alt=""><div><span>RESULTADO</span><strong id="resultName"></strong><small id="resultDescription"></small></div></div>
+              <label class="quantity" aria-label="Quantidade"><input id="quantity" type="text" inputmode="numeric" value="1"></label>
+              <button id="craft">Fabricar item</button>
+            </footer>
+          </article>
+        </div>
+      </section>
+
+      <aside class="summary">
+        <h2>Itens craftados</h2>
+        <input id="outputSearch" class="output-search" placeholder="Buscar item criado..." autocomplete="off">
+        <div id="outputs" class="output-list"></div>
+        <button id="takeAll" class="take-all">Pegar todos</button>
+      </aside>
+    </section>
+    <div id="toast" class="toast"></div>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

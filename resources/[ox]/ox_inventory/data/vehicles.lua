@@ -1,3 +1,10 @@
+-- Capacidade especifica de porta-malas por modelo: { slots, peso em gramas }.
+-- Quando o modelo nao estiver aqui, o inventario usa a classe do veiculo.
+local trunkModels = {
+	[`xa21`] = {11, 10000},
+	-- [`sultan`] = {30, 120000},
+}
+
 return {
 	-- 0	vehicle has no storage
 	-- 1	vehicle has no trunk storage
@@ -35,30 +42,30 @@ return {
 		[`trophytruck2`] = 0,
 	},
 
-	-- slots, maxWeight; default weight is 8000 per slot
+	-- Todos os porta-luvas: no maximo 5 slots e 5 kg.
 	glovebox = {
-		[0] = {11, 88000},		-- Compact
-		[1] = {11, 88000},		-- Sedan
-		[2] = {11, 88000},		-- SUV
-		[3] = {11, 88000},		-- Coupe
-		[4] = {11, 88000},		-- Muscle
-		[5] = {11, 88000},		-- Sports Classic
-		[6] = {11, 88000},		-- Sports
-		[7] = {11, 88000},		-- Super
-		[8] = {5, 40000},		-- Motorcycle
-		[9] = {11, 88000},		-- Offroad
-		[10] = {11, 88000},		-- Industrial
-		[11] = {11, 88000},		-- Utility
-		[12] = {11, 88000},		-- Van
-		[14] = {31, 248000},	-- Boat
-		[15] = {31, 248000},	-- Helicopter
-		[16] = {51, 408000},	-- Plane
-		[17] = {11, 88000},		-- Service
-		[18] = {11, 88000},		-- Emergency
-		[19] = {11, 88000},		-- Military
-		[20] = {11, 88000},		-- Commercial (trucks)
+		[0] = {5, 5000},		-- Compact
+		[1] = {5, 5000},		-- Sedan
+		[2] = {5, 5000},		-- SUV
+		[3] = {5, 5000},		-- Coupe
+		[4] = {5, 5000},		-- Muscle
+		[5] = {5, 5000},		-- Sports Classic
+		[6] = {5, 5000},		-- Sports
+		[7] = {5, 5000},		-- Super
+		[8] = {5, 5000},		-- Motorcycle
+		[9] = {5, 5000},		-- Offroad
+		[10] = {5, 5000},		-- Industrial
+		[11] = {5, 5000},		-- Utility
+		[12] = {5, 5000},		-- Van
+		[14] = {5, 5000},		-- Boat
+		[15] = {5, 5000},		-- Helicopter
+		[16] = {5, 5000},		-- Plane
+		[17] = {5, 5000},		-- Service
+		[18] = {5, 5000},		-- Emergency
+		[19] = {5, 5000},		-- Military
+		[20] = {5, 5000},		-- Commercial (trucks)
 		models = {
-			[`xa21`] = {11, 88000}
+			[`xa21`] = {5, 5000}
 		}
 	},
 
@@ -83,8 +90,6 @@ return {
 		[18] = {41, 328000},	-- Emergency
 		[19] = {41, 328000},	-- Military
 		[20] = {61, 488000},	-- Commercial
-		models = {
-			[`xa21`] = {11, 10000}
-		},
+		models = trunkModels,
 	}
 }

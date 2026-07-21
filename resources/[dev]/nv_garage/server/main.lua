@@ -142,6 +142,22 @@ function Server.impoundFee(vin)
     return fee, days, destroyed, disappeared
 end
 
+-- API usada por garagens de organizacao. A regra e o calculo continuam em um
+-- unico lugar, evitando uma taxa diferente para frota e veiculo particular.
+exports('GetImpoundFee', function(vin)
+    return Server.impoundFee(vin)
+end)
+
+exports('ClearImpound', function(vin)
+    Server.clearImpound(vin)
+    return true
+end)
+
+exports('MarkOut', function(vin)
+    Server.markOut(vin)
+    return true
+end)
+
 --- Veiculo saiu do patio: o relogio para e a marca de destruido cai.
 ---@param vin string
 function Server.clearImpound(vin)
@@ -405,11 +421,13 @@ end
 function Server.giveKey(source, plate, label)
     if Server.countKeys(source, plate) > 0 then return true end
 
-    return exports.ox_inventory:AddItem(source, Config.Items.key, 1, {
+    local success,response=exports.ox_inventory:AddItem(source, Config.Items.key, 1, {
         plate       = plate,
         label       = label,
         description = ('Placa: %s'):format(plate)
     })
+
+    return success==true,response
 end
 
 --- Entregar chave a partir de outro resource (o job de entrega, por exemplo).
@@ -417,9 +435,12 @@ end
 --- criando o proprio item de chave, com metadata levemente diferente -- e
 --- entao a chave de um nao abriria o carro do outro.
 exports('GiveKey', function(source, plate, label)
-    if type(source) ~= 'number' or type(plate) ~= 'string' then return false end
+    source=tonumber(source)
+    if not source or plate==nil then return false,'invalid_source_or_plate' end
+    plate=tostring(plate):gsub('^%s+',''):gsub('%s+$','')
+    if plate=='' then return false,'invalid_plate' end
 
-    return Server.giveKey(source, (plate:gsub('%s+$', '')), label)
+    return Server.giveKey(source,plate,label and tostring(label) or nil)
 end)
 
 --- Tira uma chave da placa do inventario (ela foi para a ignicao).

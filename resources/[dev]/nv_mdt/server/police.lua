@@ -473,9 +473,11 @@ lib.callback.register('nv_mdt:police:vehicle', function(source, plate)
 
     local vehicle = MySQL.single.await([[
         SELECT v.`plate`, v.`vin`, v.`model`, v.`stored`,
-               c.`fullName` AS owner, c.`charId` AS ownerId
+               COALESCE(c.`fullName`, g.`label`) AS owner, c.`charId` AS ownerId,
+               v.`group` AS ownerSet
         FROM `vehicles` v
         LEFT JOIN `characters` c ON c.`charId` = v.`owner`
+        LEFT JOIN `ox_groups` g ON g.`name` = v.`group`
         WHERE v.`plate` = ?
     ]], { plate })
 
@@ -567,10 +569,11 @@ lib.callback.register('nv_mdt:police:stolenList', function(source)
     if not guard(source) then return end
 
     return MySQL.query.await([[
-        SELECT f.`plate`, v.`model`, c.`fullName` AS owner
+        SELECT f.`plate`, v.`model`, COALESCE(c.`fullName`, g.`label`) AS owner
         FROM `nv_mdt_vehicle_flags` f
         LEFT JOIN `vehicles` v ON v.`plate` = f.`plate`
         LEFT JOIN `characters` c ON c.`charId` = v.`owner`
+        LEFT JOIN `ox_groups` g ON g.`name` = v.`group`
         WHERE f.`stolen` = 1
         ORDER BY f.`plate`
     ]]) or {}

@@ -1,17 +1,72 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="tablet.css"><title>Concessionaria</title></head>
-<body><main id="app" class="hidden">
-  <aside class="sidebar"><h1 id="brand">Concessionaria</h1><p>Estoque, vendas e encomendas.</p>
-    <nav><button class="nav active" data-view="stock">Estoque</button><button class="nav" data-view="order">Encomenda</button></nav>
-    <div class="balance"><span>Caixa</span><strong id="balance">$0</strong></div>
-  </aside>
-  <section class="content">
-    <header><div><h2 id="title">Veiculos em estoque</h2><small id="count"></small></div><input id="search" placeholder="Buscar veiculo..."><button id="close" title="Fechar">×</button></header>
-    <div id="stockView"><div id="grid" class="grid"></div></div>
-    <div id="orderView" class="hidden"><div class="invoice"><div class="invoice-head"><div><b>NOTA FISCAL</b><small>Pedido de reposicao</small></div><span id="invoiceUnit"></span></div><div id="orderLines"></div><div class="invoice-total"><span>Total</span><strong id="orderTotal">$0</strong></div><button id="confirmOrder" class="primary">Confirmar e pagar</button></div></div>
-  </section>
-  <aside id="detail" class="detail"><div class="preview"><span>PREVIA NO SHOWROOM</span></div><h3 id="detailName">Selecione um veiculo</h3><p id="detailBrand"></p><strong id="detailPrice"></strong><div class="stats"><span>Estoque <b id="detailStock">0</b></span><span>Modelo <b id="detailModel">-</b></span></div><div class="paint"><span>Cor do veiculo</span><div class="color-palette"><button class="color active" data-color="1" style="--paint:#111214" title="Preto"></button><button class="color" data-color="2" style="--paint:#e8e8e5" title="Branco"></button><button class="color" data-color="3" style="--paint:#b51f2e" title="Vermelho"></button><button class="color" data-color="4" style="--paint:#244e91" title="Azul"></button></div></div><button id="previewBtn">Exibir previa</button><button id="sellBtn" class="primary">Vender</button></aside>
-  <dialog id="players"><form method="dialog"><header><h3>Selecionar comprador</h3><button value="cancel">×</button></header><div id="playerList"></div></form></dialog>
-  <div id="toast"></div>
-</main><script src="app.js"></script></body></html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="tablet.css?v=3">
+  <title>Concessionária</title>
+</head>
+<body>
+  <main id="app" class="mdt-root hidden">
+    <div class="dept-body">
+    <aside class="sidebar">
+      <div class="sidebar-head">
+        <div class="sidebar-title">MDT — Concessionária</div>
+        <button id="close" class="icon-btn" title="Fechar (ESC)" aria-label="Fechar">&#10005;</button>
+      </div>
+      <div id="brand" class="sidebar-sub">Concessionária</div>
+
+      <div class="section-label">Menu</div>
+      <nav>
+        <button class="nav nav-item active" data-view="stock"><span class="nav-icon">▦</span>Veículos em estoque</button>
+        <button class="nav nav-item" data-view="order"><span class="nav-icon">＋</span>Adicionar ao estoque</button>
+        <button class="nav nav-item" data-view="transfers"><span class="nav-icon">⇄</span>Compras e transferências</button>
+      </nav>
+    </aside>
+
+    <section class="workspace">
+      <header class="page-head">
+        <div><h2 id="title">Veículos em estoque</h2><small id="count"></small></div>
+        <input id="search" placeholder="Buscar veículo..." autocomplete="off">
+      </header>
+
+      <div id="stockView" class="stock-layout">
+        <section class="catalog"><div id="grid" class="grid"></div></section>
+        <aside id="detail" class="detail">
+          <div class="preview"><span>PRÉVIA NO SHOWROOM</span></div>
+          <h3 id="detailName">Selecione um veículo</h3><p id="detailBrand"></p><strong id="detailPrice"></strong>
+          <div class="stats"><span>Estoque <b id="detailStock">0</b></span><span>Modelo <b id="detailModel">-</b></span><span>Peso <b id="detailWeight">-</b></span></div>
+          <div class="paint"><span>Cor do veículo</span><div class="color-palette">
+            <button class="color active" data-color="1" style="--paint:#111214" title="Preto"></button>
+            <button class="color" data-color="2" style="--paint:#e8e8e5" title="Branco"></button>
+            <button class="color" data-color="3" style="--paint:#b51f2e" title="Vermelho"></button>
+            <button class="color" data-color="4" style="--paint:#244e91" title="Azul"></button>
+          </div></div>
+          <button id="previewBtn" class="btn">Exibir prévia</button><button id="sellBtn" class="btn primary">Vender</button>
+        </aside>
+      </div>
+
+      <div id="orderView" class="hidden page-scroll">
+        <div class="section-block-title">Pedido de reposição</div>
+        <div class="invoice">
+          <div class="invoice-head"><div><b>NOTA FISCAL</b><small>Veículos para adicionar ao estoque</small></div><span id="invoiceUnit"></span></div>
+          <div id="orderLines"></div>
+          <div class="invoice-total"><span>Total do pedido</span><strong id="orderTotal">$0</strong></div>
+          <button id="confirmOrder" class="btn primary">Confirmar e pagar</button>
+        </div>
+      </div>
+
+      <div id="transfersView" class="hidden page-scroll">
+        <div class="section-block-title">Compras e transferências</div>
+        <div class="empty-state"><div class="empty-icon">⇄</div><h3>Nenhum lançamento disponível</h3><p>As compras e transferências da concessionária serão exibidas nesta página.</p></div>
+      </div>
+    </section>
+    </div>
+
+    <dialog id="players"><form method="dialog"><header><h3>Selecionar comprador</h3><button value="cancel" class="icon-btn">&#10005;</button></header><div id="playerList"></div></form></dialog>
+    <div id="toast"></div>
+  </main>
+  <script src="app.js?v=3"></script>
+</body>
+</html>

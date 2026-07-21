@@ -9,7 +9,12 @@ version '1.0.0'
 dependencies {
     'ox_lib',
     'ox_core',
-    'oxmysql'
+    'oxmysql',
+    'ox_banking',
+    'nv_orgs',
+    'ox_inventory',
+    'nv_crafting',
+    'nv_mechanic'
 }
 
 shared_script '@ox_lib/init.lua'

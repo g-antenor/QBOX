@@ -770,6 +770,11 @@ local function registerCommands()
 				return client.closeInventory()
 			end
 
+			-- Nao disputar foco com txAdmin, MDT ou qualquer outra NUI. O
+			-- inventario continua podendo ser fechado acima quando ele proprio
+			-- detem o foco, mas nao abre por baixo de outro painel.
+			if IsNuiFocused() then return end
+
 			if cache.vehicle then
 				return openGlovebox(cache.vehicle)
 			end
@@ -800,6 +805,8 @@ local function registerCommands()
 			if invOpen then
 				return client.closeInventory()
 			end
+
+			if IsNuiFocused() then return end
 
 			if invBusy or not canOpenInventory() then
 				return lib.notify({ id = 'inventory_player_access', type = 'error', description = locale('inventory_player_access') })

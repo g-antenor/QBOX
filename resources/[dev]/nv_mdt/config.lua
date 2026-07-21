@@ -213,7 +213,11 @@ Config.Mechanic = {
         { key = 'bumperR', label = 'Para-choque Traseiro',  value = 120 }
     },
 
-    towFee = 150
+    towFee = 150,
+
+    -- A ordem transfere da conta pessoal do proprietario para a conta do set
+    -- da oficina. `true` impede ficar imune ao servico deixando a conta vazia.
+    allowNegative = true
 }
 
 -- ============================================================================

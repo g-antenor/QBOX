@@ -195,10 +195,20 @@ end)
 
 RegisterNUICallback('dealershipCategories', function(data, cb)
     local answer = lib.inputDialog('Categorias da concessionaria', {{
-        type = 'multi-select', label = 'Tipos vendidos', required = true,
+        type = 'multi-select', label = 'Tipos vendidos', required = true, searchable = true,
         options = {
-            { value = 'sedan', label = 'Sedans' }, { value = 'suv', label = 'SUVs' },
-            { value = 'sport', label = 'Esportivos' }, { value = 'moto', label = 'Motos' }
+            { value = 'compact', label = 'Compactos' }, { value = 'sedan', label = 'Sedans' },
+            { value = 'suv', label = 'SUVs' }, { value = 'coupe', label = 'Coupes' },
+            { value = 'muscle', label = 'Muscle' }, { value = 'sportsclassic', label = 'Esportivos classicos' },
+            { value = 'sports', label = 'Esportivos' }, { value = 'super', label = 'Super' },
+            { value = 'motorcycle', label = 'Motos' }, { value = 'offroad', label = 'Off-road' },
+            { value = 'industrial', label = 'Industriais' }, { value = 'utility', label = 'Utilitarios' },
+            { value = 'van', label = 'Vans' }, { value = 'cycle', label = 'Bicicletas' },
+            { value = 'boat', label = 'Barcos' }, { value = 'helicopter', label = 'Helicopteros' },
+            { value = 'plane', label = 'Avioes' }, { value = 'service', label = 'Servico' },
+            { value = 'emergency', label = 'Emergencia' }, { value = 'military', label = 'Militares' },
+            { value = 'commercial', label = 'Comerciais' }, { value = 'train', label = 'Trens' },
+            { value = 'openwheel', label = 'Formula' }
         }
     }})
     if not answer then return cb({ ok = false }) end
@@ -248,6 +258,17 @@ end)
 
 RegisterNUICallback('wardrobe', function(data, cb)
     cb(lib.callback.await('nv_orgs:wardrobe', false, data and data.set) or false)
+end)
+
+RegisterNUICallback('craftProject',function(data,cb) cb(lib.callback.await('nv_orgs:craftProject',false,data and data.set) or false) end)
+RegisterNUICallback('placeCraftProject',function(data,cb)
+    cb(1);if type(data)~='table' then return end;close()
+    local answer=lib.inputDialog('Bancada de crafting',{{type='input',label='Nome',default='Bancada da oficina',required=true},{type='checkbox',label='Criar prop de caixa de ferramentas'}})
+    if not answer then return Panel.open(data.set) end
+    Panel.placeCraftProject(data.set,{label=answer[1],prop=answer[2]==true})
+end)
+RegisterNUICallback('deleteCraftProject',function(data,cb)
+    local ok,err=lib.callback.await('nv_orgs:deleteCraftProject',false,data and data.set);if not ok then notify(err or 'Nao foi possivel remover.','error') end;cb({ok=ok==true})
 end)
 
 -- ---------------------------------------------------------- vestiario --
@@ -393,7 +414,10 @@ RegisterNUICallback('fleetDialog', function(data, cb)
         local hasCurrent = false
 
         for i = 1, #catalog do
-            options[i] = { value = catalog[i].model, label = catalog[i].label }
+            options[i] = {
+                value = catalog[i].model,
+                label = ('%s [%s] - $%d'):format(catalog[i].label, catalog[i].model, catalog[i].price or 1000)
+            }
 
             if catalog[i].model == data.model then hasCurrent = true end
         end
@@ -407,7 +431,7 @@ RegisterNUICallback('fleetDialog', function(data, cb)
         modelRow = {
             type = 'select',
             label = 'Modelo',
-            description = 'Escolha na lista da concessionaria.',
+            description = 'O valor exibido sera pago pelo banco da organizacao na compra.',
             options = options,
             default = data.model ~= '' and data.model or nil,
             searchable = true,
@@ -433,12 +457,6 @@ RegisterNUICallback('fleetDialog', function(data, cb)
             max = 50
         },
         {
-            type = 'number',
-            label = 'Preco (pago pelo caixa da empresa)',
-            default = tonumber(data.price) or 0,
-            min = 0
-        },
-        {
             type = 'slider',
             label = 'Liberado ate o cargo (1 = so o mais alto)',
             default = math.min(tonumber(data.minPosition) or total, total),
@@ -453,8 +471,7 @@ RegisterNUICallback('fleetDialog', function(data, cb)
         id          = data.id,
         model       = answer[1],
         label       = answer[2],
-        price       = answer[3],
-        minPosition = answer[4]
+        minPosition = answer[3]
     })
 
     if not ok then

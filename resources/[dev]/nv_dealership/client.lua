@@ -2,10 +2,24 @@ local currentUnit, currentConfig, previewVehicle, previewModel, previewInteracti
 local testActive, deliveryBlip
 local tabletProp
 local locationBlips = {}
+local scrapyardNpc, scrapyardBlip
 local vehicleColors = {
     [1] = { 17, 18, 20 }, [2] = { 232, 232, 229 },
     [3] = { 181, 31, 46 }, [4] = { 36, 78, 145 }
 }
+local scrapVehicles = {}
+for model, data in pairs(exports.ox_core:GetVehicleData() or {}) do
+    local override = Config.VehicleOverrides[model] or {}
+    local vehicleClass = tonumber(data.class)
+    local accepted = vehicleClass ~= 14 and vehicleClass ~= 15 and vehicleClass ~= 16
+        and data.type ~= 'boat' and data.type ~= 'heli' and data.type ~= 'plane'
+    if Config.VehicleClasses[vehicleClass] and accepted and override.enabled ~= false and tonumber(data.weight) then
+        scrapVehicles[joaat(model)] = {
+            model = model,
+            weight = math.max(1, math.floor(tonumber(data.weight)))
+        }
+    end
+end
 
 local function applyPreviewColor(colorId)
     if not previewVehicle or not DoesEntityExist(previewVehicle) then return end
@@ -63,6 +77,72 @@ end
 local function notify(message, kind)
     lib.notify({ title = 'Concessionaria', description = message, type = kind or 'inform' })
 end
+
+local function sellToScrapyard()
+    local config = Config.Scrapyard
+    local coords = vec3(config.coords.x, config.coords.y, config.coords.z)
+    local vehicle = lib.getClosestVehicle(coords, tonumber(config.vehicleRadius) or 6.0, false)
+    if not vehicle or vehicle == 0 then
+        return notify('Estacione o veiculo perto do responsavel pelo patio.', 'error')
+    end
+
+    local vehicleData = scrapVehicles[GetEntityModel(vehicle)]
+    if not vehicleData then
+        return notify('Este veiculo nao consta na lista de carros ou nao e aceito.', 'error')
+    end
+    local weight = vehicleData.weight
+
+    local value = math.floor(weight * (tonumber(config.pricePerKg) or 0))
+    local answer = lib.alertDialog({
+        header = 'Vender ao ferro-velho',
+        content = ('O veiculo pesa **%s kg** e sera destruido permanentemente.\n\nValor: **$%s**'):format(
+            weight, value),
+        centered = true,
+        cancel = true,
+        labels = { confirm = 'Vender veiculo', cancel = 'Cancelar' }
+    })
+    if answer ~= 'confirm' then return end
+
+    local ok, err, paid = lib.callback.await('nv_dealership:scrapVehicle', false, VehToNet(vehicle))
+    if ok then
+        notify(('Veiculo vendido ao ferro-velho por $%s.'):format(paid), 'success')
+    else
+        notify(err or 'Nao foi possivel vender o veiculo.', 'error')
+    end
+end
+
+CreateThread(function()
+    local config = Config.Scrapyard
+    if not config or config.enabled ~= true then return end
+
+    local model = lib.requestModel(config.npcModel or 's_m_y_xmech_02')
+    scrapyardNpc = CreatePed(4, model, config.coords.x, config.coords.y, config.coords.z - 1.0,
+        config.coords.w or 0.0, false, false)
+    SetEntityAsMissionEntity(scrapyardNpc, true, true)
+    FreezeEntityPosition(scrapyardNpc, true)
+    SetEntityInvincible(scrapyardNpc, true)
+    SetBlockingOfNonTemporaryEvents(scrapyardNpc, true)
+    exports.ox_target:addLocalEntity(scrapyardNpc, {{
+        name = 'nv_dealership_scrapyard',
+        icon = 'fa-solid fa-scale-balanced',
+        label = 'Vender veiculo por peso',
+        distance = 2.0,
+        onSelect = sellToScrapyard
+    }})
+    SetModelAsNoLongerNeeded(model)
+
+    local blipConfig = config.blip
+    if blipConfig and blipConfig.enabled then
+        scrapyardBlip = AddBlipForCoord(config.coords.x, config.coords.y, config.coords.z)
+        SetBlipSprite(scrapyardBlip, tonumber(blipConfig.sprite) or 318)
+        SetBlipColour(scrapyardBlip, tonumber(blipConfig.color) or 1)
+        SetBlipScale(scrapyardBlip, tonumber(blipConfig.scale) or 0.75)
+        SetBlipAsShortRange(scrapyardBlip, true)
+        BeginTextCommandSetBlipName('STRING')
+        AddTextComponentString(blipConfig.label or 'Ferro-velho')
+        EndTextCommandSetBlipName(scrapyardBlip)
+    end
+end)
 
 RegisterNetEvent('nv_dealership:orderExpired', function(invoice)
     if deliveryBlip then RemoveBlip(deliveryBlip); deliveryBlip = nil end
@@ -292,4 +372,9 @@ AddEventHandler('onResourceStop', function(resource)
     for i = 1, #locationBlips do
         if DoesBlipExist(locationBlips[i]) then RemoveBlip(locationBlips[i]) end
     end
+    if scrapyardNpc and DoesEntityExist(scrapyardNpc) then
+        exports.ox_target:removeLocalEntity(scrapyardNpc, 'nv_dealership_scrapyard')
+        DeleteEntity(scrapyardNpc)
+    end
+    if scrapyardBlip and DoesBlipExist(scrapyardBlip) then RemoveBlip(scrapyardBlip) end
 end)

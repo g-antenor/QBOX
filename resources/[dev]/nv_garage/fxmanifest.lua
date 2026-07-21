@@ -11,7 +11,9 @@ dependencies {
     'ox_core',
     'ox_inventory',
     'oxmysql',
-    'nv_minigames'
+    'nv_minigames',
+    -- A garagem salva/restaura o snapshot mecanico no mesmo ciclo do veiculo.
+    'nv_mechanic'
 }
 
 shared_script '@ox_lib/init.lua'

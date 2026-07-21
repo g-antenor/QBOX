@@ -12,7 +12,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 86065,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "airbus": {
     "acceleration": 0.12,
@@ -27,7 +28,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 42321,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "airtug": {
     "acceleration": 0.06,
@@ -42,7 +44,8 @@
     "doors": 1,
     "type": "automobile",
     "price": 18786,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "akula": {
     "acceleration": 5.88,
@@ -58,7 +61,8 @@
     "type": "heli",
     "price": 34398495,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 3000
   },
   "akuma": {
     "acceleration": 0.4,
@@ -73,7 +77,8 @@
     "doors": 1,
     "type": "bike",
     "price": 25356,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "aleutian": {
     "acceleration": 0.2795,
@@ -88,7 +93,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 66169,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "alkonost": {
     "acceleration": 13.524,
@@ -103,7 +109,8 @@
     "doors": 2,
     "type": "plane",
     "price": 1933449,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "alpha": {
     "acceleration": 0.33,
@@ -118,7 +125,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 82526,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "alphaz1": {
     "acceleration": 20.58,
@@ -133,7 +141,8 @@
     "doors": 1,
     "type": "plane",
     "price": 2587840,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "ambulance": {
     "acceleration": 0.18,
@@ -148,7 +157,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 66002,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "annihilator": {
     "acceleration": 4.606,
@@ -164,7 +174,8 @@
     "type": "heli",
     "price": 26390295,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 3000
   },
   "annihilator2": {
     "acceleration": 5.292,
@@ -180,7 +191,8 @@
     "type": "heli",
     "price": 29737349,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 3000
   },
   "apc": {
     "acceleration": 0.21,
@@ -196,7 +208,8 @@
     "type": "amphibious_automobile",
     "price": 768201,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 6000
   },
   "ardent": {
     "acceleration": 0.285,
@@ -212,7 +225,8 @@
     "type": "automobile",
     "price": 397128,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 1450
   },
   "armytanker": {
     "acceleration": 0,
@@ -227,7 +241,8 @@
     "doors": 0,
     "type": "trailer",
     "price": 5749,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "armytrailer": {
     "acceleration": 0,
@@ -242,7 +257,8 @@
     "doors": 0,
     "type": "trailer",
     "price": 5668,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "armytrailer2": {
     "acceleration": 0,
@@ -257,7 +273,8 @@
     "doors": 0,
     "type": "trailer",
     "price": 5668,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "asbo": {
     "acceleration": 0.234,
@@ -272,7 +289,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 63020,
-    "category": "land"
+    "category": "land",
+    "weight": 1200
   },
   "asea": {
     "acceleration": 0.2,
@@ -287,7 +305,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 63374,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "asea2": {
     "acceleration": 0.2,
@@ -302,7 +321,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 63374,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "asterope": {
     "acceleration": 0.2,
@@ -317,7 +337,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 64174,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "asterope2": {
     "acceleration": 0.238,
@@ -332,7 +353,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 71306,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "astron": {
     "acceleration": 0.324,
@@ -347,7 +369,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 81719,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "autarch": {
     "acceleration": 0.377,
@@ -362,7 +385,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 85798,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "avarus": {
     "acceleration": 0.27,
@@ -377,7 +401,8 @@
     "doors": 1,
     "type": "bike",
     "price": 23028,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "avenger": {
     "acceleration": 8.82,
@@ -393,7 +418,8 @@
     "type": "plane",
     "price": 9767128,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 5000
   },
   "avenger2": {
     "acceleration": 8.82,
@@ -409,7 +435,8 @@
     "type": "plane",
     "price": 9767128,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 5000
   },
   "avenger3": {
     "acceleration": 8.82,
@@ -425,7 +452,8 @@
     "type": "plane",
     "price": 9767128,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 5000
   },
   "avenger4": {
     "acceleration": 8.82,
@@ -441,7 +469,8 @@
     "type": "plane",
     "price": 9767128,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 5000
   },
   "avisa": {
     "acceleration": 10.5,
@@ -456,7 +485,8 @@
     "doors": 4,
     "type": "submarine",
     "price": 1029160,
-    "category": "sea"
+    "category": "sea",
+    "weight": 2500
   },
   "bagger": {
     "acceleration": 0.21,
@@ -471,7 +501,8 @@
     "doors": 1,
     "type": "bike",
     "price": 19934,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "baletrailer": {
     "acceleration": 0,
@@ -486,7 +517,8 @@
     "doors": 0,
     "type": "trailer",
     "price": 5668,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "baller": {
     "acceleration": 0.21,
@@ -501,7 +533,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 65628,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "baller2": {
     "acceleration": 0.27,
@@ -516,7 +549,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 74432,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "baller3": {
     "acceleration": 0.275,
@@ -531,7 +565,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 74448,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "baller4": {
     "acceleration": 0.27,
@@ -546,7 +581,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 74384,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "baller5": {
     "acceleration": 0.27,
@@ -561,7 +597,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 74400,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "baller6": {
     "acceleration": 0.265,
@@ -576,7 +613,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 74336,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "baller7": {
     "acceleration": 0.3025,
@@ -591,7 +629,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 77229,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "baller8": {
     "acceleration": 0.295,
@@ -606,7 +645,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 77694,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "banshee": {
     "acceleration": 0.34,
@@ -621,7 +661,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 79495,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "banshee2": {
     "acceleration": 0.3475,
@@ -636,7 +677,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 74887,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "banshee3": {
     "acceleration": 0.3878,
@@ -651,7 +693,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 89316,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "barracks": {
     "acceleration": 0.11,
@@ -666,7 +709,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 53283,
-    "category": "land"
+    "category": "land",
+    "weight": 6000
   },
   "barracks2": {
     "acceleration": 0.23,
@@ -681,7 +725,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 60073,
-    "category": "land"
+    "category": "land",
+    "weight": 6000
   },
   "barracks3": {
     "acceleration": 0.11,
@@ -696,7 +741,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 53283,
-    "category": "land"
+    "category": "land",
+    "weight": 6000
   },
   "barrage": {
     "acceleration": 0.2225,
@@ -712,7 +758,8 @@
     "type": "automobile",
     "price": 332904,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 6000
   },
   "bati": {
     "acceleration": 0.3,
@@ -727,7 +774,8 @@
     "doors": 1,
     "type": "bike",
     "price": 25838,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "bati2": {
     "acceleration": 0.3,
@@ -742,7 +790,8 @@
     "doors": 1,
     "type": "bike",
     "price": 25838,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "benson": {
     "acceleration": 0.16,
@@ -757,7 +806,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 60635,
-    "category": "land"
+    "category": "land",
+    "weight": 8000
   },
   "benson2": {
     "acceleration": 0.16,
@@ -772,7 +822,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 60635,
-    "category": "land"
+    "category": "land",
+    "weight": 8000
   },
   "besra": {
     "acceleration": 21.07,
@@ -787,7 +838,8 @@
     "doors": 1,
     "type": "plane",
     "price": 2373206,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "bestiagts": {
     "acceleration": 0.32,
@@ -802,7 +854,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 79703,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "bf400": {
     "acceleration": 0.29,
@@ -817,7 +870,8 @@
     "doors": 1,
     "type": "bike",
     "price": 23103,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "bfinjection": {
     "acceleration": 0.22,
@@ -832,7 +886,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 67551,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "biff": {
     "acceleration": 0.12,
@@ -847,7 +902,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 56668,
-    "category": "land"
+    "category": "land",
+    "weight": 8000
   },
   "bifta": {
     "acceleration": 0.26,
@@ -862,7 +918,8 @@
     "doors": 0,
     "type": "automobile",
     "price": 74872,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "bison": {
     "acceleration": 0.2,
@@ -877,7 +934,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 62297,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "bison2": {
     "acceleration": 0.2,
@@ -892,7 +950,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 62297,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "bison3": {
     "acceleration": 0.2,
@@ -907,7 +966,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 62297,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "bjxl": {
     "acceleration": 0.19,
@@ -922,7 +982,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 60692,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "blade": {
     "acceleration": 0.324,
@@ -937,7 +998,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 70520,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "blazer": {
     "acceleration": 0.2,
@@ -952,7 +1014,8 @@
     "doors": 0,
     "type": "quadbike",
     "price": 39339,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "blazer2": {
     "acceleration": 0.12,
@@ -967,7 +1030,8 @@
     "doors": 0,
     "type": "quadbike",
     "price": 28745,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "blazer3": {
     "acceleration": 0.2,
@@ -982,7 +1046,8 @@
     "doors": 0,
     "type": "quadbike",
     "price": 39339,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "blazer4": {
     "acceleration": 0.25,
@@ -997,7 +1062,8 @@
     "doors": 0,
     "type": "quadbike",
     "price": 44831,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "blazer5": {
     "acceleration": 0.272,
@@ -1013,7 +1079,8 @@
     "type": "amphibious_quadbike",
     "price": 984429,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 2100
   },
   "blimp": {
     "acceleration": 5.684,
@@ -1028,7 +1095,8 @@
     "doors": 4,
     "type": "blimp",
     "price": 1194855,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "blimp2": {
     "acceleration": 6.076,
@@ -1043,7 +1111,8 @@
     "doors": 4,
     "type": "blimp",
     "price": 1209672,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "blimp3": {
     "acceleration": 5.684,
@@ -1058,7 +1127,8 @@
     "doors": 4,
     "type": "blimp",
     "price": 1194855,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "blista": {
     "acceleration": 0.23,
@@ -1073,7 +1143,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 69371,
-    "category": "land"
+    "category": "land",
+    "weight": 1200
   },
   "blista2": {
     "acceleration": 0.23,
@@ -1088,7 +1159,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 69291,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "blista3": {
     "acceleration": 0.23,
@@ -1103,7 +1175,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 69291,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "bmx": {
     "acceleration": 0.16,
@@ -1118,7 +1191,8 @@
     "doors": 1,
     "type": "bicycle",
     "price": 2735,
-    "category": "land"
+    "category": "land",
+    "weight": 15
   },
   "boattrailer": {
     "acceleration": 0,
@@ -1133,7 +1207,8 @@
     "doors": 0,
     "type": "trailer",
     "price": 5668,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "boattrailer2": {
     "acceleration": 0,
@@ -1148,7 +1223,8 @@
     "doors": 0,
     "type": "trailer",
     "price": 5668,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "boattrailer3": {
     "acceleration": 0,
@@ -1163,7 +1239,8 @@
     "doors": 0,
     "type": "trailer",
     "price": 5668,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "bobcatxl": {
     "acceleration": 0.18,
@@ -1178,7 +1255,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 58720,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "bodhi2": {
     "acceleration": 0.215,
@@ -1193,7 +1271,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 59867,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "bombushka": {
     "acceleration": 5.39,
@@ -1209,7 +1288,8 @@
     "type": "plane",
     "price": 3941040,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 5000
   },
   "boor": {
     "acceleration": 0.267,
@@ -1224,7 +1304,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 67237,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "boxville": {
     "acceleration": 0.11,
@@ -1239,7 +1320,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 47273,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "boxville2": {
     "acceleration": 0.11,
@@ -1254,7 +1336,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 47273,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "boxville3": {
     "acceleration": 0.11,
@@ -1269,7 +1352,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 47273,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "boxville4": {
     "acceleration": 0.11,
@@ -1284,7 +1368,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 47273,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "boxville5": {
     "acceleration": 0.32,
@@ -1300,7 +1385,8 @@
     "type": "automobile",
     "price": 326707,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 2500
   },
   "boxville6": {
     "acceleration": 0.11,
@@ -1315,7 +1401,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 47273,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "brawler": {
     "acceleration": 0.28,
@@ -1330,7 +1417,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 77578,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "brickade": {
     "acceleration": 0.2,
@@ -1345,7 +1433,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 54416,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "brickade2": {
     "acceleration": 0.2,
@@ -1360,7 +1449,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 54416,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "brigham": {
     "acceleration": 0.21,
@@ -1375,7 +1465,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 63825,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "brioso": {
     "acceleration": 0.29,
@@ -1390,7 +1481,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 69113,
-    "category": "land"
+    "category": "land",
+    "weight": 1200
   },
   "brioso2": {
     "acceleration": 0.179,
@@ -1405,7 +1497,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 54291,
-    "category": "land"
+    "category": "land",
+    "weight": 1200
   },
   "brioso3": {
     "acceleration": 0.216,
@@ -1420,7 +1513,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 61333,
-    "category": "land"
+    "category": "land",
+    "weight": 1200
   },
   "broadway": {
     "acceleration": 0.195,
@@ -1435,7 +1529,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 61702,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "bruiser": {
     "acceleration": 0.26,
@@ -1450,7 +1545,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 63687,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "bruiser2": {
     "acceleration": 0.26,
@@ -1465,7 +1561,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 63687,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "bruiser3": {
     "acceleration": 0.26,
@@ -1480,7 +1577,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 63687,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "brutus": {
     "acceleration": 0.27,
@@ -1495,7 +1593,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 70122,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "brutus2": {
     "acceleration": 0.27,
@@ -1510,7 +1609,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 70122,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "brutus3": {
     "acceleration": 0.27,
@@ -1525,7 +1625,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 70122,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "btype": {
     "acceleration": 0.27,
@@ -1540,7 +1641,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 69018,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "btype2": {
     "acceleration": 0.355,
@@ -1555,7 +1657,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 74624,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "btype3": {
     "acceleration": 0.27,
@@ -1570,7 +1673,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 69018,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "buccaneer": {
     "acceleration": 0.28,
@@ -1585,7 +1689,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 76634,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "buccaneer2": {
     "acceleration": 0.28,
@@ -1600,7 +1705,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 76634,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "buffalo": {
     "acceleration": 0.27,
@@ -1615,7 +1721,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 75156,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "buffalo2": {
     "acceleration": 0.29,
@@ -1630,7 +1737,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 77026,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "buffalo3": {
     "acceleration": 0.31,
@@ -1645,7 +1753,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 80264,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "buffalo4": {
     "acceleration": 0.3425,
@@ -1660,7 +1769,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 80516,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "buffalo5": {
     "acceleration": 0.382,
@@ -1675,7 +1785,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 83332,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "bulldozer": {
     "acceleration": 0.14,
@@ -1690,7 +1801,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 9376,
-    "category": "land"
+    "category": "land",
+    "weight": 6500
   },
   "bullet": {
     "acceleration": 0.33,
@@ -1705,7 +1817,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 82565,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "burrito": {
     "acceleration": 0.16,
@@ -1720,7 +1833,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 61195,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "burrito2": {
     "acceleration": 0.16,
@@ -1735,7 +1849,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 61195,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "burrito3": {
     "acceleration": 0.16,
@@ -1750,7 +1865,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 61195,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "burrito4": {
     "acceleration": 0.16,
@@ -1765,7 +1881,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 61195,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "burrito5": {
     "acceleration": 0.16,
@@ -1780,7 +1897,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 61195,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "bus": {
     "acceleration": 0.12,
@@ -1795,7 +1913,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 42481,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "buzzard": {
     "acceleration": 5.39,
@@ -1811,7 +1930,8 @@
     "type": "heli",
     "price": 32313780,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 3000
   },
   "buzzard2": {
     "acceleration": 5.39,
@@ -1827,7 +1947,8 @@
     "type": "heli",
     "price": 32313780,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 3000
   },
   "cablecar": {
     "acceleration": 0.2,
@@ -1842,7 +1963,8 @@
     "doors": 2,
     "type": "train",
     "price": 194680,
-    "category": "land"
+    "category": "land",
+    "weight": 10000
   },
   "caddy": {
     "acceleration": 0.3,
@@ -1857,7 +1979,8 @@
     "doors": 0,
     "type": "automobile",
     "price": 36554,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "caddy2": {
     "acceleration": 0.3,
@@ -1872,7 +1995,8 @@
     "doors": 0,
     "type": "automobile",
     "price": 36554,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "caddy3": {
     "acceleration": 0.3,
@@ -1887,7 +2011,8 @@
     "doors": 0,
     "type": "automobile",
     "price": 36022,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "calico": {
     "acceleration": 0.3385,
@@ -1902,7 +2027,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 82150,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "camper": {
     "acceleration": 0.12,
@@ -1917,7 +2043,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 50131,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "caracara": {
     "acceleration": 0.27,
@@ -1933,7 +2060,8 @@
     "type": "automobile",
     "price": 318426,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 2100
   },
   "caracara2": {
     "acceleration": 0.27,
@@ -1948,7 +2076,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 64784,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "carbonizzare": {
     "acceleration": 0.35,
@@ -1963,7 +2092,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 80346,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "carbonrs": {
     "acceleration": 0.3,
@@ -1978,7 +2108,8 @@
     "doors": 1,
     "type": "bike",
     "price": 24649,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "cargobob": {
     "acceleration": 4.998,
@@ -1993,7 +2124,8 @@
     "doors": 3,
     "type": "heli",
     "price": 5616990,
-    "category": "air"
+    "category": "air",
+    "weight": 3000
   },
   "cargobob2": {
     "acceleration": 4.998,
@@ -2008,7 +2140,8 @@
     "doors": 3,
     "type": "heli",
     "price": 5616990,
-    "category": "air"
+    "category": "air",
+    "weight": 3000
   },
   "cargobob3": {
     "acceleration": 4.998,
@@ -2023,7 +2156,8 @@
     "doors": 3,
     "type": "heli",
     "price": 5616990,
-    "category": "air"
+    "category": "air",
+    "weight": 3000
   },
   "cargobob4": {
     "acceleration": 4.998,
@@ -2038,7 +2172,8 @@
     "doors": 3,
     "type": "heli",
     "price": 5616990,
-    "category": "air"
+    "category": "air",
+    "weight": 3000
   },
   "cargobob5": {
     "acceleration": 5.88,
@@ -2053,7 +2188,8 @@
     "doors": 6,
     "type": "heli",
     "price": 6769394,
-    "category": "air"
+    "category": "air",
+    "weight": 3000
   },
   "cargoplane": {
     "acceleration": 6.174,
@@ -2068,7 +2204,8 @@
     "doors": 4,
     "type": "plane",
     "price": 1537947,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "cargoplane2": {
     "acceleration": 6.174,
@@ -2083,7 +2220,8 @@
     "doors": 4,
     "type": "plane",
     "price": 1537947,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "casco": {
     "acceleration": 0.32,
@@ -2098,7 +2236,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 83125,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "castigator": {
     "acceleration": 0.2905,
@@ -2113,7 +2252,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 81492,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "cavalcade": {
     "acceleration": 0.2,
@@ -2128,7 +2268,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 63694,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "cavalcade2": {
     "acceleration": 0.2,
@@ -2143,7 +2284,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 63694,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "cavalcade3": {
     "acceleration": 0.2765,
@@ -2158,7 +2300,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 67959,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "cerberus": {
     "acceleration": 0.19,
@@ -2174,7 +2317,8 @@
     "type": "automobile",
     "price": 305773,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 8000
   },
   "cerberus2": {
     "acceleration": 0.19,
@@ -2190,7 +2334,8 @@
     "type": "automobile",
     "price": 305773,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 8000
   },
   "cerberus3": {
     "acceleration": 0.19,
@@ -2206,7 +2351,8 @@
     "type": "automobile",
     "price": 305773,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 8000
   },
   "champion": {
     "acceleration": 0.359,
@@ -2221,7 +2367,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 86582,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "chavosv6": {
     "acceleration": 0.274,
@@ -2236,7 +2383,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 77249,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "cheburek": {
     "acceleration": 0.265,
@@ -2251,7 +2399,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 74166,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "cheetah": {
     "acceleration": 0.32,
@@ -2266,7 +2415,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 82927,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "cheetah2": {
     "acceleration": 0.3,
@@ -2281,7 +2431,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 82724,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "chernobog": {
     "acceleration": 0.12,
@@ -2297,7 +2448,8 @@
     "type": "automobile",
     "price": 186457,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 6000
   },
   "chimera": {
     "acceleration": 0.275,
@@ -2312,7 +2464,8 @@
     "doors": 0,
     "type": "quadbike",
     "price": 41090,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "chino": {
     "acceleration": 0.2,
@@ -2327,7 +2480,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 58651,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "chino2": {
     "acceleration": 0.21,
@@ -2342,7 +2496,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 60394,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "cinquemila": {
     "acceleration": 0.3535,
@@ -2357,7 +2512,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 80476,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "cliffhanger": {
     "acceleration": 0.318,
@@ -2372,7 +2528,8 @@
     "doors": 1,
     "type": "bike",
     "price": 25621,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "clique": {
     "acceleration": 0.3,
@@ -2387,7 +2544,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 76524,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "clique2": {
     "acceleration": 0.198,
@@ -2402,7 +2560,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 54902,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "club": {
     "acceleration": 0.2375,
@@ -2417,7 +2576,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 69335,
-    "category": "land"
+    "category": "land",
+    "weight": 1200
   },
   "coach": {
     "acceleration": 0.12,
@@ -2432,7 +2592,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 42321,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "cog55": {
     "acceleration": 0.265,
@@ -2447,7 +2608,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 76441,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "cog552": {
     "acceleration": 0.26,
@@ -2462,7 +2624,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 75535,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "cogcabrio": {
     "acceleration": 0.26,
@@ -2477,7 +2640,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 74712,
-    "category": "land"
+    "category": "land",
+    "weight": 1500
   },
   "cognoscenti": {
     "acceleration": 0.26,
@@ -2492,7 +2656,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 75535,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "cognoscenti2": {
     "acceleration": 0.255,
@@ -2507,7 +2672,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 74605,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "comet2": {
     "acceleration": 0.34,
@@ -2522,7 +2688,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 83289,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "comet3": {
     "acceleration": 0.34,
@@ -2537,7 +2704,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 83253,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "comet4": {
     "acceleration": 0.2925,
@@ -2552,7 +2720,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 78289,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "comet5": {
     "acceleration": 0.32,
@@ -2567,7 +2736,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 78583,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "comet6": {
     "acceleration": 0.346,
@@ -2582,7 +2752,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 83378,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "comet7": {
     "acceleration": 0.3495,
@@ -2597,7 +2768,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 83759,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "conada": {
     "acceleration": 5.6644,
@@ -2612,7 +2784,8 @@
     "doors": 2,
     "type": "heli",
     "price": 6931737,
-    "category": "air"
+    "category": "air",
+    "weight": 3000
   },
   "conada2": {
     "acceleration": 5.684,
@@ -2628,7 +2801,8 @@
     "type": "heli",
     "price": 34278704,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 3000
   },
   "contender": {
     "acceleration": 0.26,
@@ -2643,7 +2817,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 68578,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "coquette": {
     "acceleration": 0.33,
@@ -2658,7 +2833,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 83674,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "coquette2": {
     "acceleration": 0.34,
@@ -2673,7 +2849,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 81755,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "coquette3": {
     "acceleration": 0.29,
@@ -2688,7 +2865,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 74620,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "coquette4": {
     "acceleration": 0.32,
@@ -2703,7 +2881,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 80771,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "coquette5": {
     "acceleration": 0.278,
@@ -2718,7 +2897,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 78153,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "coquette6": {
     "acceleration": 0.325,
@@ -2733,7 +2913,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 81670,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "corsita": {
     "acceleration": 0.4,
@@ -2748,7 +2929,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 87616,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "coureur": {
     "acceleration": 0.37,
@@ -2763,7 +2945,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 77754,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "cruiser": {
     "acceleration": 0.08,
@@ -2778,7 +2961,8 @@
     "doors": 1,
     "type": "bicycle",
     "price": 2751,
-    "category": "land"
+    "category": "land",
+    "weight": 15
   },
   "crusader": {
     "acceleration": 0.18,
@@ -2793,7 +2977,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 59206,
-    "category": "land"
+    "category": "land",
+    "weight": 6000
   },
   "cuban800": {
     "acceleration": 5.88,
@@ -2808,7 +2993,8 @@
     "doors": 2,
     "type": "plane",
     "price": 1489140,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "cutter": {
     "acceleration": 0.16,
@@ -2823,7 +3009,8 @@
     "doors": 1,
     "type": "automobile",
     "price": 22017,
-    "category": "land"
+    "category": "land",
+    "weight": 6500
   },
   "cyclone": {
     "acceleration": 0.2725,
@@ -2838,7 +3025,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 68875,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "cypher": {
     "acceleration": 0.326,
@@ -2853,7 +3041,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 75676,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "daemon": {
     "acceleration": 0.26,
@@ -2868,7 +3057,8 @@
     "doors": 1,
     "type": "bike",
     "price": 22321,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "daemon2": {
     "acceleration": 0.262,
@@ -2883,7 +3073,8 @@
     "doors": 1,
     "type": "bike",
     "price": 22423,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "deathbike": {
     "acceleration": 0.3125,
@@ -2898,7 +3089,8 @@
     "doors": 1,
     "type": "bike",
     "price": 25195,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "deathbike2": {
     "acceleration": 0.3125,
@@ -2913,7 +3105,8 @@
     "doors": 1,
     "type": "bike",
     "price": 25195,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "deathbike3": {
     "acceleration": 0.3125,
@@ -2928,7 +3121,8 @@
     "doors": 1,
     "type": "bike",
     "price": 25195,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "defiler": {
     "acceleration": 0.405,
@@ -2943,7 +3137,8 @@
     "doors": 1,
     "type": "bike",
     "price": 25616,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "deity": {
     "acceleration": 0.2925,
@@ -2958,7 +3153,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 73581,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "deluxo": {
     "acceleration": 0.2275,
@@ -2973,7 +3169,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 70738,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "deveste": {
     "acceleration": 0.42,
@@ -2988,7 +3185,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 87916,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "deviant": {
     "acceleration": 0.29,
@@ -3003,7 +3201,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 70267,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "diablous": {
     "acceleration": 0.312,
@@ -3018,7 +3217,8 @@
     "doors": 1,
     "type": "bike",
     "price": 24745,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "diablous2": {
     "acceleration": 0.32,
@@ -3033,7 +3233,8 @@
     "doors": 1,
     "type": "bike",
     "price": 24901,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "dilettante": {
     "acceleration": 0.1,
@@ -3048,7 +3249,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 40298,
-    "category": "land"
+    "category": "land",
+    "weight": 1200
   },
   "dilettante2": {
     "acceleration": 0.1,
@@ -3063,7 +3265,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 40298,
-    "category": "land"
+    "category": "land",
+    "weight": 1200
   },
   "dinghy": {
     "acceleration": 16,
@@ -3079,7 +3282,8 @@
     "type": "boat",
     "price": 2233400,
     "category": "sea",
-    "weapons": true
+    "weapons": true,
+    "weight": 2500
   },
   "dinghy2": {
     "acceleration": 16,
@@ -3094,7 +3298,8 @@
     "doors": 0,
     "type": "boat",
     "price": 446680,
-    "category": "sea"
+    "category": "sea",
+    "weight": 2500
   },
   "dinghy3": {
     "acceleration": 16,
@@ -3110,7 +3315,8 @@
     "type": "boat",
     "price": 2233400,
     "category": "sea",
-    "weapons": true
+    "weapons": true,
+    "weight": 2500
   },
   "dinghy4": {
     "acceleration": 16,
@@ -3126,7 +3332,8 @@
     "type": "boat",
     "price": 2233400,
     "category": "sea",
-    "weapons": true
+    "weapons": true,
+    "weight": 2500
   },
   "dinghy5": {
     "acceleration": 16,
@@ -3142,7 +3349,8 @@
     "type": "boat",
     "price": 2233400,
     "category": "sea",
-    "weapons": true
+    "weapons": true,
+    "weight": 2500
   },
   "dloader": {
     "acceleration": 0.17,
@@ -3157,7 +3365,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 55231,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "docktrailer": {
     "acceleration": 0,
@@ -3172,7 +3381,8 @@
     "doors": 0,
     "type": "trailer",
     "price": 5668,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "docktug": {
     "acceleration": 0.2,
@@ -3187,7 +3397,8 @@
     "doors": 1,
     "type": "automobile",
     "price": 41472,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "dodo": {
     "acceleration": 4.9,
@@ -3202,7 +3413,8 @@
     "doors": 4,
     "type": "plane",
     "price": 1321065,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "dominator": {
     "acceleration": 0.29,
@@ -3217,7 +3429,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 80149,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "dominator10": {
     "acceleration": 0.3,
@@ -3232,7 +3445,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 81545,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "dominator2": {
     "acceleration": 0.31,
@@ -3247,7 +3461,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 81440,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "dominator3": {
     "acceleration": 0.335,
@@ -3262,7 +3477,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 77862,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "dominator4": {
     "acceleration": 0.375,
@@ -3277,7 +3493,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 80565,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "dominator5": {
     "acceleration": 0.375,
@@ -3292,7 +3509,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 80565,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "dominator6": {
     "acceleration": 0.375,
@@ -3307,7 +3525,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 80565,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "dominator7": {
     "acceleration": 0.342,
@@ -3322,7 +3541,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 83320,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "dominator8": {
     "acceleration": 0.3027,
@@ -3337,7 +3557,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 76295,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "dominator9": {
     "acceleration": 0.3448,
@@ -3352,7 +3573,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 82702,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "dorado": {
     "acceleration": 0.2168,
@@ -3367,7 +3589,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 69578,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "double": {
     "acceleration": 0.31,
@@ -3382,7 +3605,8 @@
     "doors": 1,
     "type": "bike",
     "price": 25173,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "drafter": {
     "acceleration": 0.342,
@@ -3397,7 +3621,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 79907,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "draugur": {
     "acceleration": 0.3425,
@@ -3412,7 +3637,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 72622,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "driftcheburek": {
     "acceleration": 0.7075,
@@ -3427,7 +3653,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 74882,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "driftcypher": {
     "acceleration": 0.7075,
@@ -3442,7 +3669,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 75266,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "drifteuros": {
     "acceleration": 0.711,
@@ -3457,7 +3685,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 76163,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "driftfr36": {
     "acceleration": 0.7125,
@@ -3472,7 +3701,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 75045,
-    "category": "land"
+    "category": "land",
+    "weight": 1500
   },
   "driftfuto": {
     "acceleration": 0.71,
@@ -3487,7 +3717,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 75037,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "driftfuto2": {
     "acceleration": 0.71,
@@ -3502,7 +3733,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 74869,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "driftjester": {
     "acceleration": 0.706,
@@ -3517,7 +3749,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 74933,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "driftjester3": {
     "acceleration": 0.711,
@@ -3532,7 +3765,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 75389,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "driftnebula": {
     "acceleration": 0.725,
@@ -3547,7 +3781,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 76538,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "driftremus": {
     "acceleration": 0.712,
@@ -3562,7 +3797,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 78305,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "driftsentinel": {
     "acceleration": 0.716,
@@ -3577,7 +3813,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 75725,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "drifttampa": {
     "acceleration": 0.712,
@@ -3592,7 +3829,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 78299,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "driftvorschlag": {
     "acceleration": 0.7085,
@@ -3607,7 +3845,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 76141,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "driftyosemite": {
     "acceleration": 0.718,
@@ -3622,7 +3861,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 70884,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "driftzr350": {
     "acceleration": 0.708,
@@ -3637,7 +3877,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 75060,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "dubsta": {
     "acceleration": 0.2,
@@ -3652,7 +3893,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 62617,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "dubsta2": {
     "acceleration": 0.2,
@@ -3667,7 +3909,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 62617,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "dubsta3": {
     "acceleration": 0.28,
@@ -3682,7 +3925,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 64556,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "dukes": {
     "acceleration": 0.32,
@@ -3697,7 +3941,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 79383,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "dukes2": {
     "acceleration": 0.35,
@@ -3712,7 +3957,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 77611,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "dukes3": {
     "acceleration": 0.315,
@@ -3727,7 +3973,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 78577,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "dump": {
     "acceleration": 0.19,
@@ -3742,7 +3989,8 @@
     "doors": 1,
     "type": "automobile",
     "price": 24629,
-    "category": "land"
+    "category": "land",
+    "weight": 6500
   },
   "dune": {
     "acceleration": 0.25,
@@ -3757,7 +4005,8 @@
     "doors": 0,
     "type": "automobile",
     "price": 64617,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "dune2": {
     "acceleration": 0.24,
@@ -3772,7 +4021,8 @@
     "doors": 0,
     "type": "automobile",
     "price": 63085,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "dune3": {
     "acceleration": 0.25,
@@ -3788,7 +4038,8 @@
     "type": "automobile",
     "price": 323087,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 2100
   },
   "dune4": {
     "acceleration": 0.324,
@@ -3803,7 +4054,8 @@
     "doors": 0,
     "type": "automobile",
     "price": 82003,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "dune5": {
     "acceleration": 0.32,
@@ -3818,7 +4070,8 @@
     "doors": 0,
     "type": "automobile",
     "price": 81376,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "duster": {
     "acceleration": 4.9,
@@ -3833,7 +4086,8 @@
     "doors": 0,
     "type": "plane",
     "price": 1321065,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "duster2": {
     "acceleration": 6.566,
@@ -3848,7 +4102,8 @@
     "doors": 1,
     "type": "plane",
     "price": 1742905,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "dynasty": {
     "acceleration": 0.18,
@@ -3863,7 +4118,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 58840,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "elegy": {
     "acceleration": 0.33,
@@ -3878,7 +4134,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 78735,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "elegy2": {
     "acceleration": 0.33,
@@ -3893,7 +4150,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 80339,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "ellie": {
     "acceleration": 0.325,
@@ -3908,7 +4166,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 75782,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "emerus": {
     "acceleration": 0.378,
@@ -3923,7 +4182,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 85112,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "emperor": {
     "acceleration": 0.14,
@@ -3938,7 +4198,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 56110,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "emperor2": {
     "acceleration": 0.14,
@@ -3953,7 +4214,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 56110,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "emperor3": {
     "acceleration": 0.14,
@@ -3968,7 +4230,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 56110,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "enduro": {
     "acceleration": 0.3,
@@ -3983,7 +4246,8 @@
     "doors": 1,
     "type": "bike",
     "price": 20848,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "entity2": {
     "acceleration": 0.355,
@@ -3998,7 +4262,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 89286,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "entity3": {
     "acceleration": 0.3545,
@@ -4013,7 +4278,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 89208,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "entityxf": {
     "acceleration": 0.33,
@@ -4028,7 +4294,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 84601,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "envisage": {
     "acceleration": 0.175,
@@ -4043,7 +4310,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 55910,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "esskey": {
     "acceleration": 0.295,
@@ -4058,7 +4326,8 @@
     "doors": 1,
     "type": "bike",
     "price": 23138,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "eudora": {
     "acceleration": 0.195,
@@ -4073,7 +4342,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 66819,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "euros": {
     "acceleration": 0.324,
@@ -4088,7 +4358,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 78840,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "eurosx32": {
     "acceleration": 0.28,
@@ -4103,7 +4374,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 73492,
-    "category": "land"
+    "category": "land",
+    "weight": 1500
   },
   "everon": {
     "acceleration": 0.295,
@@ -4118,7 +4390,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 68803,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "everon2": {
     "acceleration": 0.3395,
@@ -4133,7 +4406,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 79842,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "exemplar": {
     "acceleration": 0.26,
@@ -4148,7 +4422,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 79891,
-    "category": "land"
+    "category": "land",
+    "weight": 1500
   },
   "f620": {
     "acceleration": 0.24,
@@ -4163,7 +4438,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 79607,
-    "category": "land"
+    "category": "land",
+    "weight": 1500
   },
   "faction": {
     "acceleration": 0.28,
@@ -4178,7 +4454,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 77450,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "faction2": {
     "acceleration": 0.28,
@@ -4193,7 +4470,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 77450,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "faction3": {
     "acceleration": 0.2,
@@ -4208,7 +4486,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 58971,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "fagaloa": {
     "acceleration": 0.21,
@@ -4223,7 +4502,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 57546,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "faggio": {
     "acceleration": 0.1975,
@@ -4238,7 +4518,8 @@
     "doors": 1,
     "type": "bike",
     "price": 14728,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "faggio2": {
     "acceleration": 0.1,
@@ -4253,7 +4534,8 @@
     "doors": 1,
     "type": "bike",
     "price": 12263,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "faggio3": {
     "acceleration": 0.195,
@@ -4268,7 +4550,8 @@
     "doors": 1,
     "type": "bike",
     "price": 14291,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "fbi": {
     "acceleration": 0.28,
@@ -4283,7 +4566,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 76794,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "fbi2": {
     "acceleration": 0.2,
@@ -4298,7 +4582,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 62617,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "fcr": {
     "acceleration": 0.305,
@@ -4313,7 +4598,8 @@
     "doors": 1,
     "type": "bike",
     "price": 24321,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "fcr2": {
     "acceleration": 0.31,
@@ -4328,7 +4614,8 @@
     "doors": 1,
     "type": "bike",
     "price": 24491,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "felon": {
     "acceleration": 0.24,
@@ -4343,7 +4630,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 76088,
-    "category": "land"
+    "category": "land",
+    "weight": 1500
   },
   "felon2": {
     "acceleration": 0.24,
@@ -4358,7 +4646,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 72344,
-    "category": "land"
+    "category": "land",
+    "weight": 1500
   },
   "feltzer2": {
     "acceleration": 0.34,
@@ -4373,7 +4662,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 82235,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "feltzer3": {
     "acceleration": 0.3,
@@ -4388,7 +4678,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 76444,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "firebolt": {
     "acceleration": 0.2962,
@@ -4403,7 +4694,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 76933,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "firetruk": {
     "acceleration": 0.16,
@@ -4419,7 +4711,8 @@
     "type": "automobile",
     "price": 323967,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 2400
   },
   "fixter": {
     "acceleration": 0.135,
@@ -4434,7 +4727,8 @@
     "doors": 1,
     "type": "bicycle",
     "price": 2835,
-    "category": "land"
+    "category": "land",
+    "weight": 15
   },
   "flashgt": {
     "acceleration": 0.32,
@@ -4449,7 +4743,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 73890,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "flatbed": {
     "acceleration": 0.14,
@@ -4464,7 +4759,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 46633,
-    "category": "land"
+    "category": "land",
+    "weight": 6500
   },
   "fmj": {
     "acceleration": 0.3655,
@@ -4479,7 +4775,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 88017,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "forklift": {
     "acceleration": 0.18,
@@ -4494,7 +4791,8 @@
     "doors": 0,
     "type": "automobile",
     "price": 17664,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "formula": {
     "acceleration": 0.75,
@@ -4509,7 +4807,8 @@
     "doors": 0,
     "type": "automobile",
     "price": 178223,
-    "category": "land"
+    "category": "land",
+    "weight": 750
   },
   "formula2": {
     "acceleration": 0.745,
@@ -4524,7 +4823,8 @@
     "doors": 0,
     "type": "automobile",
     "price": 177619,
-    "category": "land"
+    "category": "land",
+    "weight": 750
   },
   "fq2": {
     "acceleration": 0.18,
@@ -4539,7 +4839,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 65442,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "fr36": {
     "acceleration": 0.301,
@@ -4554,7 +4855,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 78667,
-    "category": "land"
+    "category": "land",
+    "weight": 1500
   },
   "freecrawler": {
     "acceleration": 0.24,
@@ -4569,7 +4871,8 @@
     "doors": 7,
     "type": "automobile",
     "price": 60453,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "freight": {
     "acceleration": 0.2,
@@ -4584,7 +4887,8 @@
     "doors": 1,
     "type": "train",
     "price": 194680,
-    "category": "land"
+    "category": "land",
+    "weight": 10000
   },
   "freight2": {
     "acceleration": 0.2,
@@ -4599,7 +4903,8 @@
     "doors": 0,
     "type": "train",
     "price": 194680,
-    "category": "land"
+    "category": "land",
+    "weight": 10000
   },
   "freightcar": {
     "acceleration": 0.2,
@@ -4614,7 +4919,8 @@
     "doors": 0,
     "type": "train",
     "price": 194680,
-    "category": "land"
+    "category": "land",
+    "weight": 10000
   },
   "freightcar2": {
     "acceleration": 0.2,
@@ -4629,7 +4935,8 @@
     "doors": 0,
     "type": "train",
     "price": 194680,
-    "category": "land"
+    "category": "land",
+    "weight": 10000
   },
   "freightcar3": {
     "acceleration": 0.2,
@@ -4644,7 +4951,8 @@
     "doors": 0,
     "type": "train",
     "price": 194680,
-    "category": "land"
+    "category": "land",
+    "weight": 10000
   },
   "freightcont1": {
     "acceleration": 0.2,
@@ -4659,7 +4967,8 @@
     "doors": 2,
     "type": "train",
     "price": 194680,
-    "category": "land"
+    "category": "land",
+    "weight": 10000
   },
   "freightcont2": {
     "acceleration": 0.2,
@@ -4674,7 +4983,8 @@
     "doors": 0,
     "type": "train",
     "price": 194680,
-    "category": "land"
+    "category": "land",
+    "weight": 10000
   },
   "freightgrain": {
     "acceleration": 0.2,
@@ -4689,7 +4999,8 @@
     "doors": 1,
     "type": "train",
     "price": 194680,
-    "category": "land"
+    "category": "land",
+    "weight": 10000
   },
   "freighttrailer": {
     "acceleration": 0,
@@ -4704,7 +5015,8 @@
     "doors": 0,
     "type": "trailer",
     "price": 5668,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "frogger": {
     "acceleration": 5.488,
@@ -4720,7 +5032,8 @@
     "type": "heli",
     "price": 31839300,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 3000
   },
   "frogger2": {
     "acceleration": 5.488,
@@ -4736,7 +5049,8 @@
     "type": "heli",
     "price": 31839300,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 3000
   },
   "fugitive": {
     "acceleration": 0.2,
@@ -4751,7 +5065,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 67317,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "furia": {
     "acceleration": 0.365,
@@ -4766,7 +5081,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 83110,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "furoregt": {
     "acceleration": 0.335,
@@ -4781,7 +5097,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 84346,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "fusilade": {
     "acceleration": 0.32,
@@ -4796,7 +5113,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 81251,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "futo": {
     "acceleration": 0.29,
@@ -4811,7 +5129,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 74336,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "futo2": {
     "acceleration": 0.2965,
@@ -4826,7 +5145,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 75463,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "gargoyle": {
     "acceleration": 0.3125,
@@ -4841,7 +5161,8 @@
     "doors": 1,
     "type": "bike",
     "price": 25195,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "gauntlet": {
     "acceleration": 0.3,
@@ -4856,7 +5177,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 78237,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "gauntlet2": {
     "acceleration": 0.315,
@@ -4871,7 +5193,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 80506,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "gauntlet3": {
     "acceleration": 0.28,
@@ -4886,7 +5209,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 73572,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "gauntlet4": {
     "acceleration": 0.36,
@@ -4901,7 +5225,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 81048,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "gauntlet5": {
     "acceleration": 0.29,
@@ -4916,7 +5241,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 80250,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "gauntlet6": {
     "acceleration": 0.3668,
@@ -4931,7 +5257,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 81665,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "gb200": {
     "acceleration": 0.315,
@@ -4946,7 +5273,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 74534,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "gburrito": {
     "acceleration": 0.16,
@@ -4961,7 +5289,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 61195,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "gburrito2": {
     "acceleration": 0.18,
@@ -4976,7 +5305,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 66162,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "glendale": {
     "acceleration": 0.235,
@@ -4991,7 +5321,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 65948,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "glendale2": {
     "acceleration": 0.233,
@@ -5006,7 +5337,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 66105,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "gp1": {
     "acceleration": 0.37,
@@ -5021,7 +5353,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 84220,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "graintrailer": {
     "acceleration": 0,
@@ -5036,7 +5369,8 @@
     "doors": 1,
     "type": "trailer",
     "price": 5668,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "granger": {
     "acceleration": 0.19,
@@ -5051,7 +5385,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 60692,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "granger2": {
     "acceleration": 0.2075,
@@ -5066,7 +5401,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 57057,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "greenwood": {
     "acceleration": 0.282,
@@ -5081,7 +5417,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 78897,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "gresley": {
     "acceleration": 0.2,
@@ -5096,7 +5433,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 63694,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "growler": {
     "acceleration": 0.3338,
@@ -5111,7 +5449,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 82635,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "gt500": {
     "acceleration": 0.29,
@@ -5126,7 +5465,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 76158,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "guardian": {
     "acceleration": 0.21,
@@ -5141,7 +5481,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 65628,
-    "category": "land"
+    "category": "land",
+    "weight": 6500
   },
   "habanero": {
     "acceleration": 0.18,
@@ -5156,7 +5497,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 65442,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "hakuchou": {
     "acceleration": 0.315,
@@ -5171,7 +5513,8 @@
     "doors": 1,
     "type": "bike",
     "price": 25975,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "hakuchou2": {
     "acceleration": 0.425,
@@ -5186,7 +5529,8 @@
     "doors": 1,
     "type": "bike",
     "price": 27374,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "halftrack": {
     "acceleration": 0.16,
@@ -5202,7 +5546,8 @@
     "type": "automobile",
     "price": 174666,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 6000
   },
   "handler": {
     "acceleration": 0.14,
@@ -5217,7 +5562,8 @@
     "doors": 1,
     "type": "automobile",
     "price": 14549,
-    "category": "land"
+    "category": "land",
+    "weight": 6500
   },
   "hauler": {
     "acceleration": 0.16,
@@ -5232,7 +5578,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 48240,
-    "category": "land"
+    "category": "land",
+    "weight": 8000
   },
   "hauler2": {
     "acceleration": 0.32,
@@ -5247,7 +5594,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 70102,
-    "category": "land"
+    "category": "land",
+    "weight": 8000
   },
   "havok": {
     "acceleration": 5.39,
@@ -5262,7 +5610,8 @@
     "doors": 1,
     "type": "heli",
     "price": 6462756,
-    "category": "air"
+    "category": "air",
+    "weight": 3000
   },
   "hellion": {
     "acceleration": 0.25,
@@ -5277,7 +5626,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 66525,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "hermes": {
     "acceleration": 0.285,
@@ -5292,7 +5642,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 68776,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "hexer": {
     "acceleration": 0.26,
@@ -5307,7 +5658,8 @@
     "doors": 1,
     "type": "bike",
     "price": 22521,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "hotknife": {
     "acceleration": 0.3,
@@ -5322,7 +5674,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 74328,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "hotring": {
     "acceleration": 0.335,
@@ -5337,7 +5690,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 79724,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "howard": {
     "acceleration": 20.58,
@@ -5352,7 +5706,8 @@
     "doors": 1,
     "type": "plane",
     "price": 2587840,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "hunter": {
     "acceleration": 5.488,
@@ -5368,7 +5723,8 @@
     "type": "heli",
     "price": 32734709,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 3000
   },
   "huntley": {
     "acceleration": 0.265,
@@ -5383,7 +5739,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 74869,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "hustler": {
     "acceleration": 0.3,
@@ -5398,7 +5755,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 72900,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "hydra": {
     "acceleration": 8.82,
@@ -5414,7 +5772,8 @@
     "type": "plane",
     "price": 10966840,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 5000
   },
   "ignus": {
     "acceleration": 0.3835,
@@ -5429,7 +5788,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 87219,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "imorgon": {
     "acceleration": 0.66,
@@ -5444,7 +5804,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 76854,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "impaler": {
     "acceleration": 0.31,
@@ -5459,7 +5820,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 74584,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "impaler2": {
     "acceleration": 0.38,
@@ -5474,7 +5836,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 84076,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "impaler3": {
     "acceleration": 0.38,
@@ -5489,7 +5852,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 84076,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "impaler4": {
     "acceleration": 0.38,
@@ -5504,7 +5868,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 84076,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "impaler5": {
     "acceleration": 0.2537,
@@ -5519,7 +5884,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 78875,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "impaler6": {
     "acceleration": 0.3,
@@ -5534,7 +5900,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 77917,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "imperator": {
     "acceleration": 0.365,
@@ -5549,7 +5916,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 80296,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "imperator2": {
     "acceleration": 0.365,
@@ -5564,7 +5932,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 80296,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "imperator3": {
     "acceleration": 0.365,
@@ -5579,7 +5948,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 80296,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "inductor": {
     "acceleration": 0.112,
@@ -5594,7 +5964,8 @@
     "doors": 1,
     "type": "bicycle",
     "price": 4345,
-    "category": "land"
+    "category": "land",
+    "weight": 15
   },
   "inductor2": {
     "acceleration": 0.112,
@@ -5609,7 +5980,8 @@
     "doors": 1,
     "type": "bicycle",
     "price": 4345,
-    "category": "land"
+    "category": "land",
+    "weight": 15
   },
   "infernus": {
     "acceleration": 0.34,
@@ -5624,7 +5996,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 81076,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "infernus2": {
     "acceleration": 0.33,
@@ -5639,7 +6012,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 79349,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "ingot": {
     "acceleration": 0.14,
@@ -5654,7 +6028,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 53344,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "innovation": {
     "acceleration": 0.32,
@@ -5669,7 +6044,8 @@
     "doors": 1,
     "type": "bike",
     "price": 23510,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "insurgent": {
     "acceleration": 0.24,
@@ -5685,7 +6061,8 @@
     "type": "automobile",
     "price": 295228,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 2100
   },
   "insurgent2": {
     "acceleration": 0.24,
@@ -5700,7 +6077,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 59045,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "insurgent3": {
     "acceleration": 0.24,
@@ -5716,7 +6094,8 @@
     "type": "automobile",
     "price": 295228,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 2100
   },
   "intruder": {
     "acceleration": 0.2,
@@ -5731,7 +6110,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 65682,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "issi2": {
     "acceleration": 0.23,
@@ -5746,7 +6126,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 69371,
-    "category": "land"
+    "category": "land",
+    "weight": 1200
   },
   "issi3": {
     "acceleration": 0.26,
@@ -5761,7 +6142,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 65593,
-    "category": "land"
+    "category": "land",
+    "weight": 1200
   },
   "issi4": {
     "acceleration": 0.34,
@@ -5776,7 +6158,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 74236,
-    "category": "land"
+    "category": "land",
+    "weight": 1200
   },
   "issi5": {
     "acceleration": 0.34,
@@ -5791,7 +6174,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 74236,
-    "category": "land"
+    "category": "land",
+    "weight": 1200
   },
   "issi6": {
     "acceleration": 0.34,
@@ -5806,7 +6190,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 74236,
-    "category": "land"
+    "category": "land",
+    "weight": 1200
   },
   "issi7": {
     "acceleration": 0.305,
@@ -5821,7 +6206,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 70444,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "issi8": {
     "acceleration": 0.3215,
@@ -5836,7 +6222,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 79711,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "italigtb": {
     "acceleration": 0.3365,
@@ -5851,7 +6238,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 86900,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "italigtb2": {
     "acceleration": 0.34,
@@ -5866,7 +6254,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 87587,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "italigto": {
     "acceleration": 0.4,
@@ -5881,7 +6270,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 87475,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "italirsx": {
     "acceleration": 0.4013,
@@ -5896,7 +6286,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 87682,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "iwagen": {
     "acceleration": 0.2315,
@@ -5911,7 +6302,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 55888,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "jackal": {
     "acceleration": 0.22,
@@ -5926,7 +6318,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 76324,
-    "category": "land"
+    "category": "land",
+    "weight": 1500
   },
   "jb700": {
     "acceleration": 0.26,
@@ -5941,7 +6334,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 82400,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "jb7002": {
     "acceleration": 0.26,
@@ -5956,7 +6350,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 82400,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "jester": {
     "acceleration": 0.3,
@@ -5971,7 +6366,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 76684,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "jester2": {
     "acceleration": 0.31,
@@ -5986,7 +6382,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 78165,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "jester3": {
     "acceleration": 0.32,
@@ -6001,7 +6398,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 80462,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "jester4": {
     "acceleration": 0.3291,
@@ -6016,7 +6414,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 79879,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "jester5": {
     "acceleration": 0.3291,
@@ -6031,7 +6430,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 78069,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "jet": {
     "acceleration": 6.174,
@@ -6046,7 +6446,8 @@
     "doors": 0,
     "type": "plane",
     "price": 1537947,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "jetmax": {
     "acceleration": 17,
@@ -6061,7 +6462,8 @@
     "doors": 0,
     "type": "boat",
     "price": 478680,
-    "category": "sea"
+    "category": "sea",
+    "weight": 2500
   },
   "journey": {
     "acceleration": 0.13,
@@ -6076,7 +6478,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 52886,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "journey2": {
     "acceleration": 0.13,
@@ -6091,7 +6494,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 52886,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "jubilee": {
     "acceleration": 0.2975,
@@ -6106,7 +6510,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 71210,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "jugular": {
     "acceleration": 0.378,
@@ -6121,7 +6526,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 81412,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "kalahari": {
     "acceleration": 0.26,
@@ -6136,7 +6542,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 59046,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "kamacho": {
     "acceleration": 0.255,
@@ -6151,7 +6558,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 67315,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "kanjo": {
     "acceleration": 0.32,
@@ -6166,7 +6574,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 73478,
-    "category": "land"
+    "category": "land",
+    "weight": 1200
   },
   "kanjosj": {
     "acceleration": 0.315,
@@ -6181,7 +6590,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 73789,
-    "category": "land"
+    "category": "land",
+    "weight": 1500
   },
   "khamelion": {
     "acceleration": 0.15,
@@ -6196,7 +6606,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 53292,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "khanjali": {
     "acceleration": 0.1,
@@ -6212,7 +6623,8 @@
     "type": "automobile",
     "price": 151216,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 6000
   },
   "komoda": {
     "acceleration": 0.367,
@@ -6227,7 +6639,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 83129,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "kosatka": {
     "acceleration": 5.25,
@@ -6243,7 +6656,8 @@
     "type": "submarine",
     "price": 3990800,
     "category": "sea",
-    "weapons": true
+    "weapons": true,
+    "weight": 2500
   },
   "krieger": {
     "acceleration": 0.374,
@@ -6258,7 +6672,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 87715,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "kuruma": {
     "acceleration": 0.31,
@@ -6273,7 +6688,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 77445,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "kuruma2": {
     "acceleration": 0.31,
@@ -6288,7 +6704,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 75885,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "l35": {
     "acceleration": 0.236,
@@ -6303,7 +6720,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 64429,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "landstalker": {
     "acceleration": 0.18,
@@ -6318,7 +6736,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 61393,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "landstalker2": {
     "acceleration": 0.19,
@@ -6333,7 +6752,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 62744,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "lazer": {
     "acceleration": 19.6,
@@ -6349,7 +6769,8 @@
     "type": "plane",
     "price": 11870352,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 5000
   },
   "le7b": {
     "acceleration": 0.371,
@@ -6364,7 +6785,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 84125,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "lectro": {
     "acceleration": 0.28,
@@ -6379,7 +6801,8 @@
     "doors": 1,
     "type": "bike",
     "price": 45375,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "lguard": {
     "acceleration": 0.2,
@@ -6394,7 +6817,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 62617,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "limo2": {
     "acceleration": 0.27,
@@ -6410,7 +6834,8 @@
     "type": "automobile",
     "price": 327923,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 1550
   },
   "lm87": {
     "acceleration": 0.3765,
@@ -6425,7 +6850,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 84509,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "locust": {
     "acceleration": 0.334,
@@ -6440,7 +6866,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 81371,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "longfin": {
     "acceleration": 18,
@@ -6455,7 +6882,8 @@
     "doors": 0,
     "type": "boat",
     "price": 500680,
-    "category": "sea"
+    "category": "sea",
+    "weight": 2500
   },
   "lurcher": {
     "acceleration": 0.29,
@@ -6470,7 +6898,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 78245,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "luxor": {
     "acceleration": 7.938,
@@ -6485,7 +6914,8 @@
     "doors": 1,
     "type": "plane",
     "price": 1818936,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "luxor2": {
     "acceleration": 8.036,
@@ -6500,7 +6930,8 @@
     "doors": 1,
     "type": "plane",
     "price": 1834049,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "lynx": {
     "acceleration": 0.315,
@@ -6515,7 +6946,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 81739,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "mamba": {
     "acceleration": 0.34,
@@ -6530,7 +6962,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 81429,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "mammatus": {
     "acceleration": 4.9,
@@ -6545,7 +6978,8 @@
     "doors": 3,
     "type": "plane",
     "price": 1321065,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "manana": {
     "acceleration": 0.16,
@@ -6560,7 +6994,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 60635,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "manana2": {
     "acceleration": 0.24,
@@ -6575,7 +7010,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 71516,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "manchez": {
     "acceleration": 0.295,
@@ -6590,7 +7026,8 @@
     "doors": 1,
     "type": "bike",
     "price": 23138,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "manchez2": {
     "acceleration": 0.265,
@@ -6605,7 +7042,8 @@
     "doors": 1,
     "type": "bike",
     "price": 21545,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "manchez3": {
     "acceleration": 0.272,
@@ -6620,7 +7058,8 @@
     "doors": 1,
     "type": "bike",
     "price": 21632,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "marquis": {
     "acceleration": 2.5,
@@ -6635,7 +7074,8 @@
     "doors": 0,
     "type": "boat",
     "price": 94680,
-    "category": "sea"
+    "category": "sea",
+    "weight": 2500
   },
   "marshall": {
     "acceleration": 0.4,
@@ -6650,7 +7090,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 57276,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "massacro": {
     "acceleration": 0.364,
@@ -6665,7 +7106,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 83972,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "massacro2": {
     "acceleration": 0.364,
@@ -6680,7 +7122,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 83972,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "maverick": {
     "acceleration": 5.096,
@@ -6696,7 +7139,8 @@
     "type": "heli",
     "price": 30156660,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 3000
   },
   "menacer": {
     "acceleration": 0.2,
@@ -6712,7 +7156,8 @@
     "type": "automobile",
     "price": 265392,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 2100
   },
   "mesa": {
     "acceleration": 0.17,
@@ -6727,7 +7172,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 57125,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "mesa2": {
     "acceleration": 0.17,
@@ -6742,7 +7188,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 57125,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "mesa3": {
     "acceleration": 0.17,
@@ -6757,7 +7204,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 57125,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "metrotrain": {
     "acceleration": 0.2,
@@ -6772,7 +7220,8 @@
     "doors": 4,
     "type": "train",
     "price": 194680,
-    "category": "land"
+    "category": "land",
+    "weight": 10000
   },
   "michelli": {
     "acceleration": 0.2825,
@@ -6787,7 +7236,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 74020,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "microlight": {
     "acceleration": 13.72,
@@ -6802,7 +7252,8 @@
     "doors": 0,
     "type": "plane",
     "price": 987644,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "miljet": {
     "acceleration": 8.134,
@@ -6817,7 +7268,8 @@
     "doors": 1,
     "type": "plane",
     "price": 1849116,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "minitank": {
     "acceleration": 0.06,
@@ -6833,7 +7285,8 @@
     "type": "automobile",
     "price": 124556,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 6000
   },
   "minivan": {
     "acceleration": 0.15,
@@ -6848,7 +7301,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 58370,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "minivan2": {
     "acceleration": 0.15,
@@ -6863,7 +7317,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 58450,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "mixer": {
     "acceleration": 0.11,
@@ -6878,7 +7333,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 53283,
-    "category": "land"
+    "category": "land",
+    "weight": 6500
   },
   "mixer2": {
     "acceleration": 0.11,
@@ -6893,7 +7349,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 53283,
-    "category": "land"
+    "category": "land",
+    "weight": 6500
   },
   "mogul": {
     "acceleration": 5.88,
@@ -6909,7 +7366,8 @@
     "type": "plane",
     "price": 7445704,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 5000
   },
   "molotok": {
     "acceleration": 14.7,
@@ -6925,7 +7383,8 @@
     "type": "plane",
     "price": 10728503,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 5000
   },
   "monroe": {
     "acceleration": 0.28,
@@ -6940,7 +7399,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 82544,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "monster": {
     "acceleration": 0.4,
@@ -6955,7 +7415,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 57276,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "monster3": {
     "acceleration": 0.41,
@@ -6970,7 +7431,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 64365,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "monster4": {
     "acceleration": 0.41,
@@ -6985,7 +7447,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 64365,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "monster5": {
     "acceleration": 0.41,
@@ -7000,7 +7463,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 64365,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "monstrociti": {
     "acceleration": 0.2735,
@@ -7015,7 +7479,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 68406,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "moonbeam": {
     "acceleration": 0.21,
@@ -7030,7 +7495,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 68586,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "moonbeam2": {
     "acceleration": 0.21,
@@ -7045,7 +7511,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 68586,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "mower": {
     "acceleration": 0.05,
@@ -7060,7 +7527,8 @@
     "doors": 1,
     "type": "automobile",
     "price": 12234,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "mule": {
     "acceleration": 0.11,
@@ -7075,7 +7543,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 47273,
-    "category": "land"
+    "category": "land",
+    "weight": 8000
   },
   "mule2": {
     "acceleration": 0.11,
@@ -7090,7 +7559,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 47273,
-    "category": "land"
+    "category": "land",
+    "weight": 8000
   },
   "mule3": {
     "acceleration": 0.17,
@@ -7105,7 +7575,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 52599,
-    "category": "land"
+    "category": "land",
+    "weight": 8000
   },
   "mule4": {
     "acceleration": 0.11,
@@ -7120,7 +7591,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 47273,
-    "category": "land"
+    "category": "land",
+    "weight": 8000
   },
   "mule5": {
     "acceleration": 0.17,
@@ -7135,7 +7607,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 52599,
-    "category": "land"
+    "category": "land",
+    "weight": 8000
   },
   "nebula": {
     "acceleration": 0.24,
@@ -7150,7 +7623,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 62877,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "nemesis": {
     "acceleration": 0.3,
@@ -7165,7 +7639,8 @@
     "doors": 1,
     "type": "bike",
     "price": 23612,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "neo": {
     "acceleration": 0.387,
@@ -7180,7 +7655,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 85696,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "neon": {
     "acceleration": 0.2505,
@@ -7195,7 +7671,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 65765,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "nero": {
     "acceleration": 0.3375,
@@ -7210,7 +7687,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 87515,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "nero2": {
     "acceleration": 0.3401,
@@ -7225,7 +7703,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 88062,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "nightblade": {
     "acceleration": 0.31,
@@ -7240,7 +7719,8 @@
     "doors": 1,
     "type": "bike",
     "price": 24551,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "nightshade": {
     "acceleration": 0.25,
@@ -7255,7 +7735,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 67005,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "nightshark": {
     "acceleration": 0.27,
@@ -7271,7 +7752,8 @@
     "type": "automobile",
     "price": 308024,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 2100
   },
   "nimbus": {
     "acceleration": 8.134,
@@ -7286,7 +7768,8 @@
     "doors": 1,
     "type": "plane",
     "price": 1896246,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "ninef": {
     "acceleration": 0.33,
@@ -7301,7 +7784,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 81139,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "ninef2": {
     "acceleration": 0.33,
@@ -7316,7 +7800,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 81139,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "niobe": {
     "acceleration": 0.3805,
@@ -7331,7 +7816,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 84364,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "nokota": {
     "acceleration": 14.7,
@@ -7347,7 +7833,8 @@
     "type": "plane",
     "price": 10399888,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 5000
   },
   "novak": {
     "acceleration": 0.3,
@@ -7362,7 +7849,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 78077,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "omnis": {
     "acceleration": 0.305,
@@ -7377,7 +7865,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 73163,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "omnisegt": {
     "acceleration": 0.58,
@@ -7392,7 +7881,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 80375,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "openwheel1": {
     "acceleration": 0.76,
@@ -7407,7 +7897,8 @@
     "doors": 0,
     "type": "automobile",
     "price": 178328,
-    "category": "land"
+    "category": "land",
+    "weight": 750
   },
   "openwheel2": {
     "acceleration": 0.655,
@@ -7422,7 +7913,8 @@
     "doors": 0,
     "type": "automobile",
     "price": 178859,
-    "category": "land"
+    "category": "land",
+    "weight": 750
   },
   "oppressor": {
     "acceleration": 0.4,
@@ -7438,7 +7930,8 @@
     "type": "bike",
     "price": 381583,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 230
   },
   "oppressor2": {
     "acceleration": 0.38,
@@ -7454,7 +7947,8 @@
     "type": "bike",
     "price": 370745,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 230
   },
   "oracle": {
     "acceleration": 0.26,
@@ -7469,7 +7963,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 75192,
-    "category": "land"
+    "category": "land",
+    "weight": 1500
   },
   "oracle2": {
     "acceleration": 0.27,
@@ -7484,7 +7979,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 76907,
-    "category": "land"
+    "category": "land",
+    "weight": 1500
   },
   "osiris": {
     "acceleration": 0.36,
@@ -7499,7 +7995,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 82889,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "outlaw": {
     "acceleration": 0.475,
@@ -7514,7 +8011,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 60938,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "packer": {
     "acceleration": 0.21,
@@ -7529,7 +8027,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 60714,
-    "category": "land"
+    "category": "land",
+    "weight": 8000
   },
   "panthere": {
     "acceleration": 0.3462,
@@ -7544,7 +8043,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 82311,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "panto": {
     "acceleration": 0.27,
@@ -7559,7 +8059,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 67549,
-    "category": "land"
+    "category": "land",
+    "weight": 1200
   },
   "paradise": {
     "acceleration": 0.17,
@@ -7574,7 +8075,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 63311,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "paragon": {
     "acceleration": 0.329,
@@ -7589,7 +8091,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 75256,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "paragon2": {
     "acceleration": 0.3275,
@@ -7605,7 +8108,8 @@
     "type": "automobile",
     "price": 374504,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 1450
   },
   "paragon3": {
     "acceleration": 0.33,
@@ -7620,7 +8124,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 79357,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "pariah": {
     "acceleration": 0.321,
@@ -7635,7 +8140,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 81207,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "patriot": {
     "acceleration": 0.2,
@@ -7650,7 +8156,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 63246,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "patriot2": {
     "acceleration": 0.18,
@@ -7665,7 +8172,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 59238,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "patriot3": {
     "acceleration": 0.23,
@@ -7680,7 +8188,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 62402,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "patrolboat": {
     "acceleration": 15.5,
@@ -7696,7 +8205,8 @@
     "type": "boat",
     "price": 2153400,
     "category": "sea",
-    "weapons": true
+    "weapons": true,
+    "weight": 2500
   },
   "pbus": {
     "acceleration": 0.14,
@@ -7711,7 +8221,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 46633,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "pbus2": {
     "acceleration": 0.13,
@@ -7726,7 +8237,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 38412,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "pcj": {
     "acceleration": 0.26,
@@ -7741,7 +8253,8 @@
     "doors": 1,
     "type": "bike",
     "price": 20997,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "penetrator": {
     "acceleration": 0.3,
@@ -7756,7 +8269,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 81919,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "penumbra": {
     "acceleration": 0.22,
@@ -7771,7 +8285,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 67839,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "penumbra2": {
     "acceleration": 0.3,
@@ -7786,7 +8301,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 74920,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "peyote": {
     "acceleration": 0.16,
@@ -7801,7 +8317,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 60635,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "peyote2": {
     "acceleration": 0.3445,
@@ -7816,7 +8333,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 77875,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "peyote3": {
     "acceleration": 0.205,
@@ -7831,7 +8349,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 70150,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "pfister811": {
     "acceleration": 0.356,
@@ -7846,7 +8365,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 88499,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "phantom": {
     "acceleration": 0.21,
@@ -7861,7 +8381,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 56656,
-    "category": "land"
+    "category": "land",
+    "weight": 8000
   },
   "phantom2": {
     "acceleration": 0.3,
@@ -7876,7 +8397,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 72230,
-    "category": "land"
+    "category": "land",
+    "weight": 8000
   },
   "phantom3": {
     "acceleration": 0.3,
@@ -7891,7 +8413,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 69772,
-    "category": "land"
+    "category": "land",
+    "weight": 8000
   },
   "phantom4": {
     "acceleration": 0.21,
@@ -7906,7 +8429,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 56656,
-    "category": "land"
+    "category": "land",
+    "weight": 8000
   },
   "phoenix": {
     "acceleration": 0.28,
@@ -7921,7 +8445,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 78433,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "picador": {
     "acceleration": 0.22,
@@ -7936,7 +8461,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 67839,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "pigalle": {
     "acceleration": 0.265,
@@ -7951,7 +8477,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 82282,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "pipistrello": {
     "acceleration": 0.224,
@@ -7966,7 +8493,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 59413,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "pizzaboy": {
     "acceleration": 0.12,
@@ -7981,7 +8509,8 @@
     "doors": 1,
     "type": "bike",
     "price": 14051,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "polcaracara": {
     "acceleration": 0.27,
@@ -7996,7 +8525,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 64784,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "polcoquette4": {
     "acceleration": 0.32,
@@ -8011,7 +8541,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 80771,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "poldominator10": {
     "acceleration": 0.3,
@@ -8026,7 +8557,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 81545,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "poldorado": {
     "acceleration": 0.2168,
@@ -8041,7 +8573,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 69578,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "polfaction2": {
     "acceleration": 0.28,
@@ -8056,7 +8589,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 77450,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "polgauntlet": {
     "acceleration": 0.362,
@@ -8071,7 +8605,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 81768,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "polgreenwood": {
     "acceleration": 0.282,
@@ -8086,7 +8621,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 78897,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "police": {
     "acceleration": 0.2,
@@ -8101,7 +8637,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 71053,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "police2": {
     "acceleration": 0.28,
@@ -8116,7 +8653,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 76794,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "police3": {
     "acceleration": 0.3,
@@ -8131,7 +8669,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 80470,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "police4": {
     "acceleration": 0.2,
@@ -8146,7 +8685,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 71053,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "police5": {
     "acceleration": 0.2,
@@ -8161,7 +8701,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 71053,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "policeb": {
     "acceleration": 0.27,
@@ -8176,7 +8717,8 @@
     "doors": 1,
     "type": "bike",
     "price": 23078,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "policeold1": {
     "acceleration": 0.18,
@@ -8191,7 +8733,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 58720,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "policeold2": {
     "acceleration": 0.2,
@@ -8206,7 +8749,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 71053,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "policet": {
     "acceleration": 0.16,
@@ -8221,7 +8765,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 61195,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "policet3": {
     "acceleration": 0.195,
@@ -8236,7 +8781,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 69451,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "polimpaler5": {
     "acceleration": 0.2537,
@@ -8251,7 +8797,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 78875,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "polimpaler6": {
     "acceleration": 0.3,
@@ -8266,7 +8813,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 77917,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "polmav": {
     "acceleration": 5.194,
@@ -8282,7 +8830,8 @@
     "type": "heli",
     "price": 31465710,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 3000
   },
   "polterminus": {
     "acceleration": 0.269,
@@ -8297,7 +8846,8 @@
     "doors": 7,
     "type": "automobile",
     "price": 71490,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "pony": {
     "acceleration": 0.16,
@@ -8312,7 +8862,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 61195,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "pony2": {
     "acceleration": 0.16,
@@ -8327,7 +8878,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 61195,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "postlude": {
     "acceleration": 0.295,
@@ -8342,7 +8894,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 69683,
-    "category": "land"
+    "category": "land",
+    "weight": 1500
   },
   "pounder": {
     "acceleration": 0.14,
@@ -8357,7 +8910,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 55550,
-    "category": "land"
+    "category": "land",
+    "weight": 8000
   },
   "pounder2": {
     "acceleration": 0.16,
@@ -8372,7 +8926,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 60635,
-    "category": "land"
+    "category": "land",
+    "weight": 8000
   },
   "powersurge": {
     "acceleration": 0.82,
@@ -8387,7 +8942,8 @@
     "doors": 1,
     "type": "bike",
     "price": 23026,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "prairie": {
     "acceleration": 0.22,
@@ -8402,7 +8958,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 67519,
-    "category": "land"
+    "category": "land",
+    "weight": 1200
   },
   "pranger": {
     "acceleration": 0.2,
@@ -8417,7 +8974,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 62617,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "predator": {
     "acceleration": 14,
@@ -8433,7 +8991,8 @@
     "type": "boat",
     "price": 2063399,
     "category": "sea",
-    "weapons": true
+    "weapons": true,
+    "weight": 2500
   },
   "premier": {
     "acceleration": 0.2,
@@ -8448,7 +9007,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 63694,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "previon": {
     "acceleration": 0.3185,
@@ -8463,7 +9023,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 78200,
-    "category": "land"
+    "category": "land",
+    "weight": 1500
   },
   "primo": {
     "acceleration": 0.2,
@@ -8478,7 +9039,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 64174,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "primo2": {
     "acceleration": 0.2,
@@ -8493,7 +9055,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 64174,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "proptrailer": {
     "acceleration": 0,
@@ -8508,7 +9071,8 @@
     "doors": 2,
     "type": "trailer",
     "price": 5668,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "prototipo": {
     "acceleration": 0.375,
@@ -8523,7 +9087,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 88458,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "pyro": {
     "acceleration": 11.27,
@@ -8539,7 +9104,8 @@
     "type": "plane",
     "price": 10704800,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 5000
   },
   "r300": {
     "acceleration": 0.3288,
@@ -8554,7 +9120,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 79467,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "radi": {
     "acceleration": 0.2,
@@ -8569,7 +9136,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 65522,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "raiden": {
     "acceleration": 0.245,
@@ -8584,7 +9152,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 64370,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "raiju": {
     "acceleration": 21.56,
@@ -8600,7 +9169,8 @@
     "type": "plane",
     "price": 13560960,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 5000
   },
   "raketrailer": {
     "acceleration": 0,
@@ -8615,7 +9185,8 @@
     "doors": 0,
     "type": "trailer",
     "price": 5668,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "rallytruck": {
     "acceleration": 0.33,
@@ -8630,7 +9201,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 67837,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "rancherxl": {
     "acceleration": 0.18,
@@ -8645,7 +9217,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 58720,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "rancherxl2": {
     "acceleration": 0.18,
@@ -8660,7 +9233,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 58720,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "rapidgt": {
     "acceleration": 0.36,
@@ -8675,7 +9249,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 83599,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "rapidgt2": {
     "acceleration": 0.36,
@@ -8690,7 +9265,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 83599,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "rapidgt3": {
     "acceleration": 0.3,
@@ -8705,7 +9281,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 77766,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "raptor": {
     "acceleration": 0.295,
@@ -8720,7 +9297,8 @@
     "doors": 0,
     "type": "automobile",
     "price": 72091,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "ratbike": {
     "acceleration": 0.215,
@@ -8735,7 +9313,8 @@
     "doors": 1,
     "type": "bike",
     "price": 19441,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "ratel": {
     "acceleration": 0.342,
@@ -8750,7 +9329,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 72415,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "ratloader": {
     "acceleration": 0.22,
@@ -8765,7 +9345,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 61779,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "ratloader2": {
     "acceleration": 0.24,
@@ -8780,7 +9361,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 65562,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "rcbandito": {
     "acceleration": 0.14,
@@ -8795,7 +9377,8 @@
     "doors": 0,
     "type": "automobile",
     "price": 44530,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "reaper": {
     "acceleration": 0.365,
@@ -8810,7 +9393,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 82990,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "rebel": {
     "acceleration": 0.2,
@@ -8825,7 +9409,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 63694,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "rebel2": {
     "acceleration": 0.2,
@@ -8840,7 +9425,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 63694,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "rebla": {
     "acceleration": 0.335,
@@ -8855,7 +9441,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 77543,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "reever": {
     "acceleration": 0.4085,
@@ -8870,7 +9457,8 @@
     "doors": 1,
     "type": "bike",
     "price": 26269,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "regina": {
     "acceleration": 0.14,
@@ -8885,7 +9473,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 50997,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "remus": {
     "acceleration": 0.327,
@@ -8900,7 +9489,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 78314,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "rentalbus": {
     "acceleration": 0.12,
@@ -8915,7 +9505,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 42321,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "retinue": {
     "acceleration": 0.2275,
@@ -8930,7 +9521,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 70738,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "retinue2": {
     "acceleration": 0.2775,
@@ -8945,7 +9537,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 76099,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "revolter": {
     "acceleration": 0.35,
@@ -8960,7 +9553,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 74872,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "rhapsody": {
     "acceleration": 0.23,
@@ -8975,7 +9569,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 68425,
-    "category": "land"
+    "category": "land",
+    "weight": 1200
   },
   "rhinehart": {
     "acceleration": 0.339,
@@ -8990,7 +9585,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 78276,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "rhino": {
     "acceleration": 0.11,
@@ -9006,7 +9602,8 @@
     "type": "automobile",
     "price": 153066,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 6000
   },
   "riata": {
     "acceleration": 0.25,
@@ -9021,7 +9618,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 66525,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "riot": {
     "acceleration": 0.12,
@@ -9036,7 +9634,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 56588,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "riot2": {
     "acceleration": 0.16,
@@ -9052,7 +9651,8 @@
     "type": "automobile",
     "price": 295472,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 2400
   },
   "ripley": {
     "acceleration": 0.16,
@@ -9067,7 +9667,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 38773,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "rocoto": {
     "acceleration": 0.19,
@@ -9082,7 +9683,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 67755,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "rogue": {
     "acceleration": 9.8,
@@ -9097,7 +9699,8 @@
     "doors": 2,
     "type": "plane",
     "price": 2070400,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "romero": {
     "acceleration": 0.15,
@@ -9112,7 +9715,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 53105,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "rrocket": {
     "acceleration": 0.382,
@@ -9127,7 +9731,8 @@
     "doors": 0,
     "type": "quadbike",
     "price": 48138,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "rt3000": {
     "acceleration": 0.312,
@@ -9142,7 +9747,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 80216,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "rubble": {
     "acceleration": 0.14,
@@ -9157,7 +9763,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 54789,
-    "category": "land"
+    "category": "land",
+    "weight": 6500
   },
   "ruffian": {
     "acceleration": 0.34,
@@ -9172,7 +9779,8 @@
     "doors": 1,
     "type": "bike",
     "price": 24413,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "ruiner": {
     "acceleration": 0.28,
@@ -9187,7 +9795,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 80117,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "ruiner2": {
     "acceleration": 0.33,
@@ -9203,7 +9812,8 @@
     "type": "automobile",
     "price": 932457,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 1700
   },
   "ruiner3": {
     "acceleration": 0.28,
@@ -9218,7 +9828,8 @@
     "doors": 0,
     "type": "automobile",
     "price": 80117,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "ruiner4": {
     "acceleration": 0.3085,
@@ -9233,7 +9844,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 80458,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "rumpo": {
     "acceleration": 0.17,
@@ -9248,7 +9860,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 63311,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "rumpo2": {
     "acceleration": 0.17,
@@ -9263,7 +9876,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 63311,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "rumpo3": {
     "acceleration": 0.18,
@@ -9278,7 +9892,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 59206,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "ruston": {
     "acceleration": 0.325,
@@ -9293,7 +9908,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 78365,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "s80": {
     "acceleration": 0.3725,
@@ -9308,7 +9924,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 83208,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "sabregt": {
     "acceleration": 0.28,
@@ -9323,7 +9940,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 77450,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "sabregt2": {
     "acceleration": 0.282,
@@ -9338,7 +9956,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 77489,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "sadler": {
     "acceleration": 0.2,
@@ -9353,7 +9972,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 62297,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "sadler2": {
     "acceleration": 0.2,
@@ -9368,7 +9988,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 62297,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "sanchez": {
     "acceleration": 0.28,
@@ -9383,7 +10004,8 @@
     "doors": 1,
     "type": "bike",
     "price": 20686,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "sanchez2": {
     "acceleration": 0.28,
@@ -9398,7 +10020,8 @@
     "doors": 1,
     "type": "bike",
     "price": 20686,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "sanctus": {
     "acceleration": 0.405,
@@ -9413,7 +10036,8 @@
     "doors": 1,
     "type": "bike",
     "price": 24351,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "sandking": {
     "acceleration": 0.2,
@@ -9428,7 +10052,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 63694,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "sandking2": {
     "acceleration": 0.2,
@@ -9443,7 +10068,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 63694,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "savage": {
     "acceleration": 4.5864,
@@ -9459,7 +10085,8 @@
     "type": "heli",
     "price": 34811190,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 3000
   },
   "savestra": {
     "acceleration": 0.2375,
@@ -9474,7 +10101,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 72617,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "sc1": {
     "acceleration": 0.31,
@@ -9489,7 +10117,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 79257,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "scarab": {
     "acceleration": 0.1,
@@ -9504,7 +10133,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 39724,
-    "category": "land"
+    "category": "land",
+    "weight": 6000
   },
   "scarab2": {
     "acceleration": 0.1,
@@ -9519,7 +10149,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 39724,
-    "category": "land"
+    "category": "land",
+    "weight": 6000
   },
   "scarab3": {
     "acceleration": 0.1,
@@ -9534,7 +10165,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 39724,
-    "category": "land"
+    "category": "land",
+    "weight": 6000
   },
   "schafter2": {
     "acceleration": 0.2,
@@ -9549,7 +10181,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 65682,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "schafter3": {
     "acceleration": 0.3,
@@ -9564,7 +10197,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 83088,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "schafter4": {
     "acceleration": 0.2,
@@ -9579,7 +10213,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 65602,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "schafter5": {
     "acceleration": 0.29,
@@ -9594,7 +10229,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 83008,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "schafter6": {
     "acceleration": 0.185,
@@ -9609,7 +10245,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 62476,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "schlagen": {
     "acceleration": 0.37,
@@ -9624,7 +10261,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 86368,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "schwarzer": {
     "acceleration": 0.29,
@@ -9639,7 +10277,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 80250,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "scorcher": {
     "acceleration": 0.17,
@@ -9654,7 +10293,8 @@
     "doors": 1,
     "type": "bicycle",
     "price": 2782,
-    "category": "land"
+    "category": "land",
+    "weight": 15
   },
   "scramjet": {
     "acceleration": 0.4,
@@ -9670,7 +10310,8 @@
     "type": "automobile",
     "price": 1853409,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 1350
   },
   "scrap": {
     "acceleration": 0.13,
@@ -9685,7 +10326,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 52886,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "seabreeze": {
     "acceleration": 20.09,
@@ -9700,7 +10342,8 @@
     "doors": 1,
     "type": "plane",
     "price": 2211729,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "seashark": {
     "acceleration": 12.5,
@@ -9715,7 +10358,8 @@
     "doors": 0,
     "type": "boat",
     "price": 414679,
-    "category": "sea"
+    "category": "sea",
+    "weight": 2500
   },
   "seashark2": {
     "acceleration": 12.5,
@@ -9730,7 +10374,8 @@
     "doors": 0,
     "type": "boat",
     "price": 414679,
-    "category": "sea"
+    "category": "sea",
+    "weight": 2500
   },
   "seashark3": {
     "acceleration": 12.5,
@@ -9745,7 +10390,8 @@
     "doors": 0,
     "type": "boat",
     "price": 414679,
-    "category": "sea"
+    "category": "sea",
+    "weight": 2500
   },
   "seasparrow": {
     "acceleration": 5.194,
@@ -9760,7 +10406,8 @@
     "doors": 2,
     "type": "heli",
     "price": 6293142,
-    "category": "air"
+    "category": "air",
+    "weight": 3000
   },
   "seasparrow2": {
     "acceleration": 6.223,
@@ -9775,7 +10422,8 @@
     "doors": 2,
     "type": "heli",
     "price": 7760025,
-    "category": "air"
+    "category": "air",
+    "weight": 3000
   },
   "seasparrow3": {
     "acceleration": 6.223,
@@ -9790,7 +10438,8 @@
     "doors": 2,
     "type": "heli",
     "price": 7760025,
-    "category": "air"
+    "category": "air",
+    "weight": 3000
   },
   "seminole": {
     "acceleration": 0.18,
@@ -9805,7 +10454,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 61393,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "seminole2": {
     "acceleration": 0.2,
@@ -9820,7 +10470,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 64904,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "sentinel": {
     "acceleration": 0.21,
@@ -9835,7 +10486,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 75585,
-    "category": "land"
+    "category": "land",
+    "weight": 1500
   },
   "sentinel2": {
     "acceleration": 0.21,
@@ -9850,7 +10502,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 75585,
-    "category": "land"
+    "category": "land",
+    "weight": 1500
   },
   "sentinel3": {
     "acceleration": 0.265,
@@ -9865,7 +10518,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 74166,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "sentinel4": {
     "acceleration": 0.295,
@@ -9880,7 +10534,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 78990,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "serrano": {
     "acceleration": 0.2,
@@ -9895,7 +10550,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 66517,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "seven70": {
     "acceleration": 0.335,
@@ -9910,7 +10566,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 84734,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "shamal": {
     "acceleration": 7.938,
@@ -9925,7 +10582,8 @@
     "doors": 1,
     "type": "plane",
     "price": 1818936,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "sheava": {
     "acceleration": 0.33,
@@ -9940,7 +10598,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 81139,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "sheriff": {
     "acceleration": 0.24,
@@ -9955,7 +10614,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 71186,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "sheriff2": {
     "acceleration": 0.2,
@@ -9970,7 +10630,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 62617,
-    "category": "land"
+    "category": "land",
+    "weight": 2400
   },
   "shinobi": {
     "acceleration": 0.3625,
@@ -9985,7 +10646,8 @@
     "doors": 1,
     "type": "bike",
     "price": 27244,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "shotaro": {
     "acceleration": 0.4,
@@ -10000,7 +10662,8 @@
     "doors": 1,
     "type": "bike",
     "price": 26899,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "skylift": {
     "acceleration": 4.704,
@@ -10015,7 +10678,8 @@
     "doors": 3,
     "type": "heli",
     "price": 5363478,
-    "category": "air"
+    "category": "air",
+    "weight": 3000
   },
   "slamtruck": {
     "acceleration": 0.225,
@@ -10030,7 +10694,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 62937,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "slamvan": {
     "acceleration": 0.245,
@@ -10045,7 +10710,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 66207,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "slamvan2": {
     "acceleration": 0.25,
@@ -10060,7 +10726,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 67165,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "slamvan3": {
     "acceleration": 0.25,
@@ -10075,7 +10742,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 67005,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "slamvan4": {
     "acceleration": 0.27,
@@ -10090,7 +10758,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 68476,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "slamvan5": {
     "acceleration": 0.27,
@@ -10105,7 +10774,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 68476,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "slamvan6": {
     "acceleration": 0.27,
@@ -10120,7 +10790,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 68476,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "sm722": {
     "acceleration": 0.358,
@@ -10135,7 +10806,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 80260,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "sovereign": {
     "acceleration": 0.27,
@@ -10150,7 +10822,8 @@
     "doors": 1,
     "type": "bike",
     "price": 23078,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "specter": {
     "acceleration": 0.32,
@@ -10165,7 +10838,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 81060,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "specter2": {
     "acceleration": 0.33,
@@ -10180,7 +10854,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 82332,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "speeder": {
     "acceleration": 16,
@@ -10195,7 +10870,8 @@
     "doors": 0,
     "type": "boat",
     "price": 462679,
-    "category": "sea"
+    "category": "sea",
+    "weight": 2500
   },
   "speeder2": {
     "acceleration": 16,
@@ -10210,7 +10886,8 @@
     "doors": 0,
     "type": "boat",
     "price": 462679,
-    "category": "sea"
+    "category": "sea",
+    "weight": 2500
   },
   "speedo": {
     "acceleration": 0.18,
@@ -10225,7 +10902,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 66002,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "speedo2": {
     "acceleration": 0.18,
@@ -10240,7 +10918,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 66002,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "speedo4": {
     "acceleration": 0.2,
@@ -10255,7 +10934,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 70653,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "speedo5": {
     "acceleration": 0.2,
@@ -10270,7 +10950,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 70653,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "squaddie": {
     "acceleration": 0.2,
@@ -10285,7 +10966,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 63238,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "squalo": {
     "acceleration": 11.5,
@@ -10300,7 +10982,8 @@
     "doors": 0,
     "type": "boat",
     "price": 362680,
-    "category": "sea"
+    "category": "sea",
+    "weight": 2500
   },
   "stafford": {
     "acceleration": 0.2,
@@ -10315,7 +10998,8 @@
     "doors": 7,
     "type": "automobile",
     "price": 62883,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "stalion": {
     "acceleration": 0.29,
@@ -10330,7 +11014,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 74780,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "stalion2": {
     "acceleration": 0.31,
@@ -10345,7 +11030,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 79092,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "stanier": {
     "acceleration": 0.2,
@@ -10360,7 +11046,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 71053,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "starling": {
     "acceleration": 12.25,
@@ -10376,7 +11063,8 @@
     "type": "plane",
     "price": 29452512,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 5000
   },
   "stinger": {
     "acceleration": 0.26,
@@ -10391,7 +11079,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 74712,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "stingergt": {
     "acceleration": 0.26,
@@ -10406,7 +11095,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 74712,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "stingertt": {
     "acceleration": 0.398,
@@ -10421,7 +11111,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 87213,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "stockade": {
     "acceleration": 0.12,
@@ -10436,7 +11127,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 56588,
-    "category": "land"
+    "category": "land",
+    "weight": 8000
   },
   "stockade3": {
     "acceleration": 0.12,
@@ -10451,7 +11143,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 56588,
-    "category": "land"
+    "category": "land",
+    "weight": 8000
   },
   "stratum": {
     "acceleration": 0.21,
@@ -10466,7 +11159,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 68894,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "streamer216": {
     "acceleration": 7.84,
@@ -10481,7 +11175,8 @@
     "doors": 3,
     "type": "plane",
     "price": 1574232,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "streiter": {
     "acceleration": 0.2125,
@@ -10496,7 +11191,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 71204,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "stretch": {
     "acceleration": 0.17,
@@ -10511,7 +11207,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 63951,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "strikeforce": {
     "acceleration": 15.68,
@@ -10527,7 +11224,8 @@
     "type": "plane",
     "price": 9052648,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 5000
   },
   "stromberg": {
     "acceleration": 0.29,
@@ -10543,7 +11241,8 @@
     "type": "submarinecar",
     "price": 6217783,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 1450
   },
   "stryder": {
     "acceleration": 0.36,
@@ -10558,7 +11257,8 @@
     "doors": 0,
     "type": "quadbike",
     "price": 48970,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "stunt": {
     "acceleration": 9.8,
@@ -10573,7 +11273,8 @@
     "doors": 1,
     "type": "plane",
     "price": 1702472,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "submersible": {
     "acceleration": 8,
@@ -10588,7 +11289,8 @@
     "doors": 1,
     "type": "submarine",
     "price": 919160,
-    "category": "sea"
+    "category": "sea",
+    "weight": 2500
   },
   "submersible2": {
     "acceleration": 10,
@@ -10603,7 +11305,8 @@
     "doors": 1,
     "type": "submarine",
     "price": 1007160,
-    "category": "sea"
+    "category": "sea",
+    "weight": 2500
   },
   "sugoi": {
     "acceleration": 0.31,
@@ -10618,7 +11321,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 75269,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "sultan": {
     "acceleration": 0.26,
@@ -10633,7 +11337,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 74392,
-    "category": "land"
+    "category": "land",
+    "weight": 1250
   },
   "sultan2": {
     "acceleration": 0.33,
@@ -10648,7 +11353,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 77184,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "sultan3": {
     "acceleration": 0.3385,
@@ -10663,7 +11369,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 78067,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "sultanrs": {
     "acceleration": 0.33,
@@ -10678,7 +11385,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 82197,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "suntrap": {
     "acceleration": 11.5,
@@ -10693,7 +11401,8 @@
     "doors": 0,
     "type": "boat",
     "price": 362680,
-    "category": "sea"
+    "category": "sea",
+    "weight": 2500
   },
   "superd": {
     "acceleration": 0.26,
@@ -10708,7 +11417,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 74712,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "supervolito": {
     "acceleration": 5.635,
@@ -10723,7 +11433,8 @@
     "doors": 4,
     "type": "heli",
     "price": 6905745,
-    "category": "air"
+    "category": "air",
+    "weight": 3000
   },
   "supervolito2": {
     "acceleration": 5.635,
@@ -10738,7 +11449,8 @@
     "doors": 4,
     "type": "heli",
     "price": 6905745,
-    "category": "air"
+    "category": "air",
+    "weight": 3000
   },
   "surano": {
     "acceleration": 0.34,
@@ -10753,7 +11465,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 83971,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "surfer": {
     "acceleration": 0.1,
@@ -10768,7 +11481,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 34505,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "surfer2": {
     "acceleration": 0.1,
@@ -10783,7 +11497,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 34505,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "surfer3": {
     "acceleration": 0.1,
@@ -10798,7 +11513,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 34505,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "surge": {
     "acceleration": 0.1,
@@ -10813,7 +11529,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 40605,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "swift": {
     "acceleration": 5.439,
@@ -10828,7 +11545,8 @@
     "doors": 4,
     "type": "heli",
     "price": 6504894,
-    "category": "air"
+    "category": "air",
+    "weight": 3000
   },
   "swift2": {
     "acceleration": 5.537,
@@ -10843,7 +11561,8 @@
     "doors": 4,
     "type": "heli",
     "price": 6588863,
-    "category": "air"
+    "category": "air",
+    "weight": 3000
   },
   "swinger": {
     "acceleration": 0.39,
@@ -10858,7 +11577,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 81274,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "t20": {
     "acceleration": 0.365,
@@ -10873,7 +11593,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 83022,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "taco": {
     "acceleration": 0.11,
@@ -10888,7 +11609,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 47273,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "tahoma": {
     "acceleration": 0.298,
@@ -10903,7 +11625,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 72249,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "tailgater": {
     "acceleration": 0.2,
@@ -10918,7 +11641,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 64174,
-    "category": "land"
+    "category": "land",
+    "weight": 1600
   },
   "tailgater2": {
     "acceleration": 0.2775,
@@ -10933,7 +11657,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 77411,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "taipan": {
     "acceleration": 0.357,
@@ -10948,7 +11673,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 89537,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "tampa": {
     "acceleration": 0.27,
@@ -10963,7 +11689,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 70442,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "tampa2": {
     "acceleration": 0.33,
@@ -10978,7 +11705,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 75751,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "tampa3": {
     "acceleration": 0.33,
@@ -10994,7 +11722,8 @@
     "type": "automobile",
     "price": 378759,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 1700
   },
   "tanker": {
     "acceleration": 0,
@@ -11009,7 +11738,8 @@
     "doors": 0,
     "type": "trailer",
     "price": 5749,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "tanker2": {
     "acceleration": 0,
@@ -11024,7 +11754,8 @@
     "doors": 0,
     "type": "trailer",
     "price": 5749,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "tankercar": {
     "acceleration": 0.2,
@@ -11039,7 +11770,8 @@
     "doors": 0,
     "type": "train",
     "price": 194680,
-    "category": "land"
+    "category": "land",
+    "weight": 10000
   },
   "taxi": {
     "acceleration": 0.2,
@@ -11054,7 +11786,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 71053,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "technical": {
     "acceleration": 0.2,
@@ -11070,7 +11803,8 @@
     "type": "automobile",
     "price": 319271,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 2100
   },
   "technical2": {
     "acceleration": 0.25,
@@ -11086,7 +11820,8 @@
     "type": "amphibious_automobile",
     "price": 1318204,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 2100
   },
   "technical3": {
     "acceleration": 0.2,
@@ -11102,7 +11837,8 @@
     "type": "automobile",
     "price": 319271,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 2100
   },
   "tempesta": {
     "acceleration": 0.36,
@@ -11117,7 +11853,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 81980,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "tenf": {
     "acceleration": 0.3545,
@@ -11132,7 +11869,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 82128,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "tenf2": {
     "acceleration": 0.356,
@@ -11147,7 +11885,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 82729,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "terbyte": {
     "acceleration": 0.16,
@@ -11163,7 +11902,8 @@
     "type": "automobile",
     "price": 253348,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 8000
   },
   "terminus": {
     "acceleration": 0.269,
@@ -11178,7 +11918,8 @@
     "doors": 7,
     "type": "automobile",
     "price": 71490,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "tezeract": {
     "acceleration": 0.1375,
@@ -11193,7 +11934,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 76330,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "thrax": {
     "acceleration": 0.34,
@@ -11208,7 +11950,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 83929,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "thrust": {
     "acceleration": 0.265,
@@ -11223,7 +11966,8 @@
     "doors": 1,
     "type": "bike",
     "price": 25865,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "thruster": {
     "acceleration": 6.86,
@@ -11238,7 +11982,8 @@
     "doors": 0,
     "type": "heli",
     "price": 6768639,
-    "category": "air"
+    "category": "air",
+    "weight": 6000
   },
   "tigon": {
     "acceleration": 0.3795,
@@ -11253,7 +11998,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 86363,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "tiptruck": {
     "acceleration": 0.11,
@@ -11268,7 +12014,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 47273,
-    "category": "land"
+    "category": "land",
+    "weight": 6500
   },
   "tiptruck2": {
     "acceleration": 0.11,
@@ -11283,7 +12030,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 47273,
-    "category": "land"
+    "category": "land",
+    "weight": 6500
   },
   "titan": {
     "acceleration": 6.076,
@@ -11298,7 +12046,8 @@
     "doors": 2,
     "type": "plane",
     "price": 1521753,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "titan2": {
     "acceleration": 6.125,
@@ -11314,7 +12063,8 @@
     "type": "plane",
     "price": 7764008,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 5000
   },
   "toreador": {
     "acceleration": 0.3,
@@ -11330,7 +12080,8 @@
     "type": "submarinecar",
     "price": 19101030,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 1450
   },
   "torero": {
     "acceleration": 0.3,
@@ -11345,7 +12096,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 78457,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "torero2": {
     "acceleration": 0.385,
@@ -11360,7 +12112,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 87548,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "tornado": {
     "acceleration": 0.16,
@@ -11375,7 +12128,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 60635,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "tornado2": {
     "acceleration": 0.16,
@@ -11390,7 +12144,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 60635,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "tornado3": {
     "acceleration": 0.16,
@@ -11405,7 +12160,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 60635,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "tornado4": {
     "acceleration": 0.16,
@@ -11420,7 +12176,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 60635,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "tornado5": {
     "acceleration": 0.161,
@@ -11435,7 +12192,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 60890,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "tornado6": {
     "acceleration": 0.28,
@@ -11450,7 +12208,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 66096,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "toro": {
     "acceleration": 18,
@@ -11465,7 +12224,8 @@
     "doors": 0,
     "type": "boat",
     "price": 486679,
-    "category": "sea"
+    "category": "sea",
+    "weight": 2500
   },
   "toro2": {
     "acceleration": 18,
@@ -11480,7 +12240,8 @@
     "doors": 0,
     "type": "boat",
     "price": 486679,
-    "category": "sea"
+    "category": "sea",
+    "weight": 2500
   },
   "toros": {
     "acceleration": 0.32,
@@ -11495,7 +12256,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 81091,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "tourbus": {
     "acceleration": 0.12,
@@ -11510,7 +12272,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 42321,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "towtruck": {
     "acceleration": 0.15,
@@ -11525,7 +12288,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 57488,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "towtruck2": {
     "acceleration": 0.15,
@@ -11540,7 +12304,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 54821,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "towtruck3": {
     "acceleration": 0.175,
@@ -11555,7 +12320,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 62901,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "towtruck4": {
     "acceleration": 0.175,
@@ -11570,7 +12336,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 62901,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "tr2": {
     "acceleration": 0,
@@ -11585,7 +12352,8 @@
     "doors": 2,
     "type": "trailer",
     "price": 5749,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "tr3": {
     "acceleration": 0,
@@ -11600,7 +12368,8 @@
     "doors": 1,
     "type": "trailer",
     "price": 5749,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "tr4": {
     "acceleration": 0,
@@ -11615,7 +12384,8 @@
     "doors": 2,
     "type": "trailer",
     "price": 5749,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "tractor": {
     "acceleration": 0.08,
@@ -11630,7 +12400,8 @@
     "doors": 0,
     "type": "automobile",
     "price": 22677,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "tractor2": {
     "acceleration": 0.15,
@@ -11645,7 +12416,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 24703,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "tractor3": {
     "acceleration": 0.15,
@@ -11660,7 +12432,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 24703,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "trailerlarge": {
     "acceleration": 0,
@@ -11676,7 +12449,8 @@
     "type": "trailer",
     "price": 28340,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 2800
   },
   "trailerlogs": {
     "acceleration": 0,
@@ -11691,7 +12465,8 @@
     "doors": 0,
     "type": "trailer",
     "price": 5749,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "trailers": {
     "acceleration": 0,
@@ -11706,7 +12481,8 @@
     "doors": 0,
     "type": "trailer",
     "price": 5668,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "trailers2": {
     "acceleration": 0,
@@ -11721,7 +12497,8 @@
     "doors": 2,
     "type": "trailer",
     "price": 5668,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "trailers3": {
     "acceleration": 0,
@@ -11736,7 +12513,8 @@
     "doors": 1,
     "type": "trailer",
     "price": 5668,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "trailers4": {
     "acceleration": 0,
@@ -11751,7 +12529,8 @@
     "doors": 0,
     "type": "trailer",
     "price": 5668,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "trailers5": {
     "acceleration": 0,
@@ -11766,7 +12545,8 @@
     "doors": 2,
     "type": "trailer",
     "price": 5668,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "trailersmall": {
     "acceleration": 0,
@@ -11781,7 +12561,8 @@
     "doors": 0,
     "type": "trailer",
     "price": 5668,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "trailersmall2": {
     "acceleration": 0,
@@ -11797,7 +12578,8 @@
     "type": "trailer",
     "price": 28340,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 6000
   },
   "trash": {
     "acceleration": 0.13,
@@ -11812,7 +12594,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 59939,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "trash2": {
     "acceleration": 0.13,
@@ -11827,7 +12610,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 59939,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "trflat": {
     "acceleration": 0,
@@ -11842,7 +12626,8 @@
     "doors": 0,
     "type": "trailer",
     "price": 5668,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "tribike": {
     "acceleration": 0.135,
@@ -11857,7 +12642,8 @@
     "doors": 1,
     "type": "bicycle",
     "price": 3622,
-    "category": "land"
+    "category": "land",
+    "weight": 15
   },
   "tribike2": {
     "acceleration": 0.135,
@@ -11872,7 +12658,8 @@
     "doors": 1,
     "type": "bicycle",
     "price": 3622,
-    "category": "land"
+    "category": "land",
+    "weight": 15
   },
   "tribike3": {
     "acceleration": 0.135,
@@ -11887,7 +12674,8 @@
     "doors": 1,
     "type": "bicycle",
     "price": 3622,
-    "category": "land"
+    "category": "land",
+    "weight": 15
   },
   "trophytruck": {
     "acceleration": 0.339,
@@ -11902,7 +12690,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 71559,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "trophytruck2": {
     "acceleration": 0.339,
@@ -11917,7 +12706,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 71559,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "tropic": {
     "acceleration": 13,
@@ -11932,7 +12722,8 @@
     "doors": 0,
     "type": "boat",
     "price": 390679,
-    "category": "sea"
+    "category": "sea",
+    "weight": 2500
   },
   "tropic2": {
     "acceleration": 13,
@@ -11947,7 +12738,8 @@
     "doors": 0,
     "type": "boat",
     "price": 390679,
-    "category": "sea"
+    "category": "sea",
+    "weight": 2500
   },
   "tropos": {
     "acceleration": 0.225,
@@ -11962,7 +12754,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 71140,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "tug": {
     "acceleration": 2.2,
@@ -11977,7 +12770,8 @@
     "doors": 0,
     "type": "boat",
     "price": 67080,
-    "category": "sea"
+    "category": "sea",
+    "weight": 2500
   },
   "tula": {
     "acceleration": 4.9,
@@ -11993,7 +12787,8 @@
     "type": "plane",
     "price": 6605327,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 5000
   },
   "tulip": {
     "acceleration": 0.32,
@@ -12008,7 +12803,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 80611,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "tulip2": {
     "acceleration": 0.3153,
@@ -12023,7 +12819,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 74746,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "turismo2": {
     "acceleration": 0.34,
@@ -12038,7 +12835,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 81835,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "turismo3": {
     "acceleration": 0.374,
@@ -12053,7 +12851,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 83545,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "turismor": {
     "acceleration": 0.353,
@@ -12068,7 +12867,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 85403,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "tvtrailer": {
     "acceleration": 0,
@@ -12083,7 +12883,8 @@
     "doors": 2,
     "type": "trailer",
     "price": 5668,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "tvtrailer2": {
     "acceleration": 0,
@@ -12098,7 +12899,8 @@
     "doors": 2,
     "type": "trailer",
     "price": 5668,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "tyrant": {
     "acceleration": 0.34,
@@ -12113,7 +12915,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 88321,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "tyrus": {
     "acceleration": 0.371,
@@ -12128,7 +12931,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 84350,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "uranus": {
     "acceleration": 0.3245,
@@ -12143,7 +12947,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 78944,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "utillitruck": {
     "acceleration": 0.12,
@@ -12158,7 +12963,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 50131,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "utillitruck2": {
     "acceleration": 0.12,
@@ -12173,7 +12979,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 50131,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "utillitruck3": {
     "acceleration": 0.12,
@@ -12188,7 +12995,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 50131,
-    "category": "land"
+    "category": "land",
+    "weight": 2800
   },
   "vacca": {
     "acceleration": 0.3,
@@ -12203,7 +13011,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 83666,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "vader": {
     "acceleration": 0.27,
@@ -12218,7 +13027,8 @@
     "doors": 1,
     "type": "bike",
     "price": 22163,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "vagner": {
     "acceleration": 0.37,
@@ -12233,7 +13043,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 87808,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "vagrant": {
     "acceleration": 0.3325,
@@ -12248,7 +13059,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 77576,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "valkyrie": {
     "acceleration": 5.194,
@@ -12264,7 +13076,8 @@
     "type": "heli",
     "price": 30580515,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 3000
   },
   "valkyrie2": {
     "acceleration": 5.194,
@@ -12280,7 +13093,8 @@
     "type": "heli",
     "price": 30580515,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 3000
   },
   "vamos": {
     "acceleration": 0.33,
@@ -12295,7 +13109,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 75751,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "vectre": {
     "acceleration": 0.324,
@@ -12310,7 +13125,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 73202,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "velum": {
     "acceleration": 5.586,
@@ -12325,7 +13141,8 @@
     "doors": 2,
     "type": "plane",
     "price": 1439638,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "velum2": {
     "acceleration": 5.586,
@@ -12340,7 +13157,8 @@
     "doors": 3,
     "type": "plane",
     "price": 1439638,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "verlierer2": {
     "acceleration": 0.335,
@@ -12355,7 +13173,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 83280,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "verus": {
     "acceleration": 0.135,
@@ -12370,7 +13189,8 @@
     "doors": 0,
     "type": "quadbike",
     "price": 30298,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "vestra": {
     "acceleration": 9.016,
@@ -12385,7 +13205,8 @@
     "doors": 2,
     "type": "plane",
     "price": 1982876,
-    "category": "air"
+    "category": "air",
+    "weight": 5000
   },
   "vetir": {
     "acceleration": 0.11,
@@ -12400,7 +13221,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 38828,
-    "category": "land"
+    "category": "land",
+    "weight": 6000
   },
   "veto": {
     "acceleration": 0.45,
@@ -12415,7 +13237,8 @@
     "doors": 0,
     "type": "automobile",
     "price": 42608,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "veto2": {
     "acceleration": 0.4275,
@@ -12430,7 +13253,8 @@
     "doors": 0,
     "type": "automobile",
     "price": 45282,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "vigero": {
     "acceleration": 0.29,
@@ -12445,7 +13269,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 77482,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "vigero2": {
     "acceleration": 0.3645,
@@ -12460,7 +13285,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 82144,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "vigero3": {
     "acceleration": 0.3645,
@@ -12475,7 +13301,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 81866,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "vigilante": {
     "acceleration": 0.375,
@@ -12491,7 +13318,8 @@
     "type": "automobile",
     "price": 1305429,
     "category": "land",
-    "weapons": true
+    "weapons": true,
+    "weight": 1350
   },
   "vindicator": {
     "acceleration": 0.263,
@@ -12506,7 +13334,8 @@
     "doors": 1,
     "type": "bike",
     "price": 51759,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "virgo": {
     "acceleration": 0.21,
@@ -12521,7 +13350,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 60554,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "virgo2": {
     "acceleration": 0.211,
@@ -12536,7 +13366,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 60758,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "virgo3": {
     "acceleration": 0.21,
@@ -12551,7 +13382,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 60554,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "virtue": {
     "acceleration": 0.3418,
@@ -12566,7 +13398,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 76383,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "viseris": {
     "acceleration": 0.3,
@@ -12581,7 +13414,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 78246,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "visione": {
     "acceleration": 0.355,
@@ -12596,7 +13430,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 85576,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "vivanite": {
     "acceleration": 0.1095,
@@ -12611,7 +13446,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 46334,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "volatol": {
     "acceleration": 6.37,
@@ -12627,7 +13463,8 @@
     "type": "plane",
     "price": 7850648,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 5000
   },
   "volatus": {
     "acceleration": 5.39,
@@ -12642,7 +13479,8 @@
     "doors": 4,
     "type": "heli",
     "price": 6589215,
-    "category": "air"
+    "category": "air",
+    "weight": 3000
   },
   "voltic": {
     "acceleration": 0.18,
@@ -12657,7 +13495,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 60326,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "voltic2": {
     "acceleration": 0.18,
@@ -12672,7 +13511,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 180978,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "voodoo": {
     "acceleration": 0.18,
@@ -12687,7 +13527,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 66162,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "voodoo2": {
     "acceleration": 0.17,
@@ -12702,7 +13543,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 63071,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "vorschlaghammer": {
     "acceleration": 0.265,
@@ -12717,7 +13559,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 71976,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "vortex": {
     "acceleration": 0.4025,
@@ -12732,7 +13575,8 @@
     "doors": 1,
     "type": "bike",
     "price": 25612,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "vstr": {
     "acceleration": 0.379,
@@ -12747,7 +13591,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 79649,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "warrener": {
     "acceleration": 0.245,
@@ -12762,7 +13607,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 64367,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "warrener2": {
     "acceleration": 0.265,
@@ -12777,7 +13623,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 67375,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "washington": {
     "acceleration": 0.2,
@@ -12792,7 +13639,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 71053,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "wastelander": {
     "acceleration": 0.33,
@@ -12807,7 +13655,8 @@
     "doors": 0,
     "type": "automobile",
     "price": 67837,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "weevil": {
     "acceleration": 0.188,
@@ -12822,7 +13671,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 53983,
-    "category": "land"
+    "category": "land",
+    "weight": 1200
   },
   "weevil2": {
     "acceleration": 0.3375,
@@ -12837,7 +13687,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 83800,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "windsor": {
     "acceleration": 0.28,
@@ -12852,7 +13703,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 79422,
-    "category": "land"
+    "category": "land",
+    "weight": 1500
   },
   "windsor2": {
     "acceleration": 0.279,
@@ -12867,7 +13719,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 79252,
-    "category": "land"
+    "category": "land",
+    "weight": 1500
   },
   "winky": {
     "acceleration": 0.15,
@@ -12882,7 +13735,8 @@
     "doors": 1,
     "type": "automobile",
     "price": 49504,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "wolfsbane": {
     "acceleration": 0.215,
@@ -12897,7 +13751,8 @@
     "doors": 1,
     "type": "bike",
     "price": 19441,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "xa21": {
     "acceleration": 0.364,
@@ -12912,7 +13767,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 82892,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "xls": {
     "acceleration": 0.26,
@@ -12927,7 +13783,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 72768,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "xls2": {
     "acceleration": 0.265,
@@ -12942,7 +13799,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 72800,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "yosemite": {
     "acceleration": 0.285,
@@ -12957,7 +13815,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 69338,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "yosemite1500": {
     "acceleration": 0.2335,
@@ -12972,7 +13831,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 70731,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "yosemite2": {
     "acceleration": 0.395,
@@ -12987,7 +13847,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 74171,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "yosemite3": {
     "acceleration": 0.275,
@@ -13002,7 +13863,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 66896,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "youga": {
     "acceleration": 0.14,
@@ -13017,7 +13879,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 55630,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "youga2": {
     "acceleration": 0.14,
@@ -13032,7 +13895,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 55630,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "youga3": {
     "acceleration": 0.17,
@@ -13047,7 +13911,8 @@
     "doors": 5,
     "type": "automobile",
     "price": 63151,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "youga4": {
     "acceleration": 0.158,
@@ -13062,7 +13927,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 60252,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "youga5": {
     "acceleration": 0.158,
@@ -13077,7 +13943,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 60252,
-    "category": "land"
+    "category": "land",
+    "weight": 2500
   },
   "z190": {
     "acceleration": 0.27,
@@ -13092,7 +13959,8 @@
     "doors": 6,
     "type": "automobile",
     "price": 73299,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "zeno": {
     "acceleration": 0.388,
@@ -13107,7 +13975,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 89601,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "zentorno": {
     "acceleration": 0.354,
@@ -13122,7 +13991,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 82795,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "zhaba": {
     "acceleration": 0.18,
@@ -13137,7 +14007,8 @@
     "doors": 6,
     "type": "amphibious_automobile",
     "price": 203802,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "zion": {
     "acceleration": 0.22,
@@ -13152,7 +14023,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 77752,
-    "category": "land"
+    "category": "land",
+    "weight": 1500
   },
   "zion2": {
     "acceleration": 0.22,
@@ -13167,7 +14039,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 77752,
-    "category": "land"
+    "category": "land",
+    "weight": 1500
   },
   "zion3": {
     "acceleration": 0.305,
@@ -13182,7 +14055,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 74281,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "zombiea": {
     "acceleration": 0.29,
@@ -13197,7 +14071,8 @@
     "doors": 1,
     "type": "bike",
     "price": 23182,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "zombieb": {
     "acceleration": 0.29,
@@ -13212,7 +14087,8 @@
     "doors": 1,
     "type": "bike",
     "price": 23182,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "zorrusso": {
     "acceleration": 0.3745,
@@ -13227,7 +14103,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 85159,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "zr350": {
     "acceleration": 0.33,
@@ -13242,7 +14119,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 79974,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "zr380": {
     "acceleration": 0.35,
@@ -13257,7 +14135,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 83632,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "zr3802": {
     "acceleration": 0.35,
@@ -13272,7 +14151,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 83632,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "zr3803": {
     "acceleration": 0.35,
@@ -13287,7 +14167,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 83632,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "ztype": {
     "acceleration": 0.3,
@@ -13302,13 +14183,14 @@
     "doors": 4,
     "type": "automobile",
     "price": 84821,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "hardy": {
     "acceleration": 0.28,
     "braking": 0.75,
     "handling": 0.65,
-    "speed": 42.0,
+    "speed": 42,
     "traction": 2.1,
     "name": "Hardy",
     "make": "Annis",
@@ -13317,13 +14199,14 @@
     "doors": 4,
     "type": "automobile",
     "price": 85000,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "drifthardy": {
     "acceleration": 0.28,
     "braking": 0.75,
     "handling": 0.65,
-    "speed": 42.0,
+    "speed": 42,
     "traction": 2.1,
     "name": "Hardy Drift",
     "make": "Annis",
@@ -13332,7 +14215,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 85000,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "minimus": {
     "acceleration": 0.29,
@@ -13347,13 +14231,14 @@
     "doors": 4,
     "type": "automobile",
     "price": 120000,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   },
   "tampa4": {
     "acceleration": 0.33,
     "braking": 0.9,
     "handling": 0.72,
-    "speed": 48.0,
+    "speed": 48,
     "traction": 2.6,
     "name": "Tampa GT",
     "make": "Declasse",
@@ -13362,13 +14247,14 @@
     "doors": 2,
     "type": "automobile",
     "price": 1850000,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "l352": {
     "acceleration": 0.21,
     "braking": 0.6,
     "handling": 0.58,
-    "speed": 38.0,
+    "speed": 38,
     "traction": 2.3,
     "name": "Walton L35 Stock",
     "make": "Declasse",
@@ -13377,13 +14263,14 @@
     "doors": 2,
     "type": "automobile",
     "price": 650000,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "driftl352": {
     "acceleration": 0.25,
     "braking": 0.65,
     "handling": 0.7,
-    "speed": 40.0,
+    "speed": 40,
     "traction": 2.5,
     "name": "Drift Walton L35",
     "make": "Declasse",
@@ -13392,11 +14279,12 @@
     "doors": 2,
     "type": "automobile",
     "price": 950000,
-    "category": "land"
+    "category": "land",
+    "weight": 2100
   },
   "rapidgt4": {
     "acceleration": 0.35,
-    "braking": 1.0,
+    "braking": 1,
     "handling": 0.75,
     "speed": 49.5,
     "traction": 2.65,
@@ -13407,13 +14295,14 @@
     "doors": 2,
     "type": "automobile",
     "price": 1600000,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "cheetah3": {
     "acceleration": 0.34,
     "braking": 0.95,
     "handling": 0.73,
-    "speed": 49.0,
+    "speed": 49,
     "traction": 2.55,
     "name": "LSCM Cheetah Classic",
     "make": "Grotti",
@@ -13422,13 +14311,14 @@
     "doors": 2,
     "type": "automobile",
     "price": 1300000,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "everon3": {
     "acceleration": 0.27,
     "braking": 0.7,
     "handling": 0.63,
-    "speed": 41.0,
+    "speed": 41,
     "traction": 2.4,
     "name": "Everon RS",
     "make": "Karin",
@@ -13437,7 +14327,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 1500000,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "woodlander": {
     "acceleration": 0.26,
@@ -13452,13 +14343,14 @@
     "doors": 4,
     "type": "automobile",
     "price": 1350000,
-    "category": "land"
+    "category": "land",
+    "weight": 2200
   },
   "suzume": {
     "acceleration": 0.39,
     "braking": 1.2,
     "handling": 0.8,
-    "speed": 53.0,
+    "speed": 53,
     "traction": 2.8,
     "name": "Suzume",
     "make": "Överflöd",
@@ -13467,13 +14359,14 @@
     "doors": 2,
     "type": "automobile",
     "price": 2800000,
-    "category": "land"
+    "category": "land",
+    "weight": 1350
   },
   "sentinel5": {
     "acceleration": 0.31,
     "braking": 0.9,
     "handling": 0.7,
-    "speed": 47.0,
+    "speed": 47,
     "traction": 2.5,
     "name": "Sentinel GTS",
     "make": "Übermacht",
@@ -13482,14 +14375,15 @@
     "doors": 2,
     "type": "automobile",
     "price": 1950000,
-    "category": "land"
+    "category": "land",
+    "weight": 1450
   },
   "policeb2": {
     "acceleration": 0.32,
     "braking": 1.3,
     "handling": 0.7,
-    "speed": 45.0,
-    "traction": 2.0,
+    "speed": 45,
+    "traction": 2,
     "name": "Police Bike",
     "make": "Western",
     "class": 8,
@@ -13497,13 +14391,14 @@
     "doors": 1,
     "type": "bike",
     "price": 200000,
-    "category": "land"
+    "category": "land",
+    "weight": 230
   },
   "stockade4": {
     "acceleration": 0.15,
     "braking": 0.4,
     "handling": 0.55,
-    "speed": 35.0,
+    "speed": 35,
     "traction": 1.8,
     "name": "Bobcat Security Stockade",
     "make": "Brute",
@@ -13512,7 +14407,8 @@
     "doors": 2,
     "type": "automobile",
     "price": 800000,
-    "category": "land"
+    "category": "land",
+    "weight": 8000
   },
   "maverick2": {
     "acceleration": 5.096,
@@ -13528,7 +14424,8 @@
     "type": "heli",
     "price": 30156660,
     "category": "air",
-    "weapons": true
+    "weapons": true,
+    "weight": 3000
   },
   "flatbed2": {
     "acceleration": 0.14,
@@ -13543,7 +14440,8 @@
     "doors": 3,
     "type": "automobile",
     "price": 46633,
-    "category": "land"
+    "category": "land",
+    "weight": 6500
   },
   "driftdominator10": {
     "acceleration": 0.3,
@@ -13558,7 +14456,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 81545,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "driftgauntlet4": {
     "acceleration": 0.36,
@@ -13573,7 +14472,8 @@
     "doors": 4,
     "type": "automobile",
     "price": 81048,
-    "category": "land"
+    "category": "land",
+    "weight": 1700
   },
   "driftchavosv6": {
     "acceleration": 0.274,
@@ -13588,6 +14488,7 @@
     "doors": 6,
     "type": "automobile",
     "price": 77249,
-    "category": "land"
+    "category": "land",
+    "weight": 1550
   }
 }

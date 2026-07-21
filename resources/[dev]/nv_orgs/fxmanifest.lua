@@ -9,7 +9,8 @@ version '1.0.0'
 dependencies {
     'ox_lib',
     'ox_core',
-    'oxmysql'
+    'oxmysql',
+    'ox_target'
 }
 
 shared_script '@ox_lib/init.lua'

@@ -41,7 +41,8 @@ const state = {
 const METRICS = [
     { key: 'fuel',   icon: 'ic-combustivel', label: 'Combustivel' },
     { key: 'engine', icon: 'ic-motor',       label: 'Motor' },
-    { key: 'body',   icon: 'ic-lataria',     label: 'Lataria' }
+    { key: 'body',   icon: 'ic-lataria',     label: 'Lataria' },
+    { key: 'tyres',  icon: 'ic-lataria',     label: 'Pneus' }
 ];
 
 const STATUS_LABEL = {
@@ -244,6 +245,31 @@ function renderAction(vehicle) {
     el.action.classList.remove('hidden');
     el.action.disabled = state.sending;
 
+    if (state.organization && vehicle.authorized !== true) {
+        el.action.classList.add('hidden');
+        el.notice.textContent = 'Seu cargo nao possui autorizacao para movimentar a frota.';
+        el.notice.classList.remove('hidden');
+        return;
+    }
+
+    if (state.organization && vehicle.status === 'impound') {
+        const fee = Number(vehicle.fee) || 0;
+        el.action.textContent = fee > 0
+            ? `Liberar veiculo — $${fee.toLocaleString('pt-BR')}`
+            : 'Liberar veiculo';
+        el.action.onclick = () => submit('takeOut', { id: vehicle.id });
+        el.notice.textContent = 'A taxa sera descontada do caixa da organizacao.';
+        el.notice.classList.remove('hidden');
+        return;
+    }
+
+    if (state.organization && vehicle.status === 'out') {
+        el.action.classList.add('hidden');
+        el.notice.textContent = 'Estacione o veiculo em uma vaga da organizacao para guarda-lo.';
+        el.notice.classList.remove('hidden');
+        return;
+    }
+
     // No patio a unica acao possivel e liberar, e ela custa dinheiro -- o
     // valor vai no proprio botao, para ninguem pagar sem ver o preco.
     // A taxa vem POR VEICULO: depende dos dias parados e de ter chegado
@@ -331,6 +357,7 @@ function open(data) {
        libera-lo. */
     state.impound = data.impound === true;
     state.strict = data.strict === true;
+    state.organization = data.organization === true;
 
     el.garageLabel.textContent = data.label || '-';
     el.detail.classList.add('hidden');

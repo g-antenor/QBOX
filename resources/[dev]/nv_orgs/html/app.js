@@ -77,6 +77,7 @@ const dom = {
   wardrobeResource: el('wardrobeResource'),
   contactResource: el('contactResource'),
   stashResource: el('stashResource'),
+  craftResource: el('craftResource'),placeCraft:el('placeCraft'),craftProject:el('craftProject'),craftEmpty:el('craftEmpty'),
   addWardrobe: el('addWardrobe'),
   wardrobes: el('wardrobes'),
   wardrobesEmpty: el('wardrobesEmpty'),
@@ -106,6 +107,8 @@ const state = {
   garagePed: null,
   wardrobes: [],
   outfits: [],
+  mechanicLifts: [],
+  craftProject:null,
   busy: false,
   searchTimer: null
 };
@@ -699,6 +702,7 @@ async function loadResources() {
   const wardrobe = await post('wardrobe', { set: state.editing });
   const dealership = state.draft && state.draft.subtype === 'dealership'
     ? await post('dealership', { set: state.editing }) : null;
+  const craftProject=state.draft && state.draft.subtype==='mecanica'?await post('craftProject',{set:state.editing}):null;
 
   renderDoors(Array.isArray(doors) ? doors : []);
   renderStashes(Array.isArray(stashes) ? stashes : []);
@@ -706,6 +710,7 @@ async function loadResources() {
   renderGarage(garage && typeof garage === 'object' ? garage : null);
   renderWardrobe(wardrobe && typeof wardrobe === 'object' ? wardrobe : null);
   renderDealership(dealership);
+  renderCraftProject(craftProject);
   applyResourceVisibility();
 }
 
@@ -717,7 +722,7 @@ function applyResourceVisibility() {
     police: ['doorsResource', 'garageResource', 'wardrobeResource', 'contactResource', 'stashResource'],
     hospital: ['doorsResource', 'garageResource', 'wardrobeResource', 'contactResource', 'stashResource'],
     restaurant: ['doorsResource', 'wardrobeResource', 'contactResource', 'stashResource'],
-    mechanic: ['doorsResource', 'garageResource', 'wardrobeResource', 'contactResource', 'stashResource'],
+    mecanica: ['doorsResource', 'garageResource', 'wardrobeResource', 'contactResource', 'stashResource','craftResource'],
     custom: ['doorsResource', 'garageResource', 'wardrobeResource', 'contactResource', 'stashResource'],
     drugs: ['doorsResource', 'garageResource', 'contactResource', 'stashResource'],
     weapons: ['doorsResource', 'garageResource', 'contactResource', 'stashResource']
@@ -726,9 +731,11 @@ function applyResourceVisibility() {
     ? ['doorsResource', 'garageResource', 'contactResource', 'stashResource']
     : ['doorsResource', 'wardrobeResource', 'contactResource', 'stashResource'];
   const visible = new Set(rules[subtype] || fallback);
-  ['doorsResource', 'garageResource', 'dealershipResource', 'wardrobeResource', 'contactResource', 'stashResource']
+  ['doorsResource', 'garageResource', 'dealershipResource', 'wardrobeResource', 'contactResource', 'stashResource','craftResource']
     .forEach((id) => dom[id].classList.toggle('hidden', !visible.has(id)));
 }
+
+function renderCraftProject(data){state.craftProject=data||null;dom.craftProject.replaceChildren();dom.craftEmpty.classList.toggle('hidden',!!data);if(!data)return;const item=make('div','res-item');item.appendChild(make('span','name',`${data.label} · ${Number(data.x).toFixed(2)}, ${Number(data.y).toFixed(2)}`));const del=make('button','icon danger','×');del.onclick=async()=>{const out=await post('deleteCraftProject',{set:state.editing});if(out?.ok)renderCraftProject(null)};item.appendChild(del);dom.craftProject.appendChild(item)}
 
 const dealershipLabels = {
   payment: 'Local de pagamento', truckSpawn: 'Spawn do caminhao', invoiceNpc: 'Retirada da NF',
@@ -742,7 +749,14 @@ function renderDealership(data) {
   dom.dealershipPoints.replaceChildren();
   const points = data && data.points ? data.points : {};
   const categories = data && data.categories ? data.categories : {};
-  const categoryNames = { sedan: 'Sedans', suv: 'SUVs', sport: 'Esportivos', moto: 'Motos' };
+  const categoryNames = {
+    compact: 'Compactos', sedan: 'Sedans', suv: 'SUVs', coupe: 'Coupes', muscle: 'Muscle',
+    sportsclassic: 'Esportivos clássicos', sports: 'Esportivos', super: 'Super', motorcycle: 'Motos',
+    offroad: 'Off-road', industrial: 'Industriais', utility: 'Utilitários', van: 'Vans', cycle: 'Bicicletas',
+    boat: 'Barcos', helicopter: 'Helicópteros', plane: 'Aviões', service: 'Serviço', emergency: 'Emergência',
+    military: 'Militares', commercial: 'Comerciais', train: 'Trens', openwheel: 'Fórmula',
+    sport: 'Esportivos (legado)', moto: 'Motos (legado)'
+  };
   dom.dealershipCategories.replaceChildren();
   Object.keys(categories).filter((key) => categories[key]).forEach((key) => {
     const item = make('div', 'res-item');
@@ -1219,6 +1233,8 @@ dom.addStash.addEventListener('click', () => {
 
   post('placeStash', { set: state.editing, grades: gradeTotal() });
 });
+
+dom.placeCraft.addEventListener('click',()=>{if(state.editing)post('placeCraftProject',{set:state.editing})});
 
 dom.addDoors.addEventListener('click', () => {
   if (!state.editing) return;

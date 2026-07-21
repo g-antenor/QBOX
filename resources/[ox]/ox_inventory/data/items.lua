@@ -498,4 +498,35 @@ return {
 		close = false,
 		description = 'Nota fiscal usada para retirar uma encomenda de veiculos.'
 	},
+
+	-- ------------------------------------------------------ nv_mechanic --
+
+	['car_door'] = { label = 'Porta de Veiculo', weight = 18000, stack = true },
+	['car_hood'] = { label = 'Capo de Veiculo', weight = 16000, stack = true },
+	['car_trunk'] = { label = 'Porta-malas de Veiculo', weight = 15000, stack = true },
+	['car_bumper'] = { label = 'Para-choque', weight = 9000, stack = true },
+	['car_window'] = { label = 'Vidro Automotivo', weight = 4500, stack = true },
+	['car_tyre'] = { label = 'Pneu', weight = 11000, stack = true },
+	['engine_parts'] = { label = 'Pecas de Motor', weight = 6500, stack = true },
+	['reinforced_plastic'] = { label = 'Plastico Reforcado', weight = 2500, stack = true },
+	['sheet_metal'] = { label = 'Chapa de Metal', weight = 5000, stack = true },
+	['automotive_glass'] = { label = 'Vidro Automotivo', weight = 4000, stack = true },
+	['toolbox'] = {
+		label = 'Caixa de Ferramentas', weight = 8000, stack = false,
+		consume = 0, durability = true, decay = true,
+		client = { export = 'nv_mechanic.useToolbox' }
+	},
+	['wheel_wrench'] = {
+		label = 'Chave de Roda', weight = 2200, stack = false,
+		consume = 0, durability = true, decay = true
+	},
+	['blowtorch'] = {
+		label = 'Macarico', weight = 6500, stack = false,
+		consume = 0, durability = true, decay = true
+	},
+	['fire_extinguisher'] = {
+		label = 'Extintor', weight = 9000, stack = false,
+		consume = 0, durability = true, decay = true,
+		client = { export = 'nv_mechanic.useExtinguisher' }
+	},
 }

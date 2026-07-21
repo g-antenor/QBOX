@@ -1,6 +1,7 @@
 local Ox = require '@ox_core.lib.init'
 local deliveries = {}
 local testDrives = {}
+local scrapLocks = {}
 local vehicleColors = {
     [1] = { 17, 18, 20 }, [2] = { 232, 232, 229 },
     [3] = { 181, 31, 46 }, [4] = { 36, 78, 145 }
@@ -11,6 +12,44 @@ local REQUIRED_POINTS = {
     unload = 'ponto de entrega', preview = 'preview',
     saleSpawn = 'spawn da compra', testSpawn = 'spawn do test-drive', blip = 'blip do local'
 }
+
+local catalog, catalogByModel = {}, {}
+local coreVehicles = exports.ox_core:GetVehicleData() or {}
+for model, data in pairs(coreVehicles) do
+    local class = Config.VehicleClasses[tonumber(data.class)]
+    local override = Config.VehicleOverrides[model] or {}
+    if class and override.enabled ~= false then
+        local price = math.max(1, math.floor(tonumber(override.price) or tonumber(data.price) or 1))
+        local entry = {
+            model = model,
+            label = override.label or data.name or model,
+            brand = override.brand or data.make or '',
+            category = class.key,
+            categoryLabel = class.label,
+            class = tonumber(data.class),
+            type = data.type,
+            price = price,
+            cost = math.max(1, math.floor(tonumber(override.cost) or price * Config.WholesaleRate)),
+            weight = tonumber(data.weight) and math.max(1, math.floor(tonumber(data.weight))) or nil
+        }
+        catalog[#catalog + 1], catalogByModel[model] = entry, entry
+    end
+end
+table.sort(catalog, function(a, b)
+    if a.label == b.label then return a.model < b.model end
+    return a.label < b.label
+end)
+
+local legacyCategories = {
+    compact = 'sedan', coupe = 'sedan', muscle = 'sedan', sportsclassic = 'sedan', van = 'sedan',
+    offroad = 'suv', industrial = 'suv', utility = 'suv', service = 'suv', emergency = 'suv',
+    military = 'suv', commercial = 'suv', sports = 'sport', super = 'sport', openwheel = 'sport',
+    motorcycle = 'moto', cycle = 'moto'
+}
+
+local function categoryEnabled(categories, category)
+    return categories[category] == true or categories[legacyCategories[category]] == true
+end
 
 local function isDealershipJob(set)
     if type(set) ~= 'string' or GetResourceState('nv_orgs') ~= 'started' then return false end
@@ -78,9 +117,14 @@ local function insideOperationalArea(source, unit)
 end
 
 local function catalogEntry(model)
-    for i = 1, #Config.Catalog do
-        if Config.Catalog[i].model == model then return Config.Catalog[i] end
-    end
+    return type(model) == 'string' and catalogByModel[model]
+end
+
+local function isScrapyardVehicle(entry)
+    if not entry then return false end
+    if entry.class == 14 or entry.class == 15 or entry.class == 16 then return false end
+    if entry.type == 'boat' or entry.type == 'heli' or entry.type == 'plane' then return false end
+    return true
 end
 
 local function deleteDeliveryEntities(job)
@@ -177,9 +221,9 @@ end)
 
 exports('GetCatalog', function()
     local result = {}
-    for i = 1, #Config.Catalog do
-        result[#result + 1] = { model = Config.Catalog[i].model, label = Config.Catalog[i].label,
-            category = Config.Catalog[i].category, price = Config.Catalog[i].price }
+    for i = 1, #catalog do
+        result[#result + 1] = { model = catalog[i].model, label = catalog[i].label,
+            category = catalog[i].category, price = catalog[i].price, weight = catalog[i].weight }
     end
     return result
 end)
@@ -191,12 +235,13 @@ lib.callback.register('nv_dealership:data', function(source, unitId)
     local stock = {}
     for i = 1, #rows do stock[rows[i].model] = rows[i].quantity end
     local vehicles = {}
-    for i = 1, #Config.Catalog do
-        local entry = Config.Catalog[i]
-        if unit.categories[entry.category] or (stock[entry.model] or 0) > 0 then
+    for i = 1, #catalog do
+        local entry = catalog[i]
+        local canOrder = categoryEnabled(unit.categories, entry.category)
+        if canOrder or (stock[entry.model] or 0) > 0 then
             vehicles[#vehicles + 1] = { model = entry.model, label = entry.label, brand = entry.brand,
-                category = entry.category, price = entry.price, cost = entry.cost,
-                stock = stock[entry.model] or 0, canOrder = unit.categories[entry.category] == true }
+                category = entry.categoryLabel, price = entry.price, cost = entry.cost, weight = entry.weight,
+                stock = stock[entry.model] or 0, canOrder = canOrder }
         end
     end
     local account = Ox.GetGroupAccount(unit.set)
@@ -219,6 +264,76 @@ lib.callback.register('nv_dealership:nearby', function(source)
         end
     end
     return result
+end)
+
+lib.callback.register('nv_dealership:scrapVehicle', function(source, netId)
+    local config = Config.Scrapyard
+    if not config or config.enabled ~= true or type(netId) ~= 'number' then
+        return false, 'Ferro-velho indisponivel.'
+    end
+
+    local player = Ox.GetPlayer(source)
+    local entity = NetworkGetEntityFromNetworkId(netId)
+    if not player or entity == 0 or not DoesEntityExist(entity) then
+        return false, 'Veiculo nao encontrado.'
+    end
+    local scrapyardCoords = vec3(config.coords.x, config.coords.y, config.coords.z)
+    if #(GetEntityCoords(GetPlayerPed(source)) - scrapyardCoords) > 5.0 then
+        return false, 'Fale com o responsavel pelo patio para vender.'
+    end
+    if #(GetEntityCoords(entity) - scrapyardCoords) > (tonumber(config.vehicleRadius) or 6.0) then
+        return false, 'Leve o veiculo ate o ponto do ferro-velho.'
+    end
+
+    local entry
+    for i = 1, #catalog do
+        if joaat(catalog[i].model) == GetEntityModel(entity) then entry = catalog[i]; break end
+    end
+    local weight = entry and entry.weight
+    if not entry or type(weight) ~= 'number' or weight <= 0 then
+        return false, 'Este veiculo nao consta na lista de carros.'
+    end
+    if not isScrapyardVehicle(entry) then
+        return false, 'Barcos e aeronaves nao sao aceitos.'
+    end
+
+    local vehicle = Ox.GetVehicleFromNetId(netId)
+    if not vehicle or vehicle.owner ~= player.charId or vehicle.group then
+        return false, 'Voce nao possui as documentacoes deste veiculo.'
+    end
+    if scrapLocks[vehicle.vin] then return false, 'Este veiculo ja esta sendo processado.' end
+    scrapLocks[vehicle.vin] = true
+
+    local value = math.floor(weight * math.max(0, tonumber(config.pricePerKg) or 0))
+    if value < 1 then
+        scrapLocks[vehicle.vin] = nil
+        return false, 'Valor do ferro-velho invalido.'
+    end
+    local account = Ox.GetCharacterAccount(player.charId)
+    if not account then
+        scrapLocks[vehicle.vin] = nil
+        return false, 'Conta do proprietario indisponivel.'
+    end
+
+    local credited, credit = pcall(function()
+        return account.addBalance({ amount = value, message = ('Ferro-velho: %s (%s kg)'):format(entry.model, weight) })
+    end)
+    if not credited or type(credit) ~= 'table' or credit.success ~= true then
+        scrapLocks[vehicle.vin] = nil
+        return false, 'Nao foi possivel realizar o pagamento.'
+    end
+
+    local plate = vehicle.plate
+    local deleted = pcall(function() vehicle.delete() end)
+    if not deleted then
+        account.removeBalance({ amount = value, message = 'Estorno: falha no ferro-velho' })
+        scrapLocks[vehicle.vin] = nil
+        return false, 'Nao foi possivel destruir o veiculo.'
+    end
+
+    if plate then exports.nv_garage:RemoveKey(source, plate) end
+    scrapLocks[vehicle.vin] = nil
+    return true, nil, value
 end)
 
 lib.callback.register('nv_dealership:startTest', function(source, unitId, model)

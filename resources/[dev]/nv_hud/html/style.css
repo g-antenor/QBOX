@@ -29,8 +29,21 @@ html,body{
 .stage{ position:fixed; inset:0; display:none; }
 .stage.shown{ display:block; }
 
+.server-logo{
+  position:fixed;
+  top:16px;
+  right:22px;
+  z-index:6;
+  width:180px;
+  height:auto;
+  pointer-events:none;
+  user-select:none;
+  object-fit:contain;
+}
+.stage.paused .server-logo{ display:none; }
+
 .organization-name{
-  position:fixed; top:18px; right:22px; z-index:6; display:none;
+  position:fixed; top:94px; right:22px; z-index:6; display:none;
   max-width:320px; color:#fff; font-size:13px; font-weight:700;
   text-align:right; text-shadow:0 1px 3px #000,0 0 8px rgba(0,0,0,.9);
   pointer-events:none;

@@ -7,6 +7,21 @@
 ]]
 
 local open = false
+local tabletProp
+
+local function stopTablet()
+    if tabletProp and DoesEntityExist(tabletProp) then DeleteEntity(tabletProp) end
+    tabletProp=nil;ClearPedSecondaryTask(cache.ped)
+end
+
+local function playTablet()
+    stopTablet()
+    local model=joaat('prop_cs_tablet');if not lib.requestModel(model,3000) then return end
+    lib.requestAnimDict('amb@code_human_in_bus_passenger_idles@female@tablet@idle_a')
+    tabletProp=CreateObject(model,0.0,0.0,0.0,true,true,false)
+    AttachEntityToEntity(tabletProp,cache.ped,GetPedBoneIndex(cache.ped,28422),-0.05,0.0,0.0,0.0,0.0,0.0,true,true,false,true,1,true)
+    TaskPlayAnim(cache.ped,'amb@code_human_in_bus_passenger_idles@female@tablet@idle_a','idle_a',3.0,3.0,-1,49,0,false,false,false)
+end
 
 ---@param message string
 ---@param type string?
@@ -25,7 +40,26 @@ local function close()
     open = false
     SetNuiFocus(false, false)
     SendNUIMessage({ action = 'close' })
+    stopTablet()
 end
+
+--- Fechamento de emergencia. Diferente de `close`, nao depende do estado
+--- interno estar correto: uma NUI travada pode continuar visivel mesmo quando
+--- `open` ja voltou para false.
+local function forceCloseUi()
+    open = false
+    SetNuiFocus(false, false)
+    SetNuiFocusKeepInput(false)
+    SendNUIMessage({ action = 'close' })
+    stopTablet()
+end
+
+RegisterCommand('limparui', function()
+    forceCloseUi()
+    notify('Interface e foco NUI limpos.', 'success')
+end, false)
+
+RegisterNetEvent('nv_mdt:forceCloseUi', forceCloseUi)
 
 local function openMdt()
     if open then return end
@@ -57,6 +91,11 @@ if Config.Keybind then
 end
 
 exports('open', openMdt)
+
+RegisterNetEvent('nv_mdt:openMechanicOrder',function(order)
+    playTablet();openMdt()
+    if open then SendNUIMessage({action='mechanicOrder',order=order}) end
+end)
 
 -- ------------------------------------------------------ ponte generica --
 
@@ -106,6 +145,8 @@ RegisterNUICallback('close', function(_, cb)
     close()
     cb(1)
 end)
+
+AddEventHandler('onResourceStop',function(resource) if resource==GetCurrentResourceName() then stopTablet() end end)
 
 -- ---------------------------------------------------------- live map --
 

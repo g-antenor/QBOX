@@ -145,6 +145,17 @@ Altura: **%+.2f m**  (setas **PARA CIMA / PARA BAIXO**)
     end
 end
 
+function Panel.placeCraftProject(set,options)
+    if placing then return end;placing=true;options=options or {}
+    CreateThread(function()
+        local point=aimForPoint('Posicionando bancada de crafting',1.5)
+        if not point then Panel.notify('Posicionamento cancelado.','inform');return finish(set) end
+        local ok,err=lib.callback.await('nv_orgs:saveCraftProject',false,set,{label=options.label,prop=options.prop,
+            x=point.x,y=point.y,z=point.z,heading=GetEntityHeading(cache.ped)})
+        Panel.notify(ok and 'Bancada configurada.' or (err or 'Nao foi possivel salvar.'),ok and 'success' or 'error');finish(set)
+    end)
+end
+
 --- Posiciona um ponto da concessionaria pela mira, com previa da area e da
 --- direcao usada por spawns de veiculo.
 function Panel.placeDealershipPoint(set, pointType, options)

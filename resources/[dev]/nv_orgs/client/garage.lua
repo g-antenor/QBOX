@@ -12,9 +12,14 @@
 
 local Ox = require '@ox_core.lib.init'
 
---- Peds criados, por set.
----@type table<string, number>
+--- Todos os peds criados por esta instancia. A chave e a entidade para que
+--- duas threads concorrentes nunca sobrescrevam a referencia uma da outra.
+---@type table<number, string>
 local peds = {}
+local garagePoints = {}
+
+--- Cada redesenho invalida as threads de carregamento do desenho anterior.
+local drawGeneration = 0
 
 --- Ultima lista recebida do servidor, para poder redesenhar quando o cargo do
 --- jogador mudar sem que a configuracao tenha mudado.
@@ -22,15 +27,35 @@ local peds = {}
 local lastList = {}
 
 local function clearAll()
-    for set, ped in pairs(peds) do
+    for i=1,#garagePoints do pcall(function() garagePoints[i]:remove() end) end
+    table.wipe(garagePoints)
+    lib.hideTextUI()
+
+    for ped in pairs(peds) do
         if DoesEntityExist(ped) then
             -- `addLocalEntity` se desfaz com `removeLocalEntity`, e nao com
             -- `removeZone` -- ele nao devolve id de zona nenhum.
             pcall(function() exports.ox_target:removeLocalEntity(ped) end)
+            SetEntityAsMissionEntity(ped,true,true)
             DeleteEntity(ped)
         end
 
-        peds[set] = nil
+        peds[ped] = nil
+    end
+end
+
+--- Remove atendentes orfaos deixados por uma instancia anterior. O filtro usa
+--- modelo e coordenada exata para nao atingir NPCs normais do mapa.
+local function clearOrphans(entry,model)
+    local expected=vec3(entry.coords.x,entry.coords.y,entry.coords.z-1.0)
+    for _,ped in ipairs(GetGamePool('CPed')) do
+        if ped~=cache.ped and DoesEntityExist(ped) and GetEntityModel(ped)==model
+            and #(GetEntityCoords(ped)-expected)<0.75 then
+            pcall(function() exports.ox_target:removeLocalEntity(ped) end)
+            SetEntityAsMissionEntity(ped,true,true)
+            DeleteEntity(ped)
+            peds[ped]=nil
+        end
     end
 end
 
@@ -47,54 +72,36 @@ local function isMember(set)
     return got and grade ~= nil and grade ~= false
 end
 
--- ------------------------------------------------------------- frota --
+local function storeCompanyVehicle(set)
+    local vehicle=cache.vehicle
+    if not vehicle or cache.seat~=-1 then return Panel.notify('Esteja ao volante do veiculo.','error') end
+    local mechanical=GetResourceState('nv_mechanic')=='started' and exports.nv_mechanic:GetSnapshot(vehicle) or nil
+    local ok,err=lib.callback.await('nv_orgs:storeFleetVehicle',false,set,VehToNet(vehicle),lib.getVehicleProperties(vehicle),mechanical)
+    Panel.notify(ok and 'Veiculo guardado na garagem da organizacao.' or (err or 'Nao foi possivel guardar.'),ok and 'success' or 'error')
+end
 
---- Menu de retirada, montado com o que o SERVIDOR disse que este jogador pode
---- ver. A lista nao e filtrada aqui: o cliente nao sabe o cargo de ninguem.
----@param set string
-local function openFleet(set)
-    local data = lib.callback.await('nv_orgs:fleetFor', false, set)
-
-    if not data then
-        return Panel.notify('Voce nao tem acesso a esta garagem.', 'error')
-    end
-
-    if #data.fleet == 0 then
-        return Panel.notify('Nenhum veiculo liberado para o seu cargo.', 'inform')
-    end
-
-    local options = {}
-
-    for i = 1, #data.fleet do
-        local entry = data.fleet[i]
-
-        options[#options + 1] = {
-            title = entry.label,
-            description = entry.price > 0
-                and ('$%d — pago pelo caixa da empresa'):format(entry.price)
-                or 'Sem custo',
-            icon = 'fa-solid fa-car',
-            onSelect = function()
-                local ok, err, label = lib.callback.await('nv_orgs:takeFleetVehicle', false, set, entry.id)
-
-                if not ok then
-                    return Panel.notify(err or 'Nao foi possivel retirar.', 'error')
-                end
-
-                Panel.notify(('%s liberado. A chave esta com voce.'):format(label or 'Veiculo'), 'success')
+local function createGaragePoints(entry)
+    for i=1,#(entry.spawns or {}) do
+        local spawn=entry.spawns[i]
+        local point=lib.points.new({coords=vec3(spawn.x,spawn.y,spawn.z),distance=12.0,set=entry.set})
+        function point:nearby()
+            local driving=cache.vehicle and cache.seat==-1
+            if not driving or self.currentDistance>2.2 then
+                if self.showing then self.showing=false; lib.hideTextUI() end
+                return
             end
-        }
+            if not self.showing then self.showing=true; lib.showTextUI('[E] Guardar veiculo nesta vaga') end
+            if IsControlJustReleased(0,38) then
+                self.showing=false
+                lib.hideTextUI()
+                storeCompanyVehicle(self.set)
+            end
+        end
+        function point:onExit()
+            if self.showing then self.showing=false; lib.hideTextUI() end
+        end
+        garagePoints[#garagePoints+1]=point
     end
-
-    lib.registerContext({
-        id = 'nv_orgs_fleet',
-        title = data.balance
-            and ('Frota — caixa: $%s'):format(data.balance)
-            or 'Frota',
-        options = options
-    })
-
-    lib.showContext('nv_orgs_fleet')
 end
 
 -- ------------------------------------------------------------- desenho --
@@ -103,6 +110,8 @@ end
 local function drawGarages(list)
     if type(list) == 'table' then lastList = list end
 
+    drawGeneration = drawGeneration + 1
+    local generation = drawGeneration
     clearAll()
 
     for i = 1, #lastList do
@@ -113,6 +122,7 @@ local function drawGarages(list)
         -- garagem de uma empresa privada nao precisa existir para a cidade.
         -- Nos dois casos a INTERACAO fica com o filtro `groups` do target.
         if entry.publicPed or isMember(entry.set) then
+        if isMember(entry.set) then createGaragePoints(entry) end
         local model = joaat(entry.model)
 
         CreateThread(function()
@@ -120,6 +130,15 @@ local function drawGarages(list)
                 lib.print.warn(('nv_orgs: modelo de atendente "%s" nao carregou.'):format(entry.model))
                 return
             end
+
+            -- Uma sincronizacao mais nova chegou enquanto o modelo carregava.
+            -- Nao crie um NPC que ja nasceu obsoleto.
+            if generation~=drawGeneration then
+                SetModelAsNoLongerNeeded(model)
+                return
+            end
+
+            clearOrphans(entry,model)
 
             local ped = CreatePed(4, model, entry.coords.x, entry.coords.y, entry.coords.z - 1.0,
                 entry.heading or 0.0, false, true)
@@ -132,9 +151,19 @@ local function drawGarages(list)
             SetEntityInvincible(ped, true)
             SetBlockingOfNonTemporaryEvents(ped, true)
 
-            peds[entry.set] = ped
+            peds[ped] = entry.set
 
-            exports.ox_target:addLocalEntity(ped, {
+            -- Uma sincronizacao pode chegar entre a criacao e o registro do
+            -- target. A entidade antiga nao deve sobreviver a ela.
+            if generation~=drawGeneration or GetResourceState(GetCurrentResourceName())~='started' then
+                peds[ped]=nil
+                if DoesEntityExist(ped) then
+                    SetEntityAsMissionEntity(ped,true,true)
+                    DeleteEntity(ped)
+                end
+                return
+            end
+            local targets={
                 {
                     name = ('nv_orgs_fleet_%s'):format(entry.set),
                     label = 'Frota da organizacao',
@@ -144,10 +173,14 @@ local function drawGarages(list)
                     -- opcao, mesmo que o ped esteja visivel.
                     groups = { [entry.set] = 1 },
                     onSelect = function()
-                        openFleet(entry.set)
+                        if GetResourceState('nv_garage')~='started' then
+                            return Panel.notify('A garagem esta reiniciando. Tente novamente em alguns segundos.','error')
+                        end
+                        exports.nv_garage:OpenOrganization(entry.set)
                     end
                 }
-            })
+            }
+            exports.ox_target:addLocalEntity(ped,targets)
         end)
         end
     end
@@ -162,13 +195,35 @@ RegisterNetEvent('ox:setGroup', function()
     drawGarages(nil)
 end)
 
+-- No restart do resource o ox_target costuma ficar pronto antes de o ox_core
+-- preencher o personagem local. Nesse intervalo `isMember` retorna falso e os
+-- atendentes de empresas privadas nao sao desenhados. Refazemos a sincronizacao
+-- quando o personagem termina de carregar, que e o momento em que os grupos ja
+-- podem ser consultados com seguranca.
+AddEventHandler('ox:playerLoaded', function()
+    TriggerServerEvent('nv_orgs:requestGarages')
+end)
+
+AddEventHandler('ox:playerLogout', function()
+    lastList = {}
+    drawGeneration = drawGeneration + 1
+    clearAll()
+end)
+
 CreateThread(function()
     while GetResourceState('ox_target') ~= 'started' do Wait(500) end
 
-    Wait(1500)
+    -- Cobre tanto o start normal quanto um `restart nv_orgs` com o jogador ja
+    -- conectado. Nao dependemos apenas do evento, pois ele pode ter ocorrido
+    -- antes deste arquivo ser carregado.
+    local deadline = GetGameTimer() + 15000
+    while not Ox.GetPlayer().charId and GetGameTimer() < deadline do Wait(250) end
     TriggerServerEvent('nv_orgs:requestGarages')
 end)
 
 AddEventHandler('onResourceStop', function(resource)
-    if resource == GetCurrentResourceName() then clearAll() end
+    if resource == GetCurrentResourceName() then
+        drawGeneration = drawGeneration + 1
+        clearAll()
+    end
 end)

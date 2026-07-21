@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NV2 Crafting Graffiti</title>
+<style>
+:root{
+  --bg:#090a0d;
+  --panel:#111319;
+  --panel2:#171a21;
+  --edge:#2a2e38;
+  --text:#f2f2f4;
+  --dim:#999eaa;
+  --faint:#626875;
+  --red:#e52b43;
+  --red2:#ff4d63;
+  --purple:#8b7cff;
+  --green:#35d878;
+  --redSoft:rgba(229,43,67,.12);
+  --purpleSoft:rgba(139,124,255,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%}
+body{
+  overflow:hidden;
+  color:var(--text);
+  font-family:Inter,system-ui,sans-serif;
+  background:
+    linear-gradient(rgba(7,8,11,.82),rgba(7,8,11,.93)),
+    repeating-linear-gradient(115deg,transparent 0 24px,rgba(255,255,255,.015) 24px 26px),
+    radial-gradient(circle at 20% 15%,rgba(229,43,67,.12),transparent 30%),
+    radial-gradient(circle at 85% 80%,rgba(139,124,255,.1),transparent 35%),
+    #08090b;
+  user-select:none;
+}
+button,input{font:inherit}
+.app{height:100%;display:grid;place-items:center;padding:24px}
+.window{
+  width:min(95vw,1180px);
+  height:min(92vh,760px);
+  display:grid;
+  grid-template-columns:240px 1fr 280px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:18px;
+  background:rgba(11,12,16,.97);
+  box-shadow:0 30px 80px rgba(0,0,0,.62);
+  position:relative;
+}
+.window:before{
+  content:"NV2";
+  position:absolute;
+  left:28%;
+  top:18%;
+  font-size:150px;
+  font-weight:1000;
+  letter-spacing:-.09em;
+  transform:rotate(-12deg) skew(-9deg);
+  color:transparent;
+  -webkit-text-stroke:4px rgba(229,43,67,.07);
+  pointer-events:none;
+}
+.icon{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* INVENTÁRIO */
+.inventory{
+  padding:18px 14px;
+  border-right:1px solid #1e2128;
+  background:rgba(13,14,18,.96);
+}
+.side-title{font-size:12px;font-weight:800}
+.side-sub{margin-top:4px;color:var(--faint);font-size:9px;line-height:1.45}
+.search{
+  width:100%;
+  margin-top:14px;
+  padding:9px 10px;
+  border:1px solid var(--edge);
+  border-radius:7px;
+  background:#0d0f13;
+  color:var(--text);
+  outline:none;
+  font-size:10px;
+}
+.search:focus{border-color:var(--red)}
+.item-list{
+  margin-top:12px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  max-height:calc(100% - 90px);
+  overflow:auto;
+}
+.item{
+  display:grid;
+  grid-template-columns:42px 1fr auto;
+  gap:8px;
+  align-items:center;
+  padding:8px;
+  border:1px solid #20232b;
+  border-radius:8px;
+  background:var(--panel);
+  cursor:grab;
+  transition:.12s;
+}
+.item:hover{border-color:var(--red);background:var(--redSoft)}
+.item-icon{
+  width:42px;height:42px;
+  display:grid;place-items:center;
+  border:1px solid var(--edge);
+  border-radius:7px;
+  background:#0c0d10;
+}
+.item-icon svg{width:28px;height:28px}
+.item-name{font-size:10px;font-weight:700}
+.item-desc{margin-top:3px;color:var(--faint);font-size:8px}
+.item-count{align-self:end;color:var(--red2);font:800 11px monospace}
+
+/* CENTRO */
+.crafting{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  background:
+    linear-gradient(rgba(15,16,20,.91),rgba(10,11,14,.97)),
+    repeating-linear-gradient(25deg,transparent 0 13px,rgba(255,255,255,.01) 13px 15px);
+}
+.header{
+  min-height:70px;
+  padding:0 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid #1e2128;
+}
+.head-left{display:flex;align-items:center;gap:11px}
+.head-icon{
+  width:38px;height:38px;
+  display:grid;place-items:center;
+  border:1px solid rgba(229,43,67,.42);
+  border-radius:10px;
+  background:var(--redSoft);
+  color:var(--red2);
+}
+.header h1{font-size:14px;font-weight:800}
+.header p{margin-top:3px;color:var(--faint);font-size:9px;text-transform:uppercase;letter-spacing:.12em}
+.close{
+  width:32px;height:32px;
+  display:grid;place-items:center;
+  border:1px solid var(--edge);
+  border-radius:7px;
+  background:var(--panel2);
+  color:var(--dim);
+  cursor:pointer;
+}
+.close:hover{border-color:var(--red);color:var(--text)}
+.tabs{display:flex;border-bottom:1px solid #1e2128}
+.tab{
+  flex:1;
+  padding:13px;
+  border:0;
+  background:transparent;
+  color:var(--faint);
+  font-size:10px;
+  font-weight:700;
+  position:relative;
+}
+.tab.active{color:var(--text)}
+.tab.active:after{
+  content:"";
+  position:absolute;
+  left:20%;right:20%;bottom:0;
+  height:2px;
+  background:var(--red);
+}
+.canvas{flex:1;min-height:0;overflow:auto;padding:18px}
+.recipe{
+  max-width:650px;
+  margin:0 auto;
+  overflow:hidden;
+  border:1px solid var(--edge);
+  border-radius:14px;
+  background:rgba(16,17,21,.91);
+}
+.recipe-head{
+  padding:13px 14px;
+  display:flex;
+  justify-content:space-between;
+  border-bottom:1px solid #1e2128;
+}
+.recipe-head strong{font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+.recipe-head span{color:var(--faint);font-size:9px}
+.blueprint{
+  min-height:360px;
+  position:relative;
+  display:grid;
+  place-items:center;
+  padding:22px;
+  background:
+    linear-gradient(rgba(10,11,14,.72),rgba(10,11,14,.9)),
+    repeating-linear-gradient(0deg,transparent 0 28px,rgba(139,124,255,.045) 28px 29px),
+    repeating-linear-gradient(90deg,transparent 0 28px,rgba(139,124,255,.045) 28px 29px);
+}
+.weapon{
+  position:absolute;
+  width:78%;
+  max-width:460px;
+  opacity:.16;
+  color:var(--red);
+  filter:drop-shadow(0 0 14px rgba(229,43,67,.2));
+}
+.weapon *{fill:none;stroke:currentColor;stroke-width:4}
+.slot-map{
+  width:min(100%,520px);
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  grid-template-rows:repeat(3,86px);
+  gap:10px;
+  position:relative;
+  z-index:2;
+}
+.slot{
+  position:relative;
+  display:grid;
+  place-items:center;
+  border:1px dashed #454a57;
+  border-radius:9px;
+  background:rgba(22,24,30,.73);
+  color:#4f5460;
+  transition:.12s;
+}
+.slot:before{
+  content:attr(data-label);
+  position:absolute;
+  left:6px;top:5px;
+  color:var(--faint);
+  font-size:7px;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+}
+.slot.dragover{border-color:var(--purple);background:var(--purpleSoft)}
+.slot.valid{
+  border-style:solid;
+  border-color:var(--red);
+  background:var(--redSoft);
+  color:var(--text);
+  box-shadow:0 0 15px rgba(229,43,67,.12);
+}
+.slot svg{width:42px;height:42px;fill:none;stroke:currentColor;stroke-width:1.7}
+.slot .remove{
+  position:absolute;
+  top:5px;right:5px;
+  width:18px;height:18px;
+  display:none;
+  place-items:center;
+  border:1px solid var(--edge);
+  border-radius:5px;
+  background:#101116;
+  color:var(--dim);
+  cursor:pointer;
+}
+.slot.valid .remove{display:grid}
+.s1{grid-column:1;grid-row:2}
+.s2{grid-column:2;grid-row:2}
+.s3{grid-column:3;grid-row:2}
+.s4{grid-column:4;grid-row:2}
+.s5{grid-column:5;grid-row:2}
+.s6{grid-column:3;grid-row:3}
+.s7{grid-column:2;grid-row:1}
+.s8{grid-column:4;grid-row:1}
+.progress-wrap{padding:14px;border-top:1px solid #1e2128}
+.progress-top{display:flex;justify-content:space-between;margin-bottom:7px;color:var(--faint);font-size:9px}
+.progress{height:8px;overflow:hidden;border:1px solid #1e2128;border-radius:999px;background:#0a0b0e}
+.progress-bar{width:0;height:100%;background:linear-gradient(90deg,var(--red),var(--red2));transition:width .12s linear}
+.result{
+  padding:16px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+.result-icon{
+  width:62px;height:62px;
+  display:grid;place-items:center;
+  border:1px solid rgba(53,216,120,.5);
+  border-radius:11px;
+  background:rgba(53,216,120,.08);
+  color:var(--green);
+}
+.result-icon svg{width:44px;height:44px}
+.result-info strong{font-size:11px}
+.result-info span{display:block;margin-top:3px;color:var(--faint);font-size:8px}
+.craft-btn{
+  margin-left:auto;
+  min-width:135px;
+  min-height:38px;
+  border:1px solid var(--red);
+  border-radius:8px;
+  background:var(--red);
+  color:#fff;
+  font-size:10px;
+  font-weight:800;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+.craft-btn:hover{background:var(--red2)}
+.craft-btn:disabled{opacity:.35;cursor:not-allowed}
+
+/* FILA */
+.queue{
+  padding:18px 14px;
+  border-left:1px solid #1e2128;
+  background:rgba(13,14,18,.96);
+}
+.queue-title{font-size:12px;font-weight:800}
+.queue-sub{margin-top:4px;color:var(--faint);font-size:9px}
+.queue-list{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.queue-item{
+  padding:10px;
+  border:1px solid #20232b;
+  border-radius:8px;
+  background:var(--panel);
+}
+.queue-item strong{font-size:10px}
+.queue-item span{display:block;margin-top:4px;color:var(--faint);font-size:8px}
+.mini-progress{margin-top:8px;height:5px;overflow:hidden;border-radius:999px;background:#090a0d}
+.mini-progress div{height:100%;background:var(--purple)}
+.tag{
+  margin-top:24px;
+  text-align:center;
+  font-size:40px;
+  font-weight:1000;
+  letter-spacing:-.08em;
+  transform:rotate(-4deg) skew(-8deg);
+  color:transparent;
+  -webkit-text-stroke:1.5px var(--red);
+  text-shadow:4px 4px 0 rgba(139,124,255,.35);
+  opacity:.72;
+}
+.toast{
+  position:fixed;
+  right:24px;bottom:24px;
+  min-width:220px;
+  padding:12px 14px;
+  border:1px solid var(--red);
+  border-radius:8px;
+  background:#101114;
+  box-shadow:0 20px 50px rgba(0,0,0,.5);
+  font-size:10px;
+  opacity:0;
+  transform:translateY(8px);
+  transition:.16s;
+  pointer-events:none;
+}
+.toast.show{opacity:1;transform:none}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-thumb{background:var(--edge);border-radius:999px}
+@media(max-width:980px){.window{grid-template-columns:210px 1fr}.queue{display:none}}
+@media(max-width:720px){
+  body{overflow:auto}.app{padding:0}.window{width:100%;height:auto;min-height:100vh;grid-template-columns:1fr;border-radius:0}
+  .inventory{border-right:0;border-bottom:1px solid #1e2128}
+  .item-list{max-height:none;display:grid;grid-template-columns:repeat(2,1fr)}
+  .slot-map{grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,76px)}
+  .s5{grid-column:4;grid-row:3}.s6{grid-column:2;grid-row:4}
+  .result{flex-wrap:wrap}.craft-btn{width:100%;margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="wrench" viewBox="0 0 24 24"><path d="M14 6a4 4 0 0 0-5-3l3 3-3 3-3-3a4 4 0 0 0 5 5l7 7 3-3-7-7z"/></symbol>
+  <symbol id="frame" viewBox="0 0 24 24"><path d="M4 8h13l3 4v3H9l-1 5H5l1-7H4z"/></symbol>
+  <symbol id="trigger" viewBox="0 0 24 24"><path d="M7 8h10v4c0 5-3 7-6 7-2 0-4-1-4-3M12 11v3"/></symbol>
+  <symbol id="spring" viewBox="0 0 24 24"><path d="M4 12c2-6 4 6 6 0s4 6 6 0 4 6 4 0"/></symbol>
+  <symbol id="barrel" viewBox="0 0 24 24"><path d="M4 10h14l2 2-2 2H4zM7 8v8M16 8v8"/></symbol>
+  <symbol id="slide" viewBox="0 0 24 24"><path d="M3 9h15l3 3v3H3zM6 15v3h8v-3M8 9V6h8v3"/></symbol>
+  <symbol id="grip" viewBox="0 0 24 24"><path d="M8 5h8l-1 5 3 9h-8l-2-9zM10 9h5"/></symbol>
+  <symbol id="pin" viewBox="0 0 24 24"><path d="M6 12h12M9 9v6M15 9v6"/></symbol>
+  <symbol id="mag" viewBox="0 0 24 24"><path d="M8 4h8v13l-3 3H9l-1-3zM10 7h4"/></symbol>
+  <symbol id="pistol" viewBox="0 0 24 24"><path d="M3 8h15l3 3v3h-9l-1 6H7l1-8H3zM15 8V5h4v3"/></symbol>
+  <symbol id="close" viewBox="0 0 24 24"><path d="m7 7 10 10M17 7 7 17"/></symbol>
+</svg>
+
+<div class="app">
+  <div class="window">
+    <aside class="inventory">
+      <div class="side-title">Componentes</div>
+      <div class="side-sub">Arraste cada peça para o encaixe correspondente.</div>
+      <input class="search" id="search" placeholder="Buscar componente...">
+      <div class="item-list" id="items"></div>
+    </aside>
+
+    <main class="crafting">
+      <header class="header">
+        <div class="head-left">
+          <div class="head-icon"><svg class="icon" viewBox="0 0 24 24"><use href="#wrench"/></svg></div>
+          <div><h1>Bancada de Crafting</h1><p>NV2 Underground Workshop</p></div>
+        </div>
+        <button class="close" id="close"><svg class="icon" viewBox="0 0 24 24"><use href="#close"/></svg></button>
+      </header>
+
+      <div class="tabs">
+        <button class="tab active">Crafting</button>
+        <button class="tab">Fila</button>
+      </div>
+
+      <div class="canvas">
+        <section class="recipe">
+          <div class="recipe-head">
+            <strong>Projeto: Pistola Compacta</strong>
+            <span>8 componentes obrigatórios</span>
+          </div>
+
+          <div class="blueprint">
+            <svg class="weapon" viewBox="0 0 420 220">
+              <path d="M28 72h260l72 40v34H190l-18 64h-78l16-92H28z"/>
+              <rect x="275" y="48" width="70" height="24" rx="4"/>
+              <polygon points="118,112 185,112 167,205 100,205"/>
+              <circle cx="210" cy="133" r="18"/>
+              <path d="M55 85h210"/>
+            </svg>
+
+            <div class="slot-map">
+              <div class="slot s1" data-type="frame" data-label="Corpo"><svg><use href="#frame"/></svg><button class="remove">×</button></div>
+              <div class="slot s2" data-type="trigger" data-label="Gatilho"><svg><use href="#trigger"/></svg><button class="remove">×</button></div>
+              <div class="slot s3" data-type="spring" data-label="Mola"><svg><use href="#spring"/></svg><button class="remove">×</button></div>
+              <div class="slot s4" data-type="barrel" data-label="Cano"><svg><use href="#barrel"/></svg><button class="remove">×</button></div>
+              <div class="slot s5" data-type="slide" data-label="Ferrolho"><svg><use href="#slide"/></svg><button class="remove">×</button></div>
+              <div class="slot s6" data-type="grip" data-label="Punho"><svg><use href="#grip"/></svg><button class="remove">×</button></div>
+              <div class="slot s7" data-type="pin" data-label="Pino"><svg><use href="#pin"/></svg><button class="remove">×</button></div>
+              <div class="slot s8" data-type="mag" data-label="Carregador"><svg><use href="#mag"/></svg><button class="remove">×</button></div>
+            </div>
+          </div>
+
+          <div class="progress-wrap">
+            <div class="progress-top"><span id="progressText">Aguardando componentes</span><strong id="progressPct">0%</strong></div>
+            <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+          </div>
+
+          <div class="result">
+            <div class="result-icon"><svg viewBox="0 0 24 24"><use href="#pistol"/></svg></div>
+            <div class="result-info"><strong>Pistola Compacta</strong><span>Resultado final do projeto</span></div>
+            <button class="craft-btn" id="craft" disabled>Fabricar item</button>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <aside class="queue">
+      <div class="queue-title">Fila de produção</div>
+      <div class="queue-sub">Itens em andamento e concluídos.</div>
+      <div class="queue-list" id="queue">
+        <div class="queue-item"><strong>Supressor improvisado</strong><span>Em andamento • 42%</span><div class="mini-progress"><div style="width:42%"></div></div></div>
+        <div class="queue-item"><strong>Kit de reparo</strong><span>Concluído</span><div class="mini-progress"><div style="width:100%"></div></div></div>
+      </div>
+      <div class="tag">NV2</div>
+    </aside>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const COMPONENTS=[
+  {type:'frame',name:'Corpo da arma',desc:'Estrutura principal',count:1,icon:'frame'},
+  {type:'trigger',name:'Conjunto do gatilho',desc:'Mecanismo interno',count:1,icon:'trigger'},
+  {type:'spring',name:'Mola de retorno',desc:'Tensão e recuo',count:2,icon:'spring'},
+  {type:'barrel',name:'Cano compacto',desc:'Peça frontal',count:1,icon:'barrel'},
+  {type:'slide',name:'Ferrolho',desc:'Parte superior móvel',count:1,icon:'slide'},
+  {type:'grip',name:'Punho reforçado',desc:'Empunhadura',count:1,icon:'grip'},
+  {type:'pin',name:'Pino de montagem',desc:'Fixação interna',count:2,icon:'pin'},
+  {type:'mag',name:'Carregador',desc:'Alimentação',count:1,icon:'mag'}
+];
+let placed={},crafting=false;
+const $=id=>document.getElementById(id);
+
+function toast(text){
+  const el=$('toast');el.textContent=text;el.classList.add('show');
+  clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),1700);
+}
+function renderItems(filter=''){
+  const box=$('items');box.innerHTML='';
+  COMPONENTS.filter(i=>(i.name+' '+i.desc).toLowerCase().includes(filter.toLowerCase())).forEach(item=>{
+    const el=document.createElement('div');
+    el.className='item';el.draggable=true;el.dataset.type=item.type;
+    el.innerHTML=`<div class="item-icon"><svg class="icon" viewBox="0 0 24 24"><use href="#${item.icon}"/></svg></div><div><div class="item-name">${item.name}</div><div class="item-desc">${item.desc}</div></div><div class="item-count">${item.count}</div>`;
+    el.addEventListener('dragstart',e=>e.dataTransfer.setData('text/plain',item.type));
+    el.addEventListener('click',()=>autoPlace(item.type));
+    box.appendChild(el);
+  });
+}
+function autoPlace(type){
+  const slot=document.querySelector(`.slot[data-type="${type}"]`);
+  if(slot&&!placed[type])place(slot,type);
+}
+function place(slot,type){
+  if(crafting)return;
+  placed[type]=true;slot.classList.add('valid');updateProgress();
+}
+function remove(slot){
+  if(crafting)return;
+  delete placed[slot.dataset.type];slot.classList.remove('valid');updateProgress();
+}
+function updateProgress(){
+  const current=Object.keys(placed).length,total=8,pct=Math.round(current/total*100);
+  $('progressPct').textContent=pct+'%';
+  $('progressBar').style.width=pct+'%';
+  $('progressText').textContent=current===total?'Projeto pronto para fabricação':`${current} de ${total} componentes posicionados`;
+  $('craft').disabled=current!==total||crafting;
+}
+document.querySelectorAll('.slot').forEach(slot=>{
+  slot.addEventListener('dragover',e=>{e.preventDefault();slot.classList.add('dragover')});
+  slot.addEventListener('dragleave',()=>slot.classList.remove('dragover'));
+  slot.addEventListener('drop',e=>{
+    e.preventDefault();slot.classList.remove('dragover');
+    const type=e.dataTransfer.getData('text/plain');
+    if(type!==slot.dataset.type)return toast('Essa peça não encaixa aqui.');
+    place(slot,type);
+  });
+  slot.querySelector('.remove').addEventListener('click',e=>{e.stopPropagation();remove(slot)});
+});
+$('search').addEventListener('input',e=>renderItems(e.target.value));
+$('craft').addEventListener('click',()=>{
+  if(Object.keys(placed).length!==8||crafting)return;
+  crafting=true;$('craft').disabled=true;$('progressText').textContent='Fabricando item...';
+  let value=0;$('progressBar').style.width='0%';$('progressPct').textContent='0%';
+  const timer=setInterval(()=>{
+    value+=2;$('progressBar').style.width=value+'%';$('progressPct').textContent=value+'%';
+    if(value>=100){
+      clearInterval(timer);crafting=false;$('progressText').textContent='Item fabricado com sucesso';
+      $('craft').textContent='Fabricado';$('craft').disabled=true;
+      const q=document.createElement('div');q.className='queue-item';
+      q.innerHTML='<strong>Pistola Compacta</strong><span>Concluído agora</span><div class="mini-progress"><div style="width:100%"></div></div>';
+      $('queue').prepend(q);toast('Pistola Compacta criada.');
+    }
+  },50);
+});
+$('close').addEventListener('click',()=>document.querySelector('.window').style.display='none');
+renderItems();updateProgress();
+</script>
+</body>
+</html>

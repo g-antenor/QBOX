@@ -67,6 +67,35 @@ local function toPercent(value, fallback)
     return math.floor(math.max(0, math.min(1000, value)) / 10 + 0.5)
 end
 
+--- O ox_core guarda as propriedades dentro de `data.properties`. Versoes
+--- antigas da base gravavam a tabela diretamente, portanto aceitamos os dois
+--- formatos durante a migracao.
+---@param raw string?
+---@return table
+local function decodeProperties(raw)
+    local ok, data = pcall(json.decode, raw or '{}')
+    if not ok or type(data) ~= 'table' then return {} end
+
+    return type(data.properties) == 'table' and data.properties or data
+end
+
+--- Parte das propriedades que representa avaria. Ela fica num state bag
+--- persistente para ser reaplicada sempre que a entidade voltar ao streaming
+--- de um cliente; o state bag temporario do ox_lib e limpo no primeiro apply.
+---@param properties table
+---@return table
+local function damageSnapshot(properties)
+    return {
+        bodyHealth = properties.bodyHealth,
+        engineHealth = properties.engineHealth,
+        tankHealth = properties.tankHealth,
+        dirtLevel = properties.dirtLevel,
+        windows = properties.windows or {},
+        doors = properties.doors or {},
+        tyres = properties.tyres or {}
+    }
+end
+
 -- --------------------------------------------------------- garagem mais --
 --                                                            proxima      --
 
@@ -144,10 +173,19 @@ end
 ---@param spawned table<string, table>
 ---@return table
 local function buildEntry(row, spawned)
-    local ok, data = pcall(json.decode, row.data or '{}')
-    if not ok or type(data) ~= 'table' then data = {} end
+    local properties = decodeProperties(row.data)
 
     local live = spawned[row.vin]
+    local mechanical
+    if GetResourceState('nv_mechanic') == 'started' then
+        mechanical = exports.nv_mechanic:GetSnapshot(row.vin)
+    end
+    local tyreMetric = 100
+    if mechanical and type(mechanical.tyres) == 'table' then
+        local total = 0
+        for i = 1, 4 do total = total + (tonumber(mechanical.tyres[i]) or 100) end
+        tyreMetric = math.floor(total / 4 + 0.5)
+    end
 
     -- `stored` NULL significa "fora da garagem". O ox_core usa a string
     -- 'impound' para o patio.
@@ -176,9 +214,10 @@ local function buildEntry(row, spawned)
         garage  = row.stored,
         garageLabel = storedGarage and storedGarage.label or (row.stored or nil),
         -- Veiculo na rua tem estado ao vivo; guardado mostra o ultimo salvo.
-        fuel    = live and live.fuel or math.floor((data.fuelLevel or 100) + 0.5),
-        engine  = live and live.engine or toPercent(data.engineHealth, 100),
-        body    = live and live.body or toPercent(data.bodyHealth, 100)
+        fuel    = live and live.fuel or math.floor((properties.fuelLevel or 100) + 0.5),
+        engine  = live and live.engine or toPercent(properties.engineHealth, 100),
+        body    = live and live.body or toPercent(properties.bodyHealth, 100),
+        tyres   = live and live.tyres or tyreMetric
     }
 end
 
@@ -197,7 +236,14 @@ local function liveState(charId)
             result[vehicle.vin] = {
                 fuel   = math.floor((Entity(entity).state.fuel or 100) + 0.5),
                 engine = toPercent(GetVehicleEngineHealth(entity), 100),
-                body   = toPercent(GetVehicleBodyHealth(entity), 100)
+                body   = toPercent(GetVehicleBodyHealth(entity), 100),
+                tyres  = (function()
+                    local mechanical = Entity(entity).state.nvMechanical
+                    if not mechanical or type(mechanical.tyres) ~= 'table' then return 100 end
+                    local total = 0
+                    for tyre = 1, 4 do total = total + (tonumber(mechanical.tyres[tyre]) or 100) end
+                    return math.floor(total / 4 + 0.5)
+                end)()
             }
         end
     end
@@ -290,7 +336,7 @@ lib.callback.register('nv_garage:takeOut', function(source, garageName, dbId, sp
     end
 
     local row = MySQL.single.await(
-        'SELECT `id`, `vin`, `plate`, `model`, `owner`, `stored` FROM `vehicles` WHERE `id` = ?',
+        'SELECT `id`, `vin`, `plate`, `model`, `owner`, `stored`, `data` FROM `vehicles` WHERE `id` = ?',
         { dbId }
     )
 
@@ -368,6 +414,18 @@ lib.callback.register('nv_garage:takeOut', function(source, garageName, dbId, sp
     state:set('nvEngine', false, true)  -- sempre desligado; ligar e com a chave
     state:set('nvHotwired', false, true)
 
+    -- Diferente de ox_lib:setVehicleProperties, este valor nao e apagado
+    -- depois da primeira aplicacao. Isso impede portas, vidros e pneus de
+    -- voltarem inteiros quando o jogador sai da area e retorna.
+    state:set('nvGarageDamage', damageSnapshot(decodeProperties(row.data)), true)
+
+    -- Desgaste que nao existe nas propriedades nativas (terra, durabilidade
+    -- individual e risco de incendio) volta junto com o mesmo VIN. O cliente
+    -- aplica pneus/avaria assim que recebe o state bag.
+    if GetResourceState('nv_mechanic') == 'started' then
+        exports.nv_mechanic:ApplyToEntity(row.vin, entity)
+    end
+
     -- O dono recebe a chave. `giveKey` nao duplica se ele ja tiver uma.
     Server.giveKey(source, row.plate, displayName(row.model))
     Server.markOut(row.vin)
@@ -377,7 +435,7 @@ end)
 
 -- -------------------------------------------------------------- guardar --
 
-lib.callback.register('nv_garage:store', function(source, garageName, netId, properties)
+lib.callback.register('nv_garage:store', function(source, garageName, netId, properties, mechanical)
     local garage = Config.Garages[garageName]
     if not garage then return false, 'Garagem invalida.' end
 
@@ -435,6 +493,13 @@ lib.callback.register('nv_garage:store', function(source, garageName, netId, pro
     -- caminho e comparar contra o ultimo estado salvo, nao confiar mais.
     if type(properties) == 'table' then
         vehicle.setProperties(properties)
+        Entity(resolved.entity).state:set('nvGarageDamage', damageSnapshot(properties), true)
+    end
+
+    -- Salva no mesmo fluxo e antes do despawn: nao ha janela em que o estado
+    -- visual seja guardado e o desgaste avancado se perca.
+    if resolved.vin and type(mechanical) == 'table' and GetResourceState('nv_mechanic') == 'started' then
+        exports.nv_mechanic:SaveSnapshot(resolved.vin, mechanical)
     end
 
     -- Guarda a vaga exata antes de despawnar: depois a entidade nao existe

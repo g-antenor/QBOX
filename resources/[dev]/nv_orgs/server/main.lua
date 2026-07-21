@@ -168,6 +168,13 @@ CreateThread(function()
         )
     ]])
 
+    pcall(MySQL.query.await, [[CREATE TABLE IF NOT EXISTS `nv_org_vehicle_state` (
+        `vin` CHAR(17) NOT NULL, `group` VARCHAR(20) NOT NULL,
+        `taken_by` INT UNSIGNED NULL, `taken_at` DATETIME NULL,
+        `returned_by` INT UNSIGNED NULL, `returned_at` DATETIME NULL,
+        PRIMARY KEY (`vin`), KEY `nv_org_vehicle_state_group` (`group`)
+    )]])
+
     -- Vestiario: pontos e roupas.
     --
     -- `model` na roupa nao e detalhe: componente 4 de um corpo masculino nao
@@ -209,6 +216,12 @@ CreateThread(function()
             PRIMARY KEY (`group`)
         )
     ]])
+
+    -- Instalacoes anteriores usavam o ingles `mechanic`, mas o MDT sempre
+    -- identificou o departamento como `mecanica`. Unifica sem exigir que o
+    -- administrador recrie sets, membros, conta ou recursos da organizacao.
+    pcall(MySQL.update.await,
+        "UPDATE `nv_org_subtype` SET `subtype` = 'mecanica' WHERE `subtype` = 'mechanic'")
 
     Orgs.syncPermissions()
 end)

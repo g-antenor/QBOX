@@ -623,3 +623,28 @@ function Orgs.refreshStashAccess(set)
 
     Orgs.syncStashes()
 end
+
+local function ensureCraftTable()
+    MySQL.query.await([[CREATE TABLE IF NOT EXISTS `nv_crafting_projects` (`orgSet` VARCHAR(20) NOT NULL,`label` VARCHAR(80) NOT NULL,
+        `x` DOUBLE NOT NULL,`y` DOUBLE NOT NULL,`z` DOUBLE NOT NULL,`heading` FLOAT NOT NULL DEFAULT 0,
+        `prop` TINYINT(1) NOT NULL DEFAULT 0,`propModel` VARCHAR(80) NULL,PRIMARY KEY (`orgSet`))]])
+end
+
+lib.callback.register('nv_orgs:craftProject',function(source,set)
+    if not Orgs.isAdmin(source) or Orgs.getSubtype(set)~='mecanica' then return end
+    ensureCraftTable();return MySQL.single.await('SELECT `orgSet` AS `set`,`label`,`x`,`y`,`z`,`heading`,`prop`,`propModel` FROM `nv_crafting_projects` WHERE `orgSet`=?',{set})
+end)
+
+lib.callback.register('nv_orgs:saveCraftProject',function(source,set,data)
+    if not Orgs.isAdmin(source) or Orgs.getSubtype(set)~='mecanica' then return false,'Disponivel apenas para mecanicas.' end
+    if type(data)~='table' or not tonumber(data.x) then return false,'Posicao invalida.' end
+    ensureCraftTable();MySQL.prepare.await([[INSERT INTO `nv_crafting_projects` (`orgSet`,`label`,`x`,`y`,`z`,`heading`,`prop`,`propModel`)
+        VALUES (?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE `label`=VALUES(`label`),`x`=VALUES(`x`),`y`=VALUES(`y`),`z`=VALUES(`z`),
+        `heading`=VALUES(`heading`),`prop`=VALUES(`prop`),`propModel`=VALUES(`propModel`)]],{set,tostring(data.label or 'Bancada da oficina'):sub(1,80),data.x,data.y,data.z,data.heading or 0,data.prop and 1 or 0,'prop_tool_box_04'})
+    TriggerEvent('nv_crafting:reloadProjects');return true
+end)
+
+lib.callback.register('nv_orgs:deleteCraftProject',function(source,set)
+    if not Orgs.isAdmin(source) or Orgs.getSubtype(set)~='mecanica' then return false,'Sem permissao.' end
+    ensureCraftTable();MySQL.update.await('DELETE FROM `nv_crafting_projects` WHERE `orgSet`=?',{set});TriggerEvent('nv_crafting:reloadProjects');return true
+end)

@@ -389,10 +389,13 @@ lib.callback.register('nv_orgs:delete', function(source, set)
         -- bau ser reregistrado no proximo boot apontando para um grupo que nao
         -- existe mais.
         MySQL.query.await('DELETE FROM `nv_org_stashes` WHERE `group` = ?', { set })
+        pcall(MySQL.query.await, 'DELETE FROM `nv_crafting_projects` WHERE `orgSet` = ?', { set })
+        MySQL.query.await('DELETE FROM `nv_org_vehicle_state` WHERE `group` = ?', { set })
         MySQL.query.await('DELETE FROM `nv_org_subtype` WHERE `group` = ?', { set })
     end
 
     if Orgs.syncStashes then Orgs.syncStashes() end
+    TriggerEvent('nv_crafting:reloadProjects')
 
     return true
 end)

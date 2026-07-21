@@ -1936,6 +1936,7 @@ async function hospitalHistorico(stage) {
 
 const MECHANIC_NAV = [
   { id: 'dashboard', label: 'Dashboard' },
+  { id: 'crafting', label: 'Crafting', icon: 'wrench' },
   { id: 'veiculos', label: 'Ordem de serviço' },
   { id: 'historico', label: 'Histórico' },
   { id: 'comandos', label: 'Efetivo' }
@@ -1997,6 +1998,7 @@ async function mechanicVeiculos(stage) {
 
     const notes = textarea('Descreva o serviço realizado...');
     const billed = input(v.owner || 'Nome de quem paga');
+    billed.readOnly = true;
     const tow = make('input');
 
     tow.type = 'checkbox';
@@ -2006,7 +2008,7 @@ async function mechanicVeiculos(stage) {
     towRow.append(tow, make('span', null, `Teve reboque? (+${money(cfg.towFee)})`));
 
     const extras = section();
-    extras.append(field('Descrição', notes), field('Cobrar de', billed), towRow);
+    extras.append(field('Descrição', notes), field('Proprietário cobrado', billed), towRow);
     area.appendChild(extras);
 
     const receipt = make('div', 'receipt');
@@ -2057,12 +2059,11 @@ async function mechanicVeiculos(stage) {
     const submit = make('button', 'btn primary', 'Fechar ordem de serviço');
 
     submit.addEventListener('click', async () => {
-      const result = await action('nv_mdt:mechanic:repair', 'Ordem registrada.', {
+      const result = await action('nv_mdt:mechanic:repair', 'Ordem registrada e cobrada.', {
         plate: v.plate,
         model: v.model,
         parts: Array.from(parts),
         notes: notes.value.trim(),
-        billedTo: billed.value.trim() || v.owner,
         tow: tow.checked
       });
 
@@ -2086,6 +2087,55 @@ async function mechanicVeiculos(stage) {
       area.appendChild(hist);
     }
   });
+}
+
+async function mechanicOrders(stage) {
+  stage.appendChild(make('div', 'page-title', 'Ordens de servico'));
+  const area=make('div'), searchBox=section('Buscar qualquer veiculo pela placa'), searchRow=make('div','row-inline');
+  const plate=input('Digite a placa...'),searchBtn=make('button','btn','Buscar');searchRow.append(plate,searchBtn);searchBox.appendChild(searchRow);stage.append(searchBox,area);
+  const statusLabel={draft:'Aguardando inicio',in_progress:'Em andamento',ready:'Pronta para concluir',awaiting_payment:'Fatura pendente',completed:'Concluida',cancelled:'Cancelada'};
+
+  async function showOrder(order) {
+    if(!order)return;state.ctx.mechanicOrder=order;area.replaceChildren();
+    area.appendChild(card(`#${order.id} - ${order.plate}`,`${order.model} · ${statusLabel[order.status]||order.status}`,ICONS.car));
+    const parts=section('Diagnostico e materiais para deixar o veiculo 100%'),list=make('div','record-list');
+    Object.entries(order.requirements||{}).forEach(([key,r])=>{const done=order.completedParts?.[key];const row=record(r.label,`${Math.round(Number(r.percent)||0)}% · ${r.amount}x ${r.item}`,done?'OK':(r.missing?`Falta ${r.label}`:'Pendente'),!done);if(done)row.item.classList.add('success');list.appendChild(row.item)});
+    if(!list.childElementCount)list.appendChild(make('div','empty-note','Nenhum reparo necessario.'));parts.appendChild(list);area.appendChild(parts);
+    const controls=section('Acoes'),buttons=make('div','btn-row');
+    if(order.status==='draft') { const start=make('button','btn primary','Iniciar servico');start.onclick=async()=>{const out=await action('nv_mdt:mechanic:startOrder','Servico iniciado.',order.id);if(out?.ok)showOrder(await call('nv_mdt:mechanic:order',order.id))};buttons.appendChild(start); }
+    if(['draft','in_progress','ready'].includes(order.status)) {
+      const cancel=make('button','btn danger','Cancelar ordem');
+      cancel.onclick=async()=>{
+        if(cancel.disabled)return;
+        cancel.disabled=true;
+        const out=await action('nv_mdt:mechanic:cancelOrder',
+          'Ordem cancelada e mantida no historico.',order.id,'Cancelada pelo mecanico');
+        if(out?.ok){
+          order.status='cancelled';
+          state.ctx.mechanicOrder=null;
+          await loadOrders();
+          return;
+        }
+        cancel.disabled=false;
+      };
+      buttons.appendChild(cancel);
+    }
+    const repairedEntries=Object.entries(order.requirements||{}).filter(([key])=>order.completedParts?.[key]);
+    const repairedTotal=repairedEntries.reduce((sum,[,part])=>sum+(Number(part.value)||0),0);
+    if((order.status==='ready'||order.status==='in_progress')&&repairedEntries.length>0) {
+      const payment=make('select','field-input');[['cash','Dinheiro'],['invoice','Fatura com juros']].forEach(([v,l])=>{const o=make('option',null,l);o.value=v;payment.appendChild(o)});
+      const customer=input('Buscar cliente por ID ou nome...'),customerList=make('div','record-list');let selected=null;
+      const customerSearch=make('button','btn','Buscar cliente');customerSearch.onclick=async()=>{const people=await call('nv_mdt:mechanic:searchCustomer',customer.value);customerList.replaceChildren();(people||[]).forEach(p=>{const b=make('button','btn',`#${p.charId} - ${p.fullName}`);b.onclick=()=>{selected=p;customer.value=`#${p.charId} - ${p.fullName}`;customerList.replaceChildren()};customerList.appendChild(b)})};
+      const invoiceFields=make('div');invoiceFields.append(field('Cliente da fatura',customer),customerSearch,customerList);invoiceFields.classList.toggle('hidden',payment.value!=='invoice');payment.onchange=()=>invoiceFields.classList.toggle('hidden',payment.value!=='invoice');
+      const finish=make('button','btn primary',`Concluir - ${money(repairedTotal)}`);finish.onclick=async()=>{const out=await action('nv_mdt:mechanic:completeOrder',payment.value==='invoice'?'Fatura criada; juros serao calculados ate o pagamento.':'Ordem concluida.',{id:order.id,payment:payment.value,customerCharId:selected?.charId});if(out?.ok){state.ctx.mechanicOrder=null;loadOrders()}};
+      controls.append(field('Forma de pagamento',payment),invoiceFields);buttons.appendChild(finish);
+    }
+    controls.appendChild(buttons);area.appendChild(controls);
+  }
+
+  async function loadOrders(){area.replaceChildren();const rows=await call('nv_mdt:mechanic:orders')||[],box=make('div','record-list');rows.forEach(r=>{const item=record(`#${r.id} - ${r.plate}`,`${statusLabel[r.status]||r.status} · ${r.createdLabel}`,`${r.mechanic} · ${money(r.total)}${r.cancelReason?' · '+r.cancelReason:''}`,r.status==='cancelled').item;item.onclick=async()=>showOrder(await call('nv_mdt:mechanic:order',r.id));box.appendChild(item)});if(!rows.length)box.appendChild(make('div','empty-note','Nenhuma ordem registrada.'));area.appendChild(box)}
+  searchBtn.onclick=async()=>{const rows=await call('nv_mdt:mechanic:searchVehicles',plate.value.trim())||[];area.replaceChildren();const box=make('div','record-list');rows.forEach(v=>box.appendChild(record(v.plate,`${v.model||'?'} · ${v.owner||'sem proprietario cadastrado'}`,v.online?'Veiculo localizado no mundo. Use a caixa de ferramentas para inspecionar.':'Veiculo cadastrado, mas fora do mundo.').item));if(!rows.length)box.appendChild(make('div','empty-note','Veiculo nao encontrado.'));area.appendChild(box)};
+  if(state.ctx.mechanicOrder)showOrder(state.ctx.mechanicOrder);else loadOrders();
 }
 
 async function mechanicHistorico(stage) {
@@ -2118,6 +2168,30 @@ async function mechanicHistorico(stage) {
 
   draw();
   stage.appendChild(box);
+}
+
+async function mechanicCrafting(stage) {
+  stage.appendChild(make('div', 'page-title', 'Configurar crafting'));
+  const data = await call('nv_mdt:mechanic:craftData');
+  if (!data) return stage.appendChild(make('div', 'empty-note', 'Seu cargo nao possui permissao de crafting.'));
+  if (!data.projects?.length) return stage.appendChild(make('div', 'empty-note', 'Nenhum ponto privado do nv_crafting esta vinculado ao set desta oficina.'));
+  const itemMap = new Map(data.items.map(i => [i.name, i]));
+  const labelMap = new Map(data.items.map(i => [i.label.toLowerCase(), i]));
+  const wrap = make('div', 'craft-admin-grid'), list = section('Receitas da oficina'), form = section('Nova receita');
+  const recipeList = make('div', 'craft-recipe-list'); list.appendChild(recipeList); wrap.append(list, form); stage.appendChild(wrap);
+  let editing = null, ingredients = {}, tools = {};
+  const project = make('select', 'field-input');
+  data.projects.forEach(p => { const o=make('option',null,p.label);o.value=p.id;project.appendChild(o); });
+  const result=input('Busque pelo nome do item...'),resultOptions=make('datalist'),resultListId='craft-results-'+Math.random().toString(36).slice(2),label=input('Nome exibido'), description=input('Descricao');resultOptions.id=resultListId;result.setAttribute('list',resultListId);data.items.forEach(i=>{const o=make('option');o.value=i.label;o.label=i.name;resultOptions.appendChild(o)});
+  const count=input('',1), duration=input('',3000); count.type=duration.type='number';count.min='1';count.max='100';duration.min='500';
+  const resolveItem=value=>{const raw=String(value||'').trim();return itemMap.get(raw)||labelMap.get(raw.toLowerCase())};
+  function picker(title,placeholder,callback){const box=make('div','craft-picker'),search=input(placeholder),dl=make('datalist'),id='craft-items-'+Math.random().toString(36).slice(2),add=make('button','btn small','Adicionar');dl.id=id;search.setAttribute('list',id);data.items.forEach(i=>{const o=make('option');o.value=i.label;o.label=i.name;dl.appendChild(o)});add.onclick=()=>{const item=resolveItem(search.value);if(!item)return;callback(item);search.value=''};box.append(field(title,search),dl,add);return box}
+  const ingredientRows=make('div','craft-selected-list'),toolRows=make('div','craft-selected-list');
+  function drawSelected(){ingredientRows.replaceChildren();Object.entries(ingredients).forEach(([name,qty])=>{const row=make('div','craft-selected'),n=input('',qty),del=make('button','btn small','Remover');n.type='number';n.min='1';n.onchange=()=>ingredients[name]=Math.max(1,Number(n.value)||1);del.onclick=()=>{delete ingredients[name];drawSelected()};row.append(make('span',null,itemMap.get(name)?.label||name),n,del);ingredientRows.appendChild(row)});toolRows.replaceChildren();Object.entries(tools).forEach(([name,wear])=>{const row=make('div','craft-selected'),n=input('',wear),del=make('button','btn small','Remover'),item=itemMap.get(name);n.type='number';n.min='.1';n.max='100';n.step='.1';n.onchange=()=>tools[name]=Math.max(.1,Number(n.value)||1);del.onclick=()=>{delete tools[name];drawSelected()};row.append(make('span',null,`${item?.label||name} (${item?.durability?'desgasta %':'consome'})`),n,del);toolRows.appendChild(row)})}
+  function resetForm(recipe){editing=recipe?.id||null;ingredients={...(recipe?.ingredients||{})};tools={...(recipe?.tools||{})};project.value=recipe?.projectId||data.projects[0].id;result.value=recipe?.item||'';label.value=recipe?.label||'';description.value=recipe?.description||'';count.value=recipe?.count||1;duration.value=recipe?.duration||3000;drawSelected()}
+  function drawRecipes(){recipeList.replaceChildren();if(!data.recipes.length)recipeList.appendChild(make('div','empty-note','Nenhuma receita cadastrada.'));data.recipes.forEach(r=>{const row=make('div','craft-recipe-row'),text=make('div'),edit=make('button','btn small','Editar'),del=make('button','btn small danger','Excluir');text.append(make('strong',null,r.label),make('small',null,`${itemMap.get(r.item)?.label||r.item} · ${Object.keys(r.ingredients||{}).length} materiais`));edit.onclick=()=>resetForm(r);del.onclick=async()=>{const out=await action('nv_mdt:mechanic:deleteCraft','Receita excluida.',r.id);if(out?.ok){data.recipes=data.recipes.filter(x=>x.id!==r.id);drawRecipes();resetForm()}};row.append(text,edit,del);recipeList.appendChild(row)})}
+  form.append(field('Ponto de crafting',project),field('Item produzido',result),resultOptions,field('Nome da receita',label),field('Descricao',description));const numeric=make('div','row-inline');numeric.append(field('Quantidade produzida',count),field('Duracao (ms)',duration));form.appendChild(numeric);form.append(picker('Materiais consumidos','Buscar item para adicionar...',i=>{ingredients[i.name]=ingredients[i.name]||1;drawSelected()}),ingredientRows);form.append(picker('Ferramentas','Buscar martelo, alicate, chave...',i=>{tools[i.name]=tools[i.name]||5;drawSelected()}),toolRows);
+  const actions=make('div','btn-row'),fresh=make('button','btn','Limpar'),save=make('button','btn primary','Salvar receita');fresh.onclick=()=>resetForm();save.onclick=async()=>{const item=resolveItem(result.value);if(!item)return;const payload={id:editing,projectId:project.value,item:item.name,label:label.value.trim()||item.label,description:description.value.trim(),count:Number(count.value),duration:Number(duration.value),ingredients,tools};const out=await action('nv_mdt:mechanic:saveCraft','Receita salva.',payload);if(out?.ok){const next=await call('nv_mdt:mechanic:craftData');data.recipes=next.recipes;drawRecipes();resetForm()}};actions.append(fresh,save);form.appendChild(actions);drawRecipes();resetForm();
 }
 
 // ========================================================== compartilhado ===
@@ -2331,7 +2405,8 @@ const ROUTES = {
     nav: MECHANIC_NAV,
     pages: {
       dashboard: mechanicDashboard,
-      veiculos: mechanicVeiculos,
+      crafting: mechanicCrafting,
+      veiculos: mechanicOrders,
       historico: mechanicHistorico,
       comandos: (stage) => renderStaff(stage, 'mecanica')
     }
@@ -2444,6 +2519,12 @@ window.addEventListener('message', (event) => {
   if (data.action === 'close') {
     dom.root.classList.add('hidden');
     return;
+  }
+
+  if (data.action === 'mechanicOrder') {
+    const tab=state.tabs.find(t=>t.id==='mecanica');if(!tab)return;
+    if(state.dept?.id!=='mecanica'){selectDept(tab);}
+    state.ctx.mechanicOrder=data.order;go('veiculos');return;
   }
 
   if (data.action !== 'open') return;

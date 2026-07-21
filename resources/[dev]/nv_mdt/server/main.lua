@@ -209,7 +209,9 @@ CreateThread(function()
         'ALTER TABLE `nv_mdt_wanted` ADD COLUMN `type` VARCHAR(40) NULL',
         'ALTER TABLE `nv_mdt_wanted` ADD COLUMN `evidence` TEXT NULL',
         'ALTER TABLE `nv_mdt_reports` ADD COLUMN `phone` VARCHAR(20) NULL',
-        'ALTER TABLE `nv_mdt_reports` ADD COLUMN `involved` TEXT NULL'
+        'ALTER TABLE `nv_mdt_reports` ADD COLUMN `involved` TEXT NULL',
+        'ALTER TABLE `nv_mdt_repairs` ADD COLUMN `orgSet` VARCHAR(20) NULL',
+        'ALTER TABLE `nv_mdt_repairs` ADD COLUMN `billedCharId` INT UNSIGNED NULL'
     }
 
     for i = 1, #additions do

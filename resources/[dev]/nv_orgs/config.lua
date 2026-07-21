@@ -7,6 +7,9 @@ Config = {}
 -- Comando que abre o painel.
 Config.Command = 'orgs'
 
+-- Preco aplicado a qualquer modelo do catalogo que nao possua valor valido.
+Config.VehicleBasePrice = 1000
+
 -- Quem e admin. Mesmo criterio ja usado pelo nv_adminmenu, para nao existirem
 -- duas nocoes de "admin" no servidor.
 Config.Admin = {
@@ -48,7 +51,9 @@ Config.Subtypes = {
     },
     job = {
         { value = 'restaurant', label = 'Restaurante' },
-        { value = 'mechanic', label = 'Mecanica' },
+        -- O valor e compartilhado com nv_mdt e nv_mechanic. Nao alterar sem
+        -- migrar nv_org_subtype: ele e o contrato entre os tres resources.
+        { value = 'mecanica', label = 'Mecanica' },
         { value = 'custom', label = 'Custom' }
     },
     gang = {
@@ -87,9 +92,11 @@ Config.Actions = {
     { value = 'hire',      label = 'Contratar e demitir' },
     { value = 'contacts',  label = 'Acesso a contatos' },
     { value = 'bank',      label = 'Movimentar conta da organizacao' },
+    { value = 'craft',     label = 'Usar bancada de crafting' },
 
     -- ----------------------------------------- estatais e empregos --
     { value = 'vehicles',  label = 'Retirar veiculos da frota', styles = { 'state', 'job' } },
+    { value = 'buyVehicles', label = 'Comprar veiculos para a organizacao', styles = { 'state', 'job' } },
     { value = 'wardrobe',  label = 'Usar o vestiario',          styles = { 'state', 'job' } },
     { value = 'invoices',  label = 'Emitir cobrancas',          styles = { 'state', 'job' } },
 

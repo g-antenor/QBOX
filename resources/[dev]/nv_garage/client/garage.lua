@@ -4,6 +4,7 @@
 
 local menuOpen = false
 local currentGarage
+local currentOrganization
 
 -- ------------------------------------------------------------- blips --
 
@@ -70,11 +71,26 @@ local function openMenu(garageName)
     })
 end
 
+local function openOrganizationMenu(set)
+    if menuOpen or Garage.busy then return end
+    local data=lib.callback.await('nv_orgs:fleetFor',false,set)
+    if not data then return Garage.notify('Voce nao tem acesso a esta garagem.','error') end
+    menuOpen=true
+    currentGarage=nil
+    currentOrganization=set
+    SetNuiFocus(true,true)
+    SendNUIMessage({action='open',label=data.org or set,list=data.owned or {},bars=Config.Bars,impound=false,strict=false,organization=true})
+end
+
+RegisterNetEvent('nv_garage:openOrganization',openOrganizationMenu)
+exports('OpenOrganization',openOrganizationMenu)
+
 local function closeMenu()
     if not menuOpen then return end
 
     menuOpen = false
     currentGarage = nil
+    currentOrganization = nil
 
     SetNuiFocus(false, false)
     SendNUIMessage({ action = 'close' })
@@ -131,6 +147,14 @@ end)
 RegisterNUICallback('takeOut', function(data, cb)
     local garageName = currentGarage
 
+    if currentOrganization then
+        local ok,err=lib.callback.await('nv_orgs:takeFleetVehicle',false,currentOrganization,data and data.id)
+        if not ok then Garage.notify(err or 'Nao foi possivel liberar o veiculo.','error'); return cb({ok=false,error=err}) end
+        closeMenu()
+        Garage.notify('Veiculo liberado. A chave esta com voce.','success')
+        return cb({ok=true})
+    end
+
     if not garageName or type(data) ~= 'table' or type(data.id) ~= 'number' then
         return cb({ ok = false })
     end
@@ -153,6 +177,18 @@ end)
 
 RegisterNUICallback('store', function(data, cb)
     local garageName = currentGarage
+
+    if currentOrganization then
+        if type(data)~='table' or type(data.plate)~='string' then return cb({ok=false}) end
+        local nearby=lib.getNearbyVehicles(GetEntityCoords(cache.ped),12.0,true)
+        local target
+        for i=1,#nearby do if Garage.plateOf(nearby[i].vehicle)==data.plate then target=nearby[i].vehicle break end end
+        if not target then Garage.notify('Traga o veiculo ate a garagem para guarda-lo.','error'); return cb({ok=false}) end
+        local mechanical=GetResourceState('nv_mechanic')=='started' and exports.nv_mechanic:GetSnapshot(target) or nil
+        local ok,err=lib.callback.await('nv_orgs:storeFleetVehicle',false,currentOrganization,VehToNet(target),lib.getVehicleProperties(target),mechanical)
+        if not ok then Garage.notify(err or 'Nao foi possivel guardar.','error'); return cb({ok=false,error=err}) end
+        closeMenu(); Garage.notify('Veiculo guardado.','success'); return cb({ok=true})
+    end
 
     if not garageName or type(data) ~= 'table' or type(data.plate) ~= 'string' then
         return cb({ ok = false })
@@ -189,8 +225,10 @@ RegisterNUICallback('store', function(data, cb)
     if not leaveVehicle(target) then return cb({ ok = false }) end
     if not DoesEntityExist(target) then return cb({ ok = false }) end
 
+    local mechanical = GetResourceState('nv_mechanic') == 'started'
+        and exports.nv_mechanic:GetSnapshot(target) or nil
     local ok, err = lib.callback.await('nv_garage:store', false, garageName,
-        netId, lib.getVehicleProperties(target))
+        netId, lib.getVehicleProperties(target), mechanical)
 
     if not ok then
         Garage.notify(err or 'Nao foi possivel guardar.', 'error')
@@ -236,8 +274,10 @@ local function storeHere(garageName)
 
     -- `getVehicleProperties` so existe no cliente: e daqui que sai o estado do
     -- carro (portas arrancadas, vidros, pneus, mods) para o servidor salvar.
+    local mechanical = GetResourceState('nv_mechanic') == 'started'
+        and exports.nv_mechanic:GetSnapshot(vehicle) or nil
     local ok, err = lib.callback.await('nv_garage:store', false, garageName,
-        netId, lib.getVehicleProperties(vehicle))
+        netId, lib.getVehicleProperties(vehicle), mechanical)
 
     if not ok then
         return Garage.notify(err or 'Nao foi possivel guardar.', 'error')

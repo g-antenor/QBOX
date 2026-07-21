@@ -7,6 +7,69 @@
 
 Garage = {}
 
+-- Reaplica avarias sempre que um veiculo persistente entra no streaming.
+-- O ox_lib aplica as propriedades completas no spawn, mas remove o state bag
+-- em seguida; danos visuais nativos podem se perder quando a entidade deixa de
+-- existir localmente. Este snapshot permanece replicado durante toda a vida da
+-- entidade e cobre exatamente a parte destrutiva das propriedades.
+AddStateBagChangeHandler('nvGarageDamage', nil, function(bagName, _, damage)
+    if type(damage) ~= 'table' or not GetEntityFromStateBagName then return end
+
+    CreateThread(function()
+        local vehicle
+        local deadline = GetGameTimer() + 10000
+
+        repeat
+            vehicle = GetEntityFromStateBagName(bagName)
+            if vehicle and vehicle ~= 0 and DoesEntityExist(vehicle) then break end
+            Wait(100)
+        until GetGameTimer() >= deadline
+
+        if not vehicle or vehicle == 0 or not DoesEntityExist(vehicle) then return end
+
+        -- Aguarda a aplicacao completa de mods/propriedades do ox_lib para ela
+        -- nao reparar uma avaria que acabamos de restaurar.
+        Wait(500)
+
+        if type(damage.bodyHealth) == 'number' then
+            SetVehicleBodyHealth(vehicle, damage.bodyHealth + 0.0)
+        end
+        if type(damage.engineHealth) == 'number' then
+            SetVehicleEngineHealth(vehicle, damage.engineHealth + 0.0)
+        end
+        if type(damage.tankHealth) == 'number' then
+            SetVehiclePetrolTankHealth(vehicle, damage.tankHealth + 0.0)
+        end
+        if type(damage.dirtLevel) == 'number' then
+            SetVehicleDirtLevel(vehicle, damage.dirtLevel + 0.0)
+        end
+
+        if type(damage.windows) == 'table' then
+            for _, window in pairs(damage.windows) do
+                window = tonumber(window)
+                if window then RemoveVehicleWindow(vehicle, window) end
+            end
+        end
+
+        if type(damage.doors) == 'table' then
+            for _, door in pairs(damage.doors) do
+                door = tonumber(door)
+                if door then SetVehicleDoorBroken(vehicle, door, true) end
+            end
+        end
+
+        if type(damage.tyres) == 'table' then
+            for tyre, state in pairs(damage.tyres) do
+                tyre = tonumber(tyre)
+                state = tonumber(state)
+                if tyre and state then
+                    SetVehicleTyreBurst(vehicle, tyre, state == 2, 1000.0)
+                end
+            end
+        end
+    end)
+end)
+
 -- ------------------------------------------------------- itens do ox_inv --
 
 --- Handlers dos itens usaveis (lockpick, alicate).
