@@ -8,22 +8,27 @@
    ========================================================================== */
 
 :root {
-    --bg:        #0c0c0e;
-    --panel:     #17161a;
-    --panel-2:   #1e1d22;
-    --edge:      #2a2930;
-    --text:      #f2f2f4;
-    --muted:     #8b8a94;
-    --red:       #ff2438;
+    --bg: #0c0c0e;
+    --panel: #17161a;
+    --panel-2: #1e1d22;
+    --edge: #2a2930;
+    --text: #f2f2f4;
+    --muted: #8b8a94;
+    --red: #ff2438;
 
-    --good:      #3ddc84;
-    --warn:      #f5a524;
-    --bad:       #ff4d4f;
+    --good: #3ddc84;
+    --warn: #f5a524;
+    --bad: #ff4d4f;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-html, body {
+html,
+body {
     width: 100%;
     height: 100%;
     overflow: hidden;
@@ -33,7 +38,9 @@ html, body {
     user-select: none;
 }
 
-.hidden { display: none !important; }
+.hidden {
+    display: none !important;
+}
 
 #root {
     position: absolute;
@@ -57,8 +64,15 @@ html, body {
     overflow: hidden;
 }
 
-.panel-list   { width: 420px; max-height: 76vh; }
-.panel-detail { width: 360px; max-height: 76vh; }
+.panel-list {
+    width: 420px;
+    max-height: 76vh;
+}
+
+.panel-detail {
+    width: 360px;
+    max-height: 76vh;
+}
 
 .panel-head {
     display: flex;
@@ -68,7 +82,9 @@ html, body {
     border-bottom: 1px solid var(--edge);
 }
 
-.panel-head.slim { padding: 14px 18px; }
+.panel-head.slim {
+    padding: 14px 18px;
+}
 
 .brand {
     display: grid;
@@ -80,13 +96,37 @@ html, body {
     flex-shrink: 0;
 }
 
-.brand-icon { width: 18px; height: 18px; fill: #fff; }
+.brand-icon {
+    width: 18px;
+    height: 18px;
+    fill: #fff;
+}
 
-.head-text { flex: 1; min-width: 0; }
-.head-text h1 { font-size: 15px; font-weight: 600; letter-spacing: .2px; }
-.head-text p  { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+.head-text {
+    flex: 1;
+    min-width: 0;
+}
 
-.panel-head h2 { flex: 1; font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: .4px; text-transform: uppercase; }
+.head-text h1 {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: .2px;
+}
+
+.head-text p {
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-top: 2px;
+}
+
+.panel-head h2 {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: .4px;
+    text-transform: uppercase;
+}
 
 .close {
     display: grid;
@@ -101,9 +141,20 @@ html, body {
     transition: background .15s, border-color .15s;
 }
 
-.close svg { width: 12px; height: 12px; fill: var(--muted); }
-.close:hover { background: var(--panel-2); border-color: var(--red); }
-.close:hover svg { fill: var(--text); }
+.close svg {
+    width: 12px;
+    height: 12px;
+    fill: var(--muted);
+}
+
+.close:hover {
+    background: var(--panel-2);
+    border-color: var(--red);
+}
+
+.close:hover svg {
+    fill: var(--text);
+}
 
 /* ---------------------------------------------------------------- lista -- */
 
@@ -116,8 +167,14 @@ html, body {
     gap: 10px;
 }
 
-.list::-webkit-scrollbar { width: 6px; }
-.list::-webkit-scrollbar-thumb { background: var(--edge); border-radius: 3px; }
+.list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.list::-webkit-scrollbar-thumb {
+    background: var(--edge);
+    border-radius: 3px;
+}
 
 .empty {
     padding: 28px 20px;
@@ -135,8 +192,14 @@ html, body {
     transition: border-color .15s, background .15s;
 }
 
-.vehicle:hover    { background: var(--panel-2); }
-.vehicle.selected { border-color: var(--red); background: var(--panel-2); }
+.vehicle:hover {
+    background: var(--panel-2);
+}
+
+.vehicle.selected {
+    border-color: var(--red);
+    background: var(--panel-2);
+}
 
 .vehicle-top {
     display: flex;
@@ -145,7 +208,11 @@ html, body {
     margin-bottom: 11px;
 }
 
-.vehicle-title { flex: 1; min-width: 0; }
+.vehicle-title {
+    flex: 1;
+    min-width: 0;
+}
+
 .vehicle-name {
     font-size: 13.5px;
     font-weight: 600;
@@ -153,7 +220,12 @@ html, body {
     overflow: hidden;
     text-overflow: ellipsis;
 }
-.vehicle-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.vehicle-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+}
 
 .tag {
     padding: 3px 8px;
@@ -165,8 +237,15 @@ html, body {
     flex-shrink: 0;
 }
 
-.tag.out     { background: rgba(245, 165, 36, .16); color: var(--warn); }
-.tag.impound { background: rgba(255, 77, 79, .16);  color: var(--bad); }
+.tag.out {
+    background: rgba(245, 165, 36, .16);
+    color: var(--warn);
+}
+
+.tag.impound {
+    background: rgba(255, 77, 79, .16);
+    color: var(--bad);
+}
 
 /* Guardado, mas noutro lugar. Neutra de proposito: nao e um alerta, e uma
    informacao de endereco -- e o nome da garagem pode ser longo, entao ela nao
@@ -200,7 +279,11 @@ html, body {
     margin-bottom: 5px;
 }
 
-.metric-label svg { width: 11px; height: 11px; fill: currentColor; }
+.metric-label svg {
+    width: 11px;
+    height: 11px;
+    fill: currentColor;
+}
 
 .bar {
     height: 4px;
@@ -215,9 +298,17 @@ html, body {
     transition: width .3s ease;
 }
 
-.bar-fill.good { background: var(--good); }
-.bar-fill.warn { background: var(--warn); }
-.bar-fill.bad  { background: var(--bad); }
+.bar-fill.good {
+    background: var(--good);
+}
+
+.bar-fill.warn {
+    background: var(--warn);
+}
+
+.bar-fill.bad {
+    background: var(--bad);
+}
 
 /* ------------------------------------------------------------ detalhes -- */
 
@@ -230,8 +321,14 @@ html, body {
     gap: 12px;
 }
 
-.detail-body::-webkit-scrollbar { width: 6px; }
-.detail-body::-webkit-scrollbar-thumb { background: var(--edge); border-radius: 3px; }
+.detail-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.detail-body::-webkit-scrollbar-thumb {
+    background: var(--edge);
+    border-radius: 3px;
+}
 
 .card {
     padding: 14px;
@@ -250,7 +347,9 @@ html, body {
 }
 
 /* Metricas grandes: rotulo + valor na mesma linha, barra embaixo. */
-.metric-big + .metric-big { margin-top: 13px; }
+.metric-big+.metric-big {
+    margin-top: 13px;
+}
 
 .metric-head {
     display: flex;
@@ -259,11 +358,25 @@ html, body {
     margin-bottom: 6px;
 }
 
-.metric-head svg { width: 14px; height: 14px; fill: var(--muted); }
-.metric-head .name { flex: 1; font-size: 12.5px; }
-.metric-head .value { font-size: 12.5px; font-weight: 700; }
+.metric-head svg {
+    width: 14px;
+    height: 14px;
+    fill: var(--muted);
+}
 
-.metric-big .bar { height: 5px; }
+.metric-head .name {
+    flex: 1;
+    font-size: 12.5px;
+}
+
+.metric-head .value {
+    font-size: 12.5px;
+    font-weight: 700;
+}
+
+.metric-big .bar {
+    height: 5px;
+}
 
 dl .row {
     display: flex;
@@ -273,9 +386,17 @@ dl .row {
     font-size: 12px;
 }
 
-dl .row + .row { border-top: 1px solid var(--edge); }
-dl dt { color: var(--muted); }
-dl dd { font-weight: 600; }
+dl .row+.row {
+    border-top: 1px solid var(--edge);
+}
+
+dl dt {
+    color: var(--muted);
+}
+
+dl dd {
+    font-weight: 600;
+}
 
 .action {
     padding: 12px;
@@ -290,8 +411,14 @@ dl dd { font-weight: 600; }
     transition: filter .15s;
 }
 
-.action:hover:not(:disabled) { filter: brightness(1.12); }
-.action:disabled { opacity: .5; cursor: not-allowed; }
+.action:hover:not(:disabled) {
+    filter: brightness(1.12);
+}
+
+.action:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
 
 .notice {
     padding: 11px 13px;
@@ -318,7 +445,10 @@ dl dd { font-weight: 600; }
     transform: translateY(-50%);
 }
 
-.panel-control { width: 320px; max-height: 80vh; }
+.panel-control {
+    width: 320px;
+    max-height: 80vh;
+}
 
 .control-body {
     flex: 1;
@@ -329,8 +459,14 @@ dl dd { font-weight: 600; }
     gap: 12px;
 }
 
-.control-body::-webkit-scrollbar { width: 6px; }
-.control-body::-webkit-scrollbar-thumb { background: var(--edge); border-radius: 3px; }
+.control-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.control-body::-webkit-scrollbar-thumb {
+    background: var(--edge);
+    border-radius: 3px;
+}
 
 .section-title {
     font-size: 10px;
@@ -359,8 +495,15 @@ dl dd { font-weight: 600; }
     transition: border-color .15s, background .15s;
 }
 
-.lock-toggle:hover:not(:disabled) { background: var(--panel-2); border-color: var(--red); }
-.lock-toggle:disabled { opacity: .5; cursor: not-allowed; }
+.lock-toggle:hover:not(:disabled) {
+    background: var(--panel-2);
+    border-color: var(--red);
+}
+
+.lock-toggle:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
 
 .lock-icon {
     display: grid;
@@ -372,19 +515,47 @@ dl dd { font-weight: 600; }
     transition: background .15s;
 }
 
-.lock-icon svg { width: 19px; height: 19px; transition: fill .15s; }
+.lock-icon svg {
+    width: 19px;
+    height: 19px;
+    transition: fill .15s;
+}
 
 /* Trancado = vermelho cheio; destrancado = verde discreto. A cor carrega o
    estado, para nao depender de ler o texto no meio do transito. */
-.lock-toggle.locked   .lock-icon { background: var(--red); }
-.lock-toggle.locked   .lock-icon svg { fill: #fff; }
-.lock-toggle.unlocked .lock-icon { background: rgba(61, 220, 132, .14); }
-.lock-toggle.unlocked .lock-icon svg { fill: var(--good); }
+.lock-toggle.locked .lock-icon {
+    background: var(--red);
+}
 
-.lock-text { flex: 1; min-width: 0; }
+.lock-toggle.locked .lock-icon svg {
+    fill: #fff;
+}
 
-.lock-state { display: block; font-size: 13.5px; font-weight: 600; }
-.lock-hint  { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
+.lock-toggle.unlocked .lock-icon {
+    background: rgba(61, 220, 132, .14);
+}
+
+.lock-toggle.unlocked .lock-icon svg {
+    fill: var(--good);
+}
+
+.lock-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.lock-state {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 600;
+}
+
+.lock-hint {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+}
 
 /* ------------------------------------------------------- portas -- */
 
@@ -409,22 +580,53 @@ dl dd { font-weight: 600; }
     transition: border-color .15s, background .15s;
 }
 
-.door:hover { background: var(--panel-2); }
+.door:hover {
+    background: var(--panel-2);
+}
 
 /* Aberta e o estado que interessa enxergar de relance. */
-.door.open { border-color: var(--warn); background: rgba(245, 165, 36, .08); }
+.door.open {
+    border-color: var(--warn);
+    background: rgba(245, 165, 36, .08);
+}
 
-.door svg { width: 15px; height: 15px; fill: var(--muted); flex-shrink: 0; transition: fill .15s; }
-.door.open svg { fill: var(--warn); }
+.door svg {
+    width: 15px;
+    height: 15px;
+    fill: var(--muted);
+    flex-shrink: 0;
+    transition: fill .15s;
+}
 
-.door-text { min-width: 0; }
-.door-name  { font-size: 11.5px; font-weight: 600; line-height: 1.25; }
-.door-state { font-size: 10px; color: var(--muted); margin-top: 1px; }
-.door.open .door-state { color: var(--warn); }
+.door.open svg {
+    fill: var(--warn);
+}
+
+.door-text {
+    min-width: 0;
+}
+
+.door-name {
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.door-state {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 1px;
+}
+
+.door.open .door-state {
+    color: var(--warn);
+}
 
 /* Capo e porta-malas ocupam a linha inteira: sao um par, e a grade de duas
    colunas deixava um buraco quando o modelo so tinha um dos dois. */
-.door.wide { grid-column: 1 / -1; }
+.door.wide {
+    grid-column: 1 / -1;
+}
 
 .hint {
     font-size: 10.5px;

@@ -202,6 +202,25 @@ local function buildEntry(row, spawned)
     -- da garagem onde o carro realmente esta -- o painel afirmava com todas as
     -- letras que o carro estava ali, estivesse ele onde estivesse.
     local storedGarage = status == 'stored' and Config.Garages[row.stored] or nil
+    local impoundGarage = status == 'impound' and (Config.Garages['patio'] or Config.Garages[Config.Garage.impoundName] or Config.Impound) or nil
+    local coords = nil
+    if live and live.coords then
+        coords = live.coords
+    elseif storedGarage and storedGarage.ped then
+        coords = { x = storedGarage.ped.x, y = storedGarage.ped.y, z = storedGarage.ped.z }
+    elseif impoundGarage and impoundGarage.ped then
+        coords = { x = impoundGarage.ped.x, y = impoundGarage.ped.y, z = impoundGarage.ped.z }
+    else
+        local parked = Server.getParkedSpot and Server.getParkedSpot(row.vin)
+        if parked then
+            coords = { x = parked.x, y = parked.y, z = parked.z }
+        end
+    end
+
+    local hasBlocker = false
+    if exports.nv_garage and exports.nv_garage.IsVehicleBlocked then
+        hasBlocker = exports.nv_garage:IsVehicleBlocked(row.plate) or (row.id and exports.nv_garage:IsVehicleBlocked(row.id)) or false
+    end
 
     return {
         id      = row.id,
@@ -212,7 +231,9 @@ local function buildEntry(row, spawned)
         class   = classLabel(row.model, row.class),
         status  = status,
         garage  = row.stored,
-        garageLabel = storedGarage and storedGarage.label or (row.stored or nil),
+        garageLabel = storedGarage and storedGarage.label or (row.stored == Config.Garage.impoundName and 'Pátio de Apreensão' or (row.stored or nil)),
+        coords  = coords,
+        hasBlocker = hasBlocker,
         -- Veiculo na rua tem estado ao vivo; guardado mostra o ultimo salvo.
         fuel    = live and live.fuel or math.floor((properties.fuelLevel or 100) + 0.5),
         engine  = live and live.engine or toPercent(properties.engineHealth, 100),
@@ -524,3 +545,47 @@ lib.callback.register('nv_garage:store', function(source, garageName, netId, pro
 
     return true
 end)
+
+--- Retorna a lista completa de veículos do jogador com status, rótulos de garagem e coordenadas para o celular (NPWD).
+---@param source number
+---@return table
+local function getPlayerVehicles(source)
+    local player = Ox.GetPlayer(source)
+    if not player then return {} end
+
+    local rows = MySQL.query.await(
+        'SELECT `id`, `plate`, `vin`, `model`, `class`, `data`, `stored` FROM `vehicles` WHERE `owner` = ? ORDER BY `id`',
+        { player.charId }
+    ) or {}
+
+    -- Cruzar com veículos do ox_core na memória para sincronia instantânea ao guardar/retirar
+    local oxVehicles = (Ox.GetVehicles and Ox.GetVehicles({ owner = player.charId })) or {}
+    local oxByVin = {}
+    for i = 1, #oxVehicles do
+        local ov = oxVehicles[i]
+        if ov and ov.vin then
+            oxByVin[ov.vin] = ov
+        end
+    end
+
+    local spawned = liveState(player.charId)
+    local list = {}
+
+    for i = 1, #rows do
+        local row = rows[i]
+        local ov = oxByVin[row.vin]
+        if ov and ov.stored ~= nil then
+            row.stored = ov.stored
+        end
+        list[#list + 1] = buildEntry(row, spawned)
+    end
+
+    return list
+end
+
+lib.callback.register('nv_garage:getPlayerVehicles', function(source)
+    return getPlayerVehicles(source)
+end)
+
+exports('GetPlayerVehicles', getPlayerVehicles)
+

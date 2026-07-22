@@ -783,31 +783,11 @@
                             <button class="back-btn" onclick="goHome()"><i class="fa-solid fa-chevron-left"></i></button>
                             <span class="app-title">Minha Garagem</span>
                         </div>
-                        <div class="app-action-icon"><i class="fa-solid fa-rotate-right"></i></div>
+                        <div class="app-action-icon" style="cursor: pointer;" onclick="fetchPhoneGarageVehicles()" title="Atualizar"><i class="fa-solid fa-rotate-right"></i></div>
                     </div>
 
-                    <div class="car-card">
-                        <div class="car-header">
-                            <span class="car-name">Pegassi Ignus</span>
-                            <span class="car-plate">NPWD 77</span>
-                        </div>
-                        <div class="car-metrics">
-                            <span class="metric-item"><i class="fa-solid fa-heart-pulse" style="color: var(--npwd-green);"></i> 100% Motor</span>
-                            <span class="metric-item"><i class="fa-solid fa-gas-pump" style="color: var(--npwd-amber);"></i> 78% Comb.</span>
-                        </div>
-                        <button class="btn-track-gps"><i class="fa-solid fa-location-dot"></i> Rastrear Veículo</button>
-                    </div>
-
-                    <div class="car-card">
-                        <div class="car-header">
-                            <span class="car-name">Obey 10F Widebody</span>
-                            <span class="car-plate">LS 9920</span>
-                        </div>
-                        <div class="car-metrics">
-                            <span class="metric-item"><i class="fa-solid fa-heart-pulse" style="color: var(--npwd-green);"></i> 92% Motor</span>
-                            <span class="metric-item"><i class="fa-solid fa-gas-pump" style="color: var(--npwd-amber);"></i> 40% Comb.</span>
-                        </div>
-                        <button class="btn-track-gps"><i class="fa-solid fa-location-dot"></i> Rastrear Veículo</button>
+                    <div id="phone-garage-container" style="padding: 12px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; max-height: calc(100% - 50px);">
+                        <!-- Cards dinâmicos carregados via nv_garage -->
                     </div>
                 </div>
 
@@ -1075,6 +1055,10 @@
 
             let bgId = appId === 'chat-detail' ? 'messages' : appId;
             document.getElementById('phoneScreen').setAttribute('data-app', bgId);
+
+            if (appId === 'garage') {
+                fetchPhoneGarageVehicles();
+            }
         }
 
         function goHome() {
@@ -1083,6 +1067,105 @@
             
             document.getElementById('view-home').classList.add('active');
             document.getElementById('phoneScreen').setAttribute('data-app', 'home');
+        }
+
+        // ====== GARAGEM APP (NV_GARAGE) ====== //
+        function fetchPhoneGarageVehicles() {
+            const container = document.getElementById('phone-garage-container');
+            if (!container) return;
+            container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 30px 10px; font-size: 12px;"><i class="fa-solid fa-spinner fa-spin" style="font-size: 20px; margin-bottom: 8px;"></i><br>Carregando veículos...</div>';
+
+            let resourceName = 'npwd';
+            try { if (typeof GetParentResourceName === 'function') resourceName = GetParentResourceName(); } catch(e) {}
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+            fetch(`https://${resourceName}/getGarageVehicles`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+                body: JSON.stringify({}),
+                signal: controller.signal
+            })
+            .then(res => res.json())
+            .then(data => {
+                clearTimeout(timeoutId);
+                renderPhoneGarageList(Array.isArray(data) ? data : []);
+            })
+            .catch(err => {
+                clearTimeout(timeoutId);
+                container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 40px 10px; font-size: 12px;"><i class="fa-solid fa-car-rear" style="font-size: 28px; margin-bottom: 8px; opacity: .4;"></i><br>Nenhum veículo encontrado.</div>';
+            });
+        }
+
+        function renderPhoneGarageList(vehicles) {
+            const container = document.getElementById('phone-garage-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (!vehicles || vehicles.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 40px 10px; font-size: 12px;"><i class="fa-solid fa-car-rear" style="font-size: 28px; margin-bottom: 8px; opacity: .4;"></i><br>Você não possui veículos registrados.</div>';
+                return;
+            }
+
+            vehicles.forEach(veh => {
+                const card = document.createElement('div');
+                card.className = 'car-card';
+                card.style.background = 'rgba(255, 255, 255, 0.04)';
+                card.style.border = '1px solid rgba(255, 255, 255, 0.08)';
+                card.style.borderRadius = '12px';
+                card.style.padding = '12px';
+                card.style.display = 'flex';
+                card.style.flexDirection = 'column';
+                card.style.gap = '8px';
+
+                // Formata apenas o nome do local (ex.: "Pillbox Hill", "Motel", "San Andreas")
+                const rawLabel = veh.garageLabel || 'Garagem';
+                const cleanLocationName = rawLabel
+                    .replace(/^Estacionamento\s+(do\s+|da\s+|de\s+|dos\s+|das\s+)?/i, '')
+                    .replace(/^Estacionamento\s*/i, '')
+                    .trim() || 'Garagem';
+
+                let statusBadge = '';
+                if (veh.status === 'stored') {
+                    statusBadge = `<span style="font-size: 10px; padding: 2px 7px; border-radius: 6px; background: rgba(61, 220, 132, 0.15); color: #3ddc84; font-weight: 700;">${cleanLocationName}</span>`;
+                } else if (veh.status === 'impound') {
+                    statusBadge = `<span style="font-size: 10px; padding: 2px 7px; border-radius: 6px; background: rgba(255, 77, 79, 0.15); color: #ff4d4f; font-weight: 700;">Apreendido</span>`;
+                } else {
+                    statusBadge = `<span style="font-size: 10px; padding: 2px 7px; border-radius: 6px; background: rgba(245, 165, 36, 0.15); color: #f5a524; font-weight: 700;">Na Rua</span>`;
+                }
+
+                const trackLabel = veh.status === 'impound' ? 'Pátio de Apreensão' : cleanLocationName;
+                const coordsJson = JSON.stringify(veh.coords || null).replace(/"/g, '&quot;');
+                const labelEscaped = trackLabel.replace(/'/g, "\\'");
+                const statusEscaped = (veh.status || 'stored').replace(/'/g, "\\'");
+                const hasBlocker = veh.hasBlocker ? true : false;
+
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <div style="font-size: 14px; font-weight: 700; color: var(--phone-text);">${veh.name || veh.model}</div>
+                            <div style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 2px;">${veh.plate}</div>
+                        </div>
+                        ${statusBadge}
+                    </div>
+                    <button type="button" onclick="trackPhoneVehicle('${veh.garage || ''}', ${coordsJson}, '${labelEscaped}', '${statusEscaped}', ${hasBlocker})" style="width: 100%; padding: 8px; border: none; border-radius: 8px; background: linear-gradient(135deg, #f59e0b, #b45309); color: #fff; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 4px;">
+                        <i class="fa-solid fa-location-dot"></i> Rastrear Veículo
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function trackPhoneVehicle(garage, coords, label, status, hasBlocker) {
+            let resourceName = 'npwd';
+            try { if (typeof GetParentResourceName === 'function') resourceName = GetParentResourceName(); } catch(e) {}
+
+            fetch(`https://${resourceName}/trackGarageVehicle`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+                body: JSON.stringify({ garage, coords, label, status, hasBlocker })
+            }).catch(() => {});
         }
 
         // ====== DISCADOR ====== //
@@ -1239,6 +1322,8 @@
 
         window.addEventListener('keydown', function(event) {
             if (event.key === 'Escape' || event.keyCode === 27) {
+                event.preventDefault();
+                event.stopPropagation();
                 closePhoneNui();
             }
         });
@@ -1249,6 +1334,10 @@
 
             if (data.action === "open" || (data.app === "PHONE" && data.method === "npwd:setVisibility" && data.data === true)) {
                 document.getElementById('phoneWrapper').style.display = "block";
+                const garageView = document.getElementById('view-garage');
+                if (garageView && garageView.classList.contains('active')) {
+                    fetchPhoneGarageVehicles();
+                }
             } else if (data.action === "close" || (data.app === "PHONE" && data.method === "npwd:setVisibility" && data.data === false)) {
                 document.getElementById('phoneWrapper').style.display = "none";
             }

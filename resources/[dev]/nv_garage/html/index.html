@@ -1,133 +1,171 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>nv_garage</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<!-- Sprite de icones. Mesma abordagem do nv_hud: um <symbol> por icone e
+    <!-- Sprite de icones. Mesma abordagem do nv_hud: um <symbol> por icone e
      <use> onde for preciso, sem dependencia externa. -->
-<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
-    <symbol id="ic-garagem" viewBox="0 0 24 24">
-        <path d="M3 10.5 12 4l9 6.5V21a1 1 0 0 1-1 1h-4v-7H8v7H4a1 1 0 0 1-1-1V10.5Z"/>
-    </symbol>
-    <symbol id="ic-combustivel" viewBox="0 0 24 24">
-        <path d="M4 3h8a1 1 0 0 1 1 1v17H3V4a1 1 0 0 1 1-1Zm2 3v4h4V6H6Zm10 1 3 3v8a1.5 1.5 0 0 0 3 0v-7l-2-2V6l-4-4-1 1 1 1v3Z"/>
-    </symbol>
-    <symbol id="ic-motor" viewBox="0 0 24 24">
-        <path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0 2.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM10.8 2h2.4l.35 2.1a8 8 0 0 1 1.6.66l1.75-1.2 1.7 1.7-1.2 1.74a8 8 0 0 1 .66 1.6l2.1.35v2.4l-2.1.35a8 8 0 0 1-.66 1.6l1.2 1.75-1.7 1.7-1.75-1.2a8 8 0 0 1-1.6.66L13.2 22h-2.4l-.35-2.1a8 8 0 0 1-1.6-.66l-1.75 1.2-1.7-1.7 1.2-1.75a8 8 0 0 1-.66-1.6L3.84 13.2v-2.4l2.1-.35a8 8 0 0 1 .66-1.6L5.4 7.1l1.7-1.7 1.75 1.2a8 8 0 0 1 1.6-.66L10.8 2Z"/>
-    </symbol>
-    <symbol id="ic-lataria" viewBox="0 0 24 24">
-        <path d="M12 3a9 9 0 0 0-9 9 9 9 0 0 0 2.2 5.9l1.5-1.3A7 7 0 0 1 5 12a7 7 0 0 1 14 0 7 7 0 0 1-1.7 4.6l1.5 1.3A9 9 0 0 0 21 12a9 9 0 0 0-9-9Zm3.6 4.6-4.3 3.1a1.6 1.6 0 1 0 1.9 1.9l3.1-4.3a.5.5 0 0 0-.7-.7Z"/>
-    </symbol>
-    <symbol id="ic-fechar" viewBox="0 0 24 24">
-        <path d="m6.4 5 5.6 5.6L17.6 5 19 6.4 13.4 12 19 17.6 17.6 19 12 13.4 6.4 19 5 17.6 10.6 12 5 6.4 6.4 5Z"/>
-    </symbol>
-    <symbol id="ic-tranca" viewBox="0 0 24 24">
-        <path d="M12 2a5 5 0 0 0-5 5v3H6a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V11a1 1 0 0 0-1-1h-1V7a5 5 0 0 0-5-5Zm0 2a3 3 0 0 1 3 3v3H9V7a3 3 0 0 1 3-3Zm0 10a1.8 1.8 0 0 1 1 3.3V19h-2v-1.7A1.8 1.8 0 0 1 12 14Z"/>
-    </symbol>
-    <symbol id="ic-tranca-aberta" viewBox="0 0 24 24">
-        <path d="M12 2a5 5 0 0 0-5 5v3H6a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V11a1 1 0 0 0-1-1H9V7a3 3 0 0 1 5.9-.8l1.9-.6A5 5 0 0 0 12 2Zm0 12a1.8 1.8 0 0 1 1 3.3V19h-2v-1.7A1.8 1.8 0 0 1 12 14Z"/>
-    </symbol>
-    <symbol id="ic-porta" viewBox="0 0 24 24">
-        <path d="M5 3h9.2a1 1 0 0 1 1 .84l1.8 11.3V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm1 2v14h9v-3.7L13.5 5H6Zm6 6.2a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2ZM18 8h1.2a1 1 0 0 1 1 1v11h-2V8Z"/>
-    </symbol>
-    <symbol id="ic-capo" viewBox="0 0 24 24">
-        <path d="M2 15.5 4.6 9A3 3 0 0 1 7.4 7h9.2a3 3 0 0 1 2.8 2L22 15.5V19a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-3.5Zm4.6-5.2L5 14.4h14l-1.6-4.1a1 1 0 0 0-.9-.6H7.5a1 1 0 0 0-.9.6ZM6.5 15.6a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4Zm11 0a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4Z"/>
-    </symbol>
-    <symbol id="ic-mala" viewBox="0 0 24 24">
-        <path d="M4 8h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-2v-2H6v2H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Zm4-4h8a2 2 0 0 1 2 2v1H6V6a2 2 0 0 1 2-2Zm0 2v1h8V6H8Z"/>
-    </symbol>
-</svg>
+    <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+        <symbol id="ic-garagem" viewBox="0 0 24 24">
+            <path d="M3 10.5 12 4l9 6.5V21a1 1 0 0 1-1 1h-4v-7H8v7H4a1 1 0 0 1-1-1V10.5Z" />
+        </symbol>
+        <symbol id="ic-combustivel" viewBox="0 0 24 24">
+            <path
+                d="M4 3h8a1 1 0 0 1 1 1v17H3V4a1 1 0 0 1 1-1Zm2 3v4h4V6H6Zm10 1 3 3v8a1.5 1.5 0 0 0 3 0v-7l-2-2V6l-4-4-1 1 1 1v3Z" />
+        </symbol>
+        <symbol id="ic-motor" viewBox="0 0 24 24">
+            <path
+                d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0 2.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM10.8 2h2.4l.35 2.1a8 8 0 0 1 1.6.66l1.75-1.2 1.7 1.7-1.2 1.74a8 8 0 0 1 .66 1.6l2.1.35v2.4l-2.1.35a8 8 0 0 1-.66 1.6l1.2 1.75-1.7 1.7-1.75-1.2a8 8 0 0 1-1.6.66L13.2 22h-2.4l-.35-2.1a8 8 0 0 1-1.6-.66l-1.75 1.2-1.7-1.7 1.2-1.75a8 8 0 0 1-.66-1.6L3.84 13.2v-2.4l2.1-.35a8 8 0 0 1 .66-1.6L5.4 7.1l1.7-1.7 1.75 1.2a8 8 0 0 1 1.6-.66L10.8 2Z" />
+        </symbol>
+        <symbol id="ic-lataria" viewBox="0 0 24 24">
+            <path
+                d="M12 3a9 9 0 0 0-9 9 9 9 0 0 0 2.2 5.9l1.5-1.3A7 7 0 0 1 5 12a7 7 0 0 1 14 0 7 7 0 0 1-1.7 4.6l1.5 1.3A9 9 0 0 0 21 12a9 9 0 0 0-9-9Zm3.6 4.6-4.3 3.1a1.6 1.6 0 1 0 1.9 1.9l3.1-4.3a.5.5 0 0 0-.7-.7Z" />
+        </symbol>
+        <symbol id="ic-fechar" viewBox="0 0 24 24">
+            <path d="m6.4 5 5.6 5.6L17.6 5 19 6.4 13.4 12 19 17.6 17.6 19 12 13.4 6.4 19 5 17.6 10.6 12 5 6.4 6.4 5Z" />
+        </symbol>
+        <symbol id="ic-tranca" viewBox="0 0 24 24">
+            <path
+                d="M12 2a5 5 0 0 0-5 5v3H6a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V11a1 1 0 0 0-1-1h-1V7a5 5 0 0 0-5-5Zm0 2a3 3 0 0 1 3 3v3H9V7a3 3 0 0 1 3-3Zm0 10a1.8 1.8 0 0 1 1 3.3V19h-2v-1.7A1.8 1.8 0 0 1 12 14Z" />
+        </symbol>
+        <symbol id="ic-tranca-aberta" viewBox="0 0 24 24">
+            <path
+                d="M12 2a5 5 0 0 0-5 5v3H6a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V11a1 1 0 0 0-1-1H9V7a3 3 0 0 1 5.9-.8l1.9-.6A5 5 0 0 0 12 2Zm0 12a1.8 1.8 0 0 1 1 3.3V19h-2v-1.7A1.8 1.8 0 0 1 12 14Z" />
+        </symbol>
+        <symbol id="ic-porta" viewBox="0 0 24 24">
+            <path
+                d="M5 3h9.2a1 1 0 0 1 1 .84l1.8 11.3V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm1 2v14h9v-3.7L13.5 5H6Zm6 6.2a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2ZM18 8h1.2a1 1 0 0 1 1 1v11h-2V8Z" />
+        </symbol>
+        <symbol id="ic-capo" viewBox="0 0 24 24">
+            <path
+                d="M2 15.5 4.6 9A3 3 0 0 1 7.4 7h9.2a3 3 0 0 1 2.8 2L22 15.5V19a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-3.5Zm4.6-5.2L5 14.4h14l-1.6-4.1a1 1 0 0 0-.9-.6H7.5a1 1 0 0 0-.9.6ZM6.5 15.6a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4Zm11 0a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4Z" />
+        </symbol>
+        <symbol id="ic-mala" viewBox="0 0 24 24">
+            <path
+                d="M4 8h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-2v-2H6v2H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Zm4-4h8a2 2 0 0 1 2 2v1H6V6a2 2 0 0 1 2-2Zm0 2v1h8V6H8Z" />
+        </symbol>
+    </svg>
 
-<div id="root" class="hidden">
+    <div id="root" class="hidden">
 
-    <!-- ------------------------------------------------ lista ------- -->
-    <section class="panel panel-list">
-        <header class="panel-head">
-            <span class="brand"><svg class="brand-icon"><use href="#ic-garagem"/></svg></span>
-            <div class="head-text">
-                <h1>Garagem de Veiculos</h1>
-                <p id="garageLabel">-</p>
+        <!-- ------------------------------------------------ lista ------- -->
+        <section class="panel panel-list">
+            <header class="panel-head">
+                <span class="brand"><svg class="brand-icon">
+                        <use href="#ic-garagem" />
+                    </svg></span>
+                <div class="head-text">
+                    <h1>Garagem de Veiculos</h1>
+                    <p id="garageLabel">-</p>
+                </div>
+                <button type="button" class="close" id="closeList" aria-label="Fechar">
+                    <svg>
+                        <use href="#ic-fechar" />
+                    </svg>
+                </button>
+            </header>
+
+            <div class="list" id="list"></div>
+            <p class="empty hidden" id="empty">Voce nao tem veiculos registrados nesta garagem.</p>
+        </section>
+
+        <!-- ---------------------------------------------- detalhes ------ -->
+        <section class="panel panel-detail hidden" id="detail">
+            <header class="panel-head slim">
+                <h2>Detalhes do Veiculo</h2>
+                <button type="button" class="close" id="closeDetail" aria-label="Fechar detalhes">
+                    <svg>
+                        <use href="#ic-fechar" />
+                    </svg>
+                </button>
+            </header>
+
+            <div class="detail-body">
+                <div class="card metrics" id="detailMetrics"></div>
+
+                <div class="card info">
+                    <h3>Informacoes</h3>
+                    <dl>
+                        <div class="row">
+                            <dt>Local</dt>
+                            <dd id="infoLocal">-</dd>
+                        </div>
+                        <div class="row">
+                            <dt>Modelo</dt>
+                            <dd id="infoModelo">-</dd>
+                        </div>
+                        <div class="row">
+                            <dt>Placa</dt>
+                            <dd id="infoPlaca">-</dd>
+                        </div>
+                        <div class="row">
+                            <dt>Situacao</dt>
+                            <dd id="infoSituacao">-</dd>
+                        </div>
+                        <!-- So no patio: o valor para retirar. -->
+                        <div class="row hidden" id="rowTaxa">
+                            <dt>Taxa de liberacao</dt>
+                            <dd id="infoTaxa">-</dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <button type="button" class="action hidden" id="actionButton"></button>
+                <p class="notice hidden" id="notice"></p>
             </div>
-            <button type="button" class="close" id="closeList" aria-label="Fechar">
-                <svg><use href="#ic-fechar"/></svg>
-            </button>
-        </header>
+        </section>
 
-        <div class="list" id="list"></div>
-        <p class="empty hidden" id="empty">Voce nao tem veiculos registrados nesta garagem.</p>
-    </section>
+    </div>
 
-    <!-- ---------------------------------------------- detalhes ------ -->
-    <section class="panel panel-detail hidden" id="detail">
-        <header class="panel-head slim">
-            <h2>Detalhes do Veiculo</h2>
-            <button type="button" class="close" id="closeDetail" aria-label="Fechar detalhes">
-                <svg><use href="#ic-fechar"/></svg>
-            </button>
-        </header>
-
-        <div class="detail-body">
-            <div class="card metrics" id="detailMetrics"></div>
-
-            <div class="card info">
-                <h3>Informacoes</h3>
-                <dl>
-                    <div class="row"><dt>Local</dt><dd id="infoLocal">-</dd></div>
-                    <div class="row"><dt>Modelo</dt><dd id="infoModelo">-</dd></div>
-                    <div class="row"><dt>Placa</dt><dd id="infoPlaca">-</dd></div>
-                    <div class="row"><dt>Situacao</dt><dd id="infoSituacao">-</dd></div>
-                    <!-- So no patio: o valor para retirar. -->
-                    <div class="row hidden" id="rowTaxa"><dt>Taxa de liberacao</dt><dd id="infoTaxa">-</dd></div>
-                </dl>
-            </div>
-
-            <button type="button" class="action hidden" id="actionButton"></button>
-            <p class="notice hidden" id="notice"></p>
-        </div>
-    </section>
-
-</div>
-
-<!-- ================================================ controle do veiculo ==
+    <!-- ================================================ controle do veiculo ==
      Painel independente da garagem: abre com a tecla de tranca, dentro ou ao
      lado do carro. Nao usa o menu do ox_lib - e o mesmo desenho do resto.
      ==================================================================== -->
-<div id="control" class="hidden">
-    <section class="panel panel-control">
-        <header class="panel-head">
-            <span class="brand"><svg class="brand-icon"><use href="#ic-tranca"/></svg></span>
-            <div class="head-text">
-                <h1 id="ctlName">Controle do Veiculo</h1>
-                <p id="ctlSub">-</p>
+    <div id="control" class="hidden">
+        <section class="panel panel-control">
+            <header class="panel-head">
+                <span class="brand"><svg class="brand-icon">
+                        <use href="#ic-tranca" />
+                    </svg></span>
+                <div class="head-text">
+                    <h1 id="ctlName">Controle do Veiculo</h1>
+                    <p id="ctlSub">-</p>
+                </div>
+                <button type="button" class="close" id="ctlClose" aria-label="Fechar">
+                    <svg>
+                        <use href="#ic-fechar" />
+                    </svg>
+                </button>
+            </header>
+
+            <div class="control-body">
+                <button type="button" class="lock-toggle" id="ctlLock">
+                    <span class="lock-icon"><svg id="ctlLockIcon">
+                            <use href="#ic-tranca" />
+                        </svg></span>
+                    <span class="lock-text">
+                        <span class="lock-state" id="ctlLockState">-</span>
+                        <span class="lock-hint" id="ctlLockHint">-</span>
+                    </span>
+                </button>
+
+                <h3 class="section-title">Portas e compartimentos</h3>
+                <div class="door-grid" id="ctlDoors"></div>
+                <p class="empty hidden" id="ctlEmpty">Este veiculo nao tem portas que abram.</p>
+
+                <p class="hint" id="ctlHint">ESC fecha o painel.</p>
             </div>
-            <button type="button" class="close" id="ctlClose" aria-label="Fechar">
-                <svg><use href="#ic-fechar"/></svg>
-            </button>
-        </header>
+        </section>
+    </div>
 
-        <div class="control-body">
-            <button type="button" class="lock-toggle" id="ctlLock">
-                <span class="lock-icon"><svg id="ctlLockIcon"><use href="#ic-tranca"/></svg></span>
-                <span class="lock-text">
-                    <span class="lock-state" id="ctlLockState">-</span>
-                    <span class="lock-hint" id="ctlLockHint">-</span>
-                </span>
-            </button>
-
-            <h3 class="section-title">Portas e compartimentos</h3>
-            <div class="door-grid" id="ctlDoors"></div>
-            <p class="empty hidden" id="ctlEmpty">Este veiculo nao tem portas que abram.</p>
-
-            <p class="hint" id="ctlHint">ESC fecha o painel.</p>
-        </div>
-    </section>
-</div>
-
-<script src="app.js"></script>
+    <script src="app.js"></script>
 </body>
+
 </html>

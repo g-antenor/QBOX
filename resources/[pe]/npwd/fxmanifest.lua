@@ -4,8 +4,10 @@ description("js runtime monkaW")
 authors({ "itschip", "erik-sn", "TasoOneAsia", "kidz", "RockySouthpaw", "SamShanks", "c-wide", "mojito" })
 version("3.15.1-beta.2")
 client_scripts({
+	"@ox_lib/init.lua",
 	"dist/game/client/client.js",
-	"dist/game/client/*.lua",
+	"dist/game/client/cl_controls.lua",
+	"dist/game/client/garage.lua",
 })
 
 server_script({

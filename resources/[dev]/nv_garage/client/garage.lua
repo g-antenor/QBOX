@@ -137,7 +137,71 @@ local function leaveVehicle(vehicle)
     return true
 end
 
--- ------------------------------------------------------ callbacks NUI --
+local currentTrackBlip = nil
+local trackTimerThread = 0
+
+local function trackVehicleLocation(data)
+    if type(data) ~= 'table' then return false end
+
+    -- Se estiver fora da garagem e possuir bloqueador de sinal ativo, bloqueia o rastreamento
+    if data.status == 'out' and data.hasBlocker then
+        TriggerEvent('ox_lib:notify', { type = 'error', description = 'Sinal GPS bloqueado! O veículo possui um bloqueador de sinal ativo.' })
+        return false
+    end
+
+    local x, y, z
+    if type(data.coords) == 'table' and tonumber(data.coords.x) and tonumber(data.coords.y) then
+        x = tonumber(data.coords.x) + 0.0
+        y = tonumber(data.coords.y) + 0.0
+        z = tonumber(data.coords.z or 0) + 0.0
+    end
+
+    if not x or not y then
+        TriggerEvent('ox_lib:notify', { type = 'error', description = 'Não foi possível determinar a localização no GPS.' })
+        return false
+    end
+
+    trackTimerThread = trackTimerThread + 1
+    local thisThread = trackTimerThread
+
+    if currentTrackBlip and DoesBlipExist(currentTrackBlip) then
+        RemoveBlip(currentTrackBlip)
+        currentTrackBlip = nil
+    end
+
+    local blipLabel = (data.status == 'impound' and 'Pátio de Apreensão') or (data.label and data.label ~= '' and data.label) or 'Garagem / Veículo'
+
+    currentTrackBlip = AddBlipForCoord(x, y, z)
+    SetBlipSprite(currentTrackBlip, 161) -- Blip 161
+    SetBlipColour(currentTrackBlip, 47) -- Laranja
+    SetBlipScale(currentTrackBlip, 0.9)
+    SetBlipAsShortRange(currentTrackBlip, false)
+
+    BeginTextCommandSetBlipName("STRING")
+    AddTextComponentString(blipLabel)
+    EndTextCommandSetBlipName(currentTrackBlip)
+
+    TriggerEvent('ox_lib:notify', {
+        type = 'success',
+        description = ('Localização de "%s" exibida no minimapa (30s)!'):format(blipLabel)
+    })
+
+    -- Remove o blip automaticamente após 30 segundos
+    CreateThread(function()
+        Wait(30000)
+        if trackTimerThread == thisThread and currentTrackBlip and DoesBlipExist(currentTrackBlip) then
+            RemoveBlip(currentTrackBlip)
+            currentTrackBlip = nil
+        end
+    end)
+
+    return true
+end
+
+RegisterNUICallback('track', function(data, cb)
+    local ok = trackVehicleLocation(data)
+    cb({ ok = ok })
+end)
 
 RegisterNUICallback('close', function(_, cb)
     closeMenu()

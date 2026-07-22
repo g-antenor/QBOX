@@ -10,21 +10,21 @@ const resource = (typeof GetParentResourceName === 'function')
     : 'nv_garage';
 
 const el = {
-    root:        document.getElementById('root'),
+    root: document.getElementById('root'),
     garageLabel: document.getElementById('garageLabel'),
-    list:        document.getElementById('list'),
-    empty:       document.getElementById('empty'),
-    detail:      document.getElementById('detail'),
-    metrics:     document.getElementById('detailMetrics'),
-    infoLocal:   document.getElementById('infoLocal'),
-    infoModelo:  document.getElementById('infoModelo'),
-    infoPlaca:   document.getElementById('infoPlaca'),
-    infoSituacao:document.getElementById('infoSituacao'),
-    rowTaxa:     document.getElementById('rowTaxa'),
-    infoTaxa:    document.getElementById('infoTaxa'),
-    action:      document.getElementById('actionButton'),
-    notice:      document.getElementById('notice'),
-    closeList:   document.getElementById('closeList'),
+    list: document.getElementById('list'),
+    empty: document.getElementById('empty'),
+    detail: document.getElementById('detail'),
+    metrics: document.getElementById('detailMetrics'),
+    infoLocal: document.getElementById('infoLocal'),
+    infoModelo: document.getElementById('infoModelo'),
+    infoPlaca: document.getElementById('infoPlaca'),
+    infoSituacao: document.getElementById('infoSituacao'),
+    rowTaxa: document.getElementById('rowTaxa'),
+    infoTaxa: document.getElementById('infoTaxa'),
+    action: document.getElementById('actionButton'),
+    notice: document.getElementById('notice'),
+    closeList: document.getElementById('closeList'),
     closeDetail: document.getElementById('closeDetail')
 };
 
@@ -39,15 +39,15 @@ const state = {
 };
 
 const METRICS = [
-    { key: 'fuel',   icon: 'ic-combustivel', label: 'Combustivel' },
-    { key: 'engine', icon: 'ic-motor',       label: 'Motor' },
-    { key: 'body',   icon: 'ic-lataria',     label: 'Lataria' },
-    { key: 'tyres',  icon: 'ic-lataria',     label: 'Pneus' }
+    { key: 'fuel', icon: 'ic-combustivel', label: 'Combustivel' },
+    { key: 'engine', icon: 'ic-motor', label: 'Motor' },
+    { key: 'body', icon: 'ic-lataria', label: 'Lataria' },
+    { key: 'tyres', icon: 'ic-lataria', label: 'Pneus' }
 ];
 
 const STATUS_LABEL = {
-    stored:  'Guardado',
-    out:     'Fora da garagem',
+    stored: 'Guardado',
+    out: 'Fora da garagem',
     impound: 'Apreendido'
 };
 
@@ -381,16 +381,16 @@ function open(data) {
 // ==========================================================================
 
 const ctl = {
-    root:      document.getElementById('control'),
-    name:      document.getElementById('ctlName'),
-    sub:       document.getElementById('ctlSub'),
-    close:     document.getElementById('ctlClose'),
-    lock:      document.getElementById('ctlLock'),
-    lockIcon:  document.getElementById('ctlLockIcon'),
+    root: document.getElementById('control'),
+    name: document.getElementById('ctlName'),
+    sub: document.getElementById('ctlSub'),
+    close: document.getElementById('ctlClose'),
+    lock: document.getElementById('ctlLock'),
+    lockIcon: document.getElementById('ctlLockIcon'),
     lockState: document.getElementById('ctlLockState'),
-    lockHint:  document.getElementById('ctlLockHint'),
-    doors:     document.getElementById('ctlDoors'),
-    empty:     document.getElementById('ctlEmpty')
+    lockHint: document.getElementById('ctlLockHint'),
+    doors: document.getElementById('ctlDoors'),
+    empty: document.getElementById('ctlEmpty')
 };
 
 // Capo e porta-malas ganham icone proprio: sao os dois que o jogador procura
