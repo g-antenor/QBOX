@@ -1,13 +1,9 @@
-1. Estado do Mapa, não altera conforme selecionado a opção.
-2. Carro do roubo de veículos vir trancado e não aceitar lockpicks
-3. Ajustar posição na animação e uma animação para remover peneu, não somente uma unica animação para todo o processo.
-4. Missão do ferro velho, ao solicitar o trabalho o player é teleportado para dentro do carro e a forma com isso está sendo feito está bloqueando o uso da chave, sendo nascessário sair e entrar no carro.
-5. Centro de reciclagem não é acessivel para o player.
-6. Não é possivel carregar a arma com o item munição, da erro informando que isso não é possível.
-7. Entrega ilegal não está sendo possível entregar a ultima caixa, ao clicar E e tentar pegar caixa nada acontece, validar se isso não ocorre ao tentar pegar a caixa longe do local de entrega.
-8. Nerfe no Esquema de fraude, possível criar multiplos cartão no nome dos NPC que foi coletado.
-9. Arrastão usar a bolsa para dopar os itens não está funcionando, tentar usar a bolsa da erro "você não pode realizar essa ação".
-10. Na missão de bebida ilegal é solicitado como uma das etapas comprar o alambique "usando o menu", validar a existencia do item e o menu a que se refere.
+1. Caça está bugada ao colocar isca nenhum animal aparece, matar animais não tem nenhuma opção no alt.
+2. Dois scripts para sentar nos bancos.
+3. Algemar o player pela frente, ao relogar algemado o player volta algemado com as mãos para trás e é possivel abrir o inventário.
+4. Apertar ESC na hud não fecha o modal.
+5. Notificação para cada item que entra no inventário.
+6. Não é possível enviar item a um player.
 
 
 Melhorias

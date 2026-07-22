@@ -248,6 +248,38 @@ RegisterNUICallback('stashList', function(data, cb)
     cb(lib.callback.await('nv_orgs:stashes', false, data and data.set) or {})
 end)
 
+RegisterNUICallback('getDutyData', function(data, cb)
+    cb(lib.callback.await('nv_orgs:getDutyData', false, data and data.set) or {})
+end)
+
+RegisterNUICallback('placeDutyPoint', function(data, cb)
+    cb(1)
+    if type(data) ~= 'table' or type(data.set) ~= 'string' then return end
+    close()
+    Panel.placeDutyPoint(data.set)
+end)
+
+RegisterNUICallback('removeDutyPoint', function(data, cb)
+    if type(data) ~= 'table' or type(data.set) ~= 'string' then return cb({ ok = false }) end
+    local ok, err = lib.callback.await('nv_orgs:removeDutyPoint', false, data.set)
+    if not ok then notify(err or 'Nao foi possivel remover o ponto de servico.', 'error') end
+    cb({ ok = ok == true })
+end)
+
+RegisterNUICallback('placeServicePed', function(data, cb)
+    cb(1)
+    if type(data) ~= 'table' or type(data.set) ~= 'string' then return end
+    close()
+    Panel.placeServicePed(data.set)
+end)
+
+RegisterNUICallback('removeServicePed', function(data, cb)
+    if type(data) ~= 'table' or type(data.set) ~= 'string' then return cb({ ok = false }) end
+    local ok, err = lib.callback.await('nv_orgs:removeServicePed', false, data.set)
+    if not ok then notify(err or 'Nao foi possivel remover o PED de servico.', 'error') end
+    cb({ ok = ok == true })
+end)
+
 RegisterNUICallback('contacts', function(data, cb)
     cb(lib.callback.await('nv_orgs:contacts', false, data and data.set) or {})
 end)

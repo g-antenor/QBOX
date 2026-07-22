@@ -3953,3 +3953,404 @@
 {"level":"silly","message":{"data":{"bio":"","createdAt":"2026-07-12T07:09:42.000Z","id":1,"identifier":"1","image":"https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg","job":"","lastActive":1783840182,"lastActiveFormatted":"Sun, 12 Jul 2026 07:09:42 GMT","location":"","name":"Joe Mustang","tagList":[],"tags":"","updatedAt":"2026-07-12T07:09:42.000Z","viewed":false,"voiceMessage":null},"status":"ok"},"module":"events","timestamp":"2026-07-21T16:30:35.946Z"}
 {"level":"silly","message":"Response Promise Event npwd-contact-getAll:8bb3bdfb-86e9-46dc-b00c-ef93d3a33134 (9.0168ms), Data >>","module":"events","timestamp":"2026-07-21T16:30:35.946Z"}
 {"level":"silly","message":{"data":[],"status":"ok"},"module":"events","timestamp":"2026-07-21T16:30:35.947Z"}
+{"level":"debug","message":"Received unloadPlayer event for 1","module":"player","timestamp":"2026-07-21T16:50:14.889Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 6.8298ms'","module":"DBInterface","timestamp":"2026-07-21T16:50:14.893Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 5.1751ms'","module":"DBInterface","timestamp":"2026-07-21T16:50:14.894Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 1.8446ms'","module":"DBInterface","timestamp":"2026-07-21T16:50:14.895Z"}
+{"level":"info","message":"Unloaded NPWD Player, source: (1)","module":"player","timestamp":"2026-07-21T16:50:14.896Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 2.2054ms'","module":"DBInterface","timestamp":"2026-07-21T16:50:14.896Z"}
+{"level":"debug","message":"Marketplace service started","module":"marketplace","timestamp":"2026-07-21T23:31:26.465Z"}
+{"level":"debug","message":"Call service started","module":"calls","timestamp":"2026-07-21T23:31:26.466Z"}
+{"level":"debug","message":"Player Service started","module":"player","timestamp":"2026-07-21T23:31:26.467Z"}
+{"level":"info","message":"Loading NPWD Standalone","timestamp":"2026-07-21T23:31:26.467Z"}
+{"level":"debug","message":"Boot service started","module":"boot","timestamp":"2026-07-21T23:31:26.467Z"}
+{"level":"debug","message":"Messages service started","module":"messages","timestamp":"2026-07-21T23:31:26.468Z"}
+{"level":"debug","message":"Notes service started","module":"notes","timestamp":"2026-07-21T23:31:26.468Z"}
+{"level":"debug","message":"Contacts service started","module":"contact","timestamp":"2026-07-21T23:31:26.468Z"}
+{"level":"debug","message":"Photo service started","module":"photo","timestamp":"2026-07-21T23:31:26.483Z"}
+{"level":"debug","message":"Twitter service started","module":"twitter","timestamp":"2026-07-21T23:31:26.483Z"}
+{"level":"debug","message":"Match service started","module":"match","timestamp":"2026-07-21T23:31:26.484Z"}
+{"level":"debug","message":"Beginning database schema validation","module":"boot","timestamp":"2026-07-21T23:31:36.531Z"}
+{"level":"info","message":"Successfully started","timestamp":"2026-07-21T23:31:36.541Z"}
+{"level":"info","message":"Executed query (SELECT COUNT(*) as count\n                       FROM information_schema.tables\n                       WHERE table_schema = ?\n                         AND table_name = ? [\"ox_core_533CCB\",\"characters\"]) in 172.0847ms'","module":"DBInterface","timestamp":"2026-07-21T23:31:36.704Z"}
+{"level":"info","message":"Executed query (SHOW COLUMNS IN characters []) in 26.9836ms'","module":"DBInterface","timestamp":"2026-07-21T23:31:36.731Z"}
+{"level":"debug","message":"Database schema successfully validated","module":"boot","timestamp":"2026-07-21T23:31:36.731Z"}
+{"level":"info","message":"New NPWD Player added through event (1) (1)","module":"player","timestamp":"2026-07-21T23:32:48.030Z"}
+{"level":"debug","message":{"_firstname":"Joe","_identifier":"1","_lastname":"Mustang","_phoneNumber":"220-214-3519","source":1,"username":"LazyBat9365"},"module":"player","timestamp":"2026-07-21T23:32:48.030Z"}
+{"level":"debug","message":"Marketplace service started","module":"marketplace","timestamp":"2026-07-21T23:36:12.330Z"}
+{"level":"debug","message":"Call service started","module":"calls","timestamp":"2026-07-21T23:36:12.332Z"}
+{"level":"debug","message":"Player Service started","module":"player","timestamp":"2026-07-21T23:36:12.332Z"}
+{"level":"info","message":"Loading NPWD Standalone","timestamp":"2026-07-21T23:36:12.333Z"}
+{"level":"debug","message":"Boot service started","module":"boot","timestamp":"2026-07-21T23:36:12.333Z"}
+{"level":"debug","message":"Messages service started","module":"messages","timestamp":"2026-07-21T23:36:12.333Z"}
+{"level":"debug","message":"Notes service started","module":"notes","timestamp":"2026-07-21T23:36:12.334Z"}
+{"level":"debug","message":"Contacts service started","module":"contact","timestamp":"2026-07-21T23:36:12.334Z"}
+{"level":"debug","message":"Photo service started","module":"photo","timestamp":"2026-07-21T23:36:12.347Z"}
+{"level":"debug","message":"Twitter service started","module":"twitter","timestamp":"2026-07-21T23:36:12.347Z"}
+{"level":"debug","message":"Match service started","module":"match","timestamp":"2026-07-21T23:36:12.347Z"}
+{"level":"debug","message":"Beginning database schema validation","module":"boot","timestamp":"2026-07-21T23:36:12.421Z"}
+{"level":"info","message":"Successfully started","timestamp":"2026-07-21T23:36:12.429Z"}
+{"level":"info","message":"Executed query (SELECT COUNT(*) as count\n                       FROM information_schema.tables\n                       WHERE table_schema = ?\n                         AND table_name = ? [\"ox_core_533CCB\",\"characters\"]) in 24.1071ms'","module":"DBInterface","timestamp":"2026-07-21T23:36:12.446Z"}
+{"level":"info","message":"Executed query (SHOW COLUMNS IN characters []) in 17.5027ms'","module":"DBInterface","timestamp":"2026-07-21T23:36:12.464Z"}
+{"level":"debug","message":"Database schema successfully validated","module":"boot","timestamp":"2026-07-21T23:36:12.464Z"}
+{"level":"info","message":"New NPWD Player added through event (1) (1)","module":"player","timestamp":"2026-07-21T23:36:13.182Z"}
+{"level":"debug","message":{"_firstname":"Joe","_identifier":"1","_lastname":"Mustang","_phoneNumber":"220-214-3519","source":1,"username":"LazyBat9365"},"module":"player","timestamp":"2026-07-21T23:36:13.183Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 4.612ms'","module":"DBInterface","timestamp":"2026-07-21T23:45:08.539Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 1.4106ms'","module":"DBInterface","timestamp":"2026-07-21T23:45:08.540Z"}
+{"level":"info","message":"Unloaded NPWD Player, source: (1)","module":"player","timestamp":"2026-07-21T23:45:08.541Z"}
+{"level":"debug","message":"Marketplace service started","module":"marketplace","timestamp":"2026-07-21T23:45:16.480Z"}
+{"level":"debug","message":"Call service started","module":"calls","timestamp":"2026-07-21T23:45:16.482Z"}
+{"level":"debug","message":"Player Service started","module":"player","timestamp":"2026-07-21T23:45:16.482Z"}
+{"level":"info","message":"Loading NPWD Standalone","timestamp":"2026-07-21T23:45:16.482Z"}
+{"level":"debug","message":"Boot service started","module":"boot","timestamp":"2026-07-21T23:45:16.483Z"}
+{"level":"debug","message":"Messages service started","module":"messages","timestamp":"2026-07-21T23:45:16.483Z"}
+{"level":"debug","message":"Notes service started","module":"notes","timestamp":"2026-07-21T23:45:16.483Z"}
+{"level":"debug","message":"Contacts service started","module":"contact","timestamp":"2026-07-21T23:45:16.484Z"}
+{"level":"debug","message":"Photo service started","module":"photo","timestamp":"2026-07-21T23:45:16.502Z"}
+{"level":"debug","message":"Twitter service started","module":"twitter","timestamp":"2026-07-21T23:45:16.502Z"}
+{"level":"debug","message":"Match service started","module":"match","timestamp":"2026-07-21T23:45:16.502Z"}
+{"level":"debug","message":"Beginning database schema validation","module":"boot","timestamp":"2026-07-21T23:45:17.310Z"}
+{"level":"info","message":"Successfully started","timestamp":"2026-07-21T23:45:17.321Z"}
+{"level":"info","message":"Executed query (SELECT COUNT(*) as count\n                       FROM information_schema.tables\n                       WHERE table_schema = ?\n                         AND table_name = ? [\"ox_core_533CCB\",\"characters\"]) in 132.9745ms'","module":"DBInterface","timestamp":"2026-07-21T23:45:17.443Z"}
+{"level":"info","message":"Executed query (SHOW COLUMNS IN characters []) in 16.9925ms'","module":"DBInterface","timestamp":"2026-07-21T23:45:17.461Z"}
+{"level":"debug","message":"Database schema successfully validated","module":"boot","timestamp":"2026-07-21T23:45:17.461Z"}
+{"level":"info","message":"New NPWD Player added through event (1) (1)","module":"player","timestamp":"2026-07-21T23:46:15.894Z"}
+{"level":"debug","message":{"_firstname":"Joe","_identifier":"1","_lastname":"Mustang","_phoneNumber":"220-214-3519","source":1,"username":"LazyBat9365"},"module":"player","timestamp":"2026-07-21T23:46:15.894Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 3.5348ms'","module":"DBInterface","timestamp":"2026-07-22T00:37:16.892Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 1.0938ms'","module":"DBInterface","timestamp":"2026-07-22T00:37:16.893Z"}
+{"level":"info","message":"Unloaded NPWD Player, source: (1)","module":"player","timestamp":"2026-07-22T00:37:16.894Z"}
+{"level":"debug","message":"Marketplace service started","module":"marketplace","timestamp":"2026-07-22T00:37:24.715Z"}
+{"level":"debug","message":"Call service started","module":"calls","timestamp":"2026-07-22T00:37:24.718Z"}
+{"level":"debug","message":"Player Service started","module":"player","timestamp":"2026-07-22T00:37:24.718Z"}
+{"level":"info","message":"Loading NPWD Standalone","timestamp":"2026-07-22T00:37:24.718Z"}
+{"level":"debug","message":"Boot service started","module":"boot","timestamp":"2026-07-22T00:37:24.719Z"}
+{"level":"debug","message":"Messages service started","module":"messages","timestamp":"2026-07-22T00:37:24.719Z"}
+{"level":"debug","message":"Notes service started","module":"notes","timestamp":"2026-07-22T00:37:24.719Z"}
+{"level":"debug","message":"Contacts service started","module":"contact","timestamp":"2026-07-22T00:37:24.719Z"}
+{"level":"debug","message":"Photo service started","module":"photo","timestamp":"2026-07-22T00:37:24.737Z"}
+{"level":"debug","message":"Twitter service started","module":"twitter","timestamp":"2026-07-22T00:37:24.737Z"}
+{"level":"debug","message":"Match service started","module":"match","timestamp":"2026-07-22T00:37:24.738Z"}
+{"level":"debug","message":"Beginning database schema validation","module":"boot","timestamp":"2026-07-22T00:37:25.652Z"}
+{"level":"info","message":"Successfully started","timestamp":"2026-07-22T00:37:25.692Z"}
+{"level":"info","message":"Executed query (SELECT COUNT(*) as count\n                       FROM information_schema.tables\n                       WHERE table_schema = ?\n                         AND table_name = ? [\"ox_core_533CCB\",\"characters\"]) in 251.7141ms'","module":"DBInterface","timestamp":"2026-07-22T00:37:25.904Z"}
+{"level":"info","message":"Executed query (SHOW COLUMNS IN characters []) in 45.7377ms'","module":"DBInterface","timestamp":"2026-07-22T00:37:25.950Z"}
+{"level":"debug","message":"Database schema successfully validated","module":"boot","timestamp":"2026-07-22T00:37:25.951Z"}
+{"level":"info","message":"New NPWD Player added through event (1) (1)","module":"player","timestamp":"2026-07-22T00:38:28.079Z"}
+{"level":"debug","message":{"_firstname":"Joe","_identifier":"1","_lastname":"Mustang","_phoneNumber":"220-214-3519","source":1,"username":"LazyBat9365"},"module":"player","timestamp":"2026-07-22T00:38:28.079Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 10.4832ms'","module":"DBInterface","timestamp":"2026-07-22T01:21:04.559Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 1.8889ms'","module":"DBInterface","timestamp":"2026-07-22T01:21:04.561Z"}
+{"level":"info","message":"Unloaded NPWD Player, source: (1)","module":"player","timestamp":"2026-07-22T01:21:04.561Z"}
+{"level":"debug","message":"Marketplace service started","module":"marketplace","timestamp":"2026-07-22T01:21:12.157Z"}
+{"level":"debug","message":"Call service started","module":"calls","timestamp":"2026-07-22T01:21:12.159Z"}
+{"level":"debug","message":"Player Service started","module":"player","timestamp":"2026-07-22T01:21:12.159Z"}
+{"level":"info","message":"Loading NPWD Standalone","timestamp":"2026-07-22T01:21:12.160Z"}
+{"level":"debug","message":"Boot service started","module":"boot","timestamp":"2026-07-22T01:21:12.160Z"}
+{"level":"debug","message":"Messages service started","module":"messages","timestamp":"2026-07-22T01:21:12.160Z"}
+{"level":"debug","message":"Notes service started","module":"notes","timestamp":"2026-07-22T01:21:12.160Z"}
+{"level":"debug","message":"Contacts service started","module":"contact","timestamp":"2026-07-22T01:21:12.161Z"}
+{"level":"debug","message":"Photo service started","module":"photo","timestamp":"2026-07-22T01:21:12.178Z"}
+{"level":"debug","message":"Twitter service started","module":"twitter","timestamp":"2026-07-22T01:21:12.179Z"}
+{"level":"debug","message":"Match service started","module":"match","timestamp":"2026-07-22T01:21:12.180Z"}
+{"level":"debug","message":"Beginning database schema validation","module":"boot","timestamp":"2026-07-22T01:21:13.010Z"}
+{"level":"info","message":"Successfully started","timestamp":"2026-07-22T01:21:13.023Z"}
+{"level":"info","message":"Executed query (SELECT COUNT(*) as count\n                       FROM information_schema.tables\n                       WHERE table_schema = ?\n                         AND table_name = ? [\"ox_core_533CCB\",\"characters\"]) in 130.2228ms'","module":"DBInterface","timestamp":"2026-07-22T01:21:13.141Z"}
+{"level":"info","message":"Executed query (SHOW COLUMNS IN characters []) in 17.9555ms'","module":"DBInterface","timestamp":"2026-07-22T01:21:13.160Z"}
+{"level":"debug","message":"Database schema successfully validated","module":"boot","timestamp":"2026-07-22T01:21:13.160Z"}
+{"level":"info","message":"New NPWD Player added through event (1) (1)","module":"player","timestamp":"2026-07-22T01:22:20.467Z"}
+{"level":"debug","message":{"_firstname":"Joe","_identifier":"1","_lastname":"Mustang","_phoneNumber":"220-214-3519","source":1,"username":"LazyBat9365"},"module":"player","timestamp":"2026-07-22T01:22:20.468Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 13.523ms'","module":"DBInterface","timestamp":"2026-07-22T02:14:47.723Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 2.9398ms'","module":"DBInterface","timestamp":"2026-07-22T02:14:47.727Z"}
+{"level":"info","message":"Unloaded NPWD Player, source: (1)","module":"player","timestamp":"2026-07-22T02:14:47.727Z"}
+{"level":"debug","message":"Marketplace service started","module":"marketplace","timestamp":"2026-07-22T02:14:55.352Z"}
+{"level":"debug","message":"Call service started","module":"calls","timestamp":"2026-07-22T02:14:55.354Z"}
+{"level":"debug","message":"Player Service started","module":"player","timestamp":"2026-07-22T02:14:55.354Z"}
+{"level":"info","message":"Loading NPWD Standalone","timestamp":"2026-07-22T02:14:55.354Z"}
+{"level":"debug","message":"Boot service started","module":"boot","timestamp":"2026-07-22T02:14:55.355Z"}
+{"level":"debug","message":"Messages service started","module":"messages","timestamp":"2026-07-22T02:14:55.355Z"}
+{"level":"debug","message":"Notes service started","module":"notes","timestamp":"2026-07-22T02:14:55.355Z"}
+{"level":"debug","message":"Contacts service started","module":"contact","timestamp":"2026-07-22T02:14:55.356Z"}
+{"level":"debug","message":"Photo service started","module":"photo","timestamp":"2026-07-22T02:14:55.372Z"}
+{"level":"debug","message":"Twitter service started","module":"twitter","timestamp":"2026-07-22T02:14:55.373Z"}
+{"level":"debug","message":"Match service started","module":"match","timestamp":"2026-07-22T02:14:55.373Z"}
+{"level":"debug","message":"Beginning database schema validation","module":"boot","timestamp":"2026-07-22T02:14:56.214Z"}
+{"level":"info","message":"Successfully started","timestamp":"2026-07-22T02:14:56.225Z"}
+{"level":"info","message":"Executed query (SELECT COUNT(*) as count\n                       FROM information_schema.tables\n                       WHERE table_schema = ?\n                         AND table_name = ? [\"ox_core_533CCB\",\"characters\"]) in 130.0537ms'","module":"DBInterface","timestamp":"2026-07-22T02:14:56.345Z"}
+{"level":"info","message":"Executed query (SHOW COLUMNS IN characters []) in 16.4112ms'","module":"DBInterface","timestamp":"2026-07-22T02:14:56.361Z"}
+{"level":"debug","message":"Database schema successfully validated","module":"boot","timestamp":"2026-07-22T02:14:56.362Z"}
+{"level":"info","message":"New NPWD Player added through event (1) (1)","module":"player","timestamp":"2026-07-22T02:16:02.955Z"}
+{"level":"debug","message":{"_firstname":"Joe","_identifier":"1","_lastname":"Mustang","_phoneNumber":"220-214-3519","source":1,"username":"LazyBat9365"},"module":"player","timestamp":"2026-07-22T02:16:02.955Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 3.8235ms'","module":"DBInterface","timestamp":"2026-07-22T02:26:21.396Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 2.0866ms'","module":"DBInterface","timestamp":"2026-07-22T02:26:21.399Z"}
+{"level":"info","message":"Unloaded NPWD Player, source: (1)","module":"player","timestamp":"2026-07-22T02:26:21.399Z"}
+{"level":"debug","message":"Marketplace service started","module":"marketplace","timestamp":"2026-07-22T02:26:29.126Z"}
+{"level":"debug","message":"Call service started","module":"calls","timestamp":"2026-07-22T02:26:29.128Z"}
+{"level":"debug","message":"Player Service started","module":"player","timestamp":"2026-07-22T02:26:29.128Z"}
+{"level":"info","message":"Loading NPWD Standalone","timestamp":"2026-07-22T02:26:29.128Z"}
+{"level":"debug","message":"Boot service started","module":"boot","timestamp":"2026-07-22T02:26:29.128Z"}
+{"level":"debug","message":"Messages service started","module":"messages","timestamp":"2026-07-22T02:26:29.129Z"}
+{"level":"debug","message":"Notes service started","module":"notes","timestamp":"2026-07-22T02:26:29.129Z"}
+{"level":"debug","message":"Contacts service started","module":"contact","timestamp":"2026-07-22T02:26:29.129Z"}
+{"level":"debug","message":"Photo service started","module":"photo","timestamp":"2026-07-22T02:26:29.147Z"}
+{"level":"debug","message":"Twitter service started","module":"twitter","timestamp":"2026-07-22T02:26:29.147Z"}
+{"level":"debug","message":"Match service started","module":"match","timestamp":"2026-07-22T02:26:29.148Z"}
+{"level":"debug","message":"Beginning database schema validation","module":"boot","timestamp":"2026-07-22T02:26:29.965Z"}
+{"level":"info","message":"Successfully started","timestamp":"2026-07-22T02:26:29.976Z"}
+{"level":"info","message":"Executed query (SELECT COUNT(*) as count\n                       FROM information_schema.tables\n                       WHERE table_schema = ?\n                         AND table_name = ? [\"ox_core_533CCB\",\"characters\"]) in 120.3189ms'","module":"DBInterface","timestamp":"2026-07-22T02:26:30.086Z"}
+{"level":"info","message":"Executed query (SHOW COLUMNS IN characters []) in 15.6614ms'","module":"DBInterface","timestamp":"2026-07-22T02:26:30.102Z"}
+{"level":"debug","message":"Database schema successfully validated","module":"boot","timestamp":"2026-07-22T02:26:30.102Z"}
+{"level":"info","message":"New NPWD Player added through event (1) (1)","module":"player","timestamp":"2026-07-22T02:28:17.939Z"}
+{"level":"debug","message":{"_firstname":"Joe","_identifier":"1","_lastname":"Mustang","_phoneNumber":"220-214-3519","source":1,"username":"LazyBat9365"},"module":"player","timestamp":"2026-07-22T02:28:17.939Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 5.3249ms'","module":"DBInterface","timestamp":"2026-07-22T02:35:51.973Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 1.69ms'","module":"DBInterface","timestamp":"2026-07-22T02:35:51.975Z"}
+{"level":"info","message":"Unloaded NPWD Player, source: (1)","module":"player","timestamp":"2026-07-22T02:35:51.976Z"}
+{"level":"debug","message":"Marketplace service started","module":"marketplace","timestamp":"2026-07-22T02:35:59.343Z"}
+{"level":"debug","message":"Call service started","module":"calls","timestamp":"2026-07-22T02:35:59.345Z"}
+{"level":"debug","message":"Player Service started","module":"player","timestamp":"2026-07-22T02:35:59.345Z"}
+{"level":"info","message":"Loading NPWD Standalone","timestamp":"2026-07-22T02:35:59.345Z"}
+{"level":"debug","message":"Boot service started","module":"boot","timestamp":"2026-07-22T02:35:59.345Z"}
+{"level":"debug","message":"Messages service started","module":"messages","timestamp":"2026-07-22T02:35:59.346Z"}
+{"level":"debug","message":"Notes service started","module":"notes","timestamp":"2026-07-22T02:35:59.346Z"}
+{"level":"debug","message":"Contacts service started","module":"contact","timestamp":"2026-07-22T02:35:59.347Z"}
+{"level":"debug","message":"Photo service started","module":"photo","timestamp":"2026-07-22T02:35:59.363Z"}
+{"level":"debug","message":"Twitter service started","module":"twitter","timestamp":"2026-07-22T02:35:59.363Z"}
+{"level":"debug","message":"Match service started","module":"match","timestamp":"2026-07-22T02:35:59.364Z"}
+{"level":"debug","message":"Beginning database schema validation","module":"boot","timestamp":"2026-07-22T02:36:00.132Z"}
+{"level":"info","message":"Successfully started","timestamp":"2026-07-22T02:36:00.142Z"}
+{"level":"info","message":"Executed query (SELECT COUNT(*) as count\n                       FROM information_schema.tables\n                       WHERE table_schema = ?\n                         AND table_name = ? [\"ox_core_533CCB\",\"characters\"]) in 132.3928ms'","module":"DBInterface","timestamp":"2026-07-22T02:36:00.265Z"}
+{"level":"info","message":"Executed query (SHOW COLUMNS IN characters []) in 28.1789ms'","module":"DBInterface","timestamp":"2026-07-22T02:36:00.294Z"}
+{"level":"debug","message":"Database schema successfully validated","module":"boot","timestamp":"2026-07-22T02:36:00.294Z"}
+{"level":"info","message":"New NPWD Player added through event (1) (1)","module":"player","timestamp":"2026-07-22T02:37:10.717Z"}
+{"level":"debug","message":{"_firstname":"Joe","_identifier":"1","_lastname":"Mustang","_phoneNumber":"220-214-3519","source":1,"username":"LazyBat9365"},"module":"player","timestamp":"2026-07-22T02:37:10.717Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 4.2333ms'","module":"DBInterface","timestamp":"2026-07-22T02:47:31.043Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 1.5192ms'","module":"DBInterface","timestamp":"2026-07-22T02:47:31.045Z"}
+{"level":"info","message":"Unloaded NPWD Player, source: (1)","module":"player","timestamp":"2026-07-22T02:47:31.045Z"}
+{"level":"debug","message":"Marketplace service started","module":"marketplace","timestamp":"2026-07-22T02:47:38.522Z"}
+{"level":"debug","message":"Call service started","module":"calls","timestamp":"2026-07-22T02:47:38.524Z"}
+{"level":"debug","message":"Player Service started","module":"player","timestamp":"2026-07-22T02:47:38.524Z"}
+{"level":"info","message":"Loading NPWD Standalone","timestamp":"2026-07-22T02:47:38.524Z"}
+{"level":"debug","message":"Boot service started","module":"boot","timestamp":"2026-07-22T02:47:38.525Z"}
+{"level":"debug","message":"Messages service started","module":"messages","timestamp":"2026-07-22T02:47:38.525Z"}
+{"level":"debug","message":"Notes service started","module":"notes","timestamp":"2026-07-22T02:47:38.525Z"}
+{"level":"debug","message":"Contacts service started","module":"contact","timestamp":"2026-07-22T02:47:38.525Z"}
+{"level":"debug","message":"Photo service started","module":"photo","timestamp":"2026-07-22T02:47:38.541Z"}
+{"level":"debug","message":"Twitter service started","module":"twitter","timestamp":"2026-07-22T02:47:38.542Z"}
+{"level":"debug","message":"Match service started","module":"match","timestamp":"2026-07-22T02:47:38.543Z"}
+{"level":"debug","message":"Beginning database schema validation","module":"boot","timestamp":"2026-07-22T02:47:39.387Z"}
+{"level":"info","message":"Successfully started","timestamp":"2026-07-22T02:47:39.398Z"}
+{"level":"info","message":"Executed query (SELECT COUNT(*) as count\n                       FROM information_schema.tables\n                       WHERE table_schema = ?\n                         AND table_name = ? [\"ox_core_533CCB\",\"characters\"]) in 120.3257ms'","module":"DBInterface","timestamp":"2026-07-22T02:47:39.508Z"}
+{"level":"info","message":"Executed query (SHOW COLUMNS IN characters []) in 15.2683ms'","module":"DBInterface","timestamp":"2026-07-22T02:47:39.523Z"}
+{"level":"debug","message":"Database schema successfully validated","module":"boot","timestamp":"2026-07-22T02:47:39.524Z"}
+{"level":"info","message":"New NPWD Player added through event (1) (1)","module":"player","timestamp":"2026-07-22T02:48:56.970Z"}
+{"level":"debug","message":{"_firstname":"Joe","_identifier":"1","_lastname":"Mustang","_phoneNumber":"220-214-3519","source":1,"username":"LazyBat9365"},"module":"player","timestamp":"2026-07-22T02:48:56.971Z"}
+{"level":"debug","message":"Received unloadPlayer event for 1","module":"player","timestamp":"2026-07-22T03:16:37.778Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 7.1874ms'","module":"DBInterface","timestamp":"2026-07-22T03:16:37.783Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 1.9044ms'","module":"DBInterface","timestamp":"2026-07-22T03:16:37.785Z"}
+{"level":"info","message":"Unloaded NPWD Player, source: (1)","module":"player","timestamp":"2026-07-22T03:16:37.786Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 8.5729ms'","module":"DBInterface","timestamp":"2026-07-22T03:16:37.787Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 0.8611ms'","module":"DBInterface","timestamp":"2026-07-22T03:16:37.788Z"}
+{"level":"debug","message":"Marketplace service started","module":"marketplace","timestamp":"2026-07-22T04:42:24.910Z"}
+{"level":"debug","message":"Call service started","module":"calls","timestamp":"2026-07-22T04:42:24.913Z"}
+{"level":"debug","message":"Player Service started","module":"player","timestamp":"2026-07-22T04:42:24.913Z"}
+{"level":"info","message":"Loading NPWD Standalone","timestamp":"2026-07-22T04:42:24.914Z"}
+{"level":"debug","message":"Boot service started","module":"boot","timestamp":"2026-07-22T04:42:24.914Z"}
+{"level":"debug","message":"Messages service started","module":"messages","timestamp":"2026-07-22T04:42:24.914Z"}
+{"level":"debug","message":"Notes service started","module":"notes","timestamp":"2026-07-22T04:42:24.915Z"}
+{"level":"debug","message":"Contacts service started","module":"contact","timestamp":"2026-07-22T04:42:24.915Z"}
+{"level":"debug","message":"Photo service started","module":"photo","timestamp":"2026-07-22T04:42:24.945Z"}
+{"level":"debug","message":"Twitter service started","module":"twitter","timestamp":"2026-07-22T04:42:24.945Z"}
+{"level":"debug","message":"Match service started","module":"match","timestamp":"2026-07-22T04:42:24.946Z"}
+{"level":"debug","message":"Beginning database schema validation","module":"boot","timestamp":"2026-07-22T04:42:27.489Z"}
+{"level":"info","message":"Successfully started","timestamp":"2026-07-22T04:42:27.504Z"}
+{"level":"info","message":"Executed query (SELECT COUNT(*) as count\n                       FROM information_schema.tables\n                       WHERE table_schema = ?\n                         AND table_name = ? [\"ox_core_533CCB\",\"characters\"]) in 590.9894ms'","module":"DBInterface","timestamp":"2026-07-22T04:42:28.080Z"}
+{"level":"info","message":"Executed query (SHOW COLUMNS IN characters []) in 63.0948ms'","module":"DBInterface","timestamp":"2026-07-22T04:42:28.144Z"}
+{"level":"debug","message":"Database schema successfully validated","module":"boot","timestamp":"2026-07-22T04:42:28.144Z"}
+{"level":"info","message":"New NPWD Player added through event (1) (1)","module":"player","timestamp":"2026-07-22T04:43:10.619Z"}
+{"level":"debug","message":{"_firstname":"Joe","_identifier":"1","_lastname":"Mustang","_phoneNumber":"220-214-3519","source":1,"username":"MANGANGÁ"},"module":"player","timestamp":"2026-07-22T04:43:10.620Z"}
+{"level":"debug","message":"2 failed to unload, likely was never loaded in the first place.","module":"player","timestamp":"2026-07-22T04:45:55.494Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 27.2864ms'","module":"DBInterface","timestamp":"2026-07-22T04:45:55.519Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 9.9893ms'","module":"DBInterface","timestamp":"2026-07-22T04:45:55.529Z"}
+{"level":"info","message":"Unloaded NPWD Player, source: (1)","module":"player","timestamp":"2026-07-22T04:45:55.529Z"}
+{"level":"debug","message":"Marketplace service started","module":"marketplace","timestamp":"2026-07-22T04:46:05.593Z"}
+{"level":"debug","message":"Call service started","module":"calls","timestamp":"2026-07-22T04:46:05.595Z"}
+{"level":"debug","message":"Player Service started","module":"player","timestamp":"2026-07-22T04:46:05.595Z"}
+{"level":"info","message":"Loading NPWD Standalone","timestamp":"2026-07-22T04:46:05.596Z"}
+{"level":"debug","message":"Boot service started","module":"boot","timestamp":"2026-07-22T04:46:05.596Z"}
+{"level":"debug","message":"Messages service started","module":"messages","timestamp":"2026-07-22T04:46:05.596Z"}
+{"level":"debug","message":"Notes service started","module":"notes","timestamp":"2026-07-22T04:46:05.596Z"}
+{"level":"debug","message":"Contacts service started","module":"contact","timestamp":"2026-07-22T04:46:05.597Z"}
+{"level":"debug","message":"Photo service started","module":"photo","timestamp":"2026-07-22T04:46:05.620Z"}
+{"level":"debug","message":"Twitter service started","module":"twitter","timestamp":"2026-07-22T04:46:05.620Z"}
+{"level":"debug","message":"Match service started","module":"match","timestamp":"2026-07-22T04:46:05.620Z"}
+{"level":"debug","message":"Beginning database schema validation","module":"boot","timestamp":"2026-07-22T04:46:06.892Z"}
+{"level":"info","message":"Successfully started","timestamp":"2026-07-22T04:46:06.909Z"}
+{"level":"info","message":"Executed query (SELECT COUNT(*) as count\n                       FROM information_schema.tables\n                       WHERE table_schema = ?\n                         AND table_name = ? [\"ox_core_533CCB\",\"characters\"]) in 204.0558ms'","module":"DBInterface","timestamp":"2026-07-22T04:46:07.097Z"}
+{"level":"info","message":"Executed query (SHOW COLUMNS IN characters []) in 44.6642ms'","module":"DBInterface","timestamp":"2026-07-22T04:46:07.142Z"}
+{"level":"debug","message":"Database schema successfully validated","module":"boot","timestamp":"2026-07-22T04:46:07.142Z"}
+{"level":"info","message":"New NPWD Player added through event (1) (1)","module":"player","timestamp":"2026-07-22T04:47:16.539Z"}
+{"level":"debug","message":{"_firstname":"Joe","_identifier":"1","_lastname":"Mustang","_phoneNumber":"220-214-3519","source":1,"username":"MANGANGÁ"},"module":"player","timestamp":"2026-07-22T04:47:16.539Z"}
+{"level":"debug","message":"2 failed to unload, likely was never loaded in the first place.","module":"player","timestamp":"2026-07-22T04:48:05.449Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 5.8192ms'","module":"DBInterface","timestamp":"2026-07-22T04:48:05.453Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 1.9765ms'","module":"DBInterface","timestamp":"2026-07-22T04:48:05.455Z"}
+{"level":"info","message":"Unloaded NPWD Player, source: (1)","module":"player","timestamp":"2026-07-22T04:48:05.455Z"}
+{"level":"debug","message":"Marketplace service started","module":"marketplace","timestamp":"2026-07-22T04:48:13.751Z"}
+{"level":"debug","message":"Call service started","module":"calls","timestamp":"2026-07-22T04:48:13.755Z"}
+{"level":"debug","message":"Player Service started","module":"player","timestamp":"2026-07-22T04:48:13.755Z"}
+{"level":"info","message":"Loading NPWD Standalone","timestamp":"2026-07-22T04:48:13.756Z"}
+{"level":"debug","message":"Boot service started","module":"boot","timestamp":"2026-07-22T04:48:13.756Z"}
+{"level":"debug","message":"Messages service started","module":"messages","timestamp":"2026-07-22T04:48:13.756Z"}
+{"level":"debug","message":"Notes service started","module":"notes","timestamp":"2026-07-22T04:48:13.757Z"}
+{"level":"debug","message":"Contacts service started","module":"contact","timestamp":"2026-07-22T04:48:13.757Z"}
+{"level":"debug","message":"Photo service started","module":"photo","timestamp":"2026-07-22T04:48:13.778Z"}
+{"level":"debug","message":"Twitter service started","module":"twitter","timestamp":"2026-07-22T04:48:13.778Z"}
+{"level":"debug","message":"Match service started","module":"match","timestamp":"2026-07-22T04:48:13.779Z"}
+{"level":"debug","message":"Beginning database schema validation","module":"boot","timestamp":"2026-07-22T04:48:14.891Z"}
+{"level":"info","message":"Successfully started","timestamp":"2026-07-22T04:48:14.905Z"}
+{"level":"info","message":"Executed query (SELECT COUNT(*) as count\n                       FROM information_schema.tables\n                       WHERE table_schema = ?\n                         AND table_name = ? [\"ox_core_533CCB\",\"characters\"]) in 171.5953ms'","module":"DBInterface","timestamp":"2026-07-22T04:48:15.063Z"}
+{"level":"info","message":"Executed query (SHOW COLUMNS IN characters []) in 54.272ms'","module":"DBInterface","timestamp":"2026-07-22T04:48:15.118Z"}
+{"level":"debug","message":"Database schema successfully validated","module":"boot","timestamp":"2026-07-22T04:48:15.118Z"}
+{"level":"info","message":"New NPWD Player added through event (1) (1)","module":"player","timestamp":"2026-07-22T04:50:03.675Z"}
+{"level":"debug","message":{"_firstname":"Joe","_identifier":"1","_lastname":"Mustang","_phoneNumber":"220-214-3519","source":1,"username":"LazyBat9365"},"module":"player","timestamp":"2026-07-22T04:50:03.675Z"}
+{"level":"debug","message":"2 failed to unload, likely was never loaded in the first place.","module":"player","timestamp":"2026-07-22T04:50:36.020Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 7.2682ms'","module":"DBInterface","timestamp":"2026-07-22T04:50:36.025Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 3.7693ms'","module":"DBInterface","timestamp":"2026-07-22T04:50:36.029Z"}
+{"level":"info","message":"Unloaded NPWD Player, source: (1)","module":"player","timestamp":"2026-07-22T04:50:36.029Z"}
+{"level":"debug","message":"Marketplace service started","module":"marketplace","timestamp":"2026-07-22T04:50:44.191Z"}
+{"level":"debug","message":"Call service started","module":"calls","timestamp":"2026-07-22T04:50:44.193Z"}
+{"level":"debug","message":"Player Service started","module":"player","timestamp":"2026-07-22T04:50:44.194Z"}
+{"level":"info","message":"Loading NPWD Standalone","timestamp":"2026-07-22T04:50:44.195Z"}
+{"level":"debug","message":"Boot service started","module":"boot","timestamp":"2026-07-22T04:50:44.195Z"}
+{"level":"debug","message":"Messages service started","module":"messages","timestamp":"2026-07-22T04:50:44.195Z"}
+{"level":"debug","message":"Notes service started","module":"notes","timestamp":"2026-07-22T04:50:44.196Z"}
+{"level":"debug","message":"Contacts service started","module":"contact","timestamp":"2026-07-22T04:50:44.196Z"}
+{"level":"debug","message":"Photo service started","module":"photo","timestamp":"2026-07-22T04:50:44.218Z"}
+{"level":"debug","message":"Twitter service started","module":"twitter","timestamp":"2026-07-22T04:50:44.218Z"}
+{"level":"debug","message":"Match service started","module":"match","timestamp":"2026-07-22T04:50:44.218Z"}
+{"level":"debug","message":"Beginning database schema validation","module":"boot","timestamp":"2026-07-22T04:50:45.313Z"}
+{"level":"info","message":"Successfully started","timestamp":"2026-07-22T04:50:45.329Z"}
+{"level":"info","message":"Executed query (SELECT COUNT(*) as count\n                       FROM information_schema.tables\n                       WHERE table_schema = ?\n                         AND table_name = ? [\"ox_core_533CCB\",\"characters\"]) in 179.8084ms'","module":"DBInterface","timestamp":"2026-07-22T04:50:45.494Z"}
+{"level":"info","message":"Executed query (SHOW COLUMNS IN characters []) in 50.0831ms'","module":"DBInterface","timestamp":"2026-07-22T04:50:45.545Z"}
+{"level":"debug","message":"Database schema successfully validated","module":"boot","timestamp":"2026-07-22T04:50:45.545Z"}
+{"level":"info","message":"New NPWD Player added through event (1) (1)","module":"player","timestamp":"2026-07-22T04:57:01.006Z"}
+{"level":"debug","message":{"_firstname":"Joe","_identifier":"1","_lastname":"Mustang","_phoneNumber":"220-214-3519","source":1,"username":"LazyBat9365"},"module":"player","timestamp":"2026-07-22T04:57:01.007Z"}
+{"level":"debug","message":"2 failed to unload, likely was never loaded in the first place.","module":"player","timestamp":"2026-07-22T04:59:08.163Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 13.5708ms'","module":"DBInterface","timestamp":"2026-07-22T04:59:08.172Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 3.3704ms'","module":"DBInterface","timestamp":"2026-07-22T04:59:08.176Z"}
+{"level":"info","message":"Unloaded NPWD Player, source: (1)","module":"player","timestamp":"2026-07-22T04:59:08.176Z"}
+{"level":"debug","message":"Marketplace service started","module":"marketplace","timestamp":"2026-07-22T04:59:39.721Z"}
+{"level":"debug","message":"Call service started","module":"calls","timestamp":"2026-07-22T04:59:39.722Z"}
+{"level":"debug","message":"Player Service started","module":"player","timestamp":"2026-07-22T04:59:39.722Z"}
+{"level":"info","message":"Loading NPWD Standalone","timestamp":"2026-07-22T04:59:39.723Z"}
+{"level":"debug","message":"Boot service started","module":"boot","timestamp":"2026-07-22T04:59:39.723Z"}
+{"level":"debug","message":"Messages service started","module":"messages","timestamp":"2026-07-22T04:59:39.723Z"}
+{"level":"debug","message":"Notes service started","module":"notes","timestamp":"2026-07-22T04:59:39.723Z"}
+{"level":"debug","message":"Contacts service started","module":"contact","timestamp":"2026-07-22T04:59:39.723Z"}
+{"level":"debug","message":"Photo service started","module":"photo","timestamp":"2026-07-22T04:59:39.737Z"}
+{"level":"debug","message":"Twitter service started","module":"twitter","timestamp":"2026-07-22T04:59:39.737Z"}
+{"level":"debug","message":"Match service started","module":"match","timestamp":"2026-07-22T04:59:39.738Z"}
+{"level":"debug","message":"Beginning database schema validation","module":"boot","timestamp":"2026-07-22T04:59:50.009Z"}
+{"level":"info","message":"Successfully started","timestamp":"2026-07-22T04:59:50.018Z"}
+{"level":"info","message":"Executed query (SELECT COUNT(*) as count\n                       FROM information_schema.tables\n                       WHERE table_schema = ?\n                         AND table_name = ? [\"ox_core_533CCB\",\"characters\"]) in 115.7662ms'","module":"DBInterface","timestamp":"2026-07-22T04:59:50.125Z"}
+{"level":"info","message":"Executed query (SHOW COLUMNS IN characters []) in 19.7984ms'","module":"DBInterface","timestamp":"2026-07-22T04:59:50.145Z"}
+{"level":"debug","message":"Database schema successfully validated","module":"boot","timestamp":"2026-07-22T04:59:50.145Z"}
+{"level":"info","message":"New NPWD Player added through event (1) (1)","module":"player","timestamp":"2026-07-22T05:03:06.832Z"}
+{"level":"debug","message":{"_firstname":"Joe","_identifier":"1","_lastname":"Mustang","_phoneNumber":"220-214-3519","source":1,"username":"LazyBat9365"},"module":"player","timestamp":"2026-07-22T05:03:06.833Z"}
+{"level":"debug","message":"2 failed to unload, likely was never loaded in the first place.","module":"player","timestamp":"2026-07-22T05:03:33.544Z"}
+{"level":"debug","message":"Received unloadPlayer event for 1","module":"player","timestamp":"2026-07-22T05:03:36.101Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 7.4543ms'","module":"DBInterface","timestamp":"2026-07-22T05:03:36.107Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 1.5788ms'","module":"DBInterface","timestamp":"2026-07-22T05:03:36.109Z"}
+{"level":"info","message":"Unloaded NPWD Player, source: (1)","module":"player","timestamp":"2026-07-22T05:03:36.109Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 8.5316ms'","module":"DBInterface","timestamp":"2026-07-22T05:03:36.110Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 1.8024ms'","module":"DBInterface","timestamp":"2026-07-22T05:03:36.112Z"}
+{"level":"info","message":"New NPWD Player added through event (3) (1)","module":"player","timestamp":"2026-07-22T05:04:47.956Z"}
+{"level":"debug","message":{"_firstname":"Joe","_identifier":"1","_lastname":"Mustang","_phoneNumber":"220-214-3519","source":3,"username":"LazyBat9365"},"module":"player","timestamp":"2026-07-22T05:04:47.956Z"}
+{"level":"debug","message":"4 failed to unload, likely was never loaded in the first place.","module":"player","timestamp":"2026-07-22T05:06:16.863Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 6.9143ms'","module":"DBInterface","timestamp":"2026-07-22T05:06:16.866Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 0.7923ms'","module":"DBInterface","timestamp":"2026-07-22T05:06:16.867Z"}
+{"level":"info","message":"Unloaded NPWD Player, source: (3)","module":"player","timestamp":"2026-07-22T05:06:16.867Z"}
+{"level":"debug","message":"Marketplace service started","module":"marketplace","timestamp":"2026-07-22T05:06:24.885Z"}
+{"level":"debug","message":"Call service started","module":"calls","timestamp":"2026-07-22T05:06:24.886Z"}
+{"level":"debug","message":"Player Service started","module":"player","timestamp":"2026-07-22T05:06:24.887Z"}
+{"level":"info","message":"Loading NPWD Standalone","timestamp":"2026-07-22T05:06:24.887Z"}
+{"level":"debug","message":"Boot service started","module":"boot","timestamp":"2026-07-22T05:06:24.887Z"}
+{"level":"debug","message":"Messages service started","module":"messages","timestamp":"2026-07-22T05:06:24.887Z"}
+{"level":"debug","message":"Notes service started","module":"notes","timestamp":"2026-07-22T05:06:24.888Z"}
+{"level":"debug","message":"Contacts service started","module":"contact","timestamp":"2026-07-22T05:06:24.888Z"}
+{"level":"debug","message":"Photo service started","module":"photo","timestamp":"2026-07-22T05:06:24.910Z"}
+{"level":"debug","message":"Twitter service started","module":"twitter","timestamp":"2026-07-22T05:06:24.910Z"}
+{"level":"debug","message":"Match service started","module":"match","timestamp":"2026-07-22T05:06:24.910Z"}
+{"level":"debug","message":"Beginning database schema validation","module":"boot","timestamp":"2026-07-22T05:06:25.938Z"}
+{"level":"info","message":"Successfully started","timestamp":"2026-07-22T05:06:25.953Z"}
+{"level":"info","message":"Executed query (SELECT COUNT(*) as count\n                       FROM information_schema.tables\n                       WHERE table_schema = ?\n                         AND table_name = ? [\"ox_core_533CCB\",\"characters\"]) in 176.8837ms'","module":"DBInterface","timestamp":"2026-07-22T05:06:26.116Z"}
+{"level":"info","message":"Executed query (SHOW COLUMNS IN characters []) in 61.7847ms'","module":"DBInterface","timestamp":"2026-07-22T05:06:26.178Z"}
+{"level":"debug","message":"Database schema successfully validated","module":"boot","timestamp":"2026-07-22T05:06:26.178Z"}
+{"level":"info","message":"New NPWD Player added through event (1) (1)","module":"player","timestamp":"2026-07-22T05:09:23.323Z"}
+{"level":"debug","message":{"_firstname":"Joe","_identifier":"1","_lastname":"Mustang","_phoneNumber":"220-214-3519","source":1,"username":"LazyBat9365"},"module":"player","timestamp":"2026-07-22T05:09:23.323Z"}
+{"level":"debug","message":"2 failed to unload, likely was never loaded in the first place.","module":"player","timestamp":"2026-07-22T05:09:47.018Z"}
+{"level":"debug","message":"Received unloadPlayer event for 1","module":"player","timestamp":"2026-07-22T05:09:50.064Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 7.4437ms'","module":"DBInterface","timestamp":"2026-07-22T05:09:50.070Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 2.3011ms'","module":"DBInterface","timestamp":"2026-07-22T05:09:50.072Z"}
+{"level":"info","message":"Unloaded NPWD Player, source: (1)","module":"player","timestamp":"2026-07-22T05:09:50.072Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 9.0526ms'","module":"DBInterface","timestamp":"2026-07-22T05:09:50.073Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 0.5689ms'","module":"DBInterface","timestamp":"2026-07-22T05:09:50.074Z"}
+{"level":"debug","message":"4 failed to unload, likely was never loaded in the first place.","module":"player","timestamp":"2026-07-22T05:22:09.873Z"}
+{"level":"info","message":"New NPWD Player added through event (3) (1)","module":"player","timestamp":"2026-07-22T05:22:11.774Z"}
+{"level":"debug","message":{"_firstname":"Joe","_identifier":"1","_lastname":"Mustang","_phoneNumber":"220-214-3519","source":3,"username":"LazyBat9365"},"module":"player","timestamp":"2026-07-22T05:22:11.774Z"}
+{"level":"debug","message":"Received unloadPlayer event for 3","module":"player","timestamp":"2026-07-22T05:22:12.960Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 4.1957ms'","module":"DBInterface","timestamp":"2026-07-22T05:22:12.963Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 3.7829ms'","module":"DBInterface","timestamp":"2026-07-22T05:22:12.964Z"}
+{"level":"info","message":"Unloaded NPWD Player, source: (3)","module":"player","timestamp":"2026-07-22T05:22:12.965Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 2.001ms'","module":"DBInterface","timestamp":"2026-07-22T05:22:12.965Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 1.8729ms'","module":"DBInterface","timestamp":"2026-07-22T05:22:12.966Z"}
+{"level":"info","message":"New NPWD Player added through event (5) (1)","module":"player","timestamp":"2026-07-22T05:23:42.067Z"}
+{"level":"debug","message":{"_firstname":"Joe","_identifier":"1","_lastname":"Mustang","_phoneNumber":"220-214-3519","source":5,"username":"LazyBat9365"},"module":"player","timestamp":"2026-07-22T05:23:42.067Z"}
+{"level":"debug","message":"6 failed to unload, likely was never loaded in the first place.","module":"player","timestamp":"2026-07-22T05:23:56.499Z"}
+{"level":"debug","message":"Received unloadPlayer event for 5","module":"player","timestamp":"2026-07-22T05:24:01.131Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 6.7334ms'","module":"DBInterface","timestamp":"2026-07-22T05:24:01.135Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 5.5902ms'","module":"DBInterface","timestamp":"2026-07-22T05:24:01.137Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 2.5686ms'","module":"DBInterface","timestamp":"2026-07-22T05:24:01.138Z"}
+{"level":"info","message":"Unloaded NPWD Player, source: (5)","module":"player","timestamp":"2026-07-22T05:24:01.138Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 1.7497ms'","module":"DBInterface","timestamp":"2026-07-22T05:24:01.139Z"}
+{"level":"info","message":"New NPWD Player added through event (7) (1)","module":"player","timestamp":"2026-07-22T05:49:01.551Z"}
+{"level":"debug","message":{"_firstname":"Joe","_identifier":"1","_lastname":"Mustang","_phoneNumber":"220-214-3519","source":7,"username":"LazyBat9365"},"module":"player","timestamp":"2026-07-22T05:49:01.552Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 3.5713ms'","module":"DBInterface","timestamp":"2026-07-22T06:13:03.834Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 1.5096ms'","module":"DBInterface","timestamp":"2026-07-22T06:13:03.835Z"}
+{"level":"info","message":"Unloaded NPWD Player, source: (7)","module":"player","timestamp":"2026-07-22T06:13:03.836Z"}
+{"level":"debug","message":"Marketplace service started","module":"marketplace","timestamp":"2026-07-22T06:13:11.354Z"}
+{"level":"debug","message":"Call service started","module":"calls","timestamp":"2026-07-22T06:13:11.357Z"}
+{"level":"debug","message":"Player Service started","module":"player","timestamp":"2026-07-22T06:13:11.357Z"}
+{"level":"info","message":"Loading NPWD Standalone","timestamp":"2026-07-22T06:13:11.357Z"}
+{"level":"debug","message":"Boot service started","module":"boot","timestamp":"2026-07-22T06:13:11.357Z"}
+{"level":"debug","message":"Messages service started","module":"messages","timestamp":"2026-07-22T06:13:11.357Z"}
+{"level":"debug","message":"Notes service started","module":"notes","timestamp":"2026-07-22T06:13:11.358Z"}
+{"level":"debug","message":"Contacts service started","module":"contact","timestamp":"2026-07-22T06:13:11.358Z"}
+{"level":"debug","message":"Photo service started","module":"photo","timestamp":"2026-07-22T06:13:11.376Z"}
+{"level":"debug","message":"Twitter service started","module":"twitter","timestamp":"2026-07-22T06:13:11.376Z"}
+{"level":"debug","message":"Match service started","module":"match","timestamp":"2026-07-22T06:13:11.376Z"}
+{"level":"debug","message":"Beginning database schema validation","module":"boot","timestamp":"2026-07-22T06:13:12.193Z"}
+{"level":"info","message":"Successfully started","timestamp":"2026-07-22T06:13:12.205Z"}
+{"level":"info","message":"Executed query (SELECT COUNT(*) as count\n                       FROM information_schema.tables\n                       WHERE table_schema = ?\n                         AND table_name = ? [\"ox_core_533CCB\",\"characters\"]) in 121.6165ms'","module":"DBInterface","timestamp":"2026-07-22T06:13:12.317Z"}
+{"level":"info","message":"Executed query (SHOW COLUMNS IN characters []) in 16.4148ms'","module":"DBInterface","timestamp":"2026-07-22T06:13:12.333Z"}
+{"level":"debug","message":"Database schema successfully validated","module":"boot","timestamp":"2026-07-22T06:13:12.334Z"}
+{"level":"info","message":"New NPWD Player added through event (1) (1)","module":"player","timestamp":"2026-07-22T06:14:09.880Z"}
+{"level":"debug","message":{"_firstname":"Joe","_identifier":"1","_lastname":"Mustang","_phoneNumber":"220-214-3519","source":1,"username":"LazyBat9365"},"module":"player","timestamp":"2026-07-22T06:14:09.880Z"}
+{"level":"info","message":"Executed query (SELECT id FROM npwd_marketplace_listings WHERE identifier = ? [\"1\"]) in 4.9319ms'","module":"DBInterface","timestamp":"2026-07-22T06:22:47.024Z"}
+{"level":"info","message":"Executed query (DELETE FROM npwd_marketplace_listings WHERE identifier = ? AND reported = 0 [\"1\"]) in 1.2094ms'","module":"DBInterface","timestamp":"2026-07-22T06:22:47.026Z"}
+{"level":"info","message":"Unloaded NPWD Player, source: (1)","module":"player","timestamp":"2026-07-22T06:22:47.026Z"}
+{"level":"debug","message":"Marketplace service started","module":"marketplace","timestamp":"2026-07-22T06:22:54.666Z"}
+{"level":"debug","message":"Call service started","module":"calls","timestamp":"2026-07-22T06:22:54.669Z"}
+{"level":"debug","message":"Player Service started","module":"player","timestamp":"2026-07-22T06:22:54.669Z"}
+{"level":"info","message":"Loading NPWD Standalone","timestamp":"2026-07-22T06:22:54.670Z"}
+{"level":"debug","message":"Boot service started","module":"boot","timestamp":"2026-07-22T06:22:54.670Z"}
+{"level":"debug","message":"Messages service started","module":"messages","timestamp":"2026-07-22T06:22:54.671Z"}
+{"level":"debug","message":"Notes service started","module":"notes","timestamp":"2026-07-22T06:22:54.671Z"}
+{"level":"debug","message":"Contacts service started","module":"contact","timestamp":"2026-07-22T06:22:54.671Z"}
+{"level":"debug","message":"Photo service started","module":"photo","timestamp":"2026-07-22T06:22:54.686Z"}
+{"level":"debug","message":"Twitter service started","module":"twitter","timestamp":"2026-07-22T06:22:54.687Z"}
+{"level":"debug","message":"Match service started","module":"match","timestamp":"2026-07-22T06:22:54.687Z"}
+{"level":"debug","message":"Beginning database schema validation","module":"boot","timestamp":"2026-07-22T06:22:55.507Z"}
+{"level":"info","message":"Successfully started","timestamp":"2026-07-22T06:22:55.518Z"}
+{"level":"info","message":"Executed query (SELECT COUNT(*) as count\n                       FROM information_schema.tables\n                       WHERE table_schema = ?\n                         AND table_name = ? [\"ox_core_533CCB\",\"characters\"]) in 123.459ms'","module":"DBInterface","timestamp":"2026-07-22T06:22:55.632Z"}
+{"level":"info","message":"Executed query (SHOW COLUMNS IN characters []) in 17.6614ms'","module":"DBInterface","timestamp":"2026-07-22T06:22:55.650Z"}
+{"level":"debug","message":"Database schema successfully validated","module":"boot","timestamp":"2026-07-22T06:22:55.650Z"}
+{"level":"info","message":"New NPWD Player added through event (1) (1)","module":"player","timestamp":"2026-07-22T06:23:54.799Z"}
+{"level":"debug","message":{"_firstname":"Joe","_identifier":"1","_lastname":"Mustang","_phoneNumber":"220-214-3519","source":1,"username":"LazyBat9365"},"module":"player","timestamp":"2026-07-22T06:23:54.799Z"}

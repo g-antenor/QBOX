@@ -259,7 +259,7 @@ CreateThread(function()
                 for key,req in pairs(activeOrder.requirements or {}) do
                     local pos=partPosition(vehicle,key)
                     local done=activeOrder.completedParts and activeOrder.completedParts[key]
-                    local text=done and ('OK - '..req.label) or (req.missing and ('Falta: '..req.label) or (('%s: %d%%'):format(req.label,req.percent)))
+                    local text=done and ('OK - '..req.label) or (req.missing and ('Falta: '..req.label) or (('%s: %d%%'):format(req.label,math.floor(tonumber(req.percent) or 0))))
                     drawText(pos,text,done and {55,220,110} or {255,70,80})
                 end
                 Wait(0)

@@ -73,6 +73,7 @@ local function openMdt()
     end
 
     open = true
+    playTablet()
     data.action = 'open'
 
     SetNuiFocus(true, true)
@@ -92,6 +93,26 @@ end
 
 exports('open', openMdt)
 
+local function openGuestMdt(set)
+    if open then return end
+
+    local data = lib.callback.await('nv_mdt:openGuestData', false, set)
+    if not data or not data.tabs or #data.tabs == 0 then
+        return notify('Nao foi possivel carregar o catalogo de atendimento.', 'error')
+    end
+
+    open = true
+    playTablet()
+    data.action = 'open'
+    data.isGuest = true
+
+    SetNuiFocus(true, true)
+    SendNUIMessage(data)
+end
+
+exports('openGuest', openGuestMdt)
+RegisterNetEvent('nv_mdt:openGuest', openGuestMdt)
+
 RegisterNetEvent('nv_mdt:openMechanicOrder',function(order)
     playTablet();openMdt()
     if open then SendNUIMessage({action='mechanicOrder',order=order}) end
@@ -99,6 +120,27 @@ end)
 
 RegisterNetEvent('nv_mdt:updateMechanicOrder',function(order)
     if type(order)=='table' then SendNUIMessage({action='mechanicOrder',order=order}) end
+end)
+
+local function openInvoiceModal(sale)
+    if not sale then return end
+    open = true
+    playTablet()
+    SetNuiFocus(true, true)
+    SendNUIMessage({
+        action = 'openInvoiceModal',
+        sale = sale
+    })
+end
+
+RegisterNetEvent('nv_mdt:openInvoiceModal', openInvoiceModal)
+exports('openInvoiceModal', openInvoiceModal)
+
+RegisterNUICallback('closeInvoiceModal', function(_, cb)
+    open = false
+    SetNuiFocus(false, false)
+    stopTablet()
+    cb('ok')
 end)
 
 -- ------------------------------------------------------ ponte generica --
@@ -113,24 +155,18 @@ RegisterNUICallback('call', function(data, cb)
         return cb(false)
     end
 
-    -- Whitelist por prefixo: a NUI so alcanca callbacks deste resource.
-    if data.endpoint:sub(1, 7) ~= 'nv_mdt:' then return cb(false) end
+    if data.endpoint:sub(1, 7) ~= 'nv_mdt:' and data.endpoint:sub(1, 14) ~= 'nv_dealership:' then return cb(false) end
 
     local args = data.args or {}
-
-    -- O tamanho vem da NUI (data.n) e conta os argumentos de verdade: um valor
-    -- nulo no meio deixa buraco no array decodificado, e o operador # pararia
-    -- de contar ali -- o argumento seguinte sumiria em silencio.
     cb(lib.callback.await(data.endpoint, false, table.unpack(args, 1, data.n or #args)))
 end)
 
---- Igual ao de cima, mas para acoes: mostra a notificacao de erro/sucesso.
 RegisterNUICallback('action', function(data, cb)
     if type(data) ~= 'table' or type(data.endpoint) ~= 'string' then
         return cb({ ok = false })
     end
 
-    if data.endpoint:sub(1, 7) ~= 'nv_mdt:' then return cb({ ok = false }) end
+    if data.endpoint:sub(1, 7) ~= 'nv_mdt:' and data.endpoint:sub(1, 14) ~= 'nv_dealership:' then return cb({ ok = false }) end
 
     local args = data.args or {}
     local ok, err, extra = lib.callback.await(data.endpoint, false, table.unpack(args, 1, data.n or #args))
@@ -147,6 +183,11 @@ end)
 
 RegisterNUICallback('close', function(_, cb)
     close()
+    cb(1)
+end)
+
+RegisterNUICallback('startDelivery', function(data, cb)
+    TriggerEvent('nv_dealership:startDeliveryMission', data)
     cb(1)
 end)
 

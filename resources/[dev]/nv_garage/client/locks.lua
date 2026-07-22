@@ -383,6 +383,10 @@ local function lockpick()
         return Garage.notify('Chegue mais perto do veiculo.', 'error')
     end
 
+    if Entity(vehicle).state.isDealershipPreview then
+        return Garage.notify('Este veiculo e uma previa de exposicao da concessionaria.', 'error')
+    end
+
     -- De fora, numa moto, o lockpick nao tem o que fazer.
     if Garage.isDoorless(vehicle) then
         return Garage.notify('Suba na moto e use o lockpick para forcar o contato.', 'error')

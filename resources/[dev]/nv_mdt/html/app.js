@@ -131,7 +131,10 @@ const ICONS = {
   history: 'M12 3a9 9 0 1 1-8.5 6H1l3-4 4 4H5.5A7 7 0 1 0 12 5v5l4 3-1 2-5-4V3h2Z',
   camera: 'M3 6h4l2-3h6l2 3h4v15H3V6Zm9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z',
   user: 'M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5 0-9 2.5-9 5.5V22h18v-2.5C21 16.5 17 14 12 14Z',
-  car: 'M5 11l1.5-4.5A2 2 0 0 1 8.4 5h7.2a2 2 0 0 1 1.9 1.5L19 11h1a1 1 0 0 1 1 1v5h-3v2h-3v-2H9v2H6v-2H3v-5a1 1 0 0 1 1-1h1Zm2.2-.5h9.6l-1-3H8.2l-1 3ZM6.5 15a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4Zm11 0a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4Z'
+  car: 'M5 11l1.5-4.5A2 2 0 0 1 8.4 5h7.2a2 2 0 0 1 1.9 1.5L19 11h1a1 1 0 0 1 1 1v5h-3v2h-3v-2H9v2H6v-2H3v-5a1 1 0 0 1 1-1h1Zm2.2-.5h9.6l-1-3H8.2l-1 3ZM6.5 15a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4Zm11 0a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4Z',
+  cart: 'M7 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM1 2h3.3l2.7 11.4A2 2 0 0 0 9 15h9a2 2 0 0 0 1.9-1.4l3.1-7.6A1 1 0 0 0 22 4.5H6.2L5.4 2H1v2Z',
+  swap: 'M17 4v6l4-4-4-4v2H3v2h14ZM7 20v-6L3 18l4 4v-2h14v-2H7Z',
+  alert: 'M12 2 1 21h22L12 2Zm0 5a1 1 0 0 1 1 1v6a1 1 0 0 1-2 0V8a1 1 0 0 1 1-1Zm0 10a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4Z'
 };
 
 // ------------------------------------------------------------ paginação --
@@ -2090,51 +2093,51 @@ async function mechanicVeiculos(stage) {
 
 async function mechanicOrders(stage) {
   stage.appendChild(make('div', 'page-title', 'Ordens de servico'));
-  const area=make('div'), searchBox=section('Buscar qualquer veiculo pela placa'), searchRow=make('div','row-inline');
-  const plate=input('Digite a placa...'),searchBtn=make('button','btn','Buscar');searchRow.append(plate,searchBtn);searchBox.appendChild(searchRow);stage.append(searchBox,area);
-  const statusLabel={draft:'Aguardando inicio',in_progress:'Em andamento',ready:'Pronta para concluir',awaiting_payment:'Fatura pendente',completed:'Concluida',cancelled:'Cancelada'};
+  const area = make('div'), searchBox = section('Buscar qualquer veiculo pela placa'), searchRow = make('div', 'row-inline');
+  const plate = input('Digite a placa...'), searchBtn = make('button', 'btn', 'Buscar'); searchRow.append(plate, searchBtn); searchBox.appendChild(searchRow); stage.append(searchBox, area);
+  const statusLabel = { draft: 'Aguardando inicio', in_progress: 'Em andamento', ready: 'Pronta para concluir', awaiting_payment: 'Fatura pendente', completed: 'Concluida', cancelled: 'Cancelada' };
 
   async function showOrder(order) {
-    if(!order)return;state.ctx.mechanicOrder=order;area.replaceChildren();
-    area.appendChild(card(`#${order.id} - ${order.plate}`,`${order.model} · ${statusLabel[order.status]||order.status}`,ICONS.car));
-    const parts=section('Diagnostico e materiais para deixar o veiculo 100%'),list=make('div','record-list');
-    Object.entries(order.requirements||{}).forEach(([key,r])=>{const done=order.completedParts?.[key];const row=record(r.label,`${Math.round(Number(r.percent)||0)}% · ${r.amount}x ${r.item}`,done?'OK':(r.missing?`Falta ${r.label}`:'Pendente'),!done);if(done)row.item.classList.add('success');list.appendChild(row.item)});
-    if(!list.childElementCount)list.appendChild(make('div','empty-note','Nenhum reparo necessario.'));parts.appendChild(list);area.appendChild(parts);
-    const controls=section('Acoes'),buttons=make('div','btn-row');
-    if(order.status==='draft') { const start=make('button','btn primary','Iniciar servico');start.onclick=async()=>{const out=await action('nv_mdt:mechanic:startOrder','Servico iniciado.',order.id);if(out?.ok)showOrder(await call('nv_mdt:mechanic:order',order.id))};buttons.appendChild(start); }
-    if(['draft','in_progress','ready'].includes(order.status)) {
-      const cancel=make('button','btn danger','Cancelar ordem');
-      cancel.onclick=async()=>{
-        if(cancel.disabled)return;
-        cancel.disabled=true;
-        const out=await action('nv_mdt:mechanic:cancelOrder',
-          'Ordem cancelada e mantida no historico.',order.id,'Cancelada pelo mecanico');
-        if(out?.ok){
-          order.status='cancelled';
-          state.ctx.mechanicOrder=null;
+    if (!order) return; state.ctx.mechanicOrder = order; area.replaceChildren();
+    area.appendChild(card(`#${order.id} - ${order.plate}`, `${order.model} · ${statusLabel[order.status] || order.status}`, ICONS.car));
+    const parts = section('Diagnostico e materiais para deixar o veiculo 100%'), list = make('div', 'record-list');
+    Object.entries(order.requirements || {}).forEach(([key, r]) => { const done = order.completedParts?.[key]; const row = record(r.label, `${Math.round(Number(r.percent) || 0)}% · ${r.amount}x ${r.item}`, done ? 'OK' : (r.missing ? `Falta ${r.label}` : 'Pendente'), !done); if (done) row.item.classList.add('success'); list.appendChild(row.item) });
+    if (!list.childElementCount) list.appendChild(make('div', 'empty-note', 'Nenhum reparo necessario.')); parts.appendChild(list); area.appendChild(parts);
+    const controls = section('Acoes'), buttons = make('div', 'btn-row');
+    if (order.status === 'draft') { const start = make('button', 'btn primary', 'Iniciar servico'); start.onclick = async () => { const out = await action('nv_mdt:mechanic:startOrder', 'Servico iniciado.', order.id); if (out?.ok) showOrder(await call('nv_mdt:mechanic:order', order.id)) }; buttons.appendChild(start); }
+    if (['draft', 'in_progress', 'ready'].includes(order.status)) {
+      const cancel = make('button', 'btn danger', 'Cancelar ordem');
+      cancel.onclick = async () => {
+        if (cancel.disabled) return;
+        cancel.disabled = true;
+        const out = await action('nv_mdt:mechanic:cancelOrder',
+          'Ordem cancelada e mantida no historico.', order.id, 'Cancelada pelo mecanico');
+        if (out?.ok) {
+          order.status = 'cancelled';
+          state.ctx.mechanicOrder = null;
           await loadOrders();
           return;
         }
-        cancel.disabled=false;
+        cancel.disabled = false;
       };
       buttons.appendChild(cancel);
     }
-    const repairedEntries=Object.entries(order.requirements||{}).filter(([key])=>order.completedParts?.[key]);
-    const repairedTotal=repairedEntries.reduce((sum,[,part])=>sum+(Number(part.value)||0),0);
-    if((order.status==='ready'||order.status==='in_progress')&&repairedEntries.length>0) {
-      const payment=make('select','field-input');[['cash','Dinheiro'],['invoice','Fatura com juros']].forEach(([v,l])=>{const o=make('option',null,l);o.value=v;payment.appendChild(o)});
-      const customer=input('Buscar cliente por ID ou nome...'),customerList=make('div','record-list');let selected=null;
-      const customerSearch=make('button','btn','Buscar cliente');customerSearch.onclick=async()=>{const people=await call('nv_mdt:mechanic:searchCustomer',customer.value);customerList.replaceChildren();(people||[]).forEach(p=>{const b=make('button','btn',`#${p.charId} - ${p.fullName}`);b.onclick=()=>{selected=p;customer.value=`#${p.charId} - ${p.fullName}`;customerList.replaceChildren()};customerList.appendChild(b)})};
-      const invoiceFields=make('div');invoiceFields.append(field('Cliente da fatura',customer),customerSearch,customerList);invoiceFields.classList.toggle('hidden',payment.value!=='invoice');payment.onchange=()=>invoiceFields.classList.toggle('hidden',payment.value!=='invoice');
-      const finish=make('button','btn primary',`Concluir - ${money(repairedTotal)}`);finish.onclick=async()=>{const out=await action('nv_mdt:mechanic:completeOrder',payment.value==='invoice'?'Fatura criada; juros serao calculados ate o pagamento.':'Ordem concluida.',{id:order.id,payment:payment.value,customerCharId:selected?.charId});if(out?.ok){state.ctx.mechanicOrder=null;loadOrders()}};
-      controls.append(field('Forma de pagamento',payment),invoiceFields);buttons.appendChild(finish);
+    const repairedEntries = Object.entries(order.requirements || {}).filter(([key]) => order.completedParts?.[key]);
+    const repairedTotal = repairedEntries.reduce((sum, [, part]) => sum + (Number(part.value) || 0), 0);
+    if ((order.status === 'ready' || order.status === 'in_progress') && repairedEntries.length > 0) {
+      const payment = make('select', 'field-input');[['cash', 'Dinheiro'], ['invoice', 'Fatura com juros']].forEach(([v, l]) => { const o = make('option', null, l); o.value = v; payment.appendChild(o) });
+      const customer = input('Buscar cliente por ID ou nome...'), customerList = make('div', 'record-list'); let selected = null;
+      const customerSearch = make('button', 'btn', 'Buscar cliente'); customerSearch.onclick = async () => { const people = await call('nv_mdt:mechanic:searchCustomer', customer.value); customerList.replaceChildren(); (people || []).forEach(p => { const b = make('button', 'btn', `#${p.charId} - ${p.fullName}`); b.onclick = () => { selected = p; customer.value = `#${p.charId} - ${p.fullName}`; customerList.replaceChildren() }; customerList.appendChild(b) }) };
+      const invoiceFields = make('div'); invoiceFields.append(field('Cliente da fatura', customer), customerSearch, customerList); invoiceFields.classList.toggle('hidden', payment.value !== 'invoice'); payment.onchange = () => invoiceFields.classList.toggle('hidden', payment.value !== 'invoice');
+      const finish = make('button', 'btn primary', `Concluir - ${money(repairedTotal)}`); finish.onclick = async () => { const out = await action('nv_mdt:mechanic:completeOrder', payment.value === 'invoice' ? 'Fatura criada; juros serao calculados ate o pagamento.' : 'Ordem concluida.', { id: order.id, payment: payment.value, customerCharId: selected?.charId }); if (out?.ok) { state.ctx.mechanicOrder = null; loadOrders() } };
+      controls.append(field('Forma de pagamento', payment), invoiceFields); buttons.appendChild(finish);
     }
-    controls.appendChild(buttons);area.appendChild(controls);
+    controls.appendChild(buttons); area.appendChild(controls);
   }
 
-  async function loadOrders(){area.replaceChildren();const rows=await call('nv_mdt:mechanic:orders')||[],box=make('div','record-list');rows.forEach(r=>{const item=record(`#${r.id} - ${r.plate}`,`${statusLabel[r.status]||r.status} · ${r.createdLabel}`,`${r.mechanic} · ${money(r.total)}${r.cancelReason?' · '+r.cancelReason:''}`,r.status==='cancelled').item;item.onclick=async()=>showOrder(await call('nv_mdt:mechanic:order',r.id));box.appendChild(item)});if(!rows.length)box.appendChild(make('div','empty-note','Nenhuma ordem registrada.'));area.appendChild(box)}
-  searchBtn.onclick=async()=>{const rows=await call('nv_mdt:mechanic:searchVehicles',plate.value.trim())||[];area.replaceChildren();const box=make('div','record-list');rows.forEach(v=>box.appendChild(record(v.plate,`${v.model||'?'} · ${v.owner||'sem proprietario cadastrado'}`,v.online?'Veiculo localizado no mundo. Use a caixa de ferramentas para inspecionar.':'Veiculo cadastrado, mas fora do mundo.').item));if(!rows.length)box.appendChild(make('div','empty-note','Veiculo nao encontrado.'));area.appendChild(box)};
-  if(state.ctx.mechanicOrder)showOrder(state.ctx.mechanicOrder);else loadOrders();
+  async function loadOrders() { area.replaceChildren(); const rows = await call('nv_mdt:mechanic:orders') || [], box = make('div', 'record-list'); rows.forEach(r => { const item = record(`#${r.id} - ${r.plate}`, `${statusLabel[r.status] || r.status} · ${r.createdLabel}`, `${r.mechanic} · ${money(r.total)}${r.cancelReason ? ' · ' + r.cancelReason : ''}`, r.status === 'cancelled').item; item.onclick = async () => showOrder(await call('nv_mdt:mechanic:order', r.id)); box.appendChild(item) }); if (!rows.length) box.appendChild(make('div', 'empty-note', 'Nenhuma ordem registrada.')); area.appendChild(box) }
+  searchBtn.onclick = async () => { const rows = await call('nv_mdt:mechanic:searchVehicles', plate.value.trim()) || []; area.replaceChildren(); const box = make('div', 'record-list'); rows.forEach(v => box.appendChild(record(v.plate, `${v.model || '?'} · ${v.owner || 'sem proprietario cadastrado'}`, v.online ? 'Veiculo localizado no mundo. Use a caixa de ferramentas para inspecionar.' : 'Veiculo cadastrado, mas fora do mundo.').item)); if (!rows.length) box.appendChild(make('div', 'empty-note', 'Veiculo nao encontrado.')); area.appendChild(box) };
+  if (state.ctx.mechanicOrder) showOrder(state.ctx.mechanicOrder); else loadOrders();
 }
 
 async function mechanicHistorico(stage) {
@@ -2180,17 +2183,17 @@ async function mechanicCrafting(stage) {
   const recipeList = make('div', 'craft-recipe-list'); list.appendChild(recipeList); wrap.append(list, form); stage.appendChild(wrap);
   let editing = null, ingredients = {}, tools = {};
   const project = make('select', 'field-input');
-  data.projects.forEach(p => { const o=make('option',null,p.label);o.value=p.id;project.appendChild(o); });
-  const result=input('Busque pelo nome do item...'),resultOptions=make('datalist'),resultListId='craft-results-'+Math.random().toString(36).slice(2),label=input('Nome exibido'), description=input('Descricao');resultOptions.id=resultListId;result.setAttribute('list',resultListId);data.items.forEach(i=>{const o=make('option');o.value=i.label;o.label=i.name;resultOptions.appendChild(o)});
-  const count=input('',1), duration=input('',3000); count.type=duration.type='number';count.min='1';count.max='100';duration.min='500';
-  const resolveItem=value=>{const raw=String(value||'').trim();return itemMap.get(raw)||labelMap.get(raw.toLowerCase())};
-  function picker(title,placeholder,callback){const box=make('div','craft-picker'),search=input(placeholder),dl=make('datalist'),id='craft-items-'+Math.random().toString(36).slice(2),add=make('button','btn small','Adicionar');dl.id=id;search.setAttribute('list',id);data.items.forEach(i=>{const o=make('option');o.value=i.label;o.label=i.name;dl.appendChild(o)});add.onclick=()=>{const item=resolveItem(search.value);if(!item)return;callback(item);search.value=''};box.append(field(title,search),dl,add);return box}
-  const ingredientRows=make('div','craft-selected-list'),toolRows=make('div','craft-selected-list');
-  function drawSelected(){ingredientRows.replaceChildren();Object.entries(ingredients).forEach(([name,qty])=>{const row=make('div','craft-selected'),n=input('',qty),del=make('button','btn small','Remover');n.type='number';n.min='1';n.onchange=()=>ingredients[name]=Math.max(1,Number(n.value)||1);del.onclick=()=>{delete ingredients[name];drawSelected()};row.append(make('span',null,itemMap.get(name)?.label||name),n,del);ingredientRows.appendChild(row)});toolRows.replaceChildren();Object.entries(tools).forEach(([name,wear])=>{const row=make('div','craft-selected'),n=input('',wear),del=make('button','btn small','Remover'),item=itemMap.get(name);n.type='number';n.min='.1';n.max='100';n.step='.1';n.onchange=()=>tools[name]=Math.max(.1,Number(n.value)||1);del.onclick=()=>{delete tools[name];drawSelected()};row.append(make('span',null,`${item?.label||name} (${item?.durability?'desgasta %':'consome'})`),n,del);toolRows.appendChild(row)})}
-  function resetForm(recipe){editing=recipe?.id||null;ingredients={...(recipe?.ingredients||{})};tools={...(recipe?.tools||{})};project.value=recipe?.projectId||data.projects[0].id;result.value=recipe?.item||'';label.value=recipe?.label||'';description.value=recipe?.description||'';count.value=recipe?.count||1;duration.value=recipe?.duration||3000;drawSelected()}
-  function drawRecipes(){recipeList.replaceChildren();if(!data.recipes.length)recipeList.appendChild(make('div','empty-note','Nenhuma receita cadastrada.'));data.recipes.forEach(r=>{const row=make('div','craft-recipe-row'),text=make('div'),edit=make('button','btn small','Editar'),del=make('button','btn small danger','Excluir');text.append(make('strong',null,r.label),make('small',null,`${itemMap.get(r.item)?.label||r.item} · ${Object.keys(r.ingredients||{}).length} materiais`));edit.onclick=()=>resetForm(r);del.onclick=async()=>{const out=await action('nv_mdt:mechanic:deleteCraft','Receita excluida.',r.id);if(out?.ok){data.recipes=data.recipes.filter(x=>x.id!==r.id);drawRecipes();resetForm()}};row.append(text,edit,del);recipeList.appendChild(row)})}
-  form.append(field('Ponto de crafting',project),field('Item produzido',result),resultOptions,field('Nome da receita',label),field('Descricao',description));const numeric=make('div','row-inline');numeric.append(field('Quantidade produzida',count),field('Duracao (ms)',duration));form.appendChild(numeric);form.append(picker('Materiais consumidos','Buscar item para adicionar...',i=>{ingredients[i.name]=ingredients[i.name]||1;drawSelected()}),ingredientRows);form.append(picker('Ferramentas','Buscar martelo, alicate, chave...',i=>{tools[i.name]=tools[i.name]||5;drawSelected()}),toolRows);
-  const actions=make('div','btn-row'),fresh=make('button','btn','Limpar'),save=make('button','btn primary','Salvar receita');fresh.onclick=()=>resetForm();save.onclick=async()=>{const item=resolveItem(result.value);if(!item)return;const payload={id:editing,projectId:project.value,item:item.name,label:label.value.trim()||item.label,description:description.value.trim(),count:Number(count.value),duration:Number(duration.value),ingredients,tools};const out=await action('nv_mdt:mechanic:saveCraft','Receita salva.',payload);if(out?.ok){const next=await call('nv_mdt:mechanic:craftData');data.recipes=next.recipes;drawRecipes();resetForm()}};actions.append(fresh,save);form.appendChild(actions);drawRecipes();resetForm();
+  data.projects.forEach(p => { const o = make('option', null, p.label); o.value = p.id; project.appendChild(o); });
+  const result = input('Busque pelo nome do item...'), resultOptions = make('datalist'), resultListId = 'craft-results-' + Math.random().toString(36).slice(2), label = input('Nome exibido'), description = input('Descricao'); resultOptions.id = resultListId; result.setAttribute('list', resultListId); data.items.forEach(i => { const o = make('option'); o.value = i.label; o.label = i.name; resultOptions.appendChild(o) });
+  const count = input('', 1), duration = input('', 3000); count.type = duration.type = 'number'; count.min = '1'; count.max = '100'; duration.min = '500';
+  const resolveItem = value => { const raw = String(value || '').trim(); return itemMap.get(raw) || labelMap.get(raw.toLowerCase()) };
+  function picker(title, placeholder, callback) { const box = make('div', 'craft-picker'), search = input(placeholder), dl = make('datalist'), id = 'craft-items-' + Math.random().toString(36).slice(2), add = make('button', 'btn small', 'Adicionar'); dl.id = id; search.setAttribute('list', id); data.items.forEach(i => { const o = make('option'); o.value = i.label; o.label = i.name; dl.appendChild(o) }); add.onclick = () => { const item = resolveItem(search.value); if (!item) return; callback(item); search.value = '' }; box.append(field(title, search), dl, add); return box }
+  const ingredientRows = make('div', 'craft-selected-list'), toolRows = make('div', 'craft-selected-list');
+  function drawSelected() { ingredientRows.replaceChildren(); Object.entries(ingredients).forEach(([name, qty]) => { const row = make('div', 'craft-selected'), n = input('', qty), del = make('button', 'btn small', 'Remover'); n.type = 'number'; n.min = '1'; n.onchange = () => ingredients[name] = Math.max(1, Number(n.value) || 1); del.onclick = () => { delete ingredients[name]; drawSelected() }; row.append(make('span', null, itemMap.get(name)?.label || name), n, del); ingredientRows.appendChild(row) }); toolRows.replaceChildren(); Object.entries(tools).forEach(([name, wear]) => { const row = make('div', 'craft-selected'), n = input('', wear), del = make('button', 'btn small', 'Remover'), item = itemMap.get(name); n.type = 'number'; n.min = '.1'; n.max = '100'; n.step = '.1'; n.onchange = () => tools[name] = Math.max(.1, Number(n.value) || 1); del.onclick = () => { delete tools[name]; drawSelected() }; row.append(make('span', null, `${item?.label || name} (${item?.durability ? 'desgasta %' : 'consome'})`), n, del); toolRows.appendChild(row) }) }
+  function resetForm(recipe) { editing = recipe?.id || null; ingredients = { ...(recipe?.ingredients || {}) }; tools = { ...(recipe?.tools || {}) }; project.value = recipe?.projectId || data.projects[0].id; result.value = recipe?.item || ''; label.value = recipe?.label || ''; description.value = recipe?.description || ''; count.value = recipe?.count || 1; duration.value = recipe?.duration || 3000; drawSelected() }
+  function drawRecipes() { recipeList.replaceChildren(); if (!data.recipes.length) recipeList.appendChild(make('div', 'empty-note', 'Nenhuma receita cadastrada.')); data.recipes.forEach(r => { const row = make('div', 'craft-recipe-row'), text = make('div'), edit = make('button', 'btn small', 'Editar'), del = make('button', 'btn small danger', 'Excluir'); text.append(make('strong', null, r.label), make('small', null, `${itemMap.get(r.item)?.label || r.item} · ${Object.keys(r.ingredients || {}).length} materiais`)); edit.onclick = () => resetForm(r); del.onclick = async () => { const out = await action('nv_mdt:mechanic:deleteCraft', 'Receita excluida.', r.id); if (out?.ok) { data.recipes = data.recipes.filter(x => x.id !== r.id); drawRecipes(); resetForm() } }; row.append(text, edit, del); recipeList.appendChild(row) }) }
+  form.append(field('Ponto de crafting', project), field('Item produzido', result), resultOptions, field('Nome da receita', label), field('Descricao', description)); const numeric = make('div', 'row-inline'); numeric.append(field('Quantidade produzida', count), field('Duracao (ms)', duration)); form.appendChild(numeric); form.append(picker('Materiais consumidos', 'Buscar item para adicionar...', i => { ingredients[i.name] = ingredients[i.name] || 1; drawSelected() }), ingredientRows); form.append(picker('Ferramentas', 'Buscar martelo, alicate, chave...', i => { tools[i.name] = tools[i.name] || 5; drawSelected() }), toolRows);
+  const actions = make('div', 'btn-row'), fresh = make('button', 'btn', 'Limpar'), save = make('button', 'btn primary', 'Salvar receita'); fresh.onclick = () => resetForm(); save.onclick = async () => { const item = resolveItem(result.value); if (!item) return; const payload = { id: editing, projectId: project.value, item: item.name, label: label.value.trim() || item.label, description: description.value.trim(), count: Number(count.value), duration: Number(duration.value), ingredients, tools }; const out = await action('nv_mdt:mechanic:saveCraft', 'Receita salva.', payload); if (out?.ok) { const next = await call('nv_mdt:mechanic:craftData'); data.recipes = next.recipes; drawRecipes(); resetForm() } }; actions.append(fresh, save); form.appendChild(actions); drawRecipes(); resetForm();
 }
 
 // ========================================================== compartilhado ===
@@ -2370,6 +2373,533 @@ async function renderStaff(stage, subtype) {
   stage.appendChild(box);
 }
 
+// ========================================================== CONCESSIONÁRIA ===
+
+const DEALERSHIP_NAV = [
+  { id: 'dashboard', label: 'Dashboard' },
+  { id: 'estoque', label: 'Estoque' },
+  { id: 'compra', label: 'Compra' },
+  { id: 'transferencia', label: 'Transferência' },
+  { id: 'comandos', label: 'Efetivo' }
+];
+
+async function dealershipDashboard(stage) {
+  stage.appendChild(make('div', 'page-title', 'Painel da Concessionária'));
+
+  const data = (await call('nv_mdt:dealership:data', state.dept.set)) || {};
+  const vehicles = data.vehicles || [];
+  const balance = data.balance || 0;
+  const inStockCount = vehicles.reduce((sum, v) => sum + (v.stock || 0), 0);
+  const totalModels = vehicles.length;
+
+  const wrap = make('div', 'dash-grid');
+  const left = make('div', 'dash-col');
+  const right = make('div', 'dash-col');
+
+  const statsBox = section('Resumo Operacional');
+  const gridBox = make('div', 'profile-grid');
+
+  const f1 = make('div', 'profile-field');
+  f1.appendChild(make('span', 'k', 'Caixa da Concessionária'));
+  f1.appendChild(make('span', 'v highlight-price', money(balance)));
+
+  const f2 = make('div', 'profile-field');
+  f2.appendChild(make('span', 'k', 'Veículos em Estoque'));
+  f2.appendChild(make('span', 'v', `${inStockCount} unidade(s)`));
+
+  const f3 = make('div', 'profile-field');
+  f3.appendChild(make('span', 'k', 'Modelos Habilitados'));
+  f3.appendChild(make('span', 'v', `${totalModels} modelo(s)`));
+
+  gridBox.append(f1, f2, f3);
+  statsBox.appendChild(gridBox);
+  left.appendChild(statsBox);
+
+  const lowStockBox = section('Alerta de Estoque Baixo');
+  const lowStockVehicles = vehicles.filter((v) => v.stock === 0 && v.canOrder);
+  const lowList = make('div', 'record-list');
+
+  if (lowStockVehicles.length === 0) {
+    lowList.appendChild(make('div', 'empty-note', 'Todos os modelos encomendáveis possuem estoque.'));
+  } else {
+    lowStockVehicles.slice(0, 5).forEach((v) => {
+      const { item } = record(`${v.brand ? v.brand + ' ' : ''}${v.label}`,
+        `Modelo: ${v.model} · Custo: ${money(v.cost)} · Categoria: ${v.categoryLabel || v.category}`, null, true);
+      lowList.appendChild(item);
+    });
+  }
+  lowStockBox.appendChild(lowList);
+  left.appendChild(lowStockBox);
+
+  const onlineBox = section('Colegas em Serviço');
+  const dashData = (await call('nv_mdt:dashboard', state.dept.subtype)) || {};
+  const online = dashData.online || [];
+  const staffList = make('div', 'record-list');
+
+  if (online.length === 0) {
+    staffList.appendChild(make('div', 'empty-note', 'Nenhum colega online.'));
+  } else {
+    online.forEach((p) => {
+      const row = make('div', 'online-item');
+      const name = make('span');
+      name.appendChild(make('span', 'online-dot'));
+      name.appendChild(document.createTextNode(p.name));
+      row.append(name, make('span', 'muted', p.coords ? 'em serviço' : '—'));
+      staffList.appendChild(row);
+    });
+  }
+  onlineBox.appendChild(staffList);
+  right.appendChild(onlineBox);
+
+  wrap.append(left, right);
+  stage.appendChild(wrap);
+}
+
+async function dealershipEstoque(stage) {
+  stage.appendChild(make('div', 'page-title', 'Estoque'));
+
+  const data = (await call('nv_mdt:dealership:data', state.dept.set)) || {};
+  const allVehicles = data.vehicles || [];
+  const vehicles = allVehicles.filter((v) => (v.stock || 0) > 0);
+
+  const mainCol = make('div', 'dealership-main');
+  const topBar = make('div', 'dealership-topbar');
+
+  const searchInput = input('Buscar veículo em estoque...');
+  searchInput.style.maxWidth = '280px';
+
+  const categories = Array.from(new Set(vehicles.map((v) => v.categoryLabel || v.category).filter(Boolean)));
+  let selectedCategory = 'all';
+
+  const filterBar = make('div', 'filter-pills');
+  const allBtn = make('button', 'filter-pill active', 'Todas');
+  allBtn.addEventListener('click', () => {
+    selectedCategory = 'all';
+    filterBar.querySelectorAll('.filter-pill').forEach((b) => b.classList.remove('active'));
+    allBtn.classList.add('active');
+    drawList();
+  });
+  filterBar.appendChild(allBtn);
+
+  categories.forEach((cat) => {
+    const btn = make('button', 'filter-pill', cat);
+    btn.addEventListener('click', () => {
+      selectedCategory = cat;
+      filterBar.querySelectorAll('.filter-pill').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      drawList();
+    });
+    filterBar.appendChild(btn);
+  });
+
+  topBar.append(field('Pesquisa', searchInput), field('Categoria', filterBar));
+  mainCol.appendChild(topBar);
+
+  const vehicleList = make('div', 'vehicle-catalog-grid');
+  mainCol.appendChild(vehicleList);
+
+  const drawList = () => {
+    vehicleList.replaceChildren();
+
+    const query = searchInput.value.toLowerCase().trim();
+    const filtered = vehicles.filter((v) => {
+      const catName = v.categoryLabel || v.category;
+      const matchesCat = selectedCategory === 'all' || catName === selectedCategory;
+      const matchesSearch = !query || v.label.toLowerCase().includes(query)
+        || v.model.toLowerCase().includes(query)
+        || (v.brand && v.brand.toLowerCase().includes(query));
+      return matchesCat && matchesSearch;
+    });
+
+    if (filtered.length === 0) {
+      vehicleList.appendChild(make('div', 'empty-note', 'Nenhum veículo em estoque para venda no momento.'));
+      return;
+    }
+
+    const info = paginate(filtered, 'estoque');
+
+    info.slice.forEach((v) => {
+      const cardNode = make('div', 'vehicle-card');
+
+      const head = make('div', 'vcard-head');
+      const title = make('div', 'vcard-title', v.label);
+      const sub = make('div', 'vcard-sub', `${v.brand ? v.brand + ' · ' : ''}${v.model}`);
+      head.append(title, sub);
+
+      const badges = make('div', 'vcard-badges');
+      badges.appendChild(make('span', 'badge category-badge', v.categoryLabel || v.category || 'Geral'));
+      badges.appendChild(make('span', 'badge ok', `${v.stock} em estoque`));
+      head.appendChild(badges);
+      cardNode.appendChild(head);
+
+      const priceGrid = make('div', 'vcard-prices');
+      const p1 = make('div', 'vprice-item');
+      p1.appendChild(make('span', 'k', 'Preço Cliente'));
+      p1.appendChild(make('span', 'v price-client', money(v.price)));
+      priceGrid.appendChild(p1);
+      cardNode.appendChild(priceGrid);
+
+      const actions = make('div', 'vcard-actions');
+      if (!state.isGuest) {
+        const sellBtn = make('button', 'btn primary-btn full-width', 'Vender a Player');
+        sellBtn.addEventListener('click', () => openSellModal(v));
+        actions.appendChild(sellBtn);
+      } else {
+        const prevBtn = make('button', 'btn primary-btn full-width', 'Prévia no Showroom');
+        prevBtn.addEventListener('click', async () => {
+          close();
+          await call('nv_mdt:dealership:previewFromPed', { set: state.dept.set, model: v.model });
+        });
+        actions.appendChild(prevBtn);
+      }
+
+      cardNode.appendChild(actions);
+      vehicleList.appendChild(cardNode);
+    });
+
+    pager(vehicleList, 'estoque', info, drawList);
+  };
+
+  searchInput.addEventListener('input', drawList);
+  drawList();
+
+  stage.appendChild(mainCol);
+}
+
+async function dealershipCompra(stage) {
+  stage.appendChild(make('div', 'page-title', 'Compra de Estoque (Missão)'));
+
+  const data = (await call('nv_mdt:dealership:data', state.dept.set)) || {};
+  const allVehicles = data.vehicles || [];
+  const maxOrder = (data.config && data.config.maxOrder) || 10;
+  const vehicles = allVehicles.filter((v) => v.canOrder);
+
+  if (!state.ctx.cart) state.ctx.cart = {};
+
+  const wrap = make('div', 'dealership-layout');
+  const mainCol = make('div', 'dealership-main');
+  const sideCart = make('div', 'dealership-cart-panel');
+
+  const topBar = make('div', 'dealership-topbar');
+
+  const searchInput = input('Buscar veículo para encomendar...');
+  searchInput.style.maxWidth = '280px';
+
+  const categories = Array.from(new Set(vehicles.map((v) => v.categoryLabel || v.category).filter(Boolean)));
+  let selectedCategory = 'all';
+
+  const filterBar = make('div', 'filter-pills');
+  const allBtn = make('button', 'filter-pill active', 'Todas');
+  allBtn.addEventListener('click', () => {
+    selectedCategory = 'all';
+    filterBar.querySelectorAll('.filter-pill').forEach((b) => b.classList.remove('active'));
+    allBtn.classList.add('active');
+    drawList();
+  });
+  filterBar.appendChild(allBtn);
+
+  categories.forEach((cat) => {
+    const btn = make('button', 'filter-pill', cat);
+    btn.addEventListener('click', () => {
+      selectedCategory = cat;
+      filterBar.querySelectorAll('.filter-pill').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      drawList();
+    });
+    filterBar.appendChild(btn);
+  });
+
+  topBar.append(field('Pesquisa', searchInput), field('Categoria', filterBar));
+  mainCol.appendChild(topBar);
+
+  const vehicleList = make('div', 'vehicle-catalog-grid');
+  mainCol.appendChild(vehicleList);
+
+  const drawCart = () => {
+    sideCart.replaceChildren();
+    sideCart.appendChild(make('div', 'section-block-title', 'Pedido de Estoque (Missão)'));
+
+    const cartEntries = Object.entries(state.ctx.cart).filter(([_, qty]) => qty > 0);
+    const totalUnits = cartEntries.reduce((sum, [_, qty]) => sum + qty, 0);
+    const totalCost = cartEntries.reduce((sum, [model, qty]) => {
+      const v = allVehicles.find((item) => item.model === model);
+      return sum + (v ? v.cost * qty : 0);
+    }, 0);
+
+    const cartList = make('div', 'cart-item-list');
+
+    if (cartEntries.length === 0) {
+      cartList.appendChild(make('div', 'empty-note', 'Nenhum veículo adicionado ao pedido.'));
+    } else {
+      cartEntries.forEach(([model, qty]) => {
+        const v = allVehicles.find((item) => item.model === model);
+        if (!v) return;
+
+        const row = make('div', 'cart-item-row');
+        const info = make('div', 'cart-item-info');
+        info.appendChild(make('div', 'cart-item-name', v.label));
+        info.appendChild(make('div', 'cart-item-cost', `${money(v.cost)} × ${qty} = ${money(v.cost * qty)}`));
+
+        const controls = make('div', 'cart-item-controls');
+        const decBtn = make('button', 'btn small', '-');
+        decBtn.addEventListener('click', () => {
+          if (state.ctx.cart[model] > 1) state.ctx.cart[model] -= 1;
+          else delete state.ctx.cart[model];
+          drawCart();
+        });
+
+        const incBtn = make('button', 'btn small', '+');
+        incBtn.addEventListener('click', () => {
+          if (totalUnits < maxOrder) {
+            state.ctx.cart[model] = (state.ctx.cart[model] || 0) + 1;
+            drawCart();
+          }
+        });
+
+        const remBtn = make('button', 'btn small danger-btn', '✕');
+        remBtn.addEventListener('click', () => {
+          delete state.ctx.cart[model];
+          drawCart();
+        });
+
+        controls.append(decBtn, make('span', 'qty-badge', String(qty)), incBtn, remBtn);
+        row.append(info, controls);
+        cartList.appendChild(row);
+      });
+    }
+
+    sideCart.appendChild(cartList);
+
+    const summary = make('div', 'cart-summary');
+    summary.appendChild(make('div', 'cart-summary-line', `Total Unidades: ${totalUnits} / ${maxOrder}`));
+    summary.appendChild(make('div', 'cart-summary-line total-price', `Custo Total: ${money(totalCost)}`));
+
+    const orderBtn = make('button', 'btn primary-btn full-width', 'Encomendar para Estoque');
+    orderBtn.disabled = cartEntries.length === 0 || totalUnits === 0;
+
+    orderBtn.addEventListener('click', async () => {
+      const res = await action('nv_mdt:dealership:order', 'Pedido realizado! Iniciando rota do caminhão...', state.dept.set, state.ctx.cart);
+      if (res && res.ok) {
+        state.ctx.cart = {};
+        close();
+        if (res.value) {
+          post('startDelivery', res.value);
+        }
+      }
+    });
+
+    summary.appendChild(orderBtn);
+    sideCart.appendChild(summary);
+  };
+
+  const drawList = () => {
+    vehicleList.replaceChildren();
+
+    const query = searchInput.value.toLowerCase().trim();
+    const filtered = vehicles.filter((v) => {
+      const catName = v.categoryLabel || v.category;
+      const matchesCat = selectedCategory === 'all' || catName === selectedCategory;
+      const matchesSearch = !query || v.label.toLowerCase().includes(query)
+        || v.model.toLowerCase().includes(query)
+        || (v.brand && v.brand.toLowerCase().includes(query));
+      return matchesCat && matchesSearch;
+    });
+
+    if (filtered.length === 0) {
+      vehicleList.appendChild(make('div', 'empty-note', 'Nenhum veículo disponível para encomenda.'));
+      return;
+    }
+
+    const info = paginate(filtered, 'compra');
+
+    info.slice.forEach((v) => {
+      const cardNode = make('div', 'vehicle-card');
+
+      const head = make('div', 'vcard-head');
+      const title = make('div', 'vcard-title', v.label);
+      const sub = make('div', 'vcard-sub', `${v.brand ? v.brand + ' · ' : ''}${v.model}`);
+      head.append(title, sub);
+
+      const badges = make('div', 'vcard-badges');
+      badges.appendChild(make('span', 'badge category-badge', v.categoryLabel || v.category || 'Geral'));
+      badges.appendChild(make('span', 'badge muted-badge', `Estoque: ${v.stock}`));
+      head.appendChild(badges);
+      cardNode.appendChild(head);
+
+      const priceGrid = make('div', 'vcard-prices');
+      const p1 = make('div', 'vprice-item');
+      p1.appendChild(make('span', 'k', 'Custo Atacado'));
+      p1.appendChild(make('span', 'v price-cost', money(v.cost)));
+      priceGrid.appendChild(p1);
+      cardNode.appendChild(priceGrid);
+
+      const actions = make('div', 'vcard-actions');
+      const addBtn = make('button', 'btn primary-btn full-width', '+ Adicionar ao Pedido');
+      addBtn.addEventListener('click', () => {
+        const currentTotal = Object.values(state.ctx.cart).reduce((a, b) => a + b, 0);
+        if (currentTotal < maxOrder) {
+          state.ctx.cart[v.model] = (state.ctx.cart[v.model] || 0) + 1;
+          drawCart();
+        }
+      });
+      actions.appendChild(addBtn);
+
+      cardNode.appendChild(actions);
+      vehicleList.appendChild(cardNode);
+    });
+
+    pager(vehicleList, 'compra', info, drawList);
+  };
+
+  searchInput.addEventListener('input', drawList);
+
+  drawList();
+  drawCart();
+
+  wrap.append(mainCol, sideCart);
+  stage.appendChild(wrap);
+}
+
+async function openSellModal(vehicle) {
+  const modal = make('div', 'modal-overlay');
+  const box = make('div', 'modal-box invoice-modal-box');
+
+  const nfNumber = String(Math.floor(100000 + Math.random() * 900000));
+
+  const header = make('div', 'invoice-header');
+  const headerTitleWrap = make('div', 'invoice-title-wrap');
+  headerTitleWrap.appendChild(make('div', 'invoice-tag', 'NOTA FISCAL ELETRÔNICA'));
+  headerTitleWrap.appendChild(make('div', 'invoice-title', state.dept?.label || 'CONCESSIONÁRIA'));
+  header.appendChild(headerTitleWrap);
+  header.appendChild(make('div', 'invoice-number', `NF nº ${nfNumber}`));
+  box.appendChild(header);
+
+  const nearby = (await call('nv_mdt:dealership:nearby')) || [];
+  let selectedTarget = nearby.length > 0 ? nearby[0].id : null;
+  let selectedColor = 1;
+
+  const grid = make('div', 'invoice-grid');
+
+  const targetField = section('Comprador (Cliente)');
+  const targetList = make('div', 'record-list invoice-target-list');
+
+  if (nearby.length === 0) {
+    targetList.appendChild(make('div', 'empty-note', 'Nenhum jogador próximo encontrado (máx. 5m).'));
+  } else {
+    nearby.forEach((p, idx) => {
+      const { item } = record(p.name, `ID: ${p.id}`);
+      item.classList.add('clickable');
+      if (idx === 0) {
+        item.classList.add('active');
+        selectedTarget = p.id;
+      }
+      item.addEventListener('click', () => {
+        targetList.querySelectorAll('.record-item').forEach((i) => i.classList.remove('active'));
+        item.classList.add('active');
+        selectedTarget = p.id;
+      });
+      targetList.appendChild(item);
+    });
+  }
+  targetField.appendChild(targetList);
+  grid.appendChild(targetField);
+
+  const vehField = section('Dados do Veículo');
+  const vehInfo = make('div', 'invoice-veh-info');
+  vehInfo.innerHTML = `
+    <div class="invoice-info-row"><span>Veículo:</span> <strong>${vehicle.label}</strong></div>
+    <div class="invoice-info-row"><span>Modelo:</span> <strong>${vehicle.model}</strong></div>
+  `;
+
+  const colorPickerWrap = make('div', 'invoice-color-wrap');
+  colorPickerWrap.appendChild(make('div', 'invoice-label-sm', 'Cor de Pintura:'));
+  const colorPick = make('div', 'color-selector');
+  const colors = [
+    { id: 1, label: 'Preto', hex: '#111' },
+    { id: 2, label: 'Branco', hex: '#eee' },
+    { id: 3, label: 'Vermelho', hex: '#d32f2f' },
+    { id: 4, label: 'Azul', hex: '#1976d2' }
+  ];
+
+  colors.forEach((c) => {
+    const dot = make('button', `color-dot${c.id === 1 ? ' active' : ''}`);
+    dot.style.background = c.hex;
+    dot.title = c.label;
+    dot.addEventListener('click', () => {
+      colorPick.querySelectorAll('.color-dot').forEach((d) => d.classList.remove('active'));
+      dot.classList.add('active');
+      selectedColor = c.id;
+    });
+    colorPick.appendChild(dot);
+  });
+  colorPickerWrap.appendChild(colorPick);
+  vehInfo.appendChild(colorPickerWrap);
+  vehField.appendChild(vehInfo);
+  grid.appendChild(vehField);
+
+  box.appendChild(grid);
+
+  const paymentSection = section('Forma de Pagamento');
+  const paymentBox = make('div', 'invoice-payment-box');
+  const paymentBadge = make('div', 'invoice-payment-badge');
+  paymentBadge.appendChild(icon(ICONS.invoice || ICONS.document, 16));
+  paymentBadge.appendChild(make('span', null, 'DINHEIRO (À VISTA)'));
+  paymentBox.appendChild(paymentBadge);
+  paymentBox.appendChild(make('span', 'invoice-payment-note', 'Somente pagamento em dinheiro à vista.'));
+  paymentSection.appendChild(paymentBox);
+  box.appendChild(paymentSection);
+
+  const summaryBox = make('div', 'invoice-summary-box');
+  summaryBox.innerHTML = `
+    <div class="invoice-summary-row"><span>Subtotal:</span> <span>${money(vehicle.price)}</span></div>
+    <div class="invoice-summary-row total"><span>TOTAL DA NOTA FISCAL:</span> <strong>${money(vehicle.price)}</strong></div>
+  `;
+  box.appendChild(summaryBox);
+
+  const actions = make('div', 'row-inline');
+  actions.style.marginTop = '16px';
+  actions.style.justifyContent = 'flex-end';
+
+  const cancelBtn = make('button', 'btn', 'Cancelar');
+  cancelBtn.addEventListener('click', () => modal.remove());
+
+  const confirmBtn = make('button', 'btn primary-btn', `Emitir NF & Concluir Venda`);
+  confirmBtn.addEventListener('click', async () => {
+    if (!selectedTarget) {
+      return action('nv_mdt:dealership:sell', null, state.dept.set, vehicle.model, null, selectedColor);
+    }
+
+    const res = await action('nv_mdt:dealership:sell', `Nota Fiscal nº ${nfNumber} emitida! Enviada ao cliente para pagamento no Caixa.`, state.dept.set, vehicle.model, selectedTarget, selectedColor);
+    if (res && res.ok) {
+      modal.remove();
+      go('estoque');
+    }
+  });
+
+  actions.append(cancelBtn, confirmBtn);
+  box.appendChild(actions);
+
+  modal.appendChild(box);
+  document.body.appendChild(modal);
+}
+
+function render404Page(stage, titleText, descText) {
+  const wrap = make('div', 'not-found-container');
+  const iconNode = icon(ICONS.alert || ICONS.document, 64);
+  iconNode.classList.add('not-found-icon');
+
+  const title = make('h1', 'not-found-title', '404');
+  const subtitle = make('h2', 'not-found-subtitle', titleText);
+  const desc = make('p', 'not-found-desc', descText);
+
+  wrap.append(iconNode, title, subtitle, desc);
+  stage.appendChild(wrap);
+}
+
+function dealershipTransferencia(stage) {
+  render404Page(stage, 'MÓDULO DE TRANSFERÊNCIA EM DESENVOLVIMENTO', 'A tela de transferência de propriedade de veículos está temporariamente indisponível.');
+}
+
 // ================================================================ roteador ===
 
 const ROUTES = {
@@ -2408,13 +2938,24 @@ const ROUTES = {
       historico: mechanicHistorico,
       comandos: (stage) => renderStaff(stage, 'mecanica')
     }
+  },
+  concessionaria: {
+    nav: DEALERSHIP_NAV,
+    pages: {
+      dashboard: dealershipDashboard,
+      estoque: dealershipEstoque,
+      compra: dealershipCompra,
+      transferencia: dealershipTransferencia,
+      comandos: (stage) => renderStaff(stage, 'dealership')
+    }
   }
 };
 
 const NAV_ICONS = {
   ocorrencias: 'report', cidadao: 'user', procurados: 'wanted', veiculos: 'car',
   faturas: 'invoice', armas: 'weapon', documentos: 'document', comandos: 'team',
-  chamados: 'call', paciente: 'user', consulta: 'report', cameras: 'camera'
+  chamados: 'call', paciente: 'user', consulta: 'report', cameras: 'camera',
+  estoque: 'car', compra: 'cart', transferencia: 'swap'
 };
 
 function renderNav() {
@@ -2422,7 +2963,11 @@ function renderNav() {
 
   dom.nav.replaceChildren();
 
-  route.nav.forEach((item) => {
+  const navItems = (state.isGuest && state.dept.id === 'concessionaria')
+    ? [{ id: 'estoque', label: 'Estoque' }]
+    : route.nav;
+
+  navItems.forEach((item) => {
     const node = make('div', 'nav-item');
     node.appendChild(icon(ICONS[item.icon || NAV_ICONS[item.id] || item.id] || ICONS.document));
     node.appendChild(make('span', null, item.label));
@@ -2434,6 +2979,9 @@ function renderNav() {
 }
 
 async function go(pageId) {
+  if (state.isGuest) {
+    pageId = 'estoque';
+  }
   /* Sair da página de ocorrências fecha o formulário. Sem isto, ir ao Cidadão e
      voltar traria de volta um formulário meio preenchido que ninguém pediu — o
      estado sobreviveria à intenção que o criou. */
@@ -2460,6 +3008,7 @@ function selectDept(tab) {
   state.dept = tab;
   document.body.dataset.dept = tab.id;
   state.ctx = {};
+  renderNav();
 
   dom.deptTabs.querySelectorAll('.dept-tab').forEach((t) => {
     t.classList.toggle('active', t.dataset.id === tab.id);
@@ -2469,7 +3018,7 @@ function selectDept(tab) {
   dom.sideTitle.textContent = `MDT — ${tab.label}`;
   dom.sideSub.textContent = tab.org || '';
 
-  go('dashboard');
+  go(state.isGuest ? 'estoque' : (ROUTES[tab.id].nav[0]?.id || 'dashboard'));
 }
 
 function renderTabs() {
@@ -2491,7 +3040,19 @@ function renderTabs() {
 
 // ---------------------------------------------------------------- eventos --
 
+function closeModal() {
+  const activeModal = document.querySelector('.modal-overlay');
+  if (activeModal) {
+    activeModal.remove();
+    return true;
+  }
+  return false;
+}
+
 function close() {
+  if (closeModal()) return;
+
+  document.querySelectorAll('.modal-overlay').forEach((m) => m.remove());
   if (dom.root.classList.contains('hidden')) return;
 
   dom.root.classList.add('hidden');
@@ -2509,26 +3070,102 @@ document.addEventListener('click', () => {
 });
 window.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
 
+function drawReceiptModal(sale) {
+  closeModal();
+
+  const modal = make('div', 'modal-overlay');
+  const card = make('div', 'receipt-modal-card');
+
+  const storeName = make('div', 'receipt-store-title', (sale.unitLabel || 'CONCESSIONÁRIA').toUpperCase());
+  const storeSub = make('div', 'receipt-store-sub', 'Nota Fiscal de Venda');
+
+  const divider1 = make('div', 'receipt-dashed-divider');
+
+  const items = make('div', 'receipt-items-list');
+
+  const rowVeh = make('div', 'receipt-item-row');
+  rowVeh.append(
+    make('span', 'receipt-item-label', 'Veículo'),
+    make('span', 'receipt-item-value', `${sale.label} (${sale.model})`)
+  );
+
+  const rowSeller = make('div', 'receipt-item-row');
+  rowSeller.append(
+    make('span', 'receipt-item-label', 'Vendedor'),
+    make('span', 'receipt-item-value', sale.sellerName || '-')
+  );
+
+  const rowPayment = make('div', 'receipt-item-row');
+  rowPayment.append(
+    make('span', 'receipt-item-label', 'Forma de Pagamento'),
+    make('span', 'receipt-item-value', 'Dinheiro (À Vista)')
+  );
+
+  items.append(rowVeh, rowSeller, rowPayment);
+
+  const divider2 = make('div', 'receipt-dashed-divider');
+
+  const totalRow = make('div', 'receipt-item-row total');
+  totalRow.append(
+    make('span', 'receipt-total-label', 'TOTAL'),
+    make('span', 'receipt-total-value', money(sale.price))
+  );
+
+  card.append(storeName, storeSub, divider1, items, divider2, totalRow);
+
+  const actions = make('div', 'receipt-actions-row');
+
+  const cancelBtn = make('button', 'btn danger-btn', 'RECUSAR COMPRA');
+  cancelBtn.addEventListener('click', async () => {
+    modal.remove();
+    await action('nv_dealership:cancelInvoicePayment', null, sale.slot);
+    post('closeInvoiceModal');
+  });
+
+  const confirmBtn = make('button', 'btn primary-btn', `PAGAR ${money(sale.price)} EM DINHEIRO`);
+  confirmBtn.addEventListener('click', async () => {
+    const res = await action('nv_dealership:confirmInvoicePayment', null, sale.slot);
+    modal.remove();
+    post('closeInvoiceModal');
+  });
+
+  actions.append(cancelBtn, confirmBtn);
+
+  const container = make('div', 'receipt-modal-container');
+  container.append(card, actions);
+
+  modal.appendChild(container);
+  document.body.appendChild(modal);
+}
+
 window.addEventListener('message', (event) => {
   const data = event.data;
 
   if (!data || typeof data.action !== 'string') return;
 
   if (data.action === 'close') {
+    document.querySelectorAll('.modal-overlay').forEach((m) => m.remove());
     dom.root.classList.add('hidden');
     return;
   }
 
+  if (data.action === 'openInvoiceModal') {
+    drawReceiptModal(data.sale);
+    return;
+  }
+
   if (data.action === 'mechanicOrder') {
-    const tab=state.tabs.find(t=>t.id==='mecanica');if(!tab)return;
-    if(state.dept?.id!=='mecanica'){selectDept(tab);}
-    state.ctx.mechanicOrder=data.order;go('veiculos');return;
+    const tab = state.tabs.find(t => t.id === 'mecanica'); if (!tab) return;
+    if (state.dept?.id !== 'mecanica') { selectDept(tab); }
+    state.ctx.mechanicOrder = data.order; go('veiculos'); return;
   }
 
   if (data.action !== 'open') return;
 
   state.tabs = Array.isArray(data.tabs) ? data.tabs : [];
   state.cfg = data.config || {};
+  state.isGuest = data.isGuest === true;
+  dom.deptSwitch.classList.toggle('hidden', state.isGuest);
 
   Object.keys(PAGE_KEYS).forEach((k) => { PAGE_KEYS[k] = 0; });
 

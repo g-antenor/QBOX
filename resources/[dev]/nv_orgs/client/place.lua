@@ -184,6 +184,48 @@ function Panel.placeDealershipPoint(set, pointType, options)
     end)
 end
 
+function Panel.placeDutyPoint(set)
+    if placing then return end
+    placing = true
+
+    CreateThread(function()
+        local point = aimForPoint('Ponto de Serviço (Bater Ponto)', 1.8)
+        if not point then
+            Panel.notify('Posicionamento cancelado.', 'inform')
+            return finish(set)
+        end
+
+        local heading = GetGameplayCamRot(2).z
+        local ok, err = lib.callback.await('nv_orgs:setDutyPoint', false, set, {
+            x = point.x, y = point.y, z = point.z, w = heading
+        })
+        Panel.notify(ok and 'Ponto de serviço configurado.' or (err or 'Nao foi possivel salvar o ponto.'),
+            ok and 'success' or 'error')
+        finish(set)
+    end)
+end
+
+function Panel.placeServicePed(set)
+    if placing then return end
+    placing = true
+
+    CreateThread(function()
+        local point = aimForPoint('PED de Serviço (Atendimento)', 1.8)
+        if not point then
+            Panel.notify('Posicionamento cancelado.', 'inform')
+            return finish(set)
+        end
+
+        local heading = GetGameplayCamRot(2).z
+        local ok, err = lib.callback.await('nv_orgs:setServicePed', false, set, {
+            x = point.x, y = point.y, z = point.z, w = heading
+        })
+        Panel.notify(ok and 'PED de serviço configurado.' or (err or 'Nao foi possivel salvar o PED.'),
+            ok and 'success' or 'error')
+        finish(set)
+    end)
+end
+
 -- --------------------------------------------------------- fechaduras --
 
 --- A entidade de porta que o jogador esta mirando, se houver.

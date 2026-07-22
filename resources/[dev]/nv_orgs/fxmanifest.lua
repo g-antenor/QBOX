@@ -23,7 +23,8 @@ client_scripts {
     'client/place.lua',
     'client/stashes.lua',
     'client/garage.lua',
-    'client/wardrobe.lua'
+    'client/wardrobe.lua',
+    'client/duty.lua'
 }
 
 server_scripts {
@@ -35,7 +36,8 @@ server_scripts {
     'server/resources.lua',
     'server/garage.lua',
     'server/wardrobe.lua',
-    'server/dealership.lua'
+    'server/dealership.lua',
+    'server/duty.lua'
 }
 
 ui_page 'html/index.html'

@@ -28,14 +28,119 @@ local function applyPreviewColor(colorId)
     SetVehicleCustomSecondaryColour(previewVehicle, color[1], color[2], color[3])
 end
 
+local function getFirstInvoiceFromInventory()
+    local slots = exports.ox_inventory:Search('slots', 'invoice') or {}
+    if type(slots) == 'table' then
+        for _, item in pairs(slots) do
+            if item then
+                local meta = item.metadata or item.info or {}
+                if meta and (meta.nfNumber or meta.model or meta.price or meta.label) then
+                    local data = {}
+                    for k, v in pairs(meta) do data[k] = v end
+                    data.slot = item.slot
+                    return data
+                end
+            end
+        end
+    end
+
+    if currentPendingSale then
+        return currentPendingSale
+    end
+
+    return nil
+end
+
+local function openBuyerInvoiceModal(sale)
+    if not sale then
+        return lib.notify({
+            title = 'Concessionaria',
+            description = 'Nenhuma Nota Fiscal valida encontrada no inventario.',
+            type = 'error'
+        })
+    end
+    TriggerEvent('nv_mdt:openInvoiceModal', sale)
+end
+
+RegisterNetEvent('nv_dealership:receiveSaleProposal', function(proposal)
+    currentPendingSale = proposal
+    refreshLocationBlips()
+    lib.notify({
+        title = 'Nota Fiscal Emitida',
+        description = ('Voce recebeu a Nota Fiscal do veiculo %s ($%s). Va ate o Caixa para realizar o pagamento.'):format(proposal.label, proposal.price),
+        type = 'inform',
+        duration = 10000
+    })
+end)
+
+RegisterNetEvent('nv_dealership:clearSaleProposal', function()
+    currentPendingSale = nil
+    refreshLocationBlips()
+end)
+
+local paymentZones = {}
+
+local function refreshPaymentTargets(units)
+    for set, zoneId in pairs(paymentZones) do
+        exports.ox_target:removeZone(zoneId)
+    end
+    paymentZones = {}
+
+    local firstInvoice = getFirstInvoiceFromInventory()
+
+    for i = 1, #units do
+        local u = units[i]
+        local payment = u.points and u.points.payment
+        if payment and payment.x then
+            local coords = vec3(payment.x, payment.y, payment.z)
+            local options = {}
+
+            if firstInvoice and (firstInvoice.unitId == u.set or not firstInvoice.unitId) then
+                options[#options + 1] = {
+                    name = 'nv_dealership_pay_invoice_' .. u.set,
+                    icon = 'fa-solid fa-file-invoice-dollar',
+                    label = 'Pagar NF',
+                    distance = 3.5,
+                    onSelect = function()
+                        local currentInvoice = getFirstInvoiceFromInventory()
+                        if currentInvoice then
+                            openBuyerInvoiceModal(currentInvoice)
+                        else
+                            lib.notify({
+                                title = 'Concessionaria',
+                                description = 'Nenhuma Nota Fiscal valida encontrada no inventario.',
+                                type = 'error'
+                            })
+                        end
+                    end
+                }
+            end
+
+            if #options > 0 then
+                local zoneId = exports.ox_target:addBoxZone({
+                    coords = coords,
+                    size = vec3(1.5, 1.5, 2.0),
+                    rotation = payment.w or 0.0,
+                    debug = false,
+                    options = options
+                })
+                paymentZones[u.set] = zoneId
+            end
+        end
+    end
+end
+
 local function refreshLocationBlips()
     for i = 1, #locationBlips do
         if DoesBlipExist(locationBlips[i]) then RemoveBlip(locationBlips[i]) end
     end
     locationBlips = {}
+
     local units = lib.callback.await('nv_dealership:blips', false) or {}
+
     for i = 1, #units do
-        local point = units[i].points and units[i].points.blip
+        local u = units[i]
+        local point = u.points and u.points.blip
         if point then
             local blip = AddBlipForCoord(point.x, point.y, point.z)
             SetBlipSprite(blip, tonumber(point.sprite) or 326)
@@ -44,14 +149,16 @@ local function refreshLocationBlips()
             SetBlipDisplay(blip, 4)
             SetBlipAsShortRange(blip, true)
             BeginTextCommandSetBlipName('STRING')
-            AddTextComponentString(point.label or units[i].label or 'Concessionaria')
+            AddTextComponentString(point.label or u.label or 'Concessionaria')
             EndTextCommandSetBlipName(blip)
             locationBlips[#locationBlips + 1] = blip
         end
     end
+    refreshPaymentTargets(units)
 end
 
 RegisterNetEvent('nv_dealership:refreshBlips', refreshLocationBlips)
+RegisterNetEvent('ox_inventory:updateInventory', refreshLocationBlips)
 CreateThread(function()
     Wait(1000)
     refreshLocationBlips()
@@ -160,8 +267,16 @@ local function deletePreview()
 end
 
 local function enableTestDriveTarget(model)
+    if not previewVehicle or not DoesEntityExist(previewVehicle) then return end
+    pcall(function() exports.ox_target:removeLocalEntity(previewVehicle, { 'nv_dealership_test' }) end)
     exports.ox_target:addLocalEntity(previewVehicle, {{
-        name = 'nv_dealership_test', icon = 'fa-solid fa-gauge-high', label = 'Test-drive',
+        name = 'nv_dealership_test',
+        icon = 'fa-solid fa-gauge-high',
+        label = 'Test-drive',
+        distance = 3.5,
+        canInteract = function()
+            return not testActive
+        end,
         onSelect = function()
             if testActive then return end
             local back = GetEntityCoords(cache.ped)
@@ -213,165 +328,367 @@ end
 local function preview(model, interactive, colorId)
     local unit = currentConfig
     if not unit then return end
+
     if previewModel ~= model or not previewVehicle or not DoesEntityExist(previewVehicle) then
         deletePreview()
         local hash = lib.requestModel(model)
-        previewVehicle = CreateVehicle(hash, unit.preview.x, unit.preview.y, unit.preview.z, unit.preview.w, false, false)
+        previewVehicle = CreateVehicle(hash, unit.preview.x, unit.preview.y, unit.preview.z, unit.preview.w, true, false)
         previewModel = model
-        SetEntityVisible(previewVehicle, true, false)
-        SetEntityAlpha(previewVehicle, 255, false)
-        SetVehicleOnGroundProperly(previewVehicle)
-        SetEntityInvincible(previewVehicle, true)
-        FreezeEntityPosition(previewVehicle, true)
-        SetVehicleDoorsLocked(previewVehicle, 2)
     end
+
+    SetEntityVisible(previewVehicle, true, false)
+    SetEntityAlpha(previewVehicle, 255, false)
+    SetVehicleOnGroundProperly(previewVehicle)
+    SetEntityInvincible(previewVehicle, true)
+    FreezeEntityPosition(previewVehicle, true)
+    SetVehicleDoorsLocked(previewVehicle, 2)
+    SetVehicleDoorsLockedForAllPlayers(previewVehicle, true)
+    SetVehicleCanBeVisiblyDamaged(previewVehicle, false)
+    SetVehicleEngineCanDegrade(previewVehicle, false)
+
+    local vehState = Entity(previewVehicle).state
+    vehState:set('isDealershipPreview', true, true)
+    vehState:set('nvLocked', true, true)
+    vehState:set('noLockpick', true, true)
+    vehState:set('noHotwire', true, true)
+    vehState:set('noBlocker', true, true)
 
     if previewInteractive then
-        exports.ox_target:removeLocalEntity(previewVehicle, 'nv_dealership_test')
+        pcall(function() exports.ox_target:removeLocalEntity(previewVehicle, { 'nv_dealership_test' }) end)
     end
     previewInteractive = interactive == true
-    -- A colisao desligada fazia alguns modelos aparecerem parcialmente
-    -- enterrados/translucidos no showroom. A interatividade controla apenas o
-    -- target do test-drive; a previa permanece totalmente visivel e solida.
     SetEntityCollision(previewVehicle, true, true)
     applyPreviewColor(colorId)
-    if previewInteractive then enableTestDriveTarget(model) end
-end
-
-local function openUnit(unitId)
-    local data, err = lib.callback.await('nv_dealership:data', false, unitId)
-    if not data then
-        return notify(err or 'A concessionaria nao esta configurada.', 'error')
+    if previewInteractive then
+        enableTestDriveTarget(model)
     end
-    currentUnit = unitId
-    currentConfig = data.config
-    startTablet()
-    SetNuiFocus(true, true)
-    SendNUIMessage({
-        action = 'open',
-        data = data,
-        maxOrder = Config.MaxOrderUnits,
-        previewActive = previewInteractive == true
-    })
 end
 
-exports('open', function()
-    local unitId = lib.callback.await('nv_dealership:myUnit', false)
-    if unitId then return openUnit(unitId) end
-    notify('Voce nao tem acesso a nenhuma concessionaria.', 'error')
+RegisterNetEvent('nv_dealership:clientPreview', function(set, model)
+    if not currentConfig or currentUnit ~= set then
+        currentConfig = lib.callback.await('nv_dealership:getUnitConfig', false, set)
+        currentUnit = set
+    end
+    preview(model, true, 1)
+    notify('Veiculo exibido na previa do showroom.', 'success')
 end)
 
-RegisterNUICallback('close', function(_, cb)
-    -- Se o vendedor apenas selecionou um carro, a previa era temporaria e deve
-    -- sumir junto com o tablet. Uma previa confirmada pelo botao permanece no
-    -- showroom ate ser removida explicitamente.
-    if not previewInteractive then deletePreview() end
+RegisterNetEvent('nv_dealership:clientPreviewFromPed', function(set, model)
     stopTablet()
     SetNuiFocus(false, false)
-    cb(1)
+    SendNUIMessage({ action = 'close' })
+
+    if not currentConfig or currentUnit ~= set then
+        currentConfig = lib.callback.await('nv_dealership:getUnitConfig', false, set)
+        currentUnit = set
+    end
+
+    preview(model, true, 1)
+    notify('Veiculo exibido na previa do showroom.', 'success')
 end)
 
-RegisterNUICallback('preview', function(data, cb)
-    preview(data.model, true, data.color)
-    cb(1)
-end)
+local deliveryBlip = nil
+local currentTruckNet = nil
 
-RegisterNUICallback('removePreview', function(_, cb)
-    deletePreview()
-    cb(1)
-end)
+local function removeDeliveryBlip()
+    if deliveryBlip and DoesBlipExist(deliveryBlip) then
+        RemoveBlip(deliveryBlip)
+        deliveryBlip = nil
+    end
+end
 
-RegisterNUICallback('selectVehicle', function(data, cb)
-    preview(data.model, false, data.color)
-    cb(1)
-end)
+local function setRouteBlip(coords, label, sprite, color)
+    removeDeliveryBlip()
+    local x = tonumber(coords and coords.x)
+    local y = tonumber(coords and coords.y)
+    local z = tonumber(coords and coords.z)
+    if not x or not y or not z then return end
 
-RegisterNUICallback('previewColor', function(data, cb)
-    applyPreviewColor(data.color)
-    cb(1)
-end)
-
-RegisterNUICallback('nearby', function(_, cb)
-    cb(lib.callback.await('nv_dealership:nearby', false) or {})
-end)
-
-RegisterNUICallback('sell', function(data, cb)
-    local ok, err = lib.callback.await('nv_dealership:sell', false, currentUnit, data.model, data.target, data.color)
-    cb({ ok = ok, error = err })
-end)
-
-local function route(coords, label)
-    if deliveryBlip and DoesBlipExist(deliveryBlip) then RemoveBlip(deliveryBlip) end
-    deliveryBlip = AddBlipForCoord(coords.x, coords.y, coords.z)
+    deliveryBlip = AddBlipForCoord(x, y, z)
+    SetBlipSprite(deliveryBlip, sprite or 1)
+    SetBlipDisplay(deliveryBlip, 4)
+    SetBlipScale(deliveryBlip, 1.0)
+    SetBlipColour(deliveryBlip, color or 1)
+    SetBlipAsShortRange(deliveryBlip, false)
     SetBlipRoute(deliveryBlip, true)
-    SetBlipRouteColour(deliveryBlip, 1)
-    BeginTextCommandSetBlipName('STRING'); AddTextComponentString(label); EndTextCommandSetBlipName(deliveryBlip)
+    SetBlipRouteColour(deliveryBlip, color or 1)
+
+    BeginTextCommandSetBlipName('STRING')
+    AddTextComponentString(label)
+    EndTextCommandSetBlipName(deliveryBlip)
+
+    SetNewWaypoint(x, y)
+end
+
+local function setEntityBlip(entity, label, sprite, color)
+    removeDeliveryBlip()
+    if not entity or entity == 0 or not DoesEntityExist(entity) then return end
+
+    deliveryBlip = AddBlipForEntity(entity)
+    SetBlipSprite(deliveryBlip, sprite or 1)
+    SetBlipDisplay(deliveryBlip, 4)
+    SetBlipScale(deliveryBlip, 1.0)
+    SetBlipColour(deliveryBlip, color or 1)
+    SetBlipAsShortRange(deliveryBlip, false)
+    SetBlipRoute(deliveryBlip, true)
+    SetBlipRouteColour(deliveryBlip, color or 1)
+
+    BeginTextCommandSetBlipName('STRING')
+    AddTextComponentString(label)
+    EndTextCommandSetBlipName(deliveryBlip)
+
+    local coords = GetEntityCoords(entity)
+    if coords then SetNewWaypoint(coords.x, coords.y) end
 end
 
 local createInvoiceNpc
 
-RegisterNUICallback('order', function(data, cb)
-    local ok, err, result = lib.callback.await('nv_dealership:order', false, currentUnit, data.items)
-    cb({ ok = ok, error = err, invoice = result and result.invoice })
-    if ok then
-        stopTablet()
-        SetNuiFocus(false, false)
-        SendNUIMessage({ action = 'close' })
-        local truck = NetToVeh(result.truckNet)
-        createInvoiceNpc(currentUnit, result.destination)
-        route(currentConfig.truckSpawn, 'Caminhao da concessionaria')
-        CreateThread(function()
-            while truck == 0 or not DoesEntityExist(truck) do truck = NetToVeh(result.truckNet); Wait(200) end
-            while GetVehiclePedIsIn(cache.ped, false) ~= truck do Wait(500) end
-            route(result.destination, 'Validar nota fiscal')
-        end)
+local function startDeliveryMission(data)
+    if type(data) ~= 'table' or not data.destination then return end
+    local unitId = data.unitId
+    local destination = data.destination
+    local truckSpawn = data.truckSpawn
+    local truckNet = data.truckNet
+
+    currentTruckNet = truckNet
+    createInvoiceNpc(unitId, destination)
+
+    -- Passo 1: Solicitada a compra -> Marca no minimapa a localização exata do caminhão
+    if truckSpawn then
+        setRouteBlip(truckSpawn, 'Caminhão da Concessionária', 67, 1)
+    end
+
+    CreateThread(function()
+        -- Passo 2: Monitora quando o jogador entra no caminhão e liga o motor
+        while true do
+            Wait(300)
+            local currentVeh = GetVehiclePedIsIn(cache.ped, false)
+            local truck = truckNet and NetToVeh(truckNet) or 0
+
+            local isMyTruck = false
+            if currentVeh ~= 0 then
+                if (truck ~= 0 and currentVeh == truck) or (truckNet and NetworkGetNetworkIdFromEntity(currentVeh) == truckNet) then
+                    isMyTruck = true
+                elseif GetEntityModel(currentVeh) == joaat(Config.TruckModel) then
+                    isMyTruck = true
+                end
+            end
+
+            if isMyTruck and GetIsVehicleEngineRunning(currentVeh) then
+                break
+            end
+        end
+
+        -- Entrou e ligou o caminhão -> Marca a localização destacada do PED no mapa com rota
+        setRouteBlip(destination, 'Retirar Encomenda (Nota Fiscal)', 1, 1)
+    end)
+end
+
+RegisterNetEvent('nv_dealership:startDeliveryMission', function(data)
+    if data then startDeliveryMission(data) end
+end)
+
+exports('open', function()
+    local unitId = lib.callback.await('nv_dealership:myUnit', false)
+    if unitId then
+        exports.nv_mdt:open()
+    else
+        notify('Voce nao tem acesso a nenhuma concessionaria.', 'error')
     end
 end)
 
+local invoiceNpcPed = nil
+local invoicePoint = nil
+
+local function removeInvoicePoint(unitId)
+    if invoicePoint then
+        invoicePoint:remove()
+        invoicePoint = nil
+    end
+    if invoiceNpcPed and DoesEntityExist(invoiceNpcPed) then
+        if unitId then
+            exports.ox_target:removeLocalEntity(invoiceNpcPed, 'nv_dealership_invoice_' .. unitId)
+        end
+        DeleteEntity(invoiceNpcPed)
+        invoiceNpcPed = nil
+    end
+end
+
 createInvoiceNpc = function(unitId, invoiceNpc)
-        local model = lib.requestModel(Config.DeliveryNpcModel)
-        local npc = CreatePed(4, model, invoiceNpc.x, invoiceNpc.y, invoiceNpc.z - 1.0, invoiceNpc.w, false, false)
-        FreezeEntityPosition(npc, true); SetEntityInvincible(npc, true); SetBlockingOfNonTemporaryEvents(npc, true)
-        exports.ox_target:addLocalEntity(npc, {{
-            name = 'nv_dealership_invoice_' .. unitId, icon = 'fa-solid fa-file-invoice', label = 'Validar nota fiscal',
-            onSelect = function()
-                local ok, err, result = lib.callback.await('nv_dealership:validateInvoice', false, unitId)
-                if not ok then return notify(err or 'Nota fiscal invalida.', 'error') end
-                route(result.unload, 'Descarga da concessionaria')
-                CreateThread(function()
-                    local trailer
-                    while not trailer do trailer = NetToVeh(result.trailerNet); Wait(100) end
-                    exports.ox_target:addLocalEntity(trailer, {{
-                        name = 'nv_dealership_unload', icon = 'fa-solid fa-truck-ramp-box', label = 'Descarregar',
-                        onSelect = function()
-                            if #(GetEntityCoords(trailer) - result.unload) > 12.0 then return notify('Leve o trailer ao ponto marcado.', 'error') end
-                            for i = 1, result.units do
-                                if not lib.progressBar({ duration = 1800, label = ('Descarregando veiculo %d/%d'):format(i, result.units),
-                                    canCancel = false, disable = { move = true, combat = true } }) then return end
-                                if not lib.callback.await('nv_dealership:unloadOne', false, result.trailerNet) then
-                                    return notify('A descarga foi interrompida.', 'error')
+    if not invoiceNpc then return end
+    removeInvoicePoint(unitId)
+
+    local coords = vec3(invoiceNpc.x, invoiceNpc.y, invoiceNpc.z)
+    invoicePoint = lib.points.new({
+        coords = coords,
+        distance = 120,
+        onEnter = function()
+            if invoiceNpcPed and DoesEntityExist(invoiceNpcPed) then return end
+            local model = lib.requestModel(Config.DeliveryNpcModel)
+            if not model then return end
+
+            local z = invoiceNpc.z
+            local foundGround, groundZ = GetGroundZFor_3dCoord(invoiceNpc.x, invoiceNpc.y, invoiceNpc.z, false)
+            if foundGround and math.abs(groundZ - invoiceNpc.z) < 3.0 then
+                z = groundZ
+            end
+
+            invoiceNpcPed = CreatePed(4, model, invoiceNpc.x, invoiceNpc.y, z, invoiceNpc.w or 0.0, false, false)
+            PlaceObjectOnGroundProperly(invoiceNpcPed)
+            FreezeEntityPosition(invoiceNpcPed, true)
+            SetEntityInvincible(invoiceNpcPed, true)
+            SetEntityCanBeDamaged(invoiceNpcPed, false)
+            SetPedCanRagdoll(invoiceNpcPed, false)
+            SetPedCanRagdollFromPlayerImpact(invoiceNpcPed, false)
+            SetPedCanBeTargetted(invoiceNpcPed, false)
+            SetBlockingOfNonTemporaryEvents(invoiceNpcPed, true)
+
+            exports.ox_target:addLocalEntity(invoiceNpcPed, {{
+                name = 'nv_dealership_invoice_' .. unitId,
+                icon = 'fa-solid fa-file-invoice',
+                label = 'Validar nota fiscal',
+                onSelect = function()
+                    local ok, err, result = lib.callback.await('nv_dealership:validateInvoice', false, unitId)
+                    if not ok then return notify(err or 'Nota fiscal invalida.', 'error') end
+
+                    -- Passo 3: Interagindo com o PED -> Spawna o trailer e marca no minimapa onde ele está
+                    CreateThread(function()
+                        if result.trailerSpawn then
+                            setRouteBlip(result.trailerSpawn, 'Trailer de Veículos', 479, 1)
+                        end
+
+                        local trailer = 0
+                        while trailer == 0 or not DoesEntityExist(trailer) do
+                            trailer = NetToVeh(result.trailerNet)
+                            Wait(100)
+                        end
+
+                        setEntityBlip(trailer, 'Trailer de Veículos', 479, 1)
+
+                        -- Passo 4: Aguarda engatar o trailer no caminhão
+                        local truckNet = result.truckNet or currentTruckNet
+                        CreateThread(function()
+                            while DoesEntityExist(trailer) do
+                                Wait(400)
+                                local currentVeh = GetVehiclePedIsIn(cache.ped, false)
+                                local isAttached = false
+
+                                if currentVeh ~= 0 then
+                                    if IsVehicleAttachedToTrailer(currentVeh) then
+                                        isAttached = true
+                                    else
+                                        local hasTrailer, trailerEnt = GetVehicleTrailerVehicle(currentVeh)
+                                        if hasTrailer and trailerEnt ~= 0 then
+                                            isAttached = true
+                                        end
+                                    end
+                                end
+
+                                if isAttached then
+                                    break
                                 end
                             end
-                            local done, message = lib.callback.await('nv_dealership:completeDelivery', false, result.trailerNet)
-                            if done then
-                                if deliveryBlip then RemoveBlip(deliveryBlip); deliveryBlip = nil end
-                                notify('Entrega concluida. Estoque atualizado.', 'success')
-                            else notify(message or 'Nao foi possivel concluir.', 'error') end
-                        end
-                    }})
-                end)
+
+                            -- Engatou o trailer -> Marca a localização do ponto de entrega na concessionária
+                            if DoesEntityExist(trailer) then
+                                setRouteBlip(result.unload, 'Ponto de Descarga (Concessionária)', 38, 1)
+                            end
+                        end)
+
+                        -- Adicionar ox_target no trailer para descarga
+                        exports.ox_target:addLocalEntity(trailer, {{
+                            name = 'nv_dealership_unload',
+                            icon = 'fa-solid fa-truck-ramp-box',
+                            label = 'Descarregar',
+                            onSelect = function()
+                                if #(GetEntityCoords(trailer) - result.unload) > 12.0 then
+                                    return notify('Leve o trailer ao ponto de descarga da concessionária.', 'error')
+                                end
+
+                                -- Tocar animação rpemotes-reborn (ou fallback) durante todo o descarregamento
+                                local playedEmote = false
+                                if GetResourceState('rpemotes-reborn') == 'started' then
+                                    pcall(function()
+                                        exports['rpemotes-reborn']:EmoteCommandStart('clipboard')
+                                        playedEmote = true
+                                    end)
+                                else
+                                    lib.requestAnimDict('missfam4')
+                                    TaskPlayAnim(cache.ped, 'missfam4', 'base', 8.0, -8.0, -1, 49, 0, false, false, false)
+                                    playedEmote = true
+                                end
+
+                                local success = true
+                                for i = 1, result.units do
+                                    if not lib.progressBar({
+                                        duration = 1800,
+                                        label = ('Descarregando veiculo %d/%d'):format(i, result.units),
+                                        canCancel = false,
+                                        disable = { move = true, combat = true }
+                                    }) then
+                                        success = false
+                                        break
+                                    end
+
+                                    if not lib.callback.await('nv_dealership:unloadOne', false, result.trailerNet) then
+                                        notify('A descarga foi interrompida.', 'error')
+                                        success = false
+                                        break
+                                    end
+                                end
+
+                                local resOk, resErr, resData = lib.callback.await('nv_dealership:completeDelivery', false, result.trailerNet)
+
+                                -- Parar animação somente após concluir todos os descarregamentos
+                                if GetResourceState('rpemotes-reborn') == 'started' and playedEmote then
+                                    pcall(function() exports['rpemotes-reborn']:EmoteCancel() end)
+                                else
+                                    ClearPedTasks(cache.ped)
+                                end
+
+                                if resOk then
+                                    removeDeliveryBlip()
+                                    removeInvoicePoint(unitId)
+
+                                    -- Deletar entidades do caminhão e trailer localmente no cliente
+                                    if DoesEntityExist(trailer) then DeleteVehicle(trailer) end
+                                    local truck = truckNet and NetToVeh(truckNet) or 0
+                                    if truck ~= 0 and DoesEntityExist(truck) then DeleteVehicle(truck) end
+
+                                    notify('Entrega concluida. Estoque atualizado.', 'success')
+                                else
+                                    notify(resErr or 'Nao foi possivel concluir.', 'error')
+                                end
+                            end
+                        }})
+                    end)
+                end
+            }})
+        end,
+        onExit = function()
+            if invoiceNpcPed and DoesEntityExist(invoiceNpcPed) then
+                exports.ox_target:removeLocalEntity(invoiceNpcPed, 'nv_dealership_invoice_' .. unitId)
+                DeleteEntity(invoiceNpcPed)
+                invoiceNpcPed = nil
             end
-        }})
+        end
+    })
 end
 
 AddEventHandler('onResourceStop', function(resource)
     if resource ~= GetCurrentResourceName() then return end
     deletePreview()
     stopTablet()
+    removeDeliveryBlip()
+    removeInvoicePoint()
     SetNuiFocus(false, false)
     for i = 1, #locationBlips do
         if DoesBlipExist(locationBlips[i]) then RemoveBlip(locationBlips[i]) end
     end
+    for set, zoneId in pairs(paymentZones) do
+        exports.ox_target:removeZone(zoneId)
+    end
+    paymentZones = {}
     if scrapyardNpc and DoesEntityExist(scrapyardNpc) then
         exports.ox_target:removeLocalEntity(scrapyardNpc, 'nv_dealership_scrapyard')
         DeleteEntity(scrapyardNpc)

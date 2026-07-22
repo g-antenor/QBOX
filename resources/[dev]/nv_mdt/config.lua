@@ -15,10 +15,12 @@ Config.Keybind = nil
 
 -- Subtipo do nv_orgs -> departamento do MDT.
 Config.Departments = {
-    police   = { id = 'policia',  label = 'Policia',  icon = 'shield' },
-    hospital = { id = 'hospital', label = 'Hospital', icon = 'cross' },
-    mecanica = { id = 'mecanica', label = 'Oficina',  icon = 'wrench' }
+    police     = { id = 'policia',        label = 'Policia',        icon = 'shield' },
+    hospital   = { id = 'hospital',       label = 'Hospital',       icon = 'cross' },
+    mecanica   = { id = 'mecanica',       label = 'Oficina',        icon = 'wrench' },
+    dealership = { id = 'concessionaria', label = 'Concessionária', icon = 'car' }
 }
+
 
 -- ============================================================================
 -- LICENCAS

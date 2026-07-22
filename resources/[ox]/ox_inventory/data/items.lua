@@ -550,4 +550,9 @@ return {
 		consume = 0, durability = true, decay = true,
 		client = { export = 'nv_mechanic.useExtinguisher' }
 	},
+	['invoice'] = {
+		label = 'Nota Fiscal', weight = 10, stack = false,
+		consume = 0, description = 'Nota fiscal eletronica de compra de veiculo.',
+		client = { image = 'card_id.png' }
+	},
 }

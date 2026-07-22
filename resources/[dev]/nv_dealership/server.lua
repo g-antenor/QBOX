@@ -40,15 +40,36 @@ table.sort(catalog, function(a, b)
     return a.label < b.label
 end)
 
-local legacyCategories = {
-    compact = 'sedan', coupe = 'sedan', muscle = 'sedan', sportsclassic = 'sedan', van = 'sedan',
-    offroad = 'suv', industrial = 'suv', utility = 'suv', service = 'suv', emergency = 'suv',
-    military = 'suv', commercial = 'suv', sports = 'sport', super = 'sport', openwheel = 'sport',
-    motorcycle = 'moto', cycle = 'moto'
+local categoryAliases = {
+    compact = { 'compact', 'compacts' },
+    sedan = { 'sedan', 'sedans' },
+    suv = { 'suv', 'suvs' },
+    coupe = { 'coupe', 'coupes' },
+    muscle = { 'muscle', 'muscles' },
+    sportsclassic = { 'sportsclassic', 'sportsclassics' },
+    sports = { 'sports', 'sport', 'sports' },
+    super = { 'super', 'supers' },
+    motorcycle = { 'motorcycle', 'motorcycles', 'moto', 'motos' },
+    offroad = { 'offroad', 'offroads' },
+    industrial = { 'industrial', 'industrials' },
+    utility = { 'utility', 'utilities' },
+    van = { 'van', 'vans' },
+    cycle = { 'cycle', 'cycles', 'bike', 'bikes' },
+    boat = { 'boat', 'boats' },
+    helicopter = { 'helicopter', 'helicopters' },
+    plane = { 'plane', 'planes' }
 }
 
 local function categoryEnabled(categories, category)
-    return categories[category] == true or categories[legacyCategories[category]] == true
+    if type(categories) ~= 'table' then return false end
+    local aliases = categoryAliases[category] or { category, category .. 's' }
+    for i = 1, #aliases do
+        local key = aliases[i]
+        if categories[key] == true or categories[key] == 1 then
+            return true
+        end
+    end
+    return false
 end
 
 local function isDealershipJob(set)
@@ -86,7 +107,16 @@ end
 
 local function unitFor(source, requested)
     local player = Ox.GetPlayer(source)
-    if not player or not isDealershipJob(requested) then return nil, 'Voce nao pertence a uma concessionaria.' end
+    if not player then return nil, 'Jogador nao encontrado.' end
+    if not requested then
+        local groups = player.getGroups()
+        if groups then
+            for set in pairs(groups) do
+                if isDealershipJob(set) then requested = set; break end
+            end
+        end
+    end
+    if not isDealershipJob(requested) then return nil, 'Voce nao pertence a uma concessionaria.' end
     local groups = player.getGroups()
     if not groups or groups[requested] == nil then return nil, 'Voce nao pertence a esta concessionaria.' end
     local unit, err = unitConfig(requested)
@@ -228,7 +258,7 @@ exports('GetCatalog', function()
     return result
 end)
 
-lib.callback.register('nv_dealership:data', function(source, unitId)
+local function handleData(source, unitId)
     local unit, unitError = unitFor(source, unitId)
     if not unit then return nil, unitError end
     local rows = MySQL.query.await('SELECT `model`, `quantity` FROM `nv_dealership_stock` WHERE `unit` = ?', { unitId }) or {}
@@ -247,11 +277,21 @@ lib.callback.register('nv_dealership:data', function(source, unitId)
     local account = Ox.GetGroupAccount(unit.set)
     return { unit = unitId, label = unit.label, vehicles = vehicles, balance = account and account.balance or 0,
         config = { preview = unit.preview, truckSpawn = unit.truckSpawn } }
-end)
+end
 
-lib.callback.register('nv_dealership:nearby', function(source)
+lib.callback.register('nv_mdt:dealership:data', handleData)
+lib.callback.register('nv_dealership:data', handleData)
+
+local function handleNearby(source)
     local ped, result = GetPlayerPed(source), {}
     if ped == 0 then return result end
+
+    local selfPlayer = Ox.GetPlayer(source)
+    if selfPlayer then
+        local selfName = selfPlayer.get('name') or ('ID %d'):format(source)
+        result[#result + 1] = { id = source, name = selfName .. ' (Voce)' }
+    end
+
     local origin = GetEntityCoords(ped)
     for _, id in ipairs(GetPlayers()) do
         id = tonumber(id)
@@ -259,12 +299,17 @@ lib.callback.register('nv_dealership:nearby', function(source)
             local targetPed = GetPlayerPed(id)
             if targetPed ~= 0 and #(origin - GetEntityCoords(targetPed)) <= 5.0 then
                 local player = Ox.GetPlayer(id)
-                result[#result + 1] = { id = id, name = player and (player.get('name') or player.name) or ('ID ' .. id) }
+                if player then
+                    result[#result + 1] = { id = id, name = player.get('name') or ('ID %d'):format(id) }
+                end
             end
         end
     end
     return result
-end)
+end
+
+lib.callback.register('nv_mdt:dealership:nearby', handleNearby)
+lib.callback.register('nv_dealership:nearby', handleNearby)
 
 lib.callback.register('nv_dealership:scrapVehicle', function(source, netId)
     local config = Config.Scrapyard
@@ -380,7 +425,13 @@ lib.callback.register('nv_dealership:endTest', function(source)
     return true
 end)
 
-lib.callback.register('nv_dealership:sell', function(source, unitId, model, targetId, colorId)
+local pendingSales = {}
+
+local function handleCreateSaleProposal(source, unitId, model, targetId, colorId)
+    local duty = Player(source).state.duty
+    if not duty then
+        return false, 'Voce precisa estar em servico para emitir Notas Fiscais.'
+    end
     local unit = unitFor(source, unitId)
     local target = Ox.GetPlayer(tonumber(targetId))
     local entry = catalogEntry(model)
@@ -393,59 +444,238 @@ lib.callback.register('nv_dealership:sell', function(source, unitId, model, targ
     if #(GetEntityCoords(GetPlayerPed(source)) - vec3(unit.payment.x, unit.payment.y, unit.payment.z)) > 8.0 then
         return false, 'Va ate o local de pagamento da concessionaria.'
     end
+
+    local rows = MySQL.query.await([[
+        SELECT `quantity` FROM `nv_dealership_stock` WHERE `unit` = ? AND `model` = ?
+    ]], { unitId, model })
+    if not rows or #rows == 0 or (rows[1].quantity or 0) < 1 then
+        return false, 'Veiculo sem estoque.'
+    end
+
+    local buyerCash = exports.ox_inventory:GetItemCount(target.source, 'money') or 0
+    if buyerCash < entry.price then
+        return false, ('O comprador nao possui $%s em dinheiro no inventario.'):format(entry.price)
+    end
+
+    local sellerPlayer = Ox.GetPlayer(source)
+    local sellerName = sellerPlayer and sellerPlayer.get('name') or ('ID %d'):format(source)
+    local nfNumber = ('NF-%06d'):format(math.random(100000, 999999))
+
+    local proposal = {
+        sellerSource = source,
+        sellerName = sellerName,
+        targetSource = target.source,
+        buyerCharId = target.charId,
+        buyerName = target.get('name') or ('ID %d'):format(target.source),
+        unitId = unitId,
+        unitLabel = unit.label,
+        model = model,
+        label = entry.label,
+        price = entry.price,
+        colorId = tonumber(colorId) or 1,
+        color = color,
+        nfNumber = nfNumber,
+        createdAt = os.time(),
+        expiresAt = os.time() + 600
+    }
+
+    pendingSales[target.source] = proposal
+
+    local metadata = {
+        description = ('NF nº %s - %s ($%s)'):format(nfNumber, entry.label, entry.price),
+        nfNumber = nfNumber,
+        unitId = unitId,
+        unitLabel = unit.label,
+        model = model,
+        price = entry.price,
+        label = entry.label,
+        sellerSource = source,
+        sellerName = sellerName,
+        colorId = tonumber(colorId) or 1,
+        color = color,
+        createdAt = os.time(),
+        expiresAt = os.time() + 600
+    }
+
+    pendingSales[target.source] = metadata
+
+    exports.ox_inventory:AddItem(target.source, 'invoice', 1, metadata)
+
+    TriggerClientEvent('nv_dealership:receiveSaleProposal', target.source, metadata)
+
+    return true, nil, metadata
+end
+
+local function handleConfirmInvoicePayment(source, targetSlot)
+    local slots = exports.ox_inventory:Search(source, 'slots', 'invoice') or {}
+    local item = nil
+
+    if targetSlot and type(slots) == 'table' then
+        for _, s in pairs(slots) do
+            if s and s.slot == targetSlot then
+                item = s
+                break
+            end
+        end
+    end
+
+    if not item and type(slots) == 'table' then
+        for _, s in pairs(slots) do
+            if s and (s.metadata or s.info) then
+                local m = s.metadata or s.info
+                if m.nfNumber or m.model then
+                    item = s
+                    break
+                end
+            end
+        end
+    end
+
+    local meta = (item and (item.metadata or item.info)) or pendingSales[source]
+    if not meta or not meta.model then
+        return false, 'Nenhuma Nota Fiscal valida encontrada no seu inventario.'
+    end
+
+    if meta.expiresAt and os.time() > meta.expiresAt then
+        if item then
+            exports.ox_inventory:RemoveItem(source, 'invoice', 1, nil, item.slot)
+        end
+        pendingSales[source] = nil
+        TriggerClientEvent('nv_dealership:refreshBlips', source)
+        return false, 'Esta Nota Fiscal expirou (validade de 10 minutos ultrapassada).'
+    end
+
+    local unit = unitConfig(meta.unitId)
+    if not unit then return false, 'Concessionaria invalida.' end
+
+    local cashCount = exports.ox_inventory:GetItemCount(source, 'money') or 0
+    if cashCount < meta.price then
+        return false, ('Saldo insuficiente em dinheiro no inventario (necessario $%s).'):format(meta.price)
+    end
+
+    local rows = MySQL.query.await([[
+        SELECT `quantity` FROM `nv_dealership_stock` WHERE `unit` = ? AND `model` = ? AND `quantity` > 0
+    ]], { meta.unitId, meta.model })
+    if not rows or #rows == 0 or (rows[1].quantity or 0) < 1 then
+        return false, 'Este veiculo nao possui mais unidades em estoque na concessionaria.'
+    end
+
     local changed = MySQL.update.await([[
         UPDATE `nv_dealership_stock` SET `quantity` = `quantity` - 1
         WHERE `unit` = ? AND `model` = ? AND `quantity` > 0
-    ]], { unitId, model })
-    if changed ~= 1 then return false, 'Veiculo sem estoque.' end
-    local buyerAccount = Ox.GetCharacterAccount(target.charId)
+    ]], { meta.unitId, meta.model })
+    if changed ~= 1 then
+        return false, 'Este veiculo acabou no estoque no momento do pagamento.'
+    end
+
+    local removedCash = exports.ox_inventory:RemoveItem(source, 'money', meta.price)
+    if not removedCash then
+        MySQL.update.await('UPDATE `nv_dealership_stock` SET `quantity` = `quantity` + 1 WHERE `unit` = ? AND `model` = ?', { meta.unitId, meta.model })
+        return false, 'Nao foi possivel remover o dinheiro do seu inventario.'
+    end
+
     local groupAccount = Ox.GetGroupAccount(unit.set)
-    if not buyerAccount or not groupAccount then
-        MySQL.update.await('UPDATE `nv_dealership_stock` SET `quantity` = `quantity` + 1 WHERE `unit` = ? AND `model` = ?', { unitId, model })
-        return false, 'Conta do comprador ou da organizacao indisponivel.'
+    if groupAccount then
+        pcall(function()
+            groupAccount.addBalance({ amount = meta.price, message = ('Venda NF %s: %s'):format(meta.nfNumber or '', meta.label) })
+        end)
     end
-    local charged, debit = pcall(function()
-        return buyerAccount.removeBalance({ amount = entry.price, message = ('Compra: %s'):format(entry.label) })
-    end)
-    if not charged or type(debit) ~= 'table' or debit.success ~= true then
-        MySQL.update.await('UPDATE `nv_dealership_stock` SET `quantity` = `quantity` + 1 WHERE `unit` = ? AND `model` = ?', { unitId, model })
-        return false, 'Saldo insuficiente do comprador.'
+
+    if item and item.slot then
+        exports.ox_inventory:RemoveItem(source, 'invoice', 1, nil, item.slot)
+    else
+        exports.ox_inventory:RemoveItem(source, 'invoice', 1)
     end
-    local credited, credit = pcall(function()
-        return groupAccount.addBalance({ amount = entry.price, message = ('Venda: %s'):format(entry.label) })
-    end)
-    if not credited or type(credit) ~= 'table' or credit.success ~= true then
-        buyerAccount.addBalance({ amount = entry.price, message = 'Estorno de venda recusada' })
-        MySQL.update.await('UPDATE `nv_dealership_stock` SET `quantity` = `quantity` + 1 WHERE `unit` = ? AND `model` = ?', { unitId, model })
-        return false, 'Nao foi possivel creditar o caixa da organizacao.'
-    end
+
+    local player = Ox.GetPlayer(source)
+    local buyerCharId = meta.buyerCharId or (player and player.charId)
+    local color = vehicleColors[tonumber(meta.colorId)] or vehicleColors[1]
+
+    local spawnCoords = vec3(unit.saleSpawn.x, unit.saleSpawn.y, unit.saleSpawn.z)
+    local spawnHeading = unit.saleSpawn.w or 0.0
+
     local vehicle
     local ok = pcall(function()
         vehicle = Ox.CreateVehicle({
-            model = model,
-            owner = target.charId,
+            model = meta.model,
+            owner = buyerCharId,
             properties = { color1 = color, color2 = color }
-        },
-            vec3(unit.saleSpawn.x, unit.saleSpawn.y, unit.saleSpawn.z), unit.saleSpawn.w)
+        }, spawnCoords, spawnHeading)
     end)
-    if not ok or not vehicle then
-        MySQL.update.await('UPDATE `nv_dealership_stock` SET `quantity` = `quantity` + 1 WHERE `unit` = ? AND `model` = ?', { unitId, model })
-        groupAccount.removeBalance({ amount = entry.price, message = 'Estorno de veiculo nao criado' })
-        buyerAccount.addBalance({ amount = entry.price, message = 'Estorno de veiculo nao criado' })
-        return false, 'Nao foi possivel criar o veiculo.'
-    end
-    exports.nv_garage:GiveKey(target.source, vehicle.plate, entry.label)
-    return true, nil, entry.label
-end)
 
-lib.callback.register('nv_dealership:order', function(source, unitId, requested)
+    if not ok or not vehicle then
+        MySQL.update.await('UPDATE `nv_dealership_stock` SET `quantity` = `quantity` + 1 WHERE `unit` = ? AND `model` = ?', { meta.unitId, meta.model })
+        exports.ox_inventory:AddItem(source, 'money', meta.price)
+        if groupAccount then
+            pcall(function()
+                groupAccount.removeBalance({ amount = meta.price, message = 'Estorno de veiculo nao criado' })
+            end)
+        end
+        return false, 'Nao foi possivel criar e posicionar o veiculo no local de entrega.'
+    end
+
+    exports.nv_garage:GiveKey(source, vehicle.plate, meta.label)
+
+    if meta.sellerSource and GetPlayerPed(meta.sellerSource) ~= 0 and meta.sellerSource ~= source then
+        TriggerClientEvent('ox_lib:notify', meta.sellerSource, {
+            title = 'Concessionaria',
+            description = ('Pagamento efetuado! O veiculo %s (%s) foi entregue ao comprador.'):format(meta.label, vehicle.plate),
+            type = 'success'
+        })
+    end
+
+    pendingSales[source] = nil
+    TriggerClientEvent('nv_dealership:refreshBlips', source)
+
+    return true, nil, { label = meta.label, plate = vehicle.plate }
+end
+
+local function handleCancelInvoicePayment(source, targetSlot)
+    if targetSlot then
+        exports.ox_inventory:RemoveItem(source, 'invoice', 1, nil, targetSlot)
+    else
+        local slots = exports.ox_inventory:Search(source, 'slots', 'invoice') or {}
+        if #slots > 0 and slots[1] then
+            exports.ox_inventory:RemoveItem(source, 'invoice', 1, nil, slots[1].slot)
+        end
+    end
+    pendingSales[source] = nil
+    TriggerClientEvent('nv_dealership:refreshBlips', source)
+    return true
+end
+
+lib.callback.register('nv_mdt:dealership:sell', handleCreateSaleProposal)
+lib.callback.register('nv_dealership:sell', handleCreateSaleProposal)
+lib.callback.register('nv_dealership:createSaleProposal', handleCreateSaleProposal)
+lib.callback.register('nv_mdt:dealership:confirmPayment', handleConfirmInvoicePayment)
+lib.callback.register('nv_mdt:dealership:confirmInvoicePayment', handleConfirmInvoicePayment)
+lib.callback.register('nv_dealership:confirmPayment', handleConfirmInvoicePayment)
+lib.callback.register('nv_dealership:confirmInvoicePayment', handleConfirmInvoicePayment)
+lib.callback.register('nv_mdt:dealership:cancelPayment', handleCancelInvoicePayment)
+lib.callback.register('nv_mdt:dealership:cancelInvoicePayment', handleCancelInvoicePayment)
+lib.callback.register('nv_dealership:cancelPayment', handleCancelInvoicePayment)
+lib.callback.register('nv_dealership:cancelInvoicePayment', handleCancelInvoicePayment)
+
+local function handleOrder(source, unitId, requested)
+    local duty = Player(source).state.duty
+    if not duty then
+        return false, 'Voce precisa estar em servico para fazer pedidos de estoque.'
+    end
     local unit, player = unitFor(source, unitId)
     if not unit or type(requested) ~= 'table' then return false, 'Pedido invalido.' end
+    if deliveries[source] then
+        return false, 'Voce ja possui um pedido de entrega em andamento. Conclua o pedido atual antes de fazer outro.'
+    end
+    for src, job in pairs(deliveries) do
+        if job and job.unit == unitId then
+            return false, 'Esta concessionaria ja possui um pedido de entrega em andamento. Conclua-o antes de fazer outro.'
+        end
+    end
     if not insideOperationalArea(source, unit) then return false, 'Va ate a area da concessionaria para fazer o pedido.' end
     local clean, units, total = {}, 0, 0
     for model, quantity in pairs(requested) do
         local entry, count = catalogEntry(model), math.floor(tonumber(quantity) or 0)
-        if entry and unit.categories[entry.category] and count > 0 then
+        if entry and categoryEnabled(unit.categories, entry.category) and count > 0 then
             units, total = units + count, total + entry.cost * count
             clean[#clean + 1] = { model = model, label = entry.label, quantity = count, cost = entry.cost }
         end
@@ -483,71 +713,86 @@ lib.callback.register('nv_dealership:order', function(source, unitId, requested)
     end
     deliveries[source] = { invoice = invoice, unit = unitId, items = clean, totalUnits = units, truck = truck }
     exports.nv_garage:GiveKey(source, GetVehicleNumberPlateText(truck), 'Caminhao da concessionaria')
-    return true, nil, { invoice = invoice, truckNet = NetworkGetNetworkIdFromEntity(truck), destination = unit.invoiceNpc }
-end)
+    local payload = {
+        invoice = invoice,
+        truckNet = NetworkGetNetworkIdFromEntity(truck),
+        destination = unit.invoiceNpc,
+        unitId = unitId,
+        truckSpawn = unit.truckSpawn
+    }
+    TriggerClientEvent('nv_dealership:startDeliveryMission', source, payload)
+    return true, nil, payload
+end
+
+lib.callback.register('nv_mdt:dealership:order', handleOrder)
+lib.callback.register('nv_dealership:order', handleOrder)
 
 lib.callback.register('nv_dealership:validateInvoice', function(source, requestedUnit)
-    local slots = exports.ox_inventory:Search(source, 'slots', 'dealership_invoice') or {}
     local player = Ox.GetPlayer(source)
     if not player then return false, 'Jogador nao encontrado.' end
 
-    local found, row, unit
-    for _, slot in pairs(slots) do
-        local invoice = slot.metadata and slot.metadata.invoice
-        if invoice then
-            local candidate = MySQL.single.await(([[
-                SELECT `invoice`, `unit`, `seller`, `items`, `total`, `status`
-                FROM `nv_dealership_orders`
-                WHERE `invoice` = ? AND `seller` = ? AND `unit` = ?
-                    AND `status` = 'paid' AND NOT (%s)
-            ]]):format(expiryCondition), { invoice, player.charId, requestedUnit })
-            local candidateUnit = candidate and unitConfig(candidate.unit)
-            if candidateUnit
-                and #(GetEntityCoords(GetPlayerPed(source)) - vec3(candidateUnit.invoiceNpc.x,
-                    candidateUnit.invoiceNpc.y, candidateUnit.invoiceNpc.z)) <= 6.0 then
-                found, row, unit = slot, candidate, candidateUnit
-                break
-            end
-        end
+    local job = deliveries[source]
+    if not job or not job.invoice then
+        return false, 'Voce nao possui nenhum pedido de entrega ativo.'
     end
-    if not found then return false, 'Nenhuma nota fiscal valida foi encontrada.' end
 
-    local claimed = MySQL.update.await(([[
-        UPDATE `nv_dealership_orders` SET `status` = 'collecting'
-        WHERE `invoice` = ? AND `seller` = ? AND `status` = 'paid' AND NOT (%s)
-    ]]):format(expiryCondition), { row.invoice, player.charId })
-    if claimed ~= 1 then
-        if refundExpiredOrder(row) then
-            removeInvoiceItems(source, row.invoice, found.slot)
-            return false, 'O prazo desta nota fiscal expirou.'
-        end
-        return false, 'Esta nota fiscal nao e mais valida.'
+    if job.trailer and DoesEntityExist(job.trailer) then
+        return false, 'O trailer desta entrega ja foi retirado.'
     end
-    if not removeInvoiceItems(source, row.invoice, found.slot) then
-        MySQL.update.await("UPDATE `nv_dealership_orders` SET `status` = 'paid' WHERE `invoice` = ? AND `status` = 'collecting'", { row.invoice })
+
+    local slots = exports.ox_inventory:Search(source, 'slots', 'dealership_invoice') or {}
+    local invoiceSlot = nil
+    for _, slot in pairs(slots) do
+        if slot and slot.metadata and slot.metadata.invoice == job.invoice then
+            invoiceSlot = slot
+            break
+        end
+    end
+
+    if not invoiceSlot then
+        return false, 'Nota fiscal incorreta ou ausente no inventario.'
+    end
+
+    local unit = unitConfig(job.unit)
+    if not unit then return false, 'Concessionaria nao encontrada.' end
+
+    if #(GetEntityCoords(GetPlayerPed(source)) - vec3(unit.invoiceNpc.x, unit.invoiceNpc.y, unit.invoiceNpc.z)) > 12.0 then
+        return false, 'Aproxime-se do local de retirada para validar a Nota Fiscal.'
+    end
+
+    local claimed = MySQL.update.await([[
+        UPDATE `nv_dealership_orders` SET `status` = 'collecting'
+        WHERE `invoice` = ? AND `seller` = ? AND `status` = 'paid'
+    ]], { job.invoice, player.charId })
+
+    if claimed ~= 1 then
+        return false, 'Nota fiscal invalida ou ja processada.'
+    end
+
+    if not removeInvoiceItems(source, job.invoice, invoiceSlot.slot) then
+        MySQL.update.await("UPDATE `nv_dealership_orders` SET `status` = 'paid' WHERE `invoice` = ?", { job.invoice })
         return false, 'Nao foi possivel recolher a nota fiscal.'
     end
-
-    local items = json.decode(row.items) or {}
-    local total = 0
-    for i = 1, #items do total = total + items[i].quantity end
-    local previous = deliveries[source]
-    local job = { invoice = row.invoice, unit = row.unit, items = items, totalUnits = total,
-        truck = previous and previous.invoice == row.invoice and previous.truck or nil }
-    deliveries[source] = job
 
     local trailer = tonumber(CreateVehicle(Config.TrailerModel, unit.trailerSpawn.x, unit.trailerSpawn.y, unit.trailerSpawn.z, unit.trailerSpawn.w, true, true)) or 0
     local deadline = GetGameTimer() + 5000
     while trailer ~= 0 and not DoesEntityExist(trailer) and GetGameTimer() < deadline do Wait(50) end
     if trailer == 0 or not DoesEntityExist(trailer) then
-        MySQL.update.await("UPDATE `nv_dealership_orders` SET `status` = 'paid' WHERE `invoice` = ? AND `status` = 'collecting'", { row.invoice })
-        exports.ox_inventory:AddItem(source, 'dealership_invoice', 1, { invoice = row.invoice, label = row.invoice })
-        deliveries[source] = previous
+        MySQL.update.await("UPDATE `nv_dealership_orders` SET `status` = 'paid' WHERE `invoice` = ?", { job.invoice })
+        exports.ox_inventory:AddItem(source, 'dealership_invoice', 1, { invoice = job.invoice, label = job.invoice })
         return false, 'Nao foi possivel criar o trailer. Tente novamente.'
     end
+
     job.trailer = trailer
     job.unloaded = 0
-    return true, nil, { trailerNet = NetworkGetNetworkIdFromEntity(trailer), unload = unit.unload, units = job.totalUnits }
+
+    return true, nil, {
+        trailerNet = NetworkGetNetworkIdFromEntity(trailer),
+        trailerSpawn = unit.trailerSpawn,
+        truckNet = job.truck and DoesEntityExist(job.truck) and NetworkGetNetworkIdFromEntity(job.truck) or nil,
+        unload = unit.unload,
+        units = job.totalUnits
+    }
 end)
 
 lib.callback.register('nv_dealership:unloadOne', function(source, trailerNet)
@@ -594,3 +839,21 @@ AddEventHandler('playerDropped', function()
     deleteDeliveryEntities(job)
     deliveries[source] = nil
 end)
+
+lib.callback.register('nv_mdt:dealership:preview', function(source, data)
+    if type(data) ~= 'table' or not data.model or not data.set then return false end
+    TriggerClientEvent('nv_dealership:clientPreview', source, data.set, data.model)
+    return true
+end)
+
+lib.callback.register('nv_mdt:dealership:previewFromPed', function(source, data)
+    if type(data) ~= 'table' or not data.model or not data.set then return false end
+    TriggerClientEvent('nv_dealership:clientPreviewFromPed', source, data.set, data.model)
+    return true
+end)
+
+lib.callback.register('nv_dealership:getUnitConfig', function(source, set)
+    local unit = unitConfig(set)
+    return unit
+end)
+

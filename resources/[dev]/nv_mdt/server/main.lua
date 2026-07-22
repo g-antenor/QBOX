@@ -472,6 +472,31 @@ lib.callback.register('nv_mdt:open', function(source)
     }
 end)
 
+lib.callback.register('nv_mdt:openGuestData', function(source, set)
+    if type(set) ~= 'string' or set == '' then return nil end
+
+    local orgLabel = set
+    local row = MySQL.single.await('SELECT `label` FROM `ox_groups` WHERE `name` = ?', { set })
+    if row and row.label then orgLabel = row.label end
+
+    local tabs = {
+        {
+            id      = 'concessionaria',
+            subtype = 'dealership',
+            label   = 'Concessionária',
+            icon    = 'car',
+            org     = orgLabel,
+            set     = set
+        }
+    }
+
+    return {
+        tabs = tabs,
+        config = { pageSize = Config.PageSize },
+        isGuest = true
+    }
+end)
+
 --- Dashboard de um departamento: chamados + colegas online.
 lib.callback.register('nv_mdt:dashboard', function(source, subtype)
     local departments = Mdt.departmentsOf(source)

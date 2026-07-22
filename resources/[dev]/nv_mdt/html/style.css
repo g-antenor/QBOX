@@ -757,3 +757,481 @@ button,.btn,.icon-btn,.nav-item,.seg,.pick,.dept-menu{user-select:none}
   .profile-grid,.form-grid{grid-template-columns:1fr}
 }
 .craft-admin-grid{display:grid;grid-template-columns:minmax(240px,.7fr) minmax(380px,1.3fr);gap:14px}.craft-recipe-list,.craft-selected-list{display:grid;gap:8px}.craft-recipe-row,.craft-selected{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:8px;padding:9px;border:1px solid var(--edge);border-radius:7px;background:#0d0f12}.craft-recipe-row strong,.craft-recipe-row small{display:block}.craft-recipe-row small{color:var(--muted);margin-top:3px}.craft-picker{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:8px;margin-top:12px}.craft-picker .field{margin:0}.craft-selected input{width:80px}.craft-selected-list{margin:8px 0 12px}.btn.danger{color:#ff8b8b;border-color:rgba(239,68,68,.35)}@media(max-width:1000px){.craft-admin-grid{grid-template-columns:1fr}}
+
+/* -------------------------------------------------------- CONCESSIONÁRIA --- */
+body[data-dept="concessionaria"] {
+  --accent: #ff2438;
+  --accent-2: #ff4757;
+  --accent-rgb: 255, 36, 56;
+}
+
+.dealership-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 16px;
+  align-items: start;
+}
+
+.dealership-topbar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 14px;
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: 8px;
+}
+
+.filter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 100%;
+}
+
+.filter-pill {
+  padding: 6px 14px;
+  font-size: 11.5px;
+  font-weight: 600;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, .05);
+  color: var(--text-dim);
+  border: 1px solid var(--edge);
+  cursor: pointer;
+  transition: all .15s ease;
+  white-space: nowrap;
+}
+.filter-pill:hover {
+  color: var(--text);
+  border-color: rgba(255, 36, 56, .4);
+  background: rgba(255, 36, 56, .08);
+}
+.filter-pill.active {
+  color: #fff;
+  background: var(--red);
+  border-color: var(--red);
+  box-shadow: 0 2px 8px rgba(255, 36, 56, .35);
+}
+
+
+.vehicle-catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 12px;
+}
+
+.vehicle-card {
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  transition: border-color .15s, transform .12s;
+}
+.vehicle-card:hover {
+  border-color: rgba(var(--accent-rgb), .4);
+  transform: translateY(-2px);
+}
+
+.vcard-head { display: flex; flex-direction: column; gap: 4px; }
+.vcard-title { font-size: 13px; font-weight: 700; color: var(--text); }
+.vcard-sub { font-size: 11px; color: var(--text-dim); }
+.vcard-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+
+.badge.category-badge { background: rgba(255, 255, 255, .08); color: var(--text-dim); }
+.badge.danger { background: rgba(255, 36, 56, .15); color: #ff5263; border: 1px solid rgba(255, 36, 56, .3); }
+.badge.ok { background: rgba(61, 220, 132, .15); color: #3ddc84; border: 1px solid rgba(61, 220, 132, .3); }
+
+.vcard-prices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 8px;
+  background: rgba(0, 0, 0, .25);
+  border-radius: 6px;
+}
+.vprice-item { display: flex; flex-direction: column; gap: 2px; }
+.vprice-item .k { font-size: 9px; text-transform: uppercase; color: var(--text-faint); letter-spacing: .04em; }
+.vprice-item .v { font-size: 11px; font-weight: 600; }
+.price-client { color: #3ddc84; }
+.price-cost { color: var(--text-dim); }
+.highlight-price { color: #3ddc84; font-size: 15px; font-weight: 700; }
+
+.vcard-actions { display: flex; gap: 6px; justify-content: flex-end; }
+
+/* Cart panel */
+.dealership-cart-panel {
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+}
+.cart-item-list { display: flex; flex-direction: column; gap: 8px; max-height: 380px; overflow-y: auto; }
+.cart-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px;
+  background: rgba(0, 0, 0, .2);
+  border: 1px solid var(--edge);
+  border-radius: 6px;
+}
+.cart-item-info { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.cart-item-name { font-size: 11.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cart-item-cost { font-size: 10px; color: var(--text-dim); }
+
+.cart-item-controls { display: flex; align-items: center; gap: 4px; }
+.qty-badge { font-size: 11px; font-weight: 700; padding: 0 4px; }
+
+.cart-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--edge);
+}
+.cart-summary-line { font-size: 11px; color: var(--text-dim); }
+.cart-summary-line.total-price { font-size: 13px; font-weight: 700; color: var(--text); }
+
+.primary-btn {
+  background: var(--red) !important;
+  color: #fff !important;
+  border-color: var(--red) !important;
+  font-weight: 600;
+}
+.primary-btn:hover { background: #e01f31 !important; }
+.danger-btn { color: #ff5263 !important; border-color: rgba(255, 36, 56, .4) !important; }
+.full-width { width: 100%; text-align: center; justify-content: center; }
+
+/* Modal overlay & color picker */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .75);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  display: grid;
+  place-items: center;
+}
+.modal-box {
+  background: var(--bg);
+  border: 1px solid var(--edge);
+  border-radius: 10px;
+  width: min(92vw, 440px);
+  padding: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, .8);
+}
+
+/* Exact Receipt Modal (Matching Image 2) */
+.receipt-modal-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: rise 0.18s ease-out;
+}
+
+.receipt-modal-card {
+  width: min(92vw, 400px);
+  background: #090a0c;
+  border: 1px dashed rgba(226, 232, 240, 0.22);
+  border-radius: 12px;
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85);
+}
+
+.receipt-store-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
+  text-align: center;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.receipt-store-sub {
+  font-size: 12px;
+  color: #929daa;
+  text-align: center;
+  margin-top: 3px;
+}
+
+.receipt-dashed-divider {
+  border-bottom: 1px dashed rgba(226, 232, 240, 0.2);
+  margin: 16px 0;
+  width: 100%;
+}
+
+.receipt-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.receipt-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12.5px;
+}
+
+.receipt-item-label {
+  color: #c1c8d1;
+  font-weight: 400;
+}
+
+.receipt-item-value {
+  color: #f3f5f7;
+  font-family: Inter, monospace, sans-serif;
+  font-weight: 600;
+}
+
+.receipt-total-label {
+  font-size: 14px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.05em;
+}
+
+.receipt-total-value {
+  font-size: 16px;
+  font-weight: 800;
+  color: #ef4444;
+}
+
+.receipt-actions-row {
+  display: flex;
+  gap: 10px;
+  width: min(92vw, 400px);
+  justify-content: space-between;
+}
+
+.receipt-actions-row .btn {
+  flex: 1;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+}
+
+/* Selected buyer visual highlight */
+.invoice-target-list .record-item {
+  border: 1px solid var(--edge);
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.invoice-target-list .record-item:hover {
+  border-color: rgba(var(--accent-rgb), 0.5);
+  background: rgba(var(--accent-rgb), 0.08);
+}
+
+.invoice-target-list .record-item.active {
+  border: 1.5px solid var(--accent) !important;
+  background: rgba(var(--accent-rgb), 0.25) !important;
+  box-shadow: 0 0 14px rgba(var(--accent-rgb), 0.4) !important;
+}
+
+.invoice-target-list .record-item.active strong {
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+.invoice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+  border-bottom: 2px dashed rgba(255, 255, 255, 0.1);
+}
+
+.invoice-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.invoice-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--red);
+  text-transform: uppercase;
+}
+
+.invoice-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+.invoice-number {
+  font-size: 12px;
+  font-weight: 700;
+  font-family: monospace;
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--edge);
+}
+
+.invoice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.invoice-target-list {
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.invoice-veh-info {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--edge);
+  border-radius: 6px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11.5px;
+}
+
+.invoice-info-row {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-dim);
+}
+
+.invoice-info-row strong {
+  color: var(--text);
+}
+
+.invoice-color-wrap {
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.invoice-label-sm {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.invoice-payment-box {
+  background: rgba(61, 220, 132, 0.08);
+  border: 1px solid rgba(61, 220, 132, 0.25);
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.invoice-payment-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #3ddc84;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.invoice-payment-badge svg {
+  fill: currentColor;
+}
+
+.invoice-payment-note {
+  font-size: 10.5px;
+  color: var(--text-dim);
+}
+
+.invoice-summary-box {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--edge);
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.invoice-summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: var(--text-dim);
+}
+
+.invoice-summary-row.total {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  padding-top: 6px;
+  border-top: 1px solid var(--edge);
+}
+
+.invoice-summary-row.total strong {
+  color: #3ddc84;
+  font-size: 16px;
+}
+
+.color-selector { display: flex; gap: 10px; padding: 6px 0; }
+.color-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform .1s, border-color .1s;
+}
+.color-dot:hover { transform: scale(1.1); }
+.color-dot.active { border-color: var(--red); transform: scale(1.15); box-shadow: 0 0 8px rgba(255, 36, 56, .5); }
+
+/* 404 Screen */
+.not-found-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 420px;
+  gap: 12px;
+  padding: 40px 20px;
+  background: rgba(23, 22, 26, .5);
+  border: 1px dashed var(--edge);
+  border-radius: 10px;
+}
+.not-found-icon { width: 56px; height: 56px; fill: var(--red); opacity: .85; }
+.not-found-title { font-size: 54px; font-weight: 900; letter-spacing: .08em; color: var(--red); line-height: 1; }
+.not-found-subtitle { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text); }
+.not-found-desc { font-size: 12px; color: var(--text-dim); max-width: 440px; line-height: 1.5; }
+
+@media(max-width: 960px) {
+  .dealership-layout { grid-template-columns: 1fr; }
+  .dealership-cart-panel { position: static; }
+}

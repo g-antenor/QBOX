@@ -78,6 +78,7 @@ const dom = {
   contactResource: el('contactResource'),
   stashResource: el('stashResource'),
   craftResource: el('craftResource'),placeCraft:el('placeCraft'),craftProject:el('craftProject'),craftEmpty:el('craftEmpty'),
+  dutyResource: el('dutyResource'), placeDutyPoint: el('placeDutyPoint'), placeServicePed: el('placeServicePed'), dutyPointsList: el('dutyPointsList'),
   addWardrobe: el('addWardrobe'),
   wardrobes: el('wardrobes'),
   wardrobesEmpty: el('wardrobesEmpty'),
@@ -711,6 +712,7 @@ async function loadResources() {
   renderWardrobe(wardrobe && typeof wardrobe === 'object' ? wardrobe : null);
   renderDealership(dealership);
   renderCraftProject(craftProject);
+  renderDutyResource();
   applyResourceVisibility();
 }
 
@@ -718,21 +720,55 @@ function applyResourceVisibility() {
   const style = state.draft ? state.draft.style : '';
   const subtype = state.draft ? state.draft.subtype : '';
   const rules = {
-    dealership: ['doorsResource', 'dealershipResource', 'wardrobeResource','craftResource'],
-    police: ['doorsResource', 'garageResource', 'wardrobeResource', 'contactResource', 'stashResource','craftResource'],
-    hospital: ['doorsResource', 'garageResource', 'wardrobeResource', 'contactResource', 'stashResource','craftResource'],
-    restaurant: ['doorsResource', 'wardrobeResource', 'contactResource', 'stashResource','craftResource'],
-    mecanica: ['doorsResource', 'garageResource', 'wardrobeResource', 'contactResource', 'stashResource','craftResource'],
-    custom: ['doorsResource', 'garageResource', 'wardrobeResource', 'contactResource', 'stashResource','craftResource'],
-    drugs: ['doorsResource', 'garageResource', 'contactResource', 'stashResource','craftResource'],
-    weapons: ['doorsResource', 'garageResource', 'contactResource', 'stashResource','craftResource']
+    dealership: ['doorsResource', 'dealershipResource', 'wardrobeResource','craftResource', 'dutyResource'],
+    police: ['doorsResource', 'garageResource', 'wardrobeResource', 'contactResource', 'stashResource','craftResource', 'dutyResource'],
+    hospital: ['doorsResource', 'garageResource', 'wardrobeResource', 'contactResource', 'stashResource','craftResource', 'dutyResource'],
+    restaurant: ['doorsResource', 'wardrobeResource', 'contactResource', 'stashResource','craftResource', 'dutyResource'],
+    mecanica: ['doorsResource', 'garageResource', 'wardrobeResource', 'contactResource', 'stashResource','craftResource', 'dutyResource'],
+    custom: ['doorsResource', 'garageResource', 'wardrobeResource', 'contactResource', 'stashResource','craftResource', 'dutyResource'],
+    drugs: ['doorsResource', 'garageResource', 'contactResource', 'stashResource','craftResource', 'dutyResource'],
+    weapons: ['doorsResource', 'garageResource', 'contactResource', 'stashResource','craftResource', 'dutyResource']
   };
   const fallback = style === 'gang'
-    ? ['doorsResource', 'garageResource', 'contactResource', 'stashResource','craftResource']
-    : ['doorsResource', 'wardrobeResource', 'contactResource', 'stashResource','craftResource'];
+    ? ['doorsResource', 'garageResource', 'contactResource', 'stashResource','craftResource', 'dutyResource']
+    : ['doorsResource', 'wardrobeResource', 'contactResource', 'stashResource','craftResource', 'dutyResource'];
   const visible = new Set(rules[subtype] || fallback);
-  ['doorsResource', 'garageResource', 'dealershipResource', 'wardrobeResource', 'contactResource', 'stashResource','craftResource']
+  ['doorsResource', 'garageResource', 'dealershipResource', 'wardrobeResource', 'contactResource', 'stashResource','craftResource', 'dutyResource']
     .forEach((id) => dom[id].classList.toggle('hidden', !visible.has(id)));
+}
+
+async function renderDutyResource() {
+  const data = (await post('getDutyData', { set: state.editing })) || {};
+  dom.dutyPointsList.replaceChildren();
+
+  if (!data.dutyPoint && !data.servicePed) {
+    dom.dutyPointsList.appendChild(make('div', 'empty-note', 'Nenhum ponto ou PED de serviço configurado.'));
+    return;
+  }
+
+  if (data.dutyPoint) {
+    const item = make('div', 'res-item');
+    item.appendChild(make('span', 'name', `Ponto de Serviço (Bater Ponto) · ${Number(data.dutyPoint.x).toFixed(2)}, ${Number(data.dutyPoint.y).toFixed(2)}, ${Number(data.dutyPoint.z).toFixed(2)}`));
+    const del = make('button', 'icon danger', '×');
+    del.onclick = async () => {
+      const out = await post('removeDutyPoint', { set: state.editing });
+      if (out?.ok) renderDutyResource();
+    };
+    item.appendChild(del);
+    dom.dutyPointsList.appendChild(item);
+  }
+
+  if (data.servicePed) {
+    const item = make('div', 'res-item');
+    item.appendChild(make('span', 'name', `PED de Serviço (Atendimento) · ${Number(data.servicePed.x).toFixed(2)}, ${Number(data.servicePed.y).toFixed(2)}, ${Number(data.servicePed.z).toFixed(2)}`));
+    const del = make('button', 'icon danger', '×');
+    del.onclick = async () => {
+      const out = await post('removeServicePed', { set: state.editing });
+      if (out?.ok) renderDutyResource();
+    };
+    item.appendChild(del);
+    dom.dutyPointsList.appendChild(item);
+  }
 }
 
 function renderCraftProject(data){state.craftProject=data||null;dom.craftProject.replaceChildren();dom.craftEmpty.classList.toggle('hidden',!!data);if(!data)return;const item=make('div','res-item');item.appendChild(make('span','name',`${data.label} · ${Number(data.x).toFixed(2)}, ${Number(data.y).toFixed(2)} · ${data.prop?'com prop':'sem prop'}`));const del=make('button','icon danger','×');del.onclick=async()=>{const out=await post('deleteCraftProject',{set:state.editing});if(out?.ok)renderCraftProject(null)};item.appendChild(del);dom.craftProject.appendChild(item)}
@@ -980,6 +1016,16 @@ dom.addSpawns.addEventListener('click', () => {
 });
 
 dom.addFleet.addEventListener('click', () => fleetDialog(null));
+
+dom.placeDutyPoint.addEventListener('click', () => {
+  if (!state.editing) return;
+  post('placeDutyPoint', { set: state.editing });
+});
+
+dom.placeServicePed.addEventListener('click', () => {
+  if (!state.editing) return;
+  post('placeServicePed', { set: state.editing });
+});
 
 // ------------------------------------------------------------ vestiario --
 

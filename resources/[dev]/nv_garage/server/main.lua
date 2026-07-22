@@ -575,6 +575,10 @@ lib.callback.register('nv_garage:canHotwire', function(source, netId, tool)
     local vehicle = resolveVehicle(netId)
     if not vehicle then return false, 'Veiculo nao encontrado.' end
 
+    if Entity(vehicle.entity).state.isDealershipPreview then
+        return false, 'Este veiculo e uma previa de exposicao da concessionaria.'
+    end
+
     if Server.countKeys(source, vehicle.plate) > 0 then
         return false, 'Voce tem a chave deste veiculo.'
     end
@@ -683,6 +687,9 @@ lib.callback.register('nv_garage:canLockpick', function(source, netId)
     end
 
     local vehicle = resolveVehicle(netId)
+    if vehicle and vehicle.entity and Entity(vehicle.entity).state.isDealershipPreview then
+        return false, 'Este veiculo e uma previa de exposicao da concessionaria.'
+    end
 
     -- Carro de NPC nao tem registro no ox_core: nao ha dono a respeitar.
     if not vehicle then return true end
