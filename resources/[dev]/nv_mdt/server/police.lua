@@ -198,6 +198,15 @@ lib.callback.register('nv_mdt:police:fine', function(source, charId, keys, notes
         'INSERT INTO `nv_mdt_invoices` (`charId`, `kind`, `label`, `value`, `officer`) VALUES (?, ?, ?, ?, ?)',
         invoiceRows)
 
+    local targetPlayer = exports.ox_core:GetPlayerByCharId(charId)
+    if targetPlayer and targetPlayer.source then
+        TriggerEvent('npwd:serverCreateNotification', targetPlayer.source, {
+            app = 'bank',
+            title = 'Nova Fatura Recebida',
+            content = ('Você recebeu %d multa(s) no valor total de $%d emitida(s) por %s'):format(#invoiceRows, total, officer or 'Polícia')
+        })
+    end
+
     return true, nil, total
 end)
 
@@ -310,6 +319,15 @@ lib.callback.register('nv_mdt:police:arrest', function(source, charId, data, leg
         MySQL.prepare.await(
             'INSERT INTO `nv_mdt_invoices` (`charId`, `kind`, `label`, `value`, `officer`) VALUES (?, ?, ?, ?, ?)',
             rows)
+
+        local targetPlayer = exports.ox_core:GetPlayerByCharId(charId)
+        if targetPlayer and targetPlayer.source then
+            TriggerEvent('npwd:serverCreateNotification', targetPlayer.source, {
+                app = 'bank',
+                title = 'Nova Fatura Recebida',
+                content = ('Você recebeu %d fatura(s) de infração no valor total de $%d'):format(#rows, total)
+            })
+        end
     end
 
     local jail = Config.Police.jail

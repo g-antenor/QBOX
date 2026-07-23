@@ -1,19 +1,35 @@
 fx_version("cerulean")
 game("gta5")
-description("js runtime monkaW")
+name("nv_phone")
+description("nv_phone - Celular NV2")
 authors({ "itschip", "erik-sn", "TasoOneAsia", "kidz", "RockySouthpaw", "SamShanks", "c-wide", "mojito" })
 version("3.15.1-beta.2")
+
+shared_script "@ox_lib/init.lua"
+
 client_scripts({
-	"@ox_lib/init.lua",
-	"dist/game/client/client.js",
 	"dist/game/client/cl_controls.lua",
 	"dist/game/client/garage.lua",
+	"dist/game/client/notification.lua",
+	"dist/game/client/bank.lua",
+	"dist/game/client/phone.lua",
 })
 
-server_script({
-	-- This is a file that lives purely in source code and isn't compiled alongside
-	-- rest of the release. It's used to detect whether a user can read or not.
-	"dist/game/server/server.js",
+server_scripts({
+	"@oxmysql/lib/MySQL.lua",
+	"dist/game/server/notification.lua",
+	"dist/game/server/bank.lua",
+	"dist/game/server/phone.lua",
+})
+
+exports({
+	"createNotification",
+	"Notify",
+})
+
+server_exports({
+	"createNotification",
+	"Notify",
 })
 
 ui_page("dist/html/index.html")
@@ -27,4 +43,5 @@ files({
 dependency({
 	"screenshot-basic",
 	"pma-voice",
+	"oxmysql",
 })

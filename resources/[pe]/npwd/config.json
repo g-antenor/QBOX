@@ -39,7 +39,9 @@
     "authorizationHeader": "Authorization",
     "authorizationPrefix": "",
     "useAuthorization": true,
-    "returnedDataIndexes": ["url"]
+    "returnedDataIndexes": [
+      "url"
+    ]
   },
   "imageSafety": {
     "filterUnsafeImageUrls": true,
@@ -64,7 +66,9 @@
   },
   "profanityFilter": {
     "enabled": false,
-    "badWords": ["esx"]
+    "badWords": [
+      "esx"
+    ]
   },
   "twitter": {
     "showNotifications": true,
@@ -103,6 +107,8 @@
     "enabled": false,
     "authorizationHeader": "Authorization",
     "url": "https://api.fivemanage/api/audio",
-    "returnedDataIndexes": ["url"]
+    "returnedDataIndexes": [
+      "url"
+    ]
   }
 }

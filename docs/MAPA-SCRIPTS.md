@@ -38,7 +38,7 @@ e de quem depende. Deve ser atualizada a cada criação/alteração relevante
 | `nv_sit` | Interatividade para sentar em cadeiras e bancos | `ox_lib`, `ox_target` | Servidor geral |
 | `pma-voice` | Sistema VOIP 3D e rádio | Nenhum | `nv_hud`, `nv_radio` |
 | `illenium-appearance` | Personalização de personagens, roupas e barbearia | `ox_core`, `ox_lib`, `oxmysql` | `nv_orgs` |
-| `npwd` | Smartphone NUI avançado | `ox_core`, `oxmysql` | Servidor geral |
+| `nv_phone` (antigo npwd) | Smartphone NUI avançado NV2 | `ox_core`, `oxmysql` | Servidor geral |
 | `rpemotes-reborn` | Animações, emotes e expressões | Nenhum | Servidor geral |
 
 ## Exports públicos
@@ -145,6 +145,7 @@ e de quem depende. Deve ser atualizada a cada criação/alteração relevante
 | `nv_recycle:server:sellItem` | `nv_recycle` (client) | `nv_recycle` (server) | `(itemName)` |
 | `nv_recycle:server:sellAll` | `nv_recycle` (client) | `nv_recycle` (server) | `()` |
 | `nv_delivery:cancelJob` | `nv_delivery` (client) | `nv_delivery` (server) | `(deleteHandItem)` |
+| `npwd:serverSetSpeaker` | `nv_phone` (client) | `nv_phone` (server) | `(enabled, nearbyIds)` — viva voz: adiciona/remove próximos (1m) no canal da chamada via `pma-voice:setPlayerCall` |
 
 ## Configs compartilhadas relevantes
 

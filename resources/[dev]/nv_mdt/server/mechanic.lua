@@ -229,8 +229,16 @@ lib.callback.register('nv_mdt:mechanic:completeOrder',function(source,data)
         customer=tonumber(data.customerCharId);if not customer then return false,'Selecione o cliente da fatura.' end
         if not MySQL.scalar.await('SELECT 1 FROM `characters` WHERE `charId`=? AND `deleted` IS NULL',{customer}) then return false,'Cliente nao encontrado.' end
         invoiceId=MySQL.insert.await([[INSERT INTO `nv_mdt_invoices` (`charId`,`kind`,`label`,`value`,`officer`)
-            VALUES (?,'mecanica',?,?,?)]],{customer,('Ordem de servico #%d - %s'):format(order.id,order.plate),repairedTotal,Mdt.authorName(source)})
+            VALUES (?,?,?,?,?)]],{customer, (org and org.set) or 'mecanica', ('Ordem de servico #%d - %s'):format(order.id,order.plate),repairedTotal,Mdt.authorName(source)})
         if not invoiceId then return false,'Nao foi possivel criar a fatura.' end
+        local targetPlayer = exports.ox_core:GetPlayerByCharId(customer)
+        if targetPlayer and targetPlayer.source then
+            TriggerEvent('npwd:serverCreateNotification', targetPlayer.source, {
+                app = 'bank',
+                title = 'Nova Fatura Recebida',
+                content = ('Você recebeu uma fatura de $%d referente à OS #%d da Oficina'):format(repairedTotal, order.id)
+            })
+        end
     end
     local ok,updated=exports.nv_mechanic:CompleteOrder(org.set,order.id,payment,customer,invoiceId,repairedTotal,source)
     if not ok then

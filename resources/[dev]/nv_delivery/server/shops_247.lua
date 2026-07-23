@@ -56,15 +56,20 @@ end)
 --- O servico ja e "puxado" (so comeca com fila), entao isto e so o chamado --
 --- e o que faz alguem sair de casa para pegar a corrida em vez de descobrir
 --- por acaso ao passar no galpao.
+local function sendPhoneNotification(target, data)
+    if GetResourceState('npwd') ~= 'started' then return end
+    TriggerEvent('npwd:serverCreateNotification', target, data)
+end
+
 RegisterNetEvent('nv_delivery:shop247:restockNeeded', function(queue)
     -- Evento do proprio servidor: um cliente nao pode forjar o chamado.
     if source ~= 0 and source ~= '' then return end
     if type(queue) ~= 'table' or #queue == 0 then return end
 
-    TriggerClientEvent('ox_lib:notify', -1, {
-        type = 'inform',
+    sendPhoneNotification(-1, {
+        app = '247',
         title = 'Distribuidora 24/7',
-        description = ('%d lojas estao sem estoque. Ha carga esperando no galpao.'):format(#queue),
+        content = ('%d loja(s) estão sem estoque. Há carga esperando no galpão.'):format(#queue),
         duration = 8000
     })
 end)

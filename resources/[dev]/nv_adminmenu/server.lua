@@ -188,10 +188,8 @@ RegisterNetEvent('nv_adminmenu:server:startGasEvent', function()
     end)
 
     if ok and success then
-        TriggerClientEvent('ox_lib:notify', src, {
-            type = 'success',
-            description = ('Evento de postos iniciado! %d posto(s) em nível crítico.'):format(affected or 0)
-        })
+        print(('[nv_adminmenu] %s (id %s) iniciou o evento de postos (%d postos).')
+            :format(GetPlayerName(src) or '?', src, affected or 0))
     else
         TriggerClientEvent('ox_lib:notify', src, {
             type = 'error',
@@ -398,10 +396,7 @@ RegisterNetEvent('nv_adminmenu:server:startShop247Event', function()
         print(('[nv_adminmenu] %s (id %s) iniciou o evento das lojas 24/7 (%d lojas).')
             :format(GetPlayerName(src) or '?', src, affected or 0))
 
-        return TriggerClientEvent('ox_lib:notify', src, {
-            type = 'success',
-            description = ('Evento das lojas iniciado! %d loja(s) sem estoque.'):format(affected or 0)
-        })
+        return
     end
 
     -- `ok == false` significa que a chamada em si estourou (export inexistente,

@@ -50,6 +50,10 @@ novos resources reaproveitem em vez de recriar do zero:
 | Botão Primário (.action) | `resources/[dev]/nv_garage/html/style.css` | Botão principal vermelho com destaque (Crimson Edge) |
 | Botão Secundário (.action-secondary) | `resources/[dev]/nv_garage/html/style.css` | Botão secundário de apoio com ícone e borda sutil para ações auxiliares (ex.: marcar no minimapa) |
 | App de Garagem no Phone (#view-garage) | `resources/[pe]/npwd/dist/html/index.html` | Interface dinâmica da garagem no celular NPWD com estatísticas do veículo e botão de marcação no GPS |
+| Menu Dropdown (.pw-menu) | `resources/[pe]/npwd/dist/html/index.html` | Menu de contexto (três pontinhos) ancorado a um botão via `openMenuAt()`; usado em conversa (ligar/desligar) e lista de conversas (excluir) |
+| Preview de Resposta (.reply-preview) | `resources/[pe]/npwd/dist/html/index.html` | Barra acima do input citando a mensagem sendo respondida; citação no balão via `.msg-reply-quote` |
+| Painel de Emoji (.emoji-panel) | `resources/[pe]/npwd/dist/html/index.html` | Grade de emojis inserida no input; aberta pelo botão de anexo (+) `.btn-attach` |
+| Balão de Mensagem (.msg-bubble) | `resources/[pe]/npwd/dist/html/index.html` | Balão de chat (incoming/outgoing) com suporte a imagem (`.msg-image`), citação e botão de responder ao hover |
 
 ## Regras de consistência
 
@@ -66,3 +70,4 @@ novos resources reaproveitem em vez de recriar do zero:
 
 - `2026-07-22` — Criado componente `.action-secondary` e ícone `#ic-local` na NUI do `nv_garage` para ação de marcação de minimapa / GPS waypoint.
 - `2026-07-22` — Implementada renderização dinâmica dos cartões de veículo no App de Garagem do celular `npwd` integrado ao `nv_garage`.
+- `2026-07-22` — `npwd` App Mensagens: novos componentes `.pw-menu` (dropdown de três pontinhos), `.reply-preview` + `.msg-reply-quote` (responder mensagem), `.emoji-panel` + `.btn-attach` (anexos/emoji) e `.msg-image` (foto no balão). Barras de rolagem estilizadas para `.messages-history`/`.chat-list`/`#conversationsContainer` e seleção de texto (`user-select: text`) habilitada nas views de mensagens e telefone.

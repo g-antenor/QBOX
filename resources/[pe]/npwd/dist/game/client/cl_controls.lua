@@ -6,11 +6,18 @@ local CreateThread = CreateThread
 
 CreateThread(function()
     while true do
-        if disableKeys then
+        local phoneOpen = false
+        if exports.npwd then
+            pcall(function() phoneOpen = exports.npwd:isPhoneVisible() end)
+        end
+
+        if disableKeys or phoneOpen then
             Wait(0)
             DisableControlAction(0, 0, true)    -- Next Camera
             DisableControlAction(0, 1, true)    -- Look Left/Right
             DisableControlAction(0, 2, true)    -- Look up/Down
+            DisableControlAction(0, 14, true)   -- Next Weapon / Scroll
+            DisableControlAction(0, 15, true)   -- Select Previous Weapon / Scroll
             DisableControlAction(0, 16, true)   -- Next Weapon
             DisableControlAction(0, 17, true)   -- Select Previous Weapon
             DisableControlAction(0, 22, true)   -- Jump
@@ -36,8 +43,11 @@ CreateThread(function()
             DisableControlAction(0, 122, true)  -- Control OVerride (Flying)
             DisableControlAction(0, 135, true)  -- Control OVerride (Sub)
             DisableControlAction(0, 140, true)  -- Melee attack light
+            DisableControlAction(0, 141, true)  -- Melee attack heavy
+            DisableControlAction(0, 142, true)  -- Melee attack alternate
             DisableControlAction(0, 200, true)  -- Pause Menu
             DisableControlAction(0, 245, true)  -- Chat
+            DisableControlAction(0, 257, true)  -- Attack 2
         else
             Wait(100)
         end
@@ -49,10 +59,14 @@ CreateThread(function()
     while true do
         Wait(500)
         local isPauseOpen = IsPauseMenuActive() ~= false
-        local isPhoneVisible = exports.npwd:isPhoneVisible()
+        local isPhoneVisible = false
+        if exports.npwd then
+            pcall(function() isPhoneVisible = exports.npwd:isPhoneVisible() end)
+        end
+
         -- Handle if the phone is already visible and escape menu is opened
         if isPauseOpen and isPhoneVisible then
-            exports.npwd:setPhoneVisible(false)
+            pcall(function() exports.npwd:setPhoneVisible(false) end)
         end
     end
 end)

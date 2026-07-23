@@ -76,6 +76,11 @@ local function buildQueue()
     return n
 end
 
+local function sendPhoneNotification(target, data)
+    if GetResourceState('npwd') ~= 'started' then return end
+    TriggerEvent('npwd:serverCreateNotification', target, data)
+end
+
 local function activateEvent(reason, force)
     if GlobalState.gasEventActive and not force then return false end
 
@@ -89,10 +94,10 @@ local function activateEvent(reason, force)
     GlobalState.gasEventActive = true
 
     if not wasActive then
-        TriggerClientEvent('ox_lib:notify', -1, {
-            type = 'inform',
-            title = 'Evento: Postos de Gasolina',
-            description = 'Postos precisando de combustível! Procure o Gerente de Logística para iniciar as entregas.',
+        sendPhoneNotification(-1, {
+            app = 'xero',
+            title = 'Xero Gas',
+            content = 'Postos precisando de combustível! Procure o Gerente de Logística para iniciar as entregas.',
             duration = 10000
         })
     end
@@ -120,9 +125,11 @@ local function refreshEventEnd()
     if remaining == 0 then
         eventQueue = {}
         GlobalState.gasEventActive = false
-        TriggerClientEvent('ox_lib:notify', -1, {
-            type = 'success',
-            description = 'Todos os postos foram reabastecidos. Evento encerrado.'
+        sendPhoneNotification(-1, {
+            app = 'xero',
+            title = 'Xero Gas',
+            content = 'Todos os postos foram reabastecidos. Evento encerrado.',
+            duration = 8000
         })
         print('^2[nv_delivery] Evento encerrado (fila vazia).^0')
     end
