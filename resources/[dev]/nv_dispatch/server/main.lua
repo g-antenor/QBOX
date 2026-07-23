@@ -68,7 +68,7 @@ local function receivers()
     for i = 1, #players do
         local player = players[i]
 
-        if player.charId and allowed[player.charId] then
+        if player.charId and allowed[player.charId] and Player(player.source).state.duty == true then
             result[#result + 1] = player.source
         end
     end

@@ -447,16 +447,37 @@
             top: -14px;
             z-index: 50;
             margin: -14px -14px 14px -14px;
-            padding: 14px 16px 12px 16px;
-            background: transparent;
-            backdrop-filter: none;
-            -webkit-backdrop-filter: none;
-            border-bottom: none;
+            padding: 18px 16px 12px 16px;
+            /* Fundo no estilo do app (tom de destaque definido por [data-app]) */
+            background: linear-gradient(180deg, var(--hdr, rgba(255, 255, 255, 0.04)) 0%, transparent 100%);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--phone-border);
             display: flex;
             align-items: center;
             justify-content: space-between;
             transition: var(--transition);
         }
+
+        /* Tom de destaque do cabeçalho por app (combina com o fundo da tela) */
+        .phone-screen[data-app="phone"] { --hdr: rgba(16, 185, 129, 0.22); }
+        .phone-screen[data-app="messages"] { --hdr: rgba(59, 130, 246, 0.22); }
+        .phone-screen[data-app="bank"] { --hdr: rgba(5, 150, 105, 0.22); }
+        .phone-screen[data-app="garage"] { --hdr: rgba(245, 158, 11, 0.22); }
+        .phone-screen[data-app="twitter"] { --hdr: rgba(6, 182, 212, 0.22); }
+        .phone-screen[data-app="market"] { --hdr: rgba(236, 72, 153, 0.22); }
+        .phone-screen[data-app="gallery"] { --hdr: rgba(168, 85, 247, 0.22); }
+        .phone-screen[data-app="settings"] { --hdr: rgba(100, 116, 139, 0.22); }
+        .phone-screen[data-app="calculator"] { --hdr: rgba(245, 158, 11, 0.22); }
+        .phone-screen[data-app="notes"] { --hdr: rgba(168, 85, 247, 0.22); }
+        .phone-screen[data-app="match"] { --hdr: rgba(236, 72, 153, 0.22); }
+
+        /* ===== Regras de navegação (ícone de voltar x barra inferior) =====
+           Ícone de voltar (chevron) só em telas internas do app (sub-telas).
+           Barra inferior (home-bar) leva ao menu principal e some no Home. */
+        .app-header .back-btn { display: none; }
+        .view.keep-back .app-header .back-btn { display: flex; }
+        .phone-screen[data-app="home"] .home-bar { display: none; }
 
         /* Accordion para Lista de Contatos */
         .contact-accordion-item {
@@ -1496,6 +1517,199 @@
             transition: var(--transition);
         }
 
+        .gallery-empty {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: var(--text-sub);
+            font-size: 12px;
+            margin-top: 44px;
+        }
+
+        .gallery-empty i {
+            font-size: 30px;
+            opacity: 0.4;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* ===== CÂMERA (overlay em tela cheia sobre a câmera do jogo) ===== */
+        #cameraOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 100000;
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            pointer-events: none;
+            /* fundo transparente: mostra a câmera do jogo por trás */
+        }
+
+        #cameraOverlay.active {
+            display: flex;
+        }
+
+        /* Guia de enquadramento: retângulo central com o resto escurecido.
+           Vertical (portrait) por padrão; horizontal (landscape) via classe. */
+        .cam-frame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            height: 82%;
+            aspect-ratio: 9 / 16;
+            max-width: 92%;
+            border: 2px solid rgba(255, 255, 255, 0.85);
+            border-radius: 10px;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+            transition: aspect-ratio 0.2s ease, height 0.2s ease;
+        }
+
+        .cam-frame.landscape {
+            height: auto;
+            width: 92%;
+            aspect-ratio: 16 / 9;
+        }
+
+        /* Cantos do enquadramento (estilo câmera) */
+        .cam-frame::before,
+        .cam-frame::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border: 3px solid #fff;
+        }
+
+        .cam-frame::before {
+            top: -2px;
+            left: -2px;
+            border-right: none;
+            border-bottom: none;
+            border-top-left-radius: 10px;
+        }
+
+        .cam-frame::after {
+            bottom: -2px;
+            right: -2px;
+            border-left: none;
+            border-top: none;
+            border-bottom-right-radius: 10px;
+        }
+
+        /* Enquanto a câmera está aberta, esconde a moldura do celular */
+        body.camera-open .phone-wrapper {
+            visibility: hidden;
+        }
+
+        .cam-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px 28px 0 28px;
+            pointer-events: auto;
+        }
+
+        .cam-mode {
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            background: rgba(0, 0, 0, 0.45);
+            padding: 6px 14px;
+            border-radius: 20px;
+            backdrop-filter: blur(6px);
+        }
+
+        .cam-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.45);
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(6px);
+        }
+
+        .cam-hint {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 11px;
+            background: rgba(0, 0, 0, 0.4);
+            align-self: center;
+            padding: 5px 12px;
+            border-radius: 16px;
+            pointer-events: none;
+        }
+
+        .cam-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 0 40px 40px 40px;
+            pointer-events: auto;
+        }
+
+        .cam-side-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.45);
+            border: none;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(6px);
+        }
+
+        .cam-shutter {
+            width: 74px;
+            height: 74px;
+            border-radius: 50%;
+            background: #fff;
+            border: 5px solid rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: transform 0.1s ease;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .cam-shutter:active {
+            transform: scale(0.9);
+        }
+
+        /* Esconde os controles durante a captura (para não sair na foto) */
+        #cameraOverlay.hide-chrome .cam-top,
+        #cameraOverlay.hide-chrome .cam-bottom,
+        #cameraOverlay.hide-chrome .cam-hint,
+        #cameraOverlay.hide-chrome .cam-frame {
+            opacity: 0;
+        }
+
+        .cam-flash {
+            position: absolute;
+            inset: 0;
+            background: #fff;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .cam-flash.fire {
+            animation: camFlashAnim 0.4s ease;
+        }
+
+        @keyframes camFlashAnim {
+            0% { opacity: 0; }
+            15% { opacity: 0.9; }
+            100% { opacity: 0; }
+        }
+
         .settings-group {
             background: var(--phone-card);
             border-radius: var(--radius-md);
@@ -1650,6 +1864,136 @@
             overflow: hidden;
         }
 
+        /* Faixa de cor à esquerda do cartão (definida por nota) */
+        .note-card {
+            border-left: 4px solid var(--npwd-purple);
+        }
+
+        .notes-empty {
+            text-align: center;
+            color: var(--text-sub);
+            font-size: 12px;
+            margin-top: 44px;
+        }
+
+        .notes-empty i {
+            font-size: 30px;
+            opacity: 0.4;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* NOTES EDITOR */
+        #view-note-editor {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #view-note-editor.active {
+            display: flex;
+        }
+
+        .note-editor-wrap {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            gap: 10px;
+            padding-top: 4px;
+        }
+
+        .note-title-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-main);
+            font-size: 18px;
+            font-weight: 800;
+            padding: 4px 2px;
+            flex-shrink: 0;
+        }
+
+        .note-color-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .note-color-dot {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: var(--transition);
+        }
+
+        .note-color-dot.selected {
+            border-color: var(--text-main);
+            transform: scale(1.12);
+        }
+
+        .note-format-toolbar {
+            display: flex;
+            gap: 6px;
+            background: var(--phone-card);
+            border: 1px solid var(--phone-border);
+            border-radius: var(--radius-sm);
+            padding: 6px;
+            flex-shrink: 0;
+        }
+
+        .note-fmt-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-sub);
+            font-size: 13px;
+            padding: 6px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .note-fmt-btn:hover {
+            background: var(--phone-card-hover);
+            color: var(--text-main);
+        }
+
+        .note-body-input {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            background: var(--phone-card);
+            border: 1px solid var(--phone-border);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            color: var(--text-main);
+            font-size: 13px;
+            line-height: 1.5;
+            outline: none;
+        }
+
+        .note-body-input:empty::before {
+            content: attr(data-placeholder);
+            color: var(--text-muted);
+        }
+
+        .note-save-btn {
+            flex-shrink: 0;
+            justify-content: center;
+            padding: 12px;
+            background: var(--npwd-purple);
+            color: #fff;
+            border: none;
+            font-weight: 800;
+            font-size: 13px;
+        }
+
         /* MATCH STYLES */
         .match-card {
             background: var(--phone-card);
@@ -1720,6 +2064,79 @@
             color: var(--npwd-green);
             border: 1px solid rgba(16, 185, 129, 0.3);
         }
+
+        /* ===== Busca dentro da conversa ===== */
+        .chat-search-bar {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            background: var(--phone-card);
+            border: 1px solid var(--phone-border);
+            border-radius: var(--radius-sm);
+            padding: 8px 10px;
+            margin: -6px 0 8px 0;
+            flex-shrink: 0;
+        }
+        .chat-search-bar.show { display: flex; }
+        .chat-search-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-main);
+            font-size: 12px;
+        }
+        .chat-search-bar button {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .chat-search-results {
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            max-height: 40%;
+            overflow-y: auto;
+            margin-bottom: 8px;
+            flex-shrink: 0;
+        }
+        .chat-search-results.show { display: flex; }
+        .chat-search-result {
+            background: var(--phone-card);
+            border: 1px solid var(--phone-border);
+            border-radius: 10px;
+            padding: 8px 10px;
+            cursor: pointer;
+        }
+        .chat-search-result:hover { background: var(--phone-card-hover); }
+        .chat-search-result .csr-author { font-size: 10px; color: var(--npwd-primary); font-weight: 800; }
+        .chat-search-result .csr-text { font-size: 12px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .chat-search-result mark { background: rgba(99, 102, 241, 0.45); color: #fff; border-radius: 3px; padding: 0 2px; }
+
+        /* Destaque temporário da mensagem alvo ao pular para ela */
+        .msg-bubble.msg-jump {
+            animation: msgJump 1.8s ease;
+        }
+        @keyframes msgJump {
+            0%, 55% { box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.7); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+
+        /* Botão "carregar mensagens anteriores" */
+        .load-older {
+            align-self: center;
+            background: var(--phone-card);
+            border: 1px solid var(--phone-border);
+            color: var(--text-sub);
+            border-radius: 14px;
+            padding: 5px 12px;
+            font-size: 11px;
+            cursor: pointer;
+            margin: 4px auto 8px auto;
+        }
+        .load-older:hover { background: var(--phone-card-hover); color: var(--text-main); }
 
         .home-bar {
             position: absolute;
@@ -1849,7 +2266,7 @@
                             <button class="back-btn" onclick="goHome()"><i class="fa-solid fa-chevron-left"></i></button>
                             <span class="app-title">Discador</span>
                         </div>
-                        <button class="back-btn" onclick="openShareContactModal()" title="Compartilhar Contato"><i class="fa-solid fa-share-nodes" style="color: var(--npwd-cyan);"></i></button>
+                        <button class="app-action-icon" style="cursor:pointer; background:none; border:none;" onclick="openShareContactModal()" title="Compartilhar Contato"><i class="fa-solid fa-share-nodes" style="color: var(--npwd-cyan);"></i></button>
                     </div>
 
                     <div class="tab-bar">
@@ -1910,7 +2327,7 @@
                 </div>
 
                 <!-- 2.1 ACTIVE CALL VIEW -->
-                <div class="view" id="view-call-active" style="background: radial-gradient(circle at 50% 30%, rgba(99, 102, 241, 0.25), rgba(11, 15, 25, 0.98) 80%);">
+                <div class="view keep-back" id="view-call-active" style="background: radial-gradient(circle at 50% 30%, rgba(99, 102, 241, 0.25), rgba(11, 15, 25, 0.98) 80%);">
                     <div class="app-header" style="background: transparent; border-bottom: none; backdrop-filter: none; -webkit-backdrop-filter: none;">
                         <div class="app-header-left">
                             <button class="back-btn" onclick="minimizeCallToBackground()" title="Minimizar para Segundo Plano"><i class="fa-solid fa-chevron-down"></i></button>
@@ -1943,7 +2360,7 @@
                 </div>
 
                 <!-- 2.2 INCOMING CALL VIEW (CELULAR ABERTO) -->
-                <div class="view" id="view-call-incoming" style="background: radial-gradient(circle at 50% 30%, rgba(16, 185, 129, 0.2), rgba(11, 15, 25, 0.98) 80%);">
+                <div class="view keep-back" id="view-call-incoming" style="background: radial-gradient(circle at 50% 30%, rgba(16, 185, 129, 0.2), rgba(11, 15, 25, 0.98) 80%);">
                     <div class="app-header" style="background: transparent; border-bottom: none; backdrop-filter: none; -webkit-backdrop-filter: none;">
                         <div class="app-header-left">
                             <button class="back-btn" onclick="ignoreIncomingCallToBackground()"><i class="fa-solid fa-chevron-down"></i></button>
@@ -1991,14 +2408,22 @@
                 </div>
 
                 <!-- 3.1 CHAT CONVERSATION VIEW -->
-                <div class="view" id="view-chat-detail">
+                <div class="view keep-back" id="view-chat-detail">
                     <div class="app-header">
                         <div class="app-header-left">
                             <button class="back-btn" onclick="openApp('messages')"><i class="fa-solid fa-chevron-left"></i></button>
                             <span class="app-title" id="chatContactName">Conversa</span>
                         </div>
-                        <div class="app-action-icon" id="chatCallBtn" title="Ligar para o Contato" onclick="if (activeChatState.targetNumber) triggerCall(activeChatState.targetNumber)"><i class="fa-solid fa-phone" style="color: var(--npwd-green);"></i></div>
+                        <div class="app-action-icon" id="chatMenuBtn" title="Opções" onclick="openChatMenu(event)"><i class="fa-solid fa-ellipsis-vertical"></i></div>
                     </div>
+
+                    <!-- Barra de busca dentro da conversa -->
+                    <div class="chat-search-bar" id="chatSearchBar">
+                        <i class="fa-solid fa-magnifying-glass" style="color: var(--text-sub); font-size: 12px;"></i>
+                        <input type="text" id="chatSearchInput" placeholder="Buscar na conversa..." oninput="onChatSearchInput(this.value)" onkeydown="if(event.key==='Escape') closeChatSearch()">
+                        <button onclick="closeChatSearch()" title="Fechar"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div class="chat-search-results" id="chatSearchResults"></div>
 
                     <div class="messages-history" id="messagesHistory">
                         <!-- Inserido dinamicamente pelo JS -->
@@ -2256,28 +2681,11 @@
                                     class="fa-solid fa-chevron-left"></i></button>
                             <span class="app-title">Galeria</span>
                         </div>
-                        <div class="app-action-icon"><i class="fa-solid fa-camera"></i></div>
+                        <div class="app-action-icon" onclick="openCameraApp()" title="Abrir Câmera"><i class="fa-solid fa-camera"></i></div>
                     </div>
 
-                    <div class="photo-grid">
-                        <div class="photo-item"><img
-                                src="https://images.unsplash.com/photo-1511919884226-fd3cad34687c?q=80&w=200&auto=format&fit=crop">
-                        </div>
-                        <div class="photo-item"><img
-                                src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=200&auto=format&fit=crop">
-                        </div>
-                        <div class="photo-item"><img
-                                src="https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?q=80&w=200&auto=format&fit=crop">
-                        </div>
-                        <div class="photo-item"><img
-                                src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=200&auto=format&fit=crop">
-                        </div>
-                        <div class="photo-item"><img
-                                src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?q=80&w=200&auto=format&fit=crop">
-                        </div>
-                        <div class="photo-item"><img
-                                src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=200&auto=format&fit=crop">
-                        </div>
+                    <div class="photo-grid" id="galleryGrid">
+                        <!-- Inserido dinamicamente pelo JS -->
                     </div>
                 </div>
 
@@ -2338,7 +2746,7 @@
                 </div>
 
                 <!-- 10.1 NOTES APP (EDITOR) -->
-                <div class="view" id="view-note-editor">
+                <div class="view keep-back" id="view-note-editor">
                     <div class="app-header">
                         <div class="app-header-left">
                             <button class="back-btn" onclick="openApp('notes')" title="Voltar"><i
@@ -2530,6 +2938,24 @@
         </div>
     </div>
 
+    <!-- Overlay da Câmera (tela cheia, sobre a câmera do jogo) -->
+    <div id="cameraOverlay">
+        <!-- Guia de enquadramento (mostra o recorte horizontal/vertical) -->
+        <div class="cam-frame" id="camFrame"></div>
+        <div class="cam-top">
+            <button class="cam-btn" onclick="closeCameraApp()" title="Fechar"><i class="fa-solid fa-xmark"></i></button>
+            <div class="cam-mode" id="camModeLabel">Traseira</div>
+            <button class="cam-btn" onclick="toggleCamOrientation()" id="camOrientBtn" title="Orientação"><i class="fa-solid fa-mobile-screen"></i></button>
+        </div>
+        <div class="cam-hint" id="camHint">ESC fecha • botão direito gira • roda do mouse dá zoom (traseira)</div>
+        <div class="cam-bottom">
+            <button class="cam-side-btn" onclick="openGalleryFromCamera()" title="Galeria"><i class="fa-solid fa-images"></i></button>
+            <button class="cam-shutter" onclick="capturePhoto()" title="Tirar Foto"></button>
+            <button class="cam-side-btn" onclick="toggleCamFlip()" title="Virar Câmera"><i class="fa-solid fa-camera-rotate"></i></button>
+        </div>
+        <div class="cam-flash" id="camFlash"></div>
+    </div>
+
     <!-- Script de Navegação Interativa e Integração FiveM NUI -->
     <script>
         let isGameTimeReceived = false;
@@ -2571,7 +2997,7 @@
                 document.getElementById('view-home').classList.add('active');
             }
 
-            let bgId = appId === 'chat-detail' ? 'messages' : appId;
+            let bgId = appId === 'chat-detail' ? 'messages' : (appId === 'note-editor' ? 'notes' : appId);
             document.getElementById('phoneScreen').setAttribute('data-app', bgId);
 
             if (appId === 'garage') {
@@ -2583,6 +3009,10 @@
             } else if (appId === 'messages') {
                 loadConversationsFromDatabase();
                 clearUnreadMessages();
+            } else if (appId === 'notes') {
+                loadNotesFromDatabase();
+            } else if (appId === 'gallery') {
+                loadGalleryFromDatabase();
             }
         }
 
@@ -2596,6 +3026,428 @@
 
             document.getElementById('view-home').classList.add('active');
             document.getElementById('phoneScreen').setAttribute('data-app', 'home');
+        }
+
+        // ====== BLOCO DE NOTAS ====== //
+        let notesData = [];
+        const NOTE_COLORS = ['#a855f7', '#ef4444', '#f59e0b', '#10b981', '#38bdf8', '#ec4899', '#94a3b8'];
+        let activeNoteState = { id: null, color: NOTE_COLORS[0] };
+
+        // Sanitiza o HTML da nota: mantém só tags básicas de formatação e remove
+        // qualquer atributo/script (evita XSS ao renderizar notas compartilhadas).
+        function sanitizeNoteHtml(html) {
+            const allowed = { B: 1, I: 1, U: 1, STRONG: 1, EM: 1, BR: 1, DIV: 1, P: 1, UL: 1, OL: 1, LI: 1, SPAN: 1 };
+            const tmp = document.createElement('div');
+            tmp.innerHTML = String(html || '');
+            (function walk(node) {
+                const children = Array.from(node.childNodes);
+                for (const child of children) {
+                    if (child.nodeType === 1) {
+                        if (!allowed[child.tagName]) {
+                            const text = document.createTextNode(child.textContent || '');
+                            node.replaceChild(text, child);
+                        } else {
+                            while (child.attributes && child.attributes.length > 0) {
+                                child.removeAttribute(child.attributes[0].name);
+                            }
+                            walk(child);
+                        }
+                    }
+                }
+            })(tmp);
+            return tmp.innerHTML;
+        }
+
+        function stripHtmlToText(html) {
+            const tmp = document.createElement('div');
+            tmp.innerHTML = String(html || '');
+            return (tmp.textContent || '').replace(/\s+/g, ' ').trim();
+        }
+
+        function loadNotesFromDatabase() {
+            fetch(`https://${GetParentResourceName()}/npwd:getNotes`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
+            })
+            .then(res => res.json())
+            .then(data => { notesData = Array.isArray(data) ? data : []; renderNotesList(); })
+            .catch(() => { renderNotesList(); });
+        }
+
+        function renderNotesList() {
+            const container = document.getElementById('notesContainer');
+            if (!container) return;
+            if (!notesData.length) {
+                container.innerHTML = `<div class="notes-empty"><i class="fa-solid fa-note-sticky"></i>Nenhuma nota ainda.<br>Toque em <b>+</b> para criar uma.</div>`;
+                return;
+            }
+            container.innerHTML = notesData.map(n => {
+                const color = n.color || NOTE_COLORS[0];
+                const title = n.title && n.title.trim() !== '' ? n.title : 'Sem título';
+                const preview = stripHtmlToText(n.content) || 'Nota vazia';
+                return `
+                    <div class="note-card" style="border-left-color: ${escapeHtml(color)};" onclick="openNoteEditor(${n.id})">
+                        <div class="note-header">
+                            <span class="note-title">${escapeHtml(title)}</span>
+                            <span class="note-date">${escapeHtml(n.updated || '')}</span>
+                        </div>
+                        <div class="note-preview">${escapeHtml(preview)}</div>
+                    </div>`;
+            }).join('');
+        }
+
+        function renderNoteColorPicker() {
+            const row = document.getElementById('noteColorRow');
+            if (!row) return;
+            row.innerHTML = NOTE_COLORS.map(c =>
+                `<div class="note-color-dot ${c === activeNoteState.color ? 'selected' : ''}" style="background: ${c};" onclick="selectNoteColor('${c}')"></div>`
+            ).join('');
+        }
+
+        function selectNoteColor(color) {
+            activeNoteState.color = color;
+            renderNoteColorPicker();
+        }
+
+        // noteId nulo = nova nota; caso contrário carrega a existente.
+        function openNoteEditor(noteId) {
+            const titleInput = document.getElementById('noteTitleInput');
+            const bodyInput = document.getElementById('noteBodyInput');
+            const deleteBtn = document.getElementById('noteDeleteBtn');
+
+            if (noteId) {
+                const note = notesData.find(n => n.id === noteId);
+                activeNoteState = { id: noteId, color: (note && note.color) || NOTE_COLORS[0] };
+                if (titleInput) titleInput.value = note ? (note.title || '') : '';
+                if (bodyInput) bodyInput.innerHTML = note ? sanitizeNoteHtml(note.content) : '';
+                if (deleteBtn) deleteBtn.style.display = 'flex';
+            } else {
+                activeNoteState = { id: null, color: NOTE_COLORS[0] };
+                if (titleInput) titleInput.value = '';
+                if (bodyInput) bodyInput.innerHTML = '';
+                if (deleteBtn) deleteBtn.style.display = 'none';
+            }
+            renderNoteColorPicker();
+            openApp('note-editor');
+        }
+
+        function formatNote(command) {
+            const bodyInput = document.getElementById('noteBodyInput');
+            if (bodyInput) bodyInput.focus();
+            try { document.execCommand(command, false, null); } catch (e) {}
+        }
+
+        function getEditorNotePayload() {
+            const titleInput = document.getElementById('noteTitleInput');
+            const bodyInput = document.getElementById('noteBodyInput');
+            const title = titleInput ? titleInput.value.trim() : '';
+            const content = bodyInput ? sanitizeNoteHtml(bodyInput.innerHTML) : '';
+            return { title, content, color: activeNoteState.color };
+        }
+
+        function saveNoteFromEditor() {
+            const payload = getEditorNotePayload();
+            if (payload.title === '' && stripHtmlToText(payload.content) === '') {
+                spawnNotification('notes', 'Nota vazia', 'Escreva um título ou conteúdo antes de salvar.');
+                return;
+            }
+            fetch(`https://${GetParentResourceName()}/npwd:saveNote`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: activeNoteState.id, ...payload })
+            }).catch(() => {});
+            spawnNotification('notes', 'Nota Salva', payload.title || 'Sua nota foi salva.');
+            setTimeout(loadNotesFromDatabase, 400);
+            openApp('notes');
+        }
+
+        function deleteNoteFromEditor() {
+            if (!activeNoteState.id) { openApp('notes'); return; }
+            const id = activeNoteState.id;
+            fetch(`https://${GetParentResourceName()}/npwd:deleteNote`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id })
+            }).catch(() => {});
+            notesData = notesData.filter(n => n.id !== id);
+            renderNotesList();
+            spawnNotification('notes', 'Nota Excluída', 'A nota foi removida.');
+            openApp('notes');
+        }
+
+        // ====== COMPARTILHAR NOTA (jogadores próximos) ====== //
+        function openShareNoteModal() {
+            const payload = getEditorNotePayload();
+            if (payload.title === '' && stripHtmlToText(payload.content) === '') {
+                spawnNotification('notes', 'Nota vazia', 'Escreva algo antes de compartilhar.');
+                return;
+            }
+            let modal = document.getElementById('modalShareNote');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'modalShareNote';
+                modal.style.cssText = 'position: absolute; inset: 0; background: rgba(11, 15, 25, 0.88); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px; border-radius: calc(var(--radius-xl) - 10px); animation: fadeIn 0.2s ease;';
+                document.getElementById('phoneScreen').appendChild(modal);
+            }
+            modal.innerHTML = `
+                <div style="width: 100%; max-width: 290px; background: var(--phone-bg); border: 1px solid var(--phone-border); border-radius: var(--radius-lg); padding: 16px; color: var(--text-main); box-shadow: 0 20px 40px rgba(0,0,0,0.8);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                        <span style="font-size: 13px; font-weight: 800; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-share-nodes" style="color: var(--npwd-cyan);"></i> Compartilhar Nota</span>
+                        <button onclick="document.getElementById('modalShareNote').remove()" style="background: none; border: none; color: var(--text-sub); font-size: 16px; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin-bottom: 12px;">Selecione um cidadão próximo (até 5m) para enviar sua nota:</div>
+                    <div id="nearbyNotePlayersList" style="max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+                        <div style="text-align: center; color: var(--text-sub); font-size: 11px; padding: 14px;">Buscando pessoas próximas...</div>
+                    </div>
+                </div>`;
+            fetch(`https://${GetParentResourceName()}/npwd:getNearbyPlayers`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
+            }).then(r => r.json()).then(players => {
+                renderNearbyNotePlayersList(players || []);
+            }).catch(() => { renderNearbyNotePlayersList([]); });
+        }
+
+        function renderNearbyNotePlayersList(players) {
+            const container = document.getElementById('nearbyNotePlayersList');
+            if (!container) return;
+            if (!players || players.length === 0) {
+                container.innerHTML = `<div style="text-align: center; color: var(--text-sub); font-size: 11px; padding: 14px;">Nenhum cidadão próximo encontrado</div>`;
+                return;
+            }
+            container.innerHTML = players.map(p => {
+                const displayName = (p.name && p.name !== 'undefined') ? p.name : ('Cidadão ' + p.id);
+                return `
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; background: var(--phone-card); border-radius: var(--radius-sm); border: 1px solid var(--phone-border);">
+                        <div>
+                            <div style="font-size: 12px; font-weight: 700; color: var(--text-main);">${escapeHtml(displayName)}</div>
+                            <div style="font-size: 10px; color: var(--text-sub);"><i class="fa-solid fa-location-arrow"></i> ${p.distance}m de distância</div>
+                        </div>
+                        <button class="bank-btn" style="padding: 6px 12px; font-size: 11px; background: var(--npwd-cyan); color: white; border: none; font-weight: 700;" onclick="sendNoteToPlayer('${p.id}', '${escapeHtml(displayName)}')">Enviar</button>
+                    </div>`;
+            }).join('');
+        }
+
+        function sendNoteToPlayer(targetId, targetName) {
+            const note = getEditorNotePayload();
+            fetch(`https://${GetParentResourceName()}/npwd:shareNote`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ targetId: targetId, note: note })
+            }).catch(() => {});
+            document.getElementById('modalShareNote')?.remove();
+            spawnNotification('notes', 'Nota Enviada', `Nota enviada para ${targetName}.`);
+        }
+
+        function promptReceiveSharedNote(noteData) {
+            const safeTitle = escapeHtml(noteData.title || 'Nota');
+            let modal = document.getElementById('modalReceiveNote');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'modalReceiveNote';
+                modal.style.cssText = 'position: absolute; inset: 0; background: rgba(11, 15, 25, 0.88); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px; border-radius: calc(var(--radius-xl) - 10px); animation: fadeIn 0.2s ease;';
+                document.getElementById('phoneScreen').appendChild(modal);
+            }
+            window.__pendingSharedNote = {
+                title: noteData.title || 'Nota',
+                content: noteData.content || '',
+                color: noteData.color || NOTE_COLORS[0]
+            };
+            modal.innerHTML = `
+                <div style="width: 100%; max-width: 280px; background: var(--phone-bg); border: 1px solid var(--phone-border); border-radius: var(--radius-lg); padding: 18px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.9);">
+                    <div style="width: 44px; height: 44px; border-radius: 50%; background: rgba(168, 85, 247, 0.15); color: var(--npwd-purple); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto; font-size: 20px;">
+                        <i class="fa-solid fa-note-sticky"></i>
+                    </div>
+                    <div style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">Receber Nota?</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin-bottom: 16px;">
+                        <strong style="color: var(--text-main);">${escapeHtml(noteData.from || 'Cidadão')}</strong> quer compartilhar a nota <span style="color: var(--npwd-purple); font-weight: 700;">"${safeTitle}"</span>.
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="bank-btn" style="flex: 1; padding: 8px; justify-content: center; background: rgba(239, 68, 68, 0.15); color: var(--npwd-red); border-color: rgba(239, 68, 68, 0.3);" onclick="respondReceiveNote(false)">Recusar</button>
+                        <button class="bank-btn" style="flex: 1; padding: 8px; justify-content: center; background: var(--npwd-purple); color: white; border: none; font-weight: 800;" onclick="respondReceiveNote(true)">Aceitar</button>
+                    </div>
+                </div>`;
+        }
+
+        function respondReceiveNote(accepted) {
+            document.getElementById('modalReceiveNote')?.remove();
+            const note = window.__pendingSharedNote;
+            window.__pendingSharedNote = null;
+            if (accepted && note) {
+                fetch(`https://${GetParentResourceName()}/npwd:acceptSharedNote`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(note)
+                }).catch(() => {});
+                const activeView = document.querySelector('.view.active');
+                if (activeView && activeView.id === 'view-notes') setTimeout(loadNotesFromDatabase, 400);
+                spawnNotification('notes', 'Nota Salva', `"${note.title}" foi adicionada às suas notas!`);
+            } else {
+                spawnNotification('notes', 'Nota Recusada', 'Você recusou a nota compartilhada.');
+            }
+        }
+
+        // ====== CÂMERA & GALERIA ====== //
+        let camIsSelfie = false;
+        let camOrientation = 'portrait';
+
+        // ---- Galeria ----
+        function loadGalleryFromDatabase() {
+            fetch(`https://${GetParentResourceName()}/npwd:getPhotos`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
+            })
+            .then(res => res.json())
+            .then(photos => renderGallery(Array.isArray(photos) ? photos : []))
+            .catch(() => renderGallery([]));
+        }
+
+        function renderGallery(photos) {
+            const grid = document.getElementById('galleryGrid');
+            if (!grid) return;
+            if (!photos.length) {
+                grid.innerHTML = `<div class="gallery-empty"><i class="fa-solid fa-camera"></i>Nenhuma foto ainda.<br>Toque no ícone da câmera para tirar uma.</div>`;
+                return;
+            }
+            grid.innerHTML = photos.map(p =>
+                `<div class="photo-item" onclick='viewPhoto(${p.id}, ${JSON.stringify(p.image)})'><img src="${p.image}" loading="lazy"></div>`
+            ).join('');
+        }
+
+        function viewPhoto(id, image) {
+            let modal = document.getElementById('modalViewPhoto');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'modalViewPhoto';
+                modal.style.cssText = 'position: absolute; inset: 0; background: rgba(0,0,0,0.92); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px; gap: 12px; border-radius: calc(var(--radius-xl) - 10px); animation: fadeIn 0.2s ease;';
+                document.getElementById('phoneScreen').appendChild(modal);
+            }
+            modal.innerHTML = `
+                <img src="${image}" style="max-width: 100%; max-height: 74%; border-radius: 10px; object-fit: contain;">
+                <div style="display: flex; gap: 10px;">
+                    <button class="bank-btn" style="padding: 10px 16px; background: var(--phone-card); color: var(--text-main);" onclick="document.getElementById('modalViewPhoto').remove()"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                    <button class="bank-btn" style="padding: 10px 16px; background: var(--npwd-red); color: #fff; border: none;" onclick="deletePhoto(${id})"><i class="fa-solid fa-trash-can"></i> Excluir</button>
+                </div>`;
+        }
+
+        function deletePhoto(id) {
+            fetch(`https://${GetParentResourceName()}/npwd:deletePhoto`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id })
+            }).catch(() => {});
+            document.getElementById('modalViewPhoto')?.remove();
+            setTimeout(loadGalleryFromDatabase, 300);
+            spawnNotification('phone', 'Foto excluída', 'A foto foi removida da galeria.');
+        }
+
+        // ---- Câmera ----
+        function updateCamLabels() {
+            const label = document.getElementById('camModeLabel');
+            if (label) label.textContent = camIsSelfie ? 'Selfie' : 'Traseira';
+            const orientBtn = document.getElementById('camOrientBtn');
+            if (orientBtn) orientBtn.querySelector('i').className = (camOrientation === 'portrait')
+                ? 'fa-solid fa-mobile-screen' : 'fa-solid fa-mobile-screen fa-rotate-90';
+            // Atualiza o guia de enquadramento (vertical x horizontal)
+            const frame = document.getElementById('camFrame');
+            if (frame) frame.classList.toggle('landscape', camOrientation === 'landscape');
+        }
+
+        function openCameraApp() {
+            camIsSelfie = false;
+            camOrientation = 'portrait';
+            updateCamLabels();
+            document.body.classList.add('camera-open');
+            document.getElementById('cameraOverlay').classList.add('active');
+            fetch(`https://${GetParentResourceName()}/npwd:camera:start`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ selfie: false })
+            }).catch(() => {});
+        }
+
+        function closeCameraApp() {
+            document.getElementById('cameraOverlay').classList.remove('active');
+            document.body.classList.remove('camera-open');
+            fetch(`https://${GetParentResourceName()}/npwd:camera:close`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
+            }).catch(() => {});
+        }
+
+        function toggleCamFlip() {
+            fetch(`https://${GetParentResourceName()}/npwd:camera:flip`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
+            }).then(r => r.json()).then(res => {
+                if (res && typeof res.selfie === 'boolean') camIsSelfie = res.selfie;
+                else camIsSelfie = !camIsSelfie;
+                updateCamLabels();
+            }).catch(() => { camIsSelfie = !camIsSelfie; updateCamLabels(); });
+        }
+
+        function toggleCamOrientation() {
+            camOrientation = (camOrientation === 'portrait') ? 'landscape' : 'portrait';
+            updateCamLabels();
+        }
+
+        // Recorta a imagem (tela cheia) para o aspecto vertical (9:16) ou
+        // horizontal (16:9), centralizado, para a foto sair no enquadramento certo.
+        function cropImageToOrientation(dataUrl, orientation) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    try {
+                        const iw = img.naturalWidth, ih = img.naturalHeight;
+                        const targetAspect = (orientation === 'landscape') ? (16 / 9) : (9 / 16);
+                        let cw = iw, ch = Math.round(iw / targetAspect);
+                        if (ch > ih) { ch = ih; cw = Math.round(ih * targetAspect); }
+                        const sx = Math.round((iw - cw) / 2);
+                        const sy = Math.round((ih - ch) / 2);
+                        const canvas = document.createElement('canvas');
+                        canvas.width = cw; canvas.height = ch;
+                        canvas.getContext('2d').drawImage(img, sx, sy, cw, ch, 0, 0, cw, ch);
+                        resolve(canvas.toDataURL('image/jpeg', 0.85));
+                    } catch (e) { resolve(dataUrl); }
+                };
+                img.onerror = () => resolve(dataUrl);
+                img.src = dataUrl;
+            });
+        }
+
+        function capturePhoto() {
+            const flash = document.getElementById('camFlash');
+            fetch(`https://${GetParentResourceName()}/npwd:camera:capture`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
+            })
+            .then(r => r.json())
+            .then(async res => {
+                if (res && res.success && res.image) {
+                    if (flash) { flash.classList.remove('fire'); void flash.offsetWidth; flash.classList.add('fire'); }
+                    const finalImage = await cropImageToOrientation(res.image, camOrientation);
+                    fetch(`https://${GetParentResourceName()}/npwd:savePhoto`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ image: finalImage, orientation: camOrientation })
+                    }).catch(() => {});
+                    spawnNotification('phone', 'Foto capturada', 'A foto foi salva na sua galeria.');
+                } else {
+                    spawnNotification('phone', 'Câmera', 'Não foi possível capturar a foto.');
+                }
+            }).catch(() => {});
+        }
+
+        // Fecha a câmera e abre a galeria.
+        function openGalleryFromCamera() {
+            closeCameraApp();
+            setTimeout(() => { openApp('gallery'); }, 120);
         }
 
         // ====== GARAGEM APP (NV_GARAGE) ====== //
@@ -3302,6 +4154,10 @@
                     if (activeChatState && (activeChatState.conversationId || activeChatState.targetNumber)) {
                         chatScrollPositions[chatKey()] = historyElem.scrollTop;
                     }
+                    // Carregamento dinâmico: ao chegar perto do topo, busca as anteriores
+                    if (historyElem.scrollTop < 60 && chatHasMoreOlder && !chatLoadingOlder) {
+                        loadOlderMessages();
+                    }
                 });
             }
         }
@@ -3383,6 +4239,7 @@
             initChatScrollListener();
             cancelReply();
             closeEmojiPanel();
+            closeChatSearch();
             clearUnreadMessages();
             const inputEl = document.getElementById('chatMessageInput');
             if (inputEl) { inputEl.value = ''; resetChatInputHeight(); }
@@ -3407,7 +4264,7 @@
                 if (resObj && resObj.conversationId) {
                     activeChatState.conversationId = resObj.conversationId;
                 }
-                renderChatHistory(resObj && resObj.messages ? resObj.messages : []);
+                renderChatHistory(resObj && resObj.messages ? resObj.messages : [], resObj && resObj.hasMoreOlder);
             })
             .catch(() => {
                 renderChatHistory([]);
@@ -3457,10 +4314,13 @@
         }
 
         // Cria e anexa um balão de mensagem ao histórico (usado no load e no tempo real)
-        function appendMessageBubble(container, raw, isOutgoing) {
+        // msgId: id da mensagem (para pular/buscar) · prepend: insere no topo (histórico antigo)
+        function appendMessageBubble(container, raw, isOutgoing, msgId, prepend) {
             const bubble = document.createElement('div');
             bubble.className = 'msg-bubble ' + (isOutgoing ? 'outgoing' : 'incoming');
             bubble.innerHTML = buildBubbleInner(raw);
+            if (msgId !== undefined && msgId !== null) bubble.dataset.msgid = msgId;
+            bubble.dataset.text = messagePreviewText(raw);
 
             const replyBtn = document.createElement('button');
             replyBtn.className = 'msg-reply-btn';
@@ -3470,9 +4330,16 @@
             replyBtn.onclick = (ev) => { ev.stopPropagation(); startReply(preview); };
             bubble.appendChild(replyBtn);
 
-            const indicator = document.getElementById('typingIndicator');
-            if (indicator) container.insertBefore(bubble, indicator);
-            else container.appendChild(bubble);
+            if (prepend) {
+                // Insere abaixo do botão "carregar anteriores" (se houver) ou no topo
+                const loadBtn = container.querySelector('.load-older');
+                const ref = loadBtn ? loadBtn.nextSibling : container.firstChild;
+                container.insertBefore(bubble, ref);
+            } else {
+                const indicator = document.getElementById('typingIndicator');
+                if (indicator) container.insertBefore(bubble, indicator);
+                else container.appendChild(bubble);
+            }
             return bubble;
         }
 
@@ -3482,24 +4349,48 @@
             return 'conv_' + activeChatState.conversationId;
         }
 
-        function renderChatHistory(messages) {
+        // Estado de paginação da conversa aberta (carregamento dinâmico)
+        let chatOldestId = null;
+        let chatHasMoreOlder = false;
+        let chatLoadingOlder = false;
+
+        function addLoadOlderButton(container) {
+            const btn = document.createElement('button');
+            btn.className = 'load-older';
+            btn.textContent = 'Carregar mensagens anteriores';
+            btn.onclick = loadOlderMessages;
+            container.insertBefore(btn, container.firstChild);
+        }
+
+        function msgIsOutgoing(m) {
+            return (m.self === true) || (m.self === undefined && m.user_identifier && m.author !== activeChatState.contactName);
+        }
+
+        // jumpToId: se informado, rola/realça essa mensagem em vez de restaurar a posição
+        function renderChatHistory(messages, hasMoreOlder, jumpToId) {
             const container = document.getElementById('messagesHistory');
             if (!container) return;
 
             if (!messages || messages.length === 0) {
                 container.innerHTML = `<div style="text-align: center; color: var(--text-sub); font-size: 11px; margin-top: 40px;">Envie uma mensagem para iniciar a conversa.</div>`;
+                chatOldestId = null; chatHasMoreOlder = false;
                 return;
             }
 
             container.innerHTML = '';
-            messages.forEach(m => {
-                const isOutgoing = (m.self === true) || (m.self === undefined && m.user_identifier && m.author !== activeChatState.contactName);
-                appendMessageBubble(container, m.message, isOutgoing);
-            });
+            chatHasMoreOlder = !!hasMoreOlder;
+            if (chatHasMoreOlder) addLoadOlderButton(container);
+
+            messages.forEach(m => appendMessageBubble(container, m.message, msgIsOutgoing(m), m.id));
+            chatOldestId = messages[0] ? messages[0].id : null;
 
             const key = chatKey();
             requestAnimationFrame(() => {
-                // Reabre no ponto onde o jogador parou; se for a 1ª vez, vai ao fim.
+                if (jumpToId != null) {
+                    const b = container.querySelector('.msg-bubble[data-msgid="' + jumpToId + '"]');
+                    if (b) { scrollToBubble(b); return; }
+                }
+                // Reabre no ponto onde o jogador parou; se for a 1ª vez, vai ao fim (mais recente).
                 if (chatScrollPositions[key] !== undefined) {
                     container.scrollTop = chatScrollPositions[key];
                 } else {
@@ -3507,6 +4398,138 @@
                     chatScrollPositions[key] = container.scrollTop;
                 }
             });
+        }
+
+        // Carrega a página anterior (mensagens mais antigas) mantendo a posição de leitura
+        function loadOlderMessages() {
+            if (chatLoadingOlder || !chatHasMoreOlder || chatOldestId == null) return;
+            chatLoadingOlder = true;
+            const container = document.getElementById('messagesHistory');
+            const prevHeight = container.scrollHeight;
+            const prevTop = container.scrollTop;
+
+            fetch(`https://${GetParentResourceName()}/npwd:getMessages`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ conversationId: activeChatState.conversationId, opts: { beforeId: chatOldestId } })
+            })
+            .then(res => res.json())
+            .then(resObj => {
+                const msgs = (resObj && resObj.messages) ? resObj.messages : [];
+                const oldBtn = container.querySelector('.load-older');
+                if (oldBtn) oldBtn.remove();
+                chatHasMoreOlder = !!(resObj && resObj.hasMoreOlder);
+                if (chatHasMoreOlder) addLoadOlderButton(container);
+                // Insere de trás para frente para manter a ordem cronológica no topo
+                for (let i = msgs.length - 1; i >= 0; i--) {
+                    appendMessageBubble(container, msgs[i].message, msgIsOutgoing(msgs[i]), msgs[i].id, true);
+                }
+                if (msgs.length) chatOldestId = msgs[0].id;
+                // Mantém a posição de leitura (compensa a altura adicionada no topo)
+                container.scrollTop = prevTop + (container.scrollHeight - prevHeight);
+                chatLoadingOlder = false;
+            })
+            .catch(() => { chatLoadingOlder = false; });
+        }
+
+        function scrollToBubble(b) {
+            try { b.scrollIntoView({ block: 'center' }); } catch (e) { b.scrollIntoView(); }
+            b.classList.remove('msg-jump');
+            void b.offsetWidth;
+            b.classList.add('msg-jump');
+        }
+
+        // ====== MENU E BUSCA DA CONVERSA ====== //
+        function openChatMenu(ev) {
+            ev.stopPropagation();
+            openMenuAt(ev.currentTarget, [
+                { label: 'Buscar mensagem', icon: 'fa-magnifying-glass', onClick: openChatSearch },
+                { label: 'Ligar', icon: 'fa-phone', onClick: () => { if (activeChatState.targetNumber) triggerCall(activeChatState.targetNumber); } }
+            ]);
+        }
+
+        let chatSearchTimer = null;
+
+        function openChatSearch() {
+            document.getElementById('chatSearchBar')?.classList.add('show');
+            const inp = document.getElementById('chatSearchInput');
+            if (inp) { inp.value = ''; inp.focus(); }
+            const res = document.getElementById('chatSearchResults');
+            if (res) { res.classList.remove('show'); res.innerHTML = ''; }
+        }
+
+        function closeChatSearch() {
+            document.getElementById('chatSearchBar')?.classList.remove('show');
+            const res = document.getElementById('chatSearchResults');
+            if (res) { res.classList.remove('show'); res.innerHTML = ''; }
+        }
+
+        function onChatSearchInput(q) {
+            if (chatSearchTimer) clearTimeout(chatSearchTimer);
+            const query = (q || '').trim();
+            const res = document.getElementById('chatSearchResults');
+            if (!query) { if (res) { res.classList.remove('show'); res.innerHTML = ''; } return; }
+            chatSearchTimer = setTimeout(() => runChatSearch(query), 250);
+        }
+
+        function runChatSearch(query) {
+            fetch(`https://${GetParentResourceName()}/npwd:searchMessages`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ conversationId: activeChatState.conversationId, query: query })
+            })
+            .then(res => res.json())
+            .then(resObj => renderChatSearchResults((resObj && resObj.matches) ? resObj.matches : [], query))
+            .catch(() => renderChatSearchResults([], query));
+        }
+
+        function highlightText(text, query) {
+            const safe = escapeHtml(text || '');
+            if (!query) return safe;
+            try {
+                const re = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig');
+                return safe.replace(re, '<mark>$1</mark>');
+            } catch (e) { return safe; }
+        }
+
+        function renderChatSearchResults(matches, query) {
+            const res = document.getElementById('chatSearchResults');
+            if (!res) return;
+            if (!matches.length) {
+                res.innerHTML = `<div style="padding:10px; text-align:center; color:var(--text-sub); font-size:12px;">Nenhuma mensagem encontrada</div>`;
+                res.classList.add('show');
+                return;
+            }
+            res.innerHTML = matches.map(m => {
+                const d = decodeMessage(m.message);
+                const text = d.imageUrl ? '📷 Foto' : d.text;
+                const author = m.self ? 'Você' : (activeChatState.contactName || 'Contato');
+                return `<div class="chat-search-result" onclick="jumpToMessage(${m.id})">
+                            <div class="csr-author">${escapeHtml(author)}</div>
+                            <div class="csr-text">${highlightText(text, query)}</div>
+                        </div>`;
+            }).join('');
+            res.classList.add('show');
+        }
+
+        // Leva o jogador até a mensagem buscada (carrega a janela ao redor se necessário)
+        function jumpToMessage(msgId) {
+            closeChatSearch();
+            const container = document.getElementById('messagesHistory');
+            if (!container) return;
+            const existing = container.querySelector('.msg-bubble[data-msgid="' + msgId + '"]');
+            if (existing) { scrollToBubble(existing); return; }
+
+            fetch(`https://${GetParentResourceName()}/npwd:getMessages`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ conversationId: activeChatState.conversationId, opts: { aroundId: msgId, limit: 40 } })
+            })
+            .then(res => res.json())
+            .then(resObj => {
+                renderChatHistory((resObj && resObj.messages) ? resObj.messages : [], resObj && resObj.hasMoreOlder, msgId);
+            })
+            .catch(() => {});
         }
 
         // ====== RESPOSTA A MENSAGEM ====== //
@@ -4417,6 +5440,33 @@
                         <button onclick="event.stopPropagation(); respondReceiveContact(true, '${safeName}', '${safeNumber}'); dismissNotification();" style="width: 32px; height: 32px; border-radius: 50%; background: var(--npwd-cyan); border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px;" title="Aceitar"><i class="fa-solid fa-check"></i></button>
                     `;
                 }
+            } else if (appLower === 'incoming_note') {
+                iconHtml = '<i class="fa-solid fa-note-sticky" style="color:#fff; font-size:16px;"></i>';
+                iconBg = 'linear-gradient(135deg, var(--npwd-purple), var(--npwd-indigo))';
+                notifTitleText = customTitle || 'Nota Recebida';
+                notifContentText = customText || 'Deseja salvar esta nota?';
+                autoDuration = 10000;
+
+                window.__pendingSharedNote = (options && options.noteData) ? {
+                    title: options.noteData.title || 'Nota',
+                    content: options.noteData.content || '',
+                    color: options.noteData.color || '#a855f7'
+                } : null;
+
+                activeNotifOnClick = () => { respondReceiveNote(true); };
+
+                if (actionsContainer) {
+                    actionsContainer.style.display = 'flex';
+                    actionsContainer.innerHTML = `
+                        <button onclick="event.stopPropagation(); respondReceiveNote(false); dismissNotification();" style="width: 32px; height: 32px; border-radius: 50%; background: var(--npwd-red); border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px;" title="Recusar"><i class="fa-solid fa-xmark"></i></button>
+                        <button onclick="event.stopPropagation(); respondReceiveNote(true); dismissNotification();" style="width: 32px; height: 32px; border-radius: 50%; background: var(--npwd-purple); border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px;" title="Aceitar"><i class="fa-solid fa-check"></i></button>
+                    `;
+                }
+            } else if (appLower === 'notes') {
+                iconHtml = '<i class="fa-solid fa-note-sticky" style="color:#fff;"></i>';
+                iconBg = 'var(--npwd-purple)';
+                notifTitleText = customTitle || 'Notas';
+                notifContentText = customText || '';
             } else if (appLower === '247' || appLower === 'shop247') {
                 iconHtml = '<span style="font-weight:900; font-size:12px; letter-spacing:-0.5px; color:#fff;">24/7</span>';
                 iconBg = '#008744';
@@ -4916,8 +5966,13 @@
         }
 
         // ====== BLOQUEIO DE CONTROLES DO JOGO AO DIGITAR EM INPUTS ====== //
+        // Cobre inputs, textareas e campos contenteditable (corpo da nota).
+        function isEditableTarget(el) {
+            return el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
+        }
+
         document.addEventListener('focusin', function (e) {
-            if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) {
+            if (isEditableTarget(e.target)) {
                 fetch(`https://${GetParentResourceName()}/npwd:setNuiFocusInput`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -4927,7 +5982,7 @@
         });
 
         document.addEventListener('focusout', function (e) {
-            if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) {
+            if (isEditableTarget(e.target)) {
                 fetch(`https://${GetParentResourceName()}/npwd:setNuiFocusInput`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -4956,6 +6011,23 @@
         window.addEventListener('message', function (event) {
             const data = event.data;
             if (!data) return;
+
+            // Câmera: esconde/mostra os controles da NUI durante a captura da foto.
+            if (data.action === "cameraHideChrome") {
+                document.getElementById('cameraOverlay')?.classList.add('hide-chrome');
+                return;
+            }
+            if (data.action === "cameraShowChrome") {
+                document.getElementById('cameraOverlay')?.classList.remove('hide-chrome');
+                return;
+            }
+            // ESC na câmera (disparado pelo Lua): fecha a câmera e abre a galeria.
+            if (data.action === "cameraClosedToGallery") {
+                document.getElementById('cameraOverlay')?.classList.remove('active');
+                document.body.classList.remove('camera-open');
+                openApp('gallery');
+                return;
+            }
 
             if (data.action === "open" || (data.app === "PHONE" && data.method === "npwd:setVisibility" && data.data === true)) {
                 openPhoneUI();
@@ -5044,7 +6116,7 @@
 
                         // `self` vem do servidor: true = enviada por mim (outgoing).
                         const isOutgoing = msg.self === true;
-                        appendMessageBubble(container, msg.message, isOutgoing);
+                        appendMessageBubble(container, msg.message, isOutgoing, msg.id);
                         container.scrollTop = container.scrollHeight;
                         chatScrollPositions[chatKey()] = container.scrollTop;
                     }
@@ -5075,6 +6147,18 @@
                     spawnNotification('incoming_contact', cData.name || 'Cidadão', `${cData.name || 'Cidadão'} (${cData.number || ''}) quer enviar o contato.`, {
                         duration: 10000,
                         contactData: { name: cData.name, number: cData.number }
+                    });
+                }
+            } else if (data.action === "receiveSharedNote") {
+                const nData = data.data || {};
+                const wrapper = document.getElementById('phoneWrapper');
+                const isPhoneOpen = wrapper && wrapper.classList.contains('visible');
+                if (isPhoneOpen) {
+                    promptReceiveSharedNote(nData);
+                } else {
+                    spawnNotification('incoming_note', nData.from || 'Cidadão', `${nData.from || 'Cidadão'} compartilhou a nota "${nData.title || 'Nota'}".`, {
+                        duration: 10000,
+                        noteData: nData
                     });
                 }
             }

@@ -361,8 +361,12 @@ lib.callback.register('npwd:getConversations', function(source)
     return {}
 end)
 
---- Callback para buscar as mensagens de uma conversa específica
-lib.callback.register('npwd:getMessages', function(source, conversationId, targetNumber)
+--- Callback para buscar as mensagens de uma conversa (com paginação/janela).
+--- @param opts table|nil { beforeId = number, aroundId = number, limit = number }
+---   - sem opts: as `limit` (padrão 40) mensagens MAIS RECENTES
+---   - beforeId: página de mensagens ANTERIORES ao id (carregar histórico ao subir)
+---   - aroundId: janela centrada no id (usada ao pular para um resultado de busca)
+lib.callback.register('npwd:getMessages', function(source, conversationId, targetNumber, opts)
     local src = source
     local senderName, senderPhone = getPlayerData(src)
     local identifier = getCharIdentifier(src)
@@ -374,20 +378,83 @@ lib.callback.register('npwd:getMessages', function(source, conversationId, targe
 
     if not convId then return { conversationId = 0, messages = {} } end
 
-    local query = 'SELECT id, message, user_identifier, author, createdAt FROM npwd_messages WHERE conversation_id = ? ORDER BY id ASC LIMIT 100'
-    local success, result = pcall(function()
-        return MySQL.query.await(query, { tostring(convId) })
-    end)
+    opts = type(opts) == 'table' and opts or {}
+    local limit = tonumber(opts.limit) or 40
+    if limit > 100 then limit = 100 end
 
-    if success and result then
-        -- Marca cada mensagem como própria (self) comparando com o identificador
-        -- de quem solicitou, para o balão sair como enviado/recebido corretamente.
-        for i = 1, #result do
-            result[i].self = (tostring(result[i].user_identifier) == tostring(identifier))
+    local rows
+    local hasMoreOlder = false
+
+    local function markSelf(list)
+        for i = 1, #list do
+            list[i].self = (tostring(list[i].user_identifier) == tostring(identifier))
         end
-        return { conversationId = convId, messages = result }
     end
-    return { conversationId = convId, messages = {} }
+
+    if opts.aroundId then
+        -- Janela: metade antes e metade depois do id alvo
+        local half = math.floor(limit / 2)
+        local before = MySQL.query.await(
+            'SELECT id, message, user_identifier, author, createdAt FROM npwd_messages WHERE conversation_id = ? AND id <= ? ORDER BY id DESC LIMIT ?',
+            { tostring(convId), tonumber(opts.aroundId), half + 1 }) or {}
+        local after = MySQL.query.await(
+            'SELECT id, message, user_identifier, author, createdAt FROM npwd_messages WHERE conversation_id = ? AND id > ? ORDER BY id ASC LIMIT ?',
+            { tostring(convId), tonumber(opts.aroundId), half }) or {}
+        -- Se veio 1 a mais no "before", ainda há mensagens mais antigas
+        hasMoreOlder = (#before > half)
+        if hasMoreOlder then before[#before] = nil end
+        -- before está em DESC; inverte para ASC
+        local merged = {}
+        for i = #before, 1, -1 do merged[#merged + 1] = before[i] end
+        for i = 1, #after do merged[#merged + 1] = after[i] end
+        rows = merged
+    elseif opts.beforeId then
+        -- Página anterior (mais antigas): pega DESC e inverte para ASC
+        local desc = MySQL.query.await(
+            'SELECT id, message, user_identifier, author, createdAt FROM npwd_messages WHERE conversation_id = ? AND id < ? ORDER BY id DESC LIMIT ?',
+            { tostring(convId), tonumber(opts.beforeId), limit + 1 }) or {}
+        hasMoreOlder = (#desc > limit)
+        if hasMoreOlder then desc[#desc] = nil end
+        rows = {}
+        for i = #desc, 1, -1 do rows[#rows + 1] = desc[i] end
+    else
+        -- Mais recentes: DESC e inverte para ASC (mais recente no fim)
+        local desc = MySQL.query.await(
+            'SELECT id, message, user_identifier, author, createdAt FROM npwd_messages WHERE conversation_id = ? ORDER BY id DESC LIMIT ?',
+            { tostring(convId), limit + 1 }) or {}
+        hasMoreOlder = (#desc > limit)
+        if hasMoreOlder then desc[#desc] = nil end
+        rows = {}
+        for i = #desc, 1, -1 do rows[#rows + 1] = desc[i] end
+    end
+
+    rows = rows or {}
+    markSelf(rows)
+    return { conversationId = convId, messages = rows, hasMoreOlder = hasMoreOlder }
+end)
+
+--- Busca mensagens por texto dentro de uma conversa (para o "Buscar mensagem")
+lib.callback.register('npwd:searchMessages', function(source, conversationId, query)
+    local identifier = getCharIdentifier(source)
+    local convId = tonumber(conversationId)
+    if not convId or type(query) ~= 'string' then return { matches = {} } end
+
+    local q = query:gsub('%s+$', ''):gsub('^%s+', '')
+    if q == '' then return { matches = {} } end
+
+    local like = '%' .. q:gsub('([%%_])', '\\%1') .. '%'
+    local ok, res = pcall(function()
+        return MySQL.query.await(
+            'SELECT id, message, user_identifier, author, createdAt FROM npwd_messages WHERE conversation_id = ? AND message LIKE ? ORDER BY id DESC LIMIT 30',
+            { tostring(convId), like })
+    end)
+    if ok and res then
+        for i = 1, #res do
+            res[i].self = (tostring(res[i].user_identifier) == tostring(identifier))
+        end
+        return { matches = res }
+    end
+    return { matches = {} }
 end)
 
 --- Enviar mensagem via NUI/Servidor
@@ -865,6 +932,58 @@ AddEventHandler('playerDropped', function()
             TriggerClientEvent('npwd:clientCallEnded', partnerSrc, 'partner_disconnected')
         end
     end
+end)
+
+-- =======================================================
+-- GALERIA DE FOTOS (CÂMERA) — PERSISTÊNCIA (MYSQL / OXMYSQL)
+-- =======================================================
+
+CreateThread(function()
+    pcall(function()
+        MySQL.query.await([[
+            CREATE TABLE IF NOT EXISTS `npwd_photos` (
+                `id` INT NOT NULL AUTO_INCREMENT,
+                `identifier` VARCHAR(64) NOT NULL,
+                `image` LONGTEXT NOT NULL,
+                `orientation` VARCHAR(12) NOT NULL DEFAULT 'portrait',
+                `createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`),
+                INDEX `idx_photos_identifier` (`identifier`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        ]])
+    end)
+end)
+
+--- Callback para buscar as fotos da galeria do personagem
+lib.callback.register('npwd:getPhotos', function(source)
+    local identifier = getCharIdentifier(source)
+    local ok, res = pcall(function()
+        return MySQL.query.await('SELECT id, image, orientation, createdAt FROM npwd_photos WHERE identifier = ? ORDER BY id DESC LIMIT 60', { identifier })
+    end)
+    if ok and res then return res end
+    return {}
+end)
+
+--- Salvar uma foto (data URL base64) na galeria do personagem
+RegisterNetEvent('npwd:serverSavePhoto', function(image, orientation)
+    local src = source
+    if type(image) ~= 'string' or image == '' then return end
+    if #image > 8000000 then return end -- limite defensivo (~8MB por foto)
+    local identifier = getCharIdentifier(src)
+    local ori = (orientation == 'landscape') and 'landscape' or 'portrait'
+    pcall(function()
+        MySQL.insert('INSERT INTO npwd_photos (identifier, image, orientation) VALUES (?, ?, ?)', { identifier, image, ori })
+    end)
+end)
+
+--- Excluir uma foto da galeria do personagem
+RegisterNetEvent('npwd:serverDeletePhoto', function(photoId)
+    local src = source
+    if not photoId then return end
+    local identifier = getCharIdentifier(src)
+    pcall(function()
+        MySQL.update('DELETE FROM npwd_photos WHERE id = ? AND identifier = ?', { photoId, identifier })
+    end)
 end)
 
 print('^2[nv_phone:phone] Módulo de contatos, chamadas e mensagens com persistência MySQL (oxmysql) carregado com sucesso.^7')

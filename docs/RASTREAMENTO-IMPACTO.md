@@ -177,4 +177,112 @@ Plano mínimo de alteração:
   3. **Export incorreto**: `GetPlayerByCharId` (inexistente) → `GetPlayerFromCharId` em todo o `bank.lua` (afetava notificação ao destinatário e emissão de faturas).
   4. **Org na embed verde**: `GetGroup` não é exportado pelo ox_core; a resolução do emissor passou a usar a tabela `ox_groups` (`name` → `label`) como via principal, com mapeamento de tipo (`multa`/`prisao` → "Polícia Militar") como fallback.
 
-[diff_block_end]
+- `2026-07-22` — `nv_phone` (NUI `index.html`) — Redesign completo do aplicativo **Drop** (Twitter/X) alinhado ao modelo `modelos/gemini-code-1784755009071.html`:
+  1. **Interface & Abas**: Novo cabeçalho com logo `#06b6d4` e avatar, abas alternáveis "Para você" e "Seguindo" com indicador dinâmico.
+  2. **Cards & Mídia**: Feed interativo com avatares circulares, mídias anexadas (`.tweet-media`), contadores dinâmicos de comentários, retweets (estado verde) e curtidas (coração vermelho).
+  3. **Criação de Posts**: Botão Flutuante (FAB) abrindo modal de composição `#dropComposeModal` com suporte a texto, URL de imagem e publicação instantânea no feed do celular.
+  4. **Navegação**: Barra de navegação inferior dedicada com 4 abas ativas (`.drop-bottom-nav`).
+
+- `2026-07-22` — `nv_phone` (NUI `index.html`) — Ajustes de padronização do aplicativo **Drop**:
+  1. **Cabeçalho & Perfil**: Aplicado `.app-header` padrão dos demais apps e substituído o ícone de engrenagem pelo botão de Perfil (`#dropProfileModal`).
+  2. **Feed Único**: Removida a barra de abas ("Para você" / "Seguindo"), exibindo um feed direto e contínuo.
+  3. **Cards de Postagem**: Removidos os contadores e ícones de retweet e estatísticas de visualização, mantendo exclusivamente interações de Comentário e Curtida.
+  4. **Rodapé**: Removido o ícone de e-mail da barra inferior, mantendo 3 ícones principais (Feed, Busca e Notificações).
+
+- `2026-07-22` — `nv_phone` (NUI `index.html`) — Responsividade & Estilização de Scrollbar do **Drop**:
+  1. **Barra de rolagem customizada**: Implementada scrollbar de `4px` com cor cyan translúcida (`.drop-feed::-webkit-scrollbar-thumb`) e efeito hover com `scroll-behavior: smooth` e `overscroll-behavior: contain`.
+  2. **Responsividade & Quebra de texto**: Adicionados `word-break: break-word`, `overflow-wrap: break-word`, `min-width: 0` e ajuste responsivo de fotos/avatares para evitar estouro de container em qualquer resolução de celular.
+  3. **Espaçamento Lateral**: Aplicado recuo lateral de `14px` em `.drop-feed` (`padding: 12px 14px 75px 14px`) e transformada cada postagem em um cartão isolado (`background: var(--phone-card)`, `border-radius: 16px`, `margin-bottom: 12px`), afastando 100% dos cartões da borda metálica do celular e da barra de rolagem.
+- `2026-07-22` — `nv_phone` (NUI `index.html`) — Sistema de Registro de Conta & Handle Fixo do **Drop**:
+  1. **Modal de Cadastro (`#dropAuthModal`)**: Solicita obrigatoriamente um `@username` (handle fixo), Nome de Exibição e Senha de Acesso no primeiro uso do aplicativo.
+  2. **Handle Fixo Imutável**: O `@username` é registrado definitivamente e não pode ser editado posteriormente. No modal de edição de perfil (`#dropEditProfileModal`), o campo `@username` permanece bloqueado/desabilitado (`disabled`).
+  3. **Edição Restrita**: Permitida a alteração exclusiva do **Nome de Exibição** e da **URL da Foto de Perfil (Avatar)** após o cadastro.
+
+- `2026-07-23` — `nv_phone` (NUI `index.html`) — Ajustes no App de Mensagens/Telefone:
+  1. **Conversa**: removida a opção "Desligar"; o botão do cabeçalho voltou a ser o ícone de telefone (ligar direto). Função `openChatMenu` removida.
+  2. **Menus (+ e excluir)**: `.pw-menu` e `.emoji-panel` ganharam fundo sólido (`--phone-bg` + blur) — antes ficavam transparentes.
+  3. **Input**: `<input>` virou `<textarea>` com auto-crescimento até `max-height: 96px` e rolagem estilizada (`autoGrowChatInput`, `handleChatInputKey`: Enter envia, Shift+Enter quebra linha).
+  4. **Badge de mensagens**: removido o "3" fixo; agora `#messagesBadge` reflete não lidas (`unreadMessages`), incrementa ao receber fora da conversa e zera ao abrir Mensagens/conversa.
+  5. **Buscas**: filtros de conversas e de contatos passaram a usar `normalizeText` (sem acento/caixa) + `normalizePhone` (número sem máscara), corrigindo resultados.
+
+- `2026-07-23` — `nv_phone` — Implementado o **App de Notas** completo (antes era estático/mock), com persistência MySQL e compartilhamento no molde do contato:
+  1. **Servidor (`server/phone.lua`)**: garante a tabela `npwd_notes` (reaproveita a legada + `ALTER` para `color`/`updatedAt`); callback `npwd:getNotes` e eventos `npwd:serverSaveNote` (create/update), `npwd:serverDeleteNote`, `npwd:serverShareNote` (envia ao alvo) e `npwd:saveSharedNote` (salva ao aceitar).
+  2. **Cliente (`client/phone.lua`)**: callbacks NUI `getNotes/saveNote/deleteNote/shareNote/acceptSharedNote` e listeners `npwd:clientReceiveSharedNote` / `npwd:onIncomingNoteNotification`.
+  3. **NUI (`index.html`)**: lista dinâmica com **cor por nota** (faixa lateral), editor com **título**, **descrição com formatação básica** (negrito/itálico/sublinhado/lista via `contenteditable` + `execCommand`), **seletor de cor**, salvar/editar/excluir e **compartilhar** por jogadores próximos (modal + aceitar/recusar como o contato). Adicionado `sanitizeNoteHtml` (whitelist de tags, remove atributos/scripts) para evitar XSS em notas recebidas; `focusin/out` agora cobre `contenteditable` (foco de teclado).
+- `2026-07-23` — `nv_phone` (NUI `index.html`) — Corrigido o posicionamento do menu de anexo (+): `openMenuAt` passou a ser ciente da posição — abre **acima** do botão quando não cabe abaixo (caso do + na base da tela) e alinha ao botão com clamp nas bordas, em vez de sempre abrir para baixo/à direita (que saía da tela).
+- `2026-07-23` — `nv_phone` (NUI `index.html`) — Atualização do App de Notas:
+  1. **Ícone de Salvar**: alterada a cor do ícone `fa-solid fa-floppy-disk` no botão "Salvar Nota" para azul (`#3b82f6`).
+  2. **Modal de Confirmação**: adicionado o modal `#modalDeleteNote` ao clicar no botão de exclusão de notas no editor.
+- `2026-07-23` — `nv_phone` (NUI `index.html`) — Rebranding Completo para **Quack** & Registro no Primeiro Acesso:
+  1. **Visual & Identidade**: Nome do aplicativo alterado para **Quack**, ícone de patinho (Duck SVG) na Home e no topo da tela, paleta amarela/amber (`#f59e0b`, `#facc15`, `#d97706`) em todos os componentes, botões, modais e barra de rolagem customizada.
+  2. **Cadastro no Primeiro Acesso**: Ao abrir o Quack pela primeira vez, o formulário de cadastro de conta (`#dropAuthModal`) é exibido automaticamente antes de dar acesso ao feed.
+  3. **Credenciais & Autenticação**: Solicitados os campos **Nome de Usuário** (Display Name), **@username** (Handle Fixo) e **Senha de Acesso** (Password). Uma vez criada a conta, a autenticação permanece ativa para os próximos acessos.
+- `2026-07-23` — `nv_phone` (NUI `index.html`) — Ajustes de Design do Feed & Estreitamento Responsivo de Posts do Quack:
+  1. **Estrutura Vertical em 3 Níveis**: Alterado `.tweet-user` para `flex-direction: column`, posicionando o **Nome de Exibição** na linha superior, o **@username · tempo** logo abaixo e o **Conteúdo** na linha inferior.
+  2. **Suporte Responsivo a Nomes Extensos**: Adicionados `word-break: break-word` e `overflow-wrap: anywhere` no Nome e no @username, garantindo que nomes longos dobrem de linha suavemente sem truncar nem quebrar o layout do container.
+  3. **Destaque Amarelo Quack**: Padronizado o tom amarelo/amber (`#f59e0b`) no `@username`, no foco dos campos de texto dos modais (`:focus`) e em botões de ação do feed, criação e perfil.
+- `2026-07-23` — `nv_phone` (NUI `index.html`) — Tela Principal de Login & Alternância com Cadastro no Quack:
+  1. **Tela de Login Padrão (`#dropLoginModal`)**: Definida como a tela principal ao abrir o Quack sem sessão ativa, exigindo o campo `@username` (com badge de @) e a **Senha de Acesso**.
+  2. **Navegação & Alternância**: Adicionado o link *"Não possui uma conta? Cadastre-se"* que alterna para o modal de cadastro (`#dropAuthModal`), e no cadastro o link *"Já possui uma conta? Entrar"* para retornar ao Login.
+  3. **Autenticação**: Validação de credenciais contra o banco de contas salvas (`dropAccountsDB`), com mensagens push em caso de senha incorreta ou conta inexistente.
+- `2026-07-23` — `nv_phone` (NUI `index.html`) — Correção da Barra Home (`.home-bar`) & Fechamento de Modais do Quack:
+  1. **Elevação de z-index**: `.home-bar` recebeu `z-index: 99999` (superando a camada `z-index: 10002` dos modais de Login/Cadastro), garantindo visibilidade e clique constante em qualquer aplicativo.
+  2. **Limpeza ao Voltar à Home**: a função `goHome()` agora esconde automaticamente todos os modais abertos do Quack (`dropLoginModal`, `dropAuthModal`, `dropProfileModal`, etc.).
+  3. **Botão de Fechar no Cabeçalho**: adicionado botão de fechar (X) no topo direito dos modais de Login e Cadastro para retorno instantâneo à Home.
+- `2026-07-23` — `nv_phone` (NUI `index.html`) — Alertas de Validação de Autenticação & Menu Contextual de 3 Pontos do Perfil:
+  1. **Validação de Login & Erro**: Adicionados alertas de erro visuais (`#dropLoginErrorAlert`) exibindo mensagens personalizadas quando o `@username` não for encontrado ou a senha for inválida, impedindo o login.
+  2. **Validação de Registro & Duplicados**: Adicionada checagem estrita de preenchimento dos 3 campos obrigatórios (Nome, `@username` e Senha) e verificação de duplicidade (`dropAccountsDB`), bloqueando registros repetidos com alertas visuais (`#dropRegErrorAlert`).
+  3. **Menu de 3 Pontos no Perfil**: Adicionado botão de menu contextual (`#dropProfileOptionsMenu`) no cabeçalho do perfil do usuário com as opções **Editar Perfil** (abre o modal de edição) e **Deslogar** (encerra a sessão e retorna à tela de Login).
+- `2026-07-23` — `nv_phone` (NUI `index.html`) — Reformulação Geral do Aplicativo Matchmaker (Tinder):
+  1. **Autenticação (Login & Cadastro)**: Adicionados os modais `#matchLoginModal` e `#matchRegisterModal` para entrada e cadastro de novos usuários, com validações de erro e transições suaves.
+  2. **Configuração de Perfil**: Modal `#matchProfileConfigModal` com suporte a até 6 fotos com preview/remocao, campo de Bio, seletor de objetivo ("O que procura"), tags de interesse selecionáveis e no canto superior direito as opções de **Inativar** (oculta no feed) e **Excluir** (remove perfil com confirmação).
+  3. **Feed com Swipe & Modais**: Card stack interativo com suporte a gestos de arrastar (Drag/Touch), botões de Like/Deslike acionando as mesmas animações, e popup celebrativo "Deu Match! 🎉" ao dar match com botão instantâneo de **Iniciar Chat**.
+  4. **Chats com Busca & Emoji Picker**: Aba de conversas com filtro de busca em tempo real por nome (`#matchChatSearchInput`), tela de mensagens individuais (`#matchChatDetailView`) e seletor de emojis (`#matchEmojiPickerBox`) acionado pelo ícone de emoji no input.
+
+- `2026-07-23` — `nv_phone` (`client/phone.lua` + `cl_controls.lua`) — Modo "girar câmera" com o celular aberto: o **botão direito do mouse** alterna entre usar a UI (cursor visível) e rotacionar a câmera (cursor escondido). Adicionado estado `phoneCamRotate`, função/export `isPhoneCamRotate`, `setPhoneCamRotate` (`SetNuiFocus(true,false)` no modo rotação) e thread que lê o controle 25 (Aim) via `IsDisabledControlJustPressed`/`IsControlJustPressed`. O `cl_controls.lua` deixa de desativar os controles de olhar (0/1/2) enquanto `isPhoneCamRotate()` for verdadeiro; reseta ao abrir/fechar o celular.
+- `2026-07-23` — `nv_phone` (NUI `index.html`) — Correção de Posicionamento e Visibilidade da Barra de Voltar (`.home-bar`):
+  1. **Encerramento de Sobras HTML**: Removidas tags `</div>` fecho sobressalentes no aplicativo Matchmaker que fechavam precocemente a estrutura de `.phone-screen` e `#phoneWrapper`, projetando a barra de voltar para fora da moldura do telefone.
+  2. **Contenção no Aparelho**: Reestruturado a div `<div class="home-bar" onclick="goHome()"></div>` para dentro de `.phone-screen`, mantendo-a perfeitamente contida no rodapé interno do celular.
+  3. **Exibição Exclusiva em APPs**: Adicionada regra CSS `.phone-screen:not([data-app="home"]) .home-bar { display: block; }` com `display: none` por padrão no Home, exibindo a barra de voltar exclusivamente ao acessar qualquer aplicativo (Quack, Match, Banco, Garagem, etc.).
+- `2026-07-23` — `nv_phone` (Câmera) — Integração do modo giro com a câmera do app: `client/phone.lua` passou a **cooperar com o toggle global `phoneCamRotate`** (botão direito) — no modo giro lê `GetGameplayCamRot` para girar a câmera scriptada (no modo **traseira o personagem gira junto** via `SetEntityHeading`; na **selfie o personagem olha para a frente** e a câmera orbita o rosto). Adicionado **zoom** pela roda do mouse (FOV 20–90, controles 241/242 e 14/15) e o `updatePhoneCam` agora usa `camYaw/camPitch/camFov`. Removido o callback redundante `npwd:camera:rotateStart`.
+- `2026-07-23` — `nv_phone` (Câmera) — Adicionada a **animação de tirar foto** (`cellphone@ / cellphone_photo_idle`, aparelho apontado à frente) ao abrir a câmera, restaurando `text` ao fechar. A **perspectiva ficou ancorada no aparelho** (a câmera usa a posição do prop do celular como base — POV "pelo celular"). Agora o **personagem gira junto com a câmera nos dois modos**: na traseira olha para onde a câmera aponta e na **frontal (selfie) também rotaciona** (câmera a uma distância de braço olhando de volta para o rosto). Removido o `camYaw`/orbita antiga.
+- `2026-07-23` — `nv_phone` (`index.html`, `client/phone.lua`) + `nv_delivery` — Ajustes de notificação e navegação do celular:
+  1. **Clique na notificação**: mensagens abrem a conversa (via `senderNumber` → `openChat`); notificações de **evento com `coords`** traçam a rota no minimapa (`markNotificationRoute` → callback `npwd:setWaypoint` → `SetNewWaypoint`). O dispatcher `createNotification` passa `senderNumber`/`coords` ao `spawnNotification`, e `triggerNotifClick` fecha a notificação (silencioso) **antes** da ação para não apagar a confirmação disparada por ela.
+  2. **Fechar arrastando**: `dismissNotification(true)` some sem animação (usado no swipe); auto-timeout mantém a animação de fechar.
+  3. **Navegação/voltar**: botão de voltar do cabeçalho (chevron-left) só aparece em subpáginas com pai (`VIEW_PARENTS`: `chat-detail`→`messages`, `note-editor`→`notes`) e leva ao pai (`goBack`); nas telas raiz ele fica oculto e a **home-bar** leva à home. Botões de "minimizar" das telas de chamada (chevron-down) não são afetados.
+  4. **`nv_delivery`**: as notificações de evento 24/7 e Xero Gas agora enviam `coords` (galpão / gerente de logística) para habilitar a rota ao clicar.
+
+- `2026-07-23` — `nv_dealership` (`server.lua`) — Alterada a forma de pagamento da venda de veículos no ferro-velho (`nv_dealership:scrapVehicle`):
+  1. Removida a creditação em conta bancária via `Ox.GetCharacterAccount` / `account.addBalance`.
+  2. Implementado pagamento direto em dinheiro em mãos no inventário do jogador usando `exports.ox_inventory:AddItem(source, 'money', value)` antecedido da verificação de capacidade de carga `exports.ox_inventory:CanCarryItem(source, 'money', value)`.
+  3. Caso a exclusão física do veículo falhe (`vehicle.delete()`), a quantia é estornada do inventário com `exports.ox_inventory:RemoveItem(source, 'money', value)`.
+
+- `2026-07-23` — `nv_dispatch` (`server/main.lua`, `client/main.lua`, `html/app.js`) — Restrição de chamados e alertas para jogadores exclusivamente em serviço ("em serviço"):
+  1. **Servidor**: Em `receivers()`, adicionada a verificação `Player(player.source).state.duty == true`. Jogadores fora de serviço não são incluídos no envio de alertas nem em atualizações/blips.
+  2. **Cliente**: Adicionadas proteções nos ouvintes `nv_dispatch:alert`, `updateAlert` e no atalho de marcação de rota (`markLatest`). Adicionado ouvinte `AddStateBagChangeHandler` na chave `duty` do `LocalPlayer` chamando `clearDispatch()` para remover blips e alertas ativos da tela/mapa instantaneamente ao sair de serviço.
+  3. **NUI**: Adicionada a ação `clear` em `app.js` para esvaziar a pilha de cartões de alerta na interface.
+
+- `2026-07-23` — `nv_garage` (`server/main.lua`, `client/locks.lua`) — Ajuste no arrombamento com Lockpick:
+  1. **Destrancamento Permanente**: Criado o callback `nv_garage:unlockLockpicked` no servidor para alterar o estado `nvLocked = false` no statebag do veículo e no MySQL ao concluir o minigame, mantendo o carro destrancado sem temporizador de retrancamento.
+  2. **Remoção de Abertura Automática**: Removida a nativa `SetVehicleDoorOpen(vehicle, door)` após o lockpick, mantendo as portas fechadas para abertura manual pelo jogador.
+
+- `2026-07-23` — `nv_police` (Criação de novo recurso) — Implementado o sistema completo de polícia:
+  1. **Algemas & Chave**: Uso do item `handcuffs` troca por `handcuff_key` e calcula orientação de aproximação (costas = mãos para trás / frente = mãos para frente). Chave desalgema e devolve algema. Restrições completas de movimentação e combate via statebag `isCuffed`.
+  2. **Mãos ao Alto & Revistar**: Tecla **X** alterna a animação de mãos ao alto. Menu ALT (`ox_target`) em cidadãos rendidos ou algemados abre a interface de revista de inventário (`exports.ox_inventory:openInventory('inspect')`).
+  3. **Apontar & Testes Forenses**: Tecla **B** alterna a postura de apontar com o dedo. Itens `teste_polvora` e `teste_drogas` colhem amostras e gravam no metadata do item o nome do cidadão e o resultado (`Positivo` / `Negativo`) com base nos disparos e consumo recentes.
+  4. **Bafômetro**: Item `bafometro` valida se o cidadão usa máscara ou capacete. Se obstruído, o teste falha retornando `Negativo (Obstruído)`. Caso desobstruído, roda progressbar e atualiza a descrição do item com `Positivo` ou `Negativo` e nome do cidadão.
+  5. **Props & Spikes**: Posicionamento de `police_cone`, `police_barricade` e `police_spike` com prévia visual, rotação (Scroll / ← →), confirmação (E) e cancelamento (X) espelhados em `nv_props`. Spikes furam pneus automaticamente ao passar por cima, e a tecla ALT (`ox_target`) recolhe o prop devolvendo o item ao inventário.
+- `2026-07-23` — `nv_phone` (Câmera, `client/phone.lua`) — Refinamentos: na **selfie a câmera fica à frente do rosto e o prop do celular é ocultado** (`SetEntityVisible`), não exibindo o aparelho sendo segurado; o **personagem olha fixo para a lente** (`TaskLookAtCoord` a cada frame, acompanhando ao mudar a posição) e para de olhar ao voltar à traseira (`TaskClearLookAt`); a **HUD/minimapa são ocultados** enquanto no modo foto (`HideHudAndRadarThisFrame`); e o **zoom passou a ser exclusivo da câmera frontal** (reinicia FOV ao alternar).
+- `2026-07-23` — `nv_phone` (`dist/html/index.html`) — Reconstrução dos apps **Notas** e **Câmera/Galeria** após a corrupção do index.html (o backend `.lua` estava intacto; só o frontend fora destruído). Re-implementados no frontend, casando 1:1 com os callbacks Lua existentes:
+  1. **Notas**: CSS do editor, JS (`loadNotesFromDatabase`, `renderNotesList`, `openNoteEditor`, `saveNoteFromEditor`, `deleteNoteFromEditor`, `formatNote`, cores, compartilhar/receber com `sanitizeNoteHtml`), hook `openApp('notes')`, foco de teclado estendido a `contenteditable`, e branches de notificação `notes`/`incoming_note`.
+  2. **Câmera/Galeria**: overlay em tela cheia (`#cameraOverlay`) sobre a câmera do jogo, controles (fechar, virar frontal/traseira via `npwd:camera:flip`, orientação, disparo, atalho galeria), captura via `npwd:camera:capture` → `npwd:savePhoto`, handlers `cameraHideChrome/Show`, e galeria dinâmica (`loadGalleryFromDatabase`/`renderGallery`/`viewPhoto`/`deletePhoto`) lendo `npwd_photos`.
+- `2026-07-23` — `nv_phone` (`client/phone.lua` + `index.html`) — Ajustes na câmera do celular:
+  1. **Enquadramento horizontal/vertical**: guia visual `.cam-frame` (retângulo central com o resto escurecido) que alterna 9:16 (vertical) e 16:9 (horizontal) pelo botão de orientação; a foto capturada é **recortada** para o aspecto escolhido (`cropImageToOrientation` via canvas).
+  2. **Zoom removido da frontal (selfie)**: FOV fixo (60), sem zoom da roda do mouse.
+  3. **ESC fecha a câmera → galeria**: o loop de controle detecta o ESC (control 200/199, com Pause Menu desativado) e fecha, enviando `cameraClosedToGallery` para a NUI abrir a Galeria.
+  4. **Câmera frontal mais próxima**: distância selfie `0.72` → `0.48`.
+  5. Correção: forward declaration de `stopPhoneCam` (evita `nil` ao chamar no ESC antes da definição).
+- `2026-07-23` — `nv_phone` (NUI + `server/phone.lua`) — Topbar e conversas:
+  1. **Topbar por app**: `.app-header` ganhou fundo no tom do app (`--hdr` por `[data-app]`) + blur/borda. Regras de navegação: **ícone de voltar (chevron) só em sub-telas** (`.view.keep-back` — chat, editor de nota, chamadas) e a **barra inferior (home-bar) some no Home** e serve para voltar ao menu principal nos apps.
+  2. **Conversa (carregamento dinâmico)**: `getMessages` reescrito com paginação — `beforeId` (carregar anteriores ao subir), `aroundId` (janela ao pular para uma busca) e retorno `hasMoreOlder`; abre na **mensagem mais recente** e reabre na **posição salva**. Botão/auto "carregar mensagens anteriores" para grandes volumes.
+  3. **Menu de 3 pontos** no chat (substitui o ícone de ligar) com **Buscar mensagem** e **Ligar**. Busca via novo callback `npwd:searchMessages` (LIKE no banco) → lista de resultados que **leva o jogador até a mensagem** (carrega a janela ao redor, rola e realça `msg-jump`), exibindo resposta/contexto.

@@ -13,9 +13,19 @@ CreateThread(function()
 
         if disableKeys or phoneOpen then
             Wait(0)
-            DisableControlAction(0, 0, true)    -- Next Camera
-            DisableControlAction(0, 1, true)    -- Look Left/Right
-            DisableControlAction(0, 2, true)    -- Look up/Down
+
+            -- No modo "girar câmera" (botão direito com o celular aberto) liberamos
+            -- os controles de olhar para o jogador rotacionar a câmera.
+            local camRotate = false
+            if phoneOpen and exports.npwd then
+                pcall(function() camRotate = exports.npwd:isPhoneCamRotate() end)
+            end
+
+            if not camRotate then
+                DisableControlAction(0, 0, true)    -- Next Camera
+                DisableControlAction(0, 1, true)    -- Look Left/Right
+                DisableControlAction(0, 2, true)    -- Look up/Down
+            end
             DisableControlAction(0, 14, true)   -- Next Weapon / Scroll
             DisableControlAction(0, 15, true)   -- Select Previous Weapon / Scroll
             DisableControlAction(0, 16, true)   -- Next Weapon

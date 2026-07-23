@@ -96,7 +96,14 @@ function build(alert, duration, markKey) {
 window.addEventListener('message', (event) => {
     const data = event.data;
 
-    if (!data || data.action !== 'alert' || !data.alert) return;
+    if (!data) return;
+
+    if (data.action === 'clear') {
+        stack.innerHTML = '';
+        return;
+    }
+
+    if (data.action !== 'alert' || !data.alert) return;
 
     if (Number.isFinite(data.maxOnScreen)) maxOnScreen = data.maxOnScreen;
 

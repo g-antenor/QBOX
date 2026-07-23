@@ -555,4 +555,47 @@ return {
 		consume = 0, description = 'Nota fiscal eletronica de compra de veiculo.',
 		client = { image = 'card_id.png' }
 	},
+
+	-- ------------------------------------------------------- nv_police --
+
+	['handcuffs'] = {
+		label = 'Algemas', weight = 500, stack = false, consume = 0,
+		description = 'Algemas de aco reforcado.',
+		client = { export = 'nv_police.useHandcuffs' }
+	},
+	['handcuff_key'] = {
+		label = 'Chave de Algemas', weight = 50, stack = false, consume = 0,
+		description = 'Chave para abrir algemas padrao.',
+		client = { export = 'nv_police.useHandcuffKey' }
+	},
+	['teste_polvora'] = {
+		label = 'Teste de Polvora', weight = 100, stack = false, consume = 0,
+		description = 'Kit de amostragem de residuos de polvora.',
+		client = { export = 'nv_police.useGunpowderTest' }
+	},
+	['teste_drogas'] = {
+		label = 'Teste de Drogas', weight = 100, stack = false, consume = 0,
+		description = 'Kit de reagente quimico para narcoticos.',
+		client = { export = 'nv_police.useDrugTest' }
+	},
+	['bafometro'] = {
+		label = 'Bafometro', weight = 600, stack = false, consume = 0,
+		description = 'Etilometro digital de sopro.',
+		client = { export = 'nv_police.useBreathalyzer' }
+	},
+	['police_cone'] = {
+		label = 'Cone Policial', weight = 1500, stack = true, consume = 0,
+		description = 'Cone de sinalizacao viaria policial.',
+		client = { export = 'nv_police.useCone' }
+	},
+	['police_barricade'] = {
+		label = 'Barricada Policial', weight = 5000, stack = true, consume = 0,
+		description = 'Barreira metalica para desvio de trafego.',
+		client = { export = 'nv_police.useBarricade' }
+	},
+	['police_spike'] = {
+		label = 'Fita de Pregos (Spike)', weight = 4000, stack = true, consume = 0,
+		description = 'Perfurador de pneus para interceptacao de veiculos.',
+		client = { export = 'nv_police.useSpike' }
+	},
 }

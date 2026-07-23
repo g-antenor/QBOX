@@ -666,7 +666,24 @@ end)
 
 -- `nv_garage:unlockFromInside` foi removido: agora que o `setLocked` acima
 -- dispensa a chave para quem esta dentro, ele era o mesmo callback com um nome
--- diferente e cobrindo so metade dos casos (destrancar, nunca trancar).
+-- diferente e cobrindo so metade dos casos (destrancar, nunca trancar)
+
+lib.callback.register('nv_garage:unlockLockpicked', function(source, netId)
+    local vehicle = resolveVehicle(netId)
+    if not vehicle then return false, 'Veiculo nao encontrado.' end
+
+    if not isNearby(source, vehicle.entity, Config.Lock.distance + 4.0) then
+        return false, 'Voce esta longe demais.'
+    end
+
+    Entity(vehicle.entity).state:set('nvLocked', false, true)
+
+    if vehicle.vin then
+        Server.setLockState(vehicle.vin, false)
+    end
+
+    return true
+end)
 
 -- ------------------------------------------------------------- lockpick --
 

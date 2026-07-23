@@ -70,10 +70,32 @@ local function createBlip(alert)
     end)
 end
 
+--- Limpa todos os alertas e blips ativos do dispatch quando o jogador sai de servico.
+local function clearDispatch()
+    recent = {}
+    for alertId in pairs(alertBlips) do
+        removeAlertBlips(alertId)
+    end
+    for blip in pairs(blips) do
+        if DoesBlipExist(blip) then RemoveBlip(blip) end
+    end
+    blips = {}
+    alertBlips = {}
+    SendNUIMessage({ action = 'clear' })
+end
+
 -- ----------------------------------------------------------- marcar rota --
 
 --- Coloca o waypoint no alerta mais recente.
 local function markLatest()
+    if not LocalPlayer.state.duty then
+        return lib.notify({
+            title = 'Dispatch',
+            description = 'Voce nao esta em servico.',
+            type = 'inform'
+        })
+    end
+
     local alert = recent[1]
 
     if not alert then
@@ -110,6 +132,7 @@ end)
 -- --------------------------------------------------------------- alertas --
 
 RegisterNetEvent('nv_dispatch:alert', function(alert)
+    if not LocalPlayer.state.duty then return end
     if type(alert) ~= 'table' or type(alert.coords) ~= 'table' then return end
 
     -- Nome da rua so pode ser resolvido no cliente: as natives de mapa nao
@@ -148,6 +171,7 @@ RegisterNetEvent('nv_dispatch:stopAlert', function(alertId)
 end)
 
 RegisterNetEvent('nv_dispatch:updateAlert', function(alertId, coords)
+    if not LocalPlayer.state.duty then return end
     if type(alertId) ~= 'string' or type(coords) ~= 'table' then return end
 
     local pair = alertBlips[alertId]
@@ -162,6 +186,12 @@ RegisterNetEvent('nv_dispatch:updateAlert', function(alertId, coords)
             recent[i].coords = coords
             break
         end
+    end
+end)
+
+AddStateBagChangeHandler('duty', ('player:%d'):format(GetPlayerServerId(PlayerId())), function(_, _, value)
+    if not value then
+        clearDispatch()
     end
 end)
 

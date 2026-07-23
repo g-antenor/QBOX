@@ -98,7 +98,9 @@ local function activateEvent(reason, force)
             app = 'xero',
             title = 'Xero Gas',
             content = 'Postos precisando de combustível! Procure o Gerente de Logística para iniciar as entregas.',
-            duration = 10000
+            duration = 10000,
+            -- Coordenadas do Gerente de Logística: clicar traça a rota no minimapa.
+            coords = { x = GAS.npcCoords.x, y = GAS.npcCoords.y }
         })
     end
 

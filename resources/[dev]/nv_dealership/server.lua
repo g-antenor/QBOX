@@ -354,24 +354,22 @@ lib.callback.register('nv_dealership:scrapVehicle', function(source, netId)
         scrapLocks[vehicle.vin] = nil
         return false, 'Valor do ferro-velho invalido.'
     end
-    local account = Ox.GetCharacterAccount(player.charId)
-    if not account then
+
+    if not exports.ox_inventory:CanCarryItem(source, 'money', value) then
         scrapLocks[vehicle.vin] = nil
-        return false, 'Conta do proprietario indisponivel.'
+        return false, 'Voce nao tem espaco suficiente no inventario para o dinheiro.'
     end
 
-    local credited, credit = pcall(function()
-        return account.addBalance({ amount = value, message = ('Ferro-velho: %s (%s kg)'):format(entry.model, weight) })
-    end)
-    if not credited or type(credit) ~= 'table' or credit.success ~= true then
+    local added = exports.ox_inventory:AddItem(source, 'money', value)
+    if not added then
         scrapLocks[vehicle.vin] = nil
-        return false, 'Nao foi possivel realizar o pagamento.'
+        return false, 'Nao foi possivel entregar o dinheiro em maos.'
     end
 
     local plate = vehicle.plate
     local deleted = pcall(function() vehicle.delete() end)
     if not deleted then
-        account.removeBalance({ amount = value, message = 'Estorno: falha no ferro-velho' })
+        exports.ox_inventory:RemoveItem(source, 'money', value)
         scrapLocks[vehicle.vin] = nil
         return false, 'Nao foi possivel destruir o veiculo.'
     end

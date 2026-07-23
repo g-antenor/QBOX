@@ -31,6 +31,7 @@ e de quem depende. Deve ser atualizada a cada criação/alteração relevante
 | `nv_mechanic` | Mecânica avançada, peças, reparos, incêndios e ordens de serviço | `ox_core`, `ox_lib`, `ox_inventory`, `ox_target`, `oxmysql`, `nv_mdt` | `nv_garage`, `nv_mdt` |
 | `nv_minigames` | Minigames genéricos (lockpick, skillbar, campo minado) | `ox_lib` | `nv_recycle`, `nv_hunting`, `nv_garage` |
 | `nv_orgs` | Gestão de facções/polícia (duty, stashes, garagens, fardamentos) | `ox_core`, `ox_lib`, `ox_inventory`, `ox_target`, `oxmysql` | `nv_crafting`, `nv_mechanic`, `nv_mdt` |
+| `nv_police` | Sistema policial (algemas, revistar, testes forenses, bafômetro e props) | `ox_core`, `ox_lib`, `ox_inventory`, `ox_target`, `oxmysql` | Servidor geral |
 | `nv_props` | Spawn e sincronização de props/itens largados no mapa | `ox_lib`, `ox_inventory` | Servidor geral |
 | `nv_radio` | Interface NUI de rádio com frequências e VOIP | `ox_core`, `ox_lib`, `pma-voice`, `nv_hud` | Servidor geral |
 | `nv_recycle` | Reciclagem e coleta de lixo (prensagem, desmanche, venda) | `ox_core`, `ox_lib`, `ox_inventory`, `ox_target`, `nv_minigames` | N/A (Emprego) |

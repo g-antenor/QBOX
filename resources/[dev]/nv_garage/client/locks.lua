@@ -480,16 +480,13 @@ local function lockpick()
 
     if not DoesEntityExist(vehicle) then return end
 
-    -- Janela de entrada. O veiculo segue trancado na logica: `applyLock` le
-    -- essa marca e mantem a porta aberta ate o tempo acabar.
-    -- `entryWindow` esta em segundos; o relogio do jogo, em milissegundos.
-    Garage.picked[vehicle] = GetGameTimer() + Config.Lockpick.entryWindow * 1000
+    local ok, err = lib.callback.await('nv_garage:unlockLockpicked', false, VehToNet(vehicle))
 
-    Garage.applyLock(vehicle)
-    SetVehicleDoorOpen(vehicle, door, false, false)
-
-    Garage.notify(('Tranca arrombada. Entre em %d segundos - o carro continua trancado por dentro.')
-        :format(Config.Lockpick.entryWindow), 'success')
+    if ok then
+        Garage.notify('Tranca arrombada. Veiculo destrancado.', 'success')
+    else
+        Garage.notify(err or 'Nao foi possivel destrancar o veiculo.', 'error')
+    end
 end
 
 --- Chamado pelo ox_inventory quando o jogador usa o lockpick.

@@ -70,7 +70,9 @@ RegisterNetEvent('nv_delivery:shop247:restockNeeded', function(queue)
         app = '247',
         title = 'Distribuidora 24/7',
         content = ('%d loja(s) estão sem estoque. Há carga esperando no galpão.'):format(#queue),
-        duration = 8000
+        duration = 8000,
+        -- Coordenadas do galpão: clicar na notificação traça a rota no minimapa.
+        coords = { x = CFG.npcCoords.x, y = CFG.npcCoords.y }
     })
 end)
 
